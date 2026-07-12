@@ -4453,6 +4453,76 @@ class S {
     );
   }
 
+  /// `Photograph label`
+  String get scannerPhotographLabelButton {
+    return Intl.message(
+      'Photograph label',
+      name: 'scannerPhotographLabelButton',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Can't find this product in the database. Photograph the nutrition label and we'll read it for you to review.`
+  String get scannerPhotographLabelExplanation {
+    return Intl.message(
+      'Can\'t find this product in the database. Photograph the nutrition label and we\'ll read it for you to review.',
+      name: 'scannerPhotographLabelExplanation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Scan label`
+  String get scanLabelScreenTitle {
+    return Intl.message(
+      'Scan label',
+      name: 'scanLabelScreenTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Take a photo of the nutrition facts label and we'll fill in the details for you to review.`
+  String get scanLabelExplanation {
+    return Intl.message(
+      'Take a photo of the nutrition facts label and we\'ll fill in the details for you to review.',
+      name: 'scanLabelExplanation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Photo of the nutrition label`
+  String get scanLabelPhotoPlaceholder {
+    return Intl.message(
+      'Photo of the nutrition label',
+      name: 'scanLabelPhotoPlaceholder',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Read label`
+  String get scanLabelAnalyzeButton {
+    return Intl.message(
+      'Read label',
+      name: 'scanLabelAnalyzeButton',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't read this label — try again`
+  String get scanLabelAnalysisFailedError {
+    return Intl.message(
+      'Couldn\'t read this label — try again',
+      name: 'scanLabelAnalysisFailedError',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `g`
   String get gramUnit {
     return Intl.message('g', name: 'gramUnit', desc: '', args: []);

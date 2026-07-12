@@ -8,6 +8,7 @@ import 'package:logging/logging.dart';
 import 'package:opennutritracker/core/domain/entity/open_router_model_entity.dart';
 import 'package:opennutritracker/core/domain/usecase/get_config_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_open_router_models_usecase.dart';
+import 'package:opennutritracker/core/presentation/widgets/photo_picker_card.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/features/add_meal/domain/usecase/analyze_meal_with_ai_usecase.dart';
@@ -220,7 +221,12 @@ class _MagicScreenState extends State<MagicScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          _PhotoPicker(imagePath: _imagePath, onRemove: _onRemoveImage),
+          PhotoPickerCard(
+            imagePath: _imagePath,
+            onRemove: _onRemoveImage,
+            placeholderLabel: s.mealImageLabel,
+            removeButtonSemanticsId: 'magic-remove-photo',
+          ),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -378,54 +384,4 @@ class _MagicScreenState extends State<MagicScreen> {
   }
 }
 
-class _PhotoPicker extends StatelessWidget {
-  final String? imagePath;
-  final VoidCallback onRemove;
-
-  const _PhotoPicker({required this.imagePath, required this.onRemove});
-
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    return Container(
-      height: 180,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        border: Border.all(color: Theme.of(context).colorScheme.outline),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: imagePath == null
-          ? Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.add_a_photo_outlined,
-                  size: 40,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(height: 8),
-                Text(s.mealImageLabel),
-              ],
-            )
-          : Stack(
-              fit: StackFit.expand,
-              children: [
-                Image.file(File(imagePath!), fit: BoxFit.cover),
-                Positioned(
-                  top: 4,
-                  right: 4,
-                  child: Semantics(
-                    identifier: 'magic-remove-photo',
-                    child: IconButton.filled(
-                      icon: const Icon(Icons.close),
-                      onPressed: onRemove,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-    );
-  }
-}
 

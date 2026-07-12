@@ -15,6 +15,7 @@ import 'package:opennutritracker/features/home/presentation/screens/import_activ
 import 'package:opennutritracker/features/home/presentation/screens/import_meal_scanner_screen.dart';
 import 'package:opennutritracker/features/meal_detail/meal_detail_screen.dart';
 import 'package:opennutritracker/features/recipes/presentation/screens/import_recipe_scanner_screen.dart';
+import 'package:opennutritracker/features/scanner/presentation/scan_label_screen.dart';
 import 'package:opennutritracker/features/scanner/presentation/scanner_bloc.dart';
 import 'package:opennutritracker/features/scanner/util/barcode_check_digit.dart';
 import 'package:opennutritracker/generated/l10n.dart';
@@ -134,15 +135,29 @@ class _ScannerScreenState extends State<ScannerScreen>
             });
           }
         } else if (state is ScannerFailedState) {
+          // FR-04: a genuine "not found" (not a network/other error) offers
+          // the AI-label fallback instead of a Retry-only dead end. Pick
+          // mode has no day/intakeTypeEntity to hand the fallback screen
+          // (it only ever returns a MealEntity to its caller), so it keeps
+          // the plain error dialog.
+          final offerLabelFallback =
+              state.type == ScannerFailedStateType.productNotFound &&
+              !_pickMode;
           return Scaffold(
             appBar: AppBar(),
             body: Center(
-              child: ErrorDialog(
-                errorText: state.type == ScannerFailedStateType.productNotFound
-                    ? S.of(context).errorProductNotFound
-                    : S.of(context).errorFetchingProductData,
-                onRefreshPressed: _onRefreshButtonPressed,
-              ),
+              child: offerLabelFallback
+                  ? _ProductNotFoundFallback(
+                      onPhotographLabel: _onPhotographLabelPressed,
+                      onRetry: _onRefreshButtonPressed,
+                    )
+                  : ErrorDialog(
+                      errorText:
+                          state.type == ScannerFailedStateType.productNotFound
+                          ? S.of(context).errorProductNotFound
+                          : S.of(context).errorFetchingProductData,
+                      onRefreshPressed: _onRefreshButtonPressed,
+                    ),
             ),
           );
         }
@@ -324,6 +339,21 @@ class _ScannerScreenState extends State<ScannerScreen>
     });
   }
 
+  void _onPhotographLabelPressed() {
+    final barcode = _scannedBarcode;
+    final day = _day;
+    final intakeType = _intakeTypeEntity;
+    if (barcode == null || day == null || intakeType == null) return;
+    Navigator.of(context).pushReplacementNamed(
+      NavigationOptions.scanLabelRoute,
+      arguments: ScanLabelScreenArguments(
+        barcode: barcode,
+        day: day,
+        intakeTypeEntity: intakeType,
+      ),
+    );
+  }
+
   void _onRefreshButtonPressed() {
     final barcode = _scannedBarcode;
     if (barcode != null) {
@@ -333,6 +363,61 @@ class _ScannerScreenState extends State<ScannerScreen>
         SnackBar(content: Text(S.of(context).errorFetchingProductData)),
       );
     }
+  }
+}
+
+/// FR-04: shown instead of the generic [ErrorDialog] when a barcode
+/// genuinely has no match — offers the AI-label fallback as the primary
+/// action, with a plain retry underneath for the case where the user just
+/// wants to try scanning again.
+class _ProductNotFoundFallback extends StatelessWidget {
+  final VoidCallback onPhotographLabel;
+  final VoidCallback onRetry;
+
+  const _ProductNotFoundFallback({
+    required this.onPhotographLabel,
+    required this.onRetry,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.search_off_outlined, size: 64),
+          const SizedBox(height: 8),
+          Text(
+            s.errorProductNotFound,
+            style: Theme.of(context).textTheme.titleMedium,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            s.scannerPhotographLabelExplanation,
+            style: Theme.of(context).textTheme.bodySmall,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          Semantics(
+            identifier: 'scanner-photograph-label',
+            child: FilledButton.icon(
+              onPressed: onPhotographLabel,
+              icon: const Icon(Icons.photo_camera_outlined),
+              label: Text(s.scannerPhotographLabelButton),
+            ),
+          ),
+          const SizedBox(height: 8),
+          TextButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh_outlined),
+            label: Text(s.retryLabel),
+          ),
+        ],
+      ),
+    );
   }
 }
 
