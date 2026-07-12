@@ -101,6 +101,9 @@ dev_dependencies:
   # can stub PathProviderPlatform.instance for filesystem round-trips.
   path_provider_platform_interface: ^2.1.2
   plugin_platform_interface: ^2.1.8
+  # Transitively required by image_picker; declared explicitly so tests can
+  # register a no-op ImagePickerPlatform.instance without a real camera.
+  image_picker_platform_interface: ^2.11.1
 
 flutter:
 

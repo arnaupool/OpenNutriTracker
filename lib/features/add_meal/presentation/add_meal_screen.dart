@@ -6,7 +6,6 @@ import 'package:opennutritracker/features/add_meal/domain/entity/meal_entity.dar
 import 'package:opennutritracker/features/add_meal/presentation/add_meal_type.dart';
 import 'package:opennutritracker/features/add_meal/presentation/bloc/add_meal_bloc.dart';
 import 'package:opennutritracker/features/add_meal/presentation/bloc/food_bloc.dart';
-import 'package:opennutritracker/features/add_meal/presentation/bloc/recent_meal_bloc.dart';
 import 'package:opennutritracker/features/add_meal/presentation/widgets/default_results_widget.dart';
 import 'package:opennutritracker/features/add_meal/presentation/widgets/meal_search_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,6 +18,11 @@ import 'package:opennutritracker/features/scanner/scanner_screen.dart';
 import 'package:opennutritracker/features/scanner/util/barcode_check_digit.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
+/// FR-02: this is now the "Search" destination reached from
+/// [AddItemMenuScreen] (Products + Food tabs) — Scan Product and Recently
+/// were promoted to their own top-level menu entries, matching the
+/// reference UI, so the search bar no longer carries a redundant barcode
+/// icon and this screen no longer owns a Recently tab.
 class AddMealScreen extends StatefulWidget {
   const AddMealScreen({super.key});
 
@@ -35,7 +39,6 @@ class _AddMealScreenState extends State<AddMealScreen>
 
   late ProductsBloc _productsBloc;
   late FoodBloc _foodBloc;
-  late RecentMealBloc _recentMealBloc;
 
   late TabController _tabController;
 
@@ -43,8 +46,7 @@ class _AddMealScreenState extends State<AddMealScreen>
   void initState() {
     _productsBloc = locator<ProductsBloc>();
     _foodBloc = locator<FoodBloc>();
-    _recentMealBloc = locator<RecentMealBloc>();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
       // Update search results when tab changes
       _onSearchSubmit(_searchStringListener.value);
@@ -105,14 +107,13 @@ class _AddMealScreenState extends State<AddMealScreen>
                 searchStringListener: _searchStringListener,
                 onSearchSubmit: _onSearchSubmit,
                 onSearchChanged: _onSearchChanged,
-                onBarcodePressed: _onBarcodeIconPressed,
+                onBarcodePressed: null,
               ),
               const SizedBox(height: 16.0),
               TabBar(
                 tabs: [
                   Tab(text: S.of(context).searchProductsPage),
                   Tab(text: S.of(context).searchFoodPage),
-                  Tab(text: S.of(context).recentlyAddedLabel),
                 ],
                 controller: _tabController,
                 indicatorSize: TabBarIndicatorSize.tab,
@@ -237,53 +238,6 @@ class _AddMealScreenState extends State<AddMealScreen>
                         ),
                       ],
                     ),
-                    Column(
-                      children: [
-                        BlocBuilder<RecentMealBloc, RecentMealState>(
-                          bloc: _recentMealBloc,
-                          builder: (context, state) {
-                            if (state is RecentMealInitial) {
-                              _recentMealBloc.add(
-                                const LoadRecentMealEvent(searchString: ""),
-                              );
-                              return const SizedBox();
-                            } else if (state is RecentMealLoadingState) {
-                              return const Padding(
-                                padding: EdgeInsets.only(top: 32),
-                                child: CircularProgressIndicator(),
-                              );
-                            } else if (state is RecentMealLoadedState) {
-                              return state.recentMeals.isNotEmpty
-                                  ? Flexible(
-                                      child: ListView.builder(
-                                        itemCount: state.recentMeals.length,
-                                        itemBuilder: (context, index) {
-                                          return MealItemCard(
-                                            day: _day,
-                                            mealEntity:
-                                                state.recentMeals[index],
-                                            addMealType: _mealType,
-                                            usesImperialUnits:
-                                                state.usesImperialUnits,
-                                          );
-                                        },
-                                      ),
-                                    )
-                                  : const NoResultsWidget();
-                            } else if (state is RecentMealFailedState) {
-                              return ErrorDialog(
-                                errorText: S
-                                    .of(context)
-                                    .noMealsRecentlyAddedLabel,
-                                onRefreshPressed:
-                                    _onRecentMealsRefreshButtonPressed,
-                              );
-                            }
-                            return const SizedBox();
-                          },
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               ),
@@ -300,10 +254,6 @@ class _AddMealScreenState extends State<AddMealScreen>
 
   void _onFoodRefreshButtonPressed() {
     _foodBloc.add(const RefreshFoodEvent());
-  }
-
-  void _onRecentMealsRefreshButtonPressed() {
-    _recentMealBloc.add(const LoadRecentMealEvent(searchString: ""));
   }
 
   void _onSearchSubmit(String inputText) {
@@ -324,13 +274,10 @@ class _AddMealScreenState extends State<AddMealScreen>
         _productsBloc.add(LoadProductsEvent(searchString: inputText));
       case 1:
         _foodBloc.add(LoadFoodEvent(searchString: inputText));
-      case 2:
-        _recentMealBloc.add(LoadRecentMealEvent(searchString: inputText));
     }
   }
 
-  /// Debounced search-as-you-type. Recent-added (tab 2) stays submit-only; it
-  /// filters local intake history and has no remote source to debounce.
+  /// Debounced search-as-you-type.
   void _onSearchChanged(String inputText) {
     switch (_tabController.index) {
       case 0:
@@ -340,22 +287,13 @@ class _AddMealScreenState extends State<AddMealScreen>
     }
   }
 
-  void _onBarcodeIconPressed() {
-    Navigator.of(context).pushNamed(
-      NavigationOptions.scannerRoute,
-      arguments: ScannerScreenArguments(_day, _mealType.getIntakeType()),
-    );
-  }
-
   void _onQuickAddPressed() {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (sheetContext) => QuickAddBottomSheet(
-        intakeType: _mealType.getIntakeType(),
-        day: _day,
-      ),
+      builder: (sheetContext) =>
+          QuickAddBottomSheet(intakeType: _mealType.getIntakeType(), day: _day),
     );
   }
 

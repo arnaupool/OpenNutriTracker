@@ -19,4 +19,8 @@ class NavigationOptions {
   static const fastingRoute = "fasting";
   static const accentColourRoute = "accentColour";
   static const openRouterSettingsRoute = "openRouterSettings";
+  static const addItemMenuRoute = "addItemMenu";
+  static const recentlyRoute = "recently";
+  static const presetsRoute = "presets";
+  static const magicRoute = "magic";
 }

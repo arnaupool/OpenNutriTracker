@@ -2317,6 +2317,176 @@ class S {
     );
   }
 
+  /// `Magic`
+  String get magicScreenTitle {
+    return Intl.message('Magic', name: 'magicScreenTitle', desc: '', args: []);
+  }
+
+  /// `Camera`
+  String get magicCameraButton {
+    return Intl.message(
+      'Camera',
+      name: 'magicCameraButton',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Gallery`
+  String get magicGalleryButton {
+    return Intl.message(
+      'Gallery',
+      name: 'magicGalleryButton',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Describe your food (optional with photo)...`
+  String get magicDescribeFoodHint {
+    return Intl.message(
+      'Describe your food (optional with photo)...',
+      name: 'magicDescribeFoodHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Single item`
+  String get magicSingleItemLabel {
+    return Intl.message(
+      'Single item',
+      name: 'magicSingleItemLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Meal breakdown`
+  String get magicMealBreakdownLabel {
+    return Intl.message(
+      'Meal breakdown',
+      name: 'magicMealBreakdownLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Provider`
+  String get magicProviderLabel {
+    return Intl.message(
+      'Provider',
+      name: 'magicProviderLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Model`
+  String get magicModelLabel {
+    return Intl.message('Model', name: 'magicModelLabel', desc: '', args: []);
+  }
+
+  /// `Analyze`
+  String get magicAnalyzeButton {
+    return Intl.message(
+      'Analyze',
+      name: 'magicAnalyzeButton',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Analyzing...`
+  String get magicAnalyzingLabel {
+    return Intl.message(
+      'Analyzing...',
+      name: 'magicAnalyzingLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add a photo or describe your food first`
+  String get magicNoInputError {
+    return Intl.message(
+      'Add a photo or describe your food first',
+      name: 'magicNoInputError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Set your OpenRouter API key in Settings first`
+  String get magicNoApiKeyError {
+    return Intl.message(
+      'Set your OpenRouter API key in Settings first',
+      name: 'magicNoApiKeyError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pick a model first`
+  String get magicNoModelError {
+    return Intl.message(
+      'Pick a model first',
+      name: 'magicNoModelError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't analyze this — try again`
+  String get magicAnalysisFailedError {
+    return Intl.message(
+      'Couldn\'t analyze this — try again',
+      name: 'magicAnalysisFailedError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't identify any food in this`
+  String get magicEmptyResultError {
+    return Intl.message(
+      'Couldn\'t identify any food in this',
+      name: 'magicEmptyResultError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Results`
+  String get magicResultsTitle {
+    return Intl.message(
+      'Results',
+      name: 'magicResultsTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add to diary`
+  String get magicAddToDiaryButton {
+    return Intl.message(
+      'Add to diary',
+      name: 'magicAddToDiaryButton',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Added to diary`
+  String get magicAddedToDiarySnackbar {
+    return Intl.message(
+      'Added to diary',
+      name: 'magicAddedToDiarySnackbar',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Standard`
   String get mealPatternStandard {
     return Intl.message(
@@ -3023,6 +3193,106 @@ class S {
     return Intl.message(
       'Add new Item:',
       name: 'addItemLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Magic`
+  String get addItemMenuMagicLabel {
+    return Intl.message(
+      'Magic',
+      name: 'addItemMenuMagicLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Photo, text, or both`
+  String get addItemMenuMagicSubtitle {
+    return Intl.message(
+      'Photo, text, or both',
+      name: 'addItemMenuMagicSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search`
+  String get addItemMenuSearchLabel {
+    return Intl.message(
+      'Search',
+      name: 'addItemMenuSearchLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Food database`
+  String get addItemMenuSearchSubtitle {
+    return Intl.message(
+      'Food database',
+      name: 'addItemMenuSearchSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Scan Product`
+  String get addItemMenuScanProductLabel {
+    return Intl.message(
+      'Scan Product',
+      name: 'addItemMenuScanProductLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Barcode`
+  String get addItemMenuScanProductSubtitle {
+    return Intl.message(
+      'Barcode',
+      name: 'addItemMenuScanProductSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recently`
+  String get addItemMenuRecentlyLabel {
+    return Intl.message(
+      'Recently',
+      name: 'addItemMenuRecentlyLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Quick re-log`
+  String get addItemMenuRecentlySubtitle {
+    return Intl.message(
+      'Quick re-log',
+      name: 'addItemMenuRecentlySubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Presets`
+  String get addItemMenuPresetsLabel {
+    return Intl.message(
+      'Presets',
+      name: 'addItemMenuPresetsLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saved meals`
+  String get addItemMenuPresetsSubtitle {
+    return Intl.message(
+      'Saved meals',
+      name: 'addItemMenuPresetsSubtitle',
       desc: '',
       args: [],
     );

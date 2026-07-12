@@ -87,12 +87,12 @@
 		{
 			"id": "f0fd4367",
 			"type": "text",
-			"text": "## FR-02 Pantalla Magic\nFoto y/o texto → desglose de macros vía IA. Toggle 'Single item' / 'Meal breakdown', selector de modelo OpenRouter.",
+			"text": "## FR-02 Pantalla Magic\nPantalla Magic completa + reestructuración de la entrada 'Add Item' al menú de 5 opciones de la referencia (Magic/Search/Scan Product/Recently/Presets), sustituyendo la pantalla de búsqueda directa de antes. Magic: selector de foto (cámara/galería vía image_picker), texto libre, toggle Single item/Meal breakdown, selectores Provider->Model (agrupados por vendor a partir del catálogo OpenRouter, override puntual sobre el modelo global de Settings), botón Analyze que llama a AnalyzeMealWithAiUsecase (prompt+parseo JSON con tolerancia a code-fences/valores string, nuevo) y tarjetas de resultado con 'Add to diary' que persiste directamente (mismo patrón que QuickAddBottomSheet: MealNutrimentsEntity per-100g + IntakeEntity amount=100). Search ahora son solo las pestañas Products/Food (Recently y el icono de código de barras se promovieron a entradas propias del menú); Recently y Presets son pantallas nuevas reutilizando RecentMealBloc y CustomMealsBloc respectivamente + MealItemCard para loguear con un toque. Verificado en vivo en el emulador: las 5 opciones del menú, Magic contra la API real de OpenRouter (catálogo cargado, análisis con texto libre rechazado correctamente con 401 por la API key de prueba, gestionado con mensaje de error amable), Scan Product abre el escáner existente, Recently muestra entradas reales, Presets muestra el estado vacío correcto. 734/734 tests, flutter analyze limpio.",
 			"x": 900,
 			"y": 220,
 			"width": 280,
 			"height": 160,
-			"color": "0"
+			"color": "5"
 		},
 		{
 			"id": "900e4472",
@@ -112,7 +112,7 @@
 			"y": 580,
 			"width": 280,
 			"height": 160,
-			"color": "0"
+			"color": "1"
 		},
 		{
 			"id": "70073d8f",
@@ -152,7 +152,7 @@
 			"y": 40,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "6aa2cbda",
