@@ -254,6 +254,20 @@ class ConfigDataSource {
     await config?.save();
   }
 
+  Future<void> setConfigOpenRouterApiKey(String? value) async {
+    _log.fine('Updating config openRouterApiKey');
+    final config = _configBox.get(_configKey);
+    config?.openRouterApiKey = value;
+    await config?.save();
+  }
+
+  Future<void> setConfigOpenRouterModelId(String? value) async {
+    _log.fine('Updating config openRouterModelId to $value');
+    final config = _configBox.get(_configKey);
+    config?.openRouterModelId = value;
+    await config?.save();
+  }
+
   Future<ConfigDBO> getConfig() async {
     return _configBox.get(_configKey) ?? ConfigDBO.empty();
   }

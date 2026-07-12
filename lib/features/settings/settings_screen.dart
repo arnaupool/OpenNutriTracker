@@ -215,9 +215,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       useMaterialYou: state.useMaterialYou,
                       accentColor: state.accentColor,
                     ),
-                    onTap: () => Navigator.of(context).pushNamed(
-                      NavigationOptions.accentColourRoute,
-                    ),
+                    onTap: () => Navigator.of(
+                      context,
+                    ).pushNamed(NavigationOptions.accentColourRoute),
                   ),
                 ),
                 ListTile(
@@ -270,6 +270,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ),
+                const Divider(),
+                // AI
+                Semantics(
+                  identifier: 'settings-open-router',
+                  child: ListTile(
+                    leading: const Icon(Icons.smart_toy_outlined),
+                    title: Text(S.of(context).settingsOpenRouterLabel),
+                    subtitle: Text(S.of(context).settingsOpenRouterSubtitle),
+                    onTap: () => Navigator.of(
+                      context,
+                    ).pushNamed(NavigationOptions.openRouterSettingsRoute),
+                  ),
+                ),
                 const Divider(),
                 // Data
                 Semantics(
@@ -1003,7 +1016,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 }
-
 
 String _accentSubtitle(
   BuildContext context, {

@@ -6,6 +6,7 @@ import 'package:opennutritracker/core/data/data_source/remote_search_cache_data_
 import 'package:opennutritracker/core/data/data_source/custom_meal_data_source.dart';
 import 'package:opennutritracker/core/data/data_source/recipe_data_source.dart';
 import 'package:opennutritracker/core/data/data_source/intake_data_source.dart';
+import 'package:opennutritracker/core/data/data_source/open_router_data_source.dart';
 import 'package:opennutritracker/core/data/data_source/physical_activity_data_source.dart';
 import 'package:opennutritracker/core/data/data_source/tracked_day_data_source.dart';
 import 'package:opennutritracker/core/data/data_source/user_activity_data_source.dart';
@@ -15,6 +16,7 @@ import 'package:opennutritracker/core/data/data_source/weight_log_data_source.da
 import 'package:opennutritracker/core/data/repository/config_repository.dart';
 import 'package:opennutritracker/core/data/repository/custom_activity_template_repository.dart';
 import 'package:opennutritracker/core/data/repository/intake_repository.dart';
+import 'package:opennutritracker/core/data/repository/open_router_repository.dart';
 import 'package:opennutritracker/core/data/repository/physical_activity_repository.dart';
 import 'package:opennutritracker/core/data/repository/recipe_repository.dart';
 import 'package:opennutritracker/core/data/repository/tracked_day_repository.dart';
@@ -45,6 +47,7 @@ import 'package:opennutritracker/core/domain/usecase/get_custom_activity_templat
 import 'package:opennutritracker/core/domain/usecase/get_intake_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_kcal_goal_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_macro_goal_usecase.dart';
+import 'package:opennutritracker/core/domain/usecase/get_open_router_models_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_physical_activity_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_recipe_by_id_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_tracked_day_usecase.dart';
@@ -53,6 +56,7 @@ import 'package:opennutritracker/core/domain/usecase/get_user_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_water_intake_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_weight_log_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/save_recipe_usecase.dart';
+import 'package:opennutritracker/core/domain/usecase/send_open_router_chat_completion_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/update_intake_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/update_user_activity_usecase.dart';
 import 'package:opennutritracker/core/utils/env.dart';
@@ -211,13 +215,8 @@ Future<void> initLocator() async {
   // create-from-popup flow on the same tab — both must mutate / observe the
   // same instance so the list refreshes after a new entry is created.
   locator.registerLazySingleton<CustomMealsBloc>(
-    () => CustomMealsBloc(
-      locator(),
-      locator(),
-      locator(),
-      locator(),
-      locator(),
-    ),
+    () =>
+        CustomMealsBloc(locator(), locator(), locator(), locator(), locator()),
   );
 
   locator.registerFactory<ActivitiesBloc>(() => ActivitiesBloc(locator()));
@@ -275,6 +274,12 @@ Future<void> initLocator() async {
   );
   locator.registerLazySingleton<AddConfigUsecase>(
     () => AddConfigUsecase(locator()),
+  );
+  locator.registerLazySingleton<GetOpenRouterModelsUsecase>(
+    () => GetOpenRouterModelsUsecase(locator()),
+  );
+  locator.registerLazySingleton<SendOpenRouterChatCompletionUsecase>(
+    () => SendOpenRouterChatCompletionUsecase(locator()),
   );
   locator.registerLazySingleton<GetUserUsecase>(
     () => GetUserUsecase(locator()),
@@ -447,6 +452,9 @@ Future<void> initLocator() async {
   locator.registerLazySingleton<FastingRepository>(
     () => FastingRepository(locator()),
   );
+  locator.registerLazySingleton<OpenRouterRepository>(
+    () => OpenRouterRepository(locator()),
+  );
 
   // DataSources
   locator.registerLazySingleton(
@@ -467,6 +475,9 @@ Future<void> initLocator() async {
   locator.registerLazySingleton<OFFDataSource>(() => OFFDataSource());
   locator.registerLazySingleton<FDCDataSource>(() => FDCDataSource());
   locator.registerLazySingleton<SpFdcDataSource>(() => SpFdcDataSource());
+  locator.registerLazySingleton<OpenRouterDataSource>(
+    () => OpenRouterDataSource(),
+  );
   locator.registerLazySingleton(
     () => TrackedDayDataSource(hiveDBProvider.trackedDayBox),
   );

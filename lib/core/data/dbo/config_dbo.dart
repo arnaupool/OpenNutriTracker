@@ -94,6 +94,17 @@ class ConfigDBO extends HiveObject {
   // the static palette elsewhere.
   @HiveField(26)
   int? accentColor;
+  // FR-01: user-entered OpenRouter API key (bring-your-own-key), stored
+  // alongside the rest of Settings like every other preference here — the
+  // whole Hive DB is already AES-256 encrypted at rest (see CLAUDE.md's
+  // "Local database" section), so this doesn't need a separate secure-
+  // storage entry. Null means the user hasn't configured OpenRouter yet.
+  @HiveField(27)
+  String? openRouterApiKey;
+  // FR-01: the selected model id from OpenRouter's catalog (e.g.
+  // "openai/gpt-4o"). Null means no model has been picked yet.
+  @HiveField(28)
+  String? openRouterModelId;
 
   ConfigDBO(
     this.hasAcceptedDisclaimer,
@@ -120,6 +131,8 @@ class ConfigDBO extends HiveObject {
     this.fastingWarningAcknowledged,
     this.useMaterialYou,
     this.accentColor,
+    this.openRouterApiKey,
+    this.openRouterModelId,
   });
 
   // Fase Piel: mint-green accent matching the reference UI (XMihura's

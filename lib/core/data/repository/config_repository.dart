@@ -150,4 +150,12 @@ class ConfigRepository {
   Future<void> setConfigAccentColor(int? value) async {
     await _configDataSource.setConfigAccentColor(value);
   }
+
+  Future<void> setConfigOpenRouterApiKey(String? value) async {
+    await _configDataSource.setConfigOpenRouterApiKey(value);
+  }
+
+  Future<void> setConfigOpenRouterModelId(String? value) async {
+    await _configDataSource.setConfigOpenRouterModelId(value);
+  }
 }

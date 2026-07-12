@@ -92,7 +92,7 @@
 			"y": 220,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "0"
 		},
 		{
 			"id": "900e4472",
@@ -102,7 +102,7 @@
 			"y": 400,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "0"
 		},
 		{
 			"id": "311a95d4",
@@ -112,7 +112,7 @@
 			"y": 580,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "0"
 		},
 		{
 			"id": "70073d8f",
@@ -122,7 +122,7 @@
 			"y": 760,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "0"
 		},
 		{
 			"id": "833c6d16",
@@ -147,12 +147,12 @@
 		{
 			"id": "d19f9f86",
 			"type": "text",
-			"text": "## FR-01 Integración OpenRouter\nCliente API compatible con OpenAI Chat Completions, selector de modelo configurable sobre el catálogo completo de OpenRouter, soporte de contenido imagen para modelos con visión.",
+			"text": "## FR-01 Integración OpenRouter\nCliente OpenRouter (compatible con OpenAI Chat Completions) + pantalla de ajustes: campo de API key (bring-your-own-key, guardado en ConfigDBO junto al resto de settings, ya cifrado en reposo vía AES-256 de Hive) y selector de modelo buscable sobre el catálogo completo de OpenRouter (endpoint público /models, sin necesidad de key para listarlo). Soporte de contenido imagen ya incluido como helper reutilizable (OpenRouterRepository.visionMessage) para mensajes multi-parte texto+imagen en modelos con visión (detectado vía architecture.input_modalities), listo para que FR-02/FR-04 lo consuman. Arquitectura: OpenRouterDataSource (http + withRetry + Sentry, mismo patrón que OFF/FDC) -> OpenRouterRepository -> GetOpenRouterModelsUsecase/SendOpenRouterChatCompletionUsecase. Nueva entrada 'AI provider' en Settings. Verificado en vivo contra la API real de OpenRouter en el emulador: catálogo completo cargado (cientos de modelos reales, iconos de visión correctos), búsqueda filtra por nombre/id, selección de modelo y guardado de API key persisten correctamente tras recargar la pantalla. De paso se diagnosticó y resolvió un problema de DNS del emulador (relanzado con -dns-server) que afectaba también a la búsqueda OFF preexistente, no relacionado con este código. 709/709 tests, flutter analyze limpio.",
 			"x": 900,
 			"y": 40,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "5"
 		},
 		{
 			"id": "6aa2cbda",
@@ -272,7 +272,7 @@
 			"y": 400,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "f7622873",

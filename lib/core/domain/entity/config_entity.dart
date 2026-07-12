@@ -68,6 +68,10 @@ class ConfigEntity extends Equatable {
   // Material You when set. Null means "use the platform default" — Material
   // You on Android 12+, the static palette elsewhere.
   final int? accentColor;
+  // FR-01: user-entered OpenRouter API key (bring-your-own-key) and the
+  // selected model id from its catalog. Null means "not configured yet".
+  final String? openRouterApiKey;
+  final String? openRouterModelId;
 
   /// Default daily water goal in millilitres for the home chip when the
   /// user has not picked one yet.
@@ -135,6 +139,8 @@ class ConfigEntity extends Equatable {
     this.fastingWarningAcknowledged = false,
     this.useMaterialYou = true,
     this.accentColor,
+    this.openRouterApiKey,
+    this.openRouterModelId,
   });
 
   /// Resolves the daily water goal for the home chip. Returns the user's
@@ -217,6 +223,8 @@ class ConfigEntity extends Equatable {
     fastingWarningAcknowledged: dbo.fastingWarningAcknowledged ?? false,
     useMaterialYou: dbo.useMaterialYou ?? true,
     accentColor: _normaliseAccentColor(dbo.accentColor),
+    openRouterApiKey: dbo.openRouterApiKey,
+    openRouterModelId: dbo.openRouterModelId,
   );
 
   /// Returns the recommended kcal target for [mealKey] given a daily goal.
@@ -295,5 +303,7 @@ class ConfigEntity extends Equatable {
     fastingWarningAcknowledged,
     useMaterialYou,
     accentColor,
+    openRouterApiKey,
+    openRouterModelId,
   ];
 }

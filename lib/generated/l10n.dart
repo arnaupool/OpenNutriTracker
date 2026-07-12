@@ -1054,6 +1054,96 @@ class S {
     );
   }
 
+  /// `API key`
+  String get openRouterApiKeyLabel {
+    return Intl.message(
+      'API key',
+      name: 'openRouterApiKeyLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `sk-or-...`
+  String get openRouterApiKeyHint {
+    return Intl.message(
+      'sk-or-...',
+      name: 'openRouterApiKeyHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `API key saved`
+  String get openRouterApiKeySavedSnackbar {
+    return Intl.message(
+      'API key saved',
+      name: 'openRouterApiKeySavedSnackbar',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Model`
+  String get openRouterModelSectionTitle {
+    return Intl.message(
+      'Model',
+      name: 'openRouterModelSectionTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search models`
+  String get openRouterModelSearchHint {
+    return Intl.message(
+      'Search models',
+      name: 'openRouterModelSearchHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't load the model catalog`
+  String get openRouterModelsLoadError {
+    return Intl.message(
+      'Couldn\'t load the model catalog',
+      name: 'openRouterModelsLoadError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No models match your search`
+  String get openRouterModelsEmptyState {
+    return Intl.message(
+      'No models match your search',
+      name: 'openRouterModelsEmptyState',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Supports images`
+  String get openRouterVisionBadgeTooltip {
+    return Intl.message(
+      'Supports images',
+      name: 'openRouterVisionBadgeTooltip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `OpenRouter`
+  String get openRouterSettingsTitle {
+    return Intl.message(
+      'OpenRouter',
+      name: 'openRouterSettingsTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `e.g. 60`
   String get onboardingWeightExampleHintKg {
     return Intl.message(
@@ -2142,6 +2232,26 @@ class S {
     return Intl.message(
       'Pick which nutrients appear on the diary panel',
       name: 'settingsNutrientsSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `AI provider`
+  String get settingsOpenRouterLabel {
+    return Intl.message(
+      'AI provider',
+      name: 'settingsOpenRouterLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Configure OpenRouter for AI-powered features`
+  String get settingsOpenRouterSubtitle {
+    return Intl.message(
+      'Configure OpenRouter for AI-powered features',
+      name: 'settingsOpenRouterSubtitle',
       desc: '',
       args: [],
     );
