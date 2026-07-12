@@ -227,12 +227,12 @@
 		{
 			"id": "f96c5d5a",
 			"type": "text",
-			"text": "## FM-05 Dynamic Maintenance\nBanda ±0.7 kg del objetivo → recomendar mantenimiento; fuera de banda → corrección al 0.15% del peso corporal/semana.",
+			"text": "## FM-05 Dynamic Maintenance\nHecho: DynamicMaintenanceCalc en lib/core/utils/calc/dynamic_maintenance_calc.dart. Banda +-0.7kg del objetivo -> mantenimiento puro (== TDEE). Fuera de banda -> correccion a tasa fija 0.15% del peso corporal/semana (funcion escalon, no gradiente proporcional a la distancia - asi lo especifica el plan: 'a razon de 0.15%/semana' es una tasa objetivo fija, no un termino proporcional al error). Verificado contra el ejemplo del plan (75kg objetivo, 2500kcal TDEE, peso sube -> ~2375kcal). 7 tests, incluyendo bug real de precision de punto flotante en el limite exacto (75.7-75.0 no da exactamente 0.7) corregido con epsilon 1e-6. dart format + flutter analyze limpios.",
 			"x": 1340,
 			"y": 760,
 			"width": 280,
 			"height": 160,
-			"color": "1"
+			"color": "5"
 		},
 		{
 			"id": "61fa2a0b",
