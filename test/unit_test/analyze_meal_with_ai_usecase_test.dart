@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:opennutritracker/core/data/repository/open_router_repository.dart';
 import 'package:opennutritracker/core/domain/usecase/send_open_router_chat_completion_usecase.dart';
+import 'package:opennutritracker/features/add_meal/domain/entity/magic_food_item_entity.dart';
 import 'package:opennutritracker/features/add_meal/domain/usecase/analyze_meal_with_ai_usecase.dart';
 
 class _FakeSendOpenRouterChatCompletionUsecase
@@ -195,6 +196,72 @@ void main() {
 
       final userMessage = fakeSendUsecase.lastMessages!.last;
       expect(userMessage['content'], isA<String>());
+    });
+
+    test('parses grams and confidence from a well-formed response', () async {
+      fakeSendUsecase.response =
+          '{"items": [{"name": "Sliced Beef", "kcal": 275, "grams": 110, '
+          '"confidence": "medium", "carbs_g": 0, "fat_g": 17, "protein_g": 28}]}';
+
+      final result = await usecase.analyze(
+        apiKey: 'sk-or-test',
+        model: 'openai/gpt-4o',
+        mealBreakdown: false,
+      );
+
+      expect(result.single.grams, 110);
+      expect(result.single.confidence, MagicConfidence.medium);
+    });
+
+    test('defaults grams to 100 when missing or non-positive', () async {
+      fakeSendUsecase.response =
+          '{"items": ['
+          '{"name": "No grams", "kcal": 100},'
+          '{"name": "Zero grams", "kcal": 100, "grams": 0},'
+          '{"name": "Negative grams", "kcal": 100, "grams": -5}'
+          ']}';
+
+      final result = await usecase.analyze(
+        apiKey: 'sk-or-test',
+        model: 'openai/gpt-4o',
+        mealBreakdown: true,
+      );
+
+      expect(result, hasLength(3));
+      expect(result.every((item) => item.grams == 100), isTrue);
+    });
+
+    test('defaults confidence to medium when missing or unrecognized', () async {
+      fakeSendUsecase.response =
+          '{"items": ['
+          '{"name": "No confidence", "kcal": 100},'
+          '{"name": "Weird confidence", "kcal": 100, "confidence": "very sure"}'
+          ']}';
+
+      final result = await usecase.analyze(
+        apiKey: 'sk-or-test',
+        model: 'openai/gpt-4o',
+        mealBreakdown: true,
+      );
+
+      expect(result, hasLength(2));
+      expect(
+        result.every((item) => item.confidence == MagicConfidence.medium),
+        isTrue,
+      );
+    });
+
+    test('confidence parsing is case-insensitive', () async {
+      fakeSendUsecase.response =
+          '{"items": [{"name": "Item", "kcal": 100, "confidence": "HIGH"}]}';
+
+      final result = await usecase.analyze(
+        apiKey: 'sk-or-test',
+        model: 'openai/gpt-4o',
+        mealBreakdown: false,
+      );
+
+      expect(result.single.confidence, MagicConfidence.high);
     });
 
     test('meal-breakdown prompt differs from single-item prompt', () async {

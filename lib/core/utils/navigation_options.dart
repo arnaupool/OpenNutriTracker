@@ -23,4 +23,5 @@ class NavigationOptions {
   static const recentlyRoute = "recently";
   static const presetsRoute = "presets";
   static const magicRoute = "magic";
+  static const reviewMealRoute = "reviewMeal";
 }

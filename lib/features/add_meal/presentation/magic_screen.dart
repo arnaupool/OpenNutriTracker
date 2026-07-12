@@ -5,25 +5,14 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logging/logging.dart';
-import 'package:opennutritracker/core/domain/entity/intake_entity.dart';
 import 'package:opennutritracker/core/domain/entity/open_router_model_entity.dart';
-import 'package:opennutritracker/core/domain/usecase/add_intake_usecase.dart';
-import 'package:opennutritracker/core/domain/usecase/add_tracked_day_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_config_usecase.dart';
-import 'package:opennutritracker/core/domain/usecase/get_kcal_goal_usecase.dart';
-import 'package:opennutritracker/core/domain/usecase/get_macro_goal_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_open_router_models_usecase.dart';
-import 'package:opennutritracker/core/utils/id_generator.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
-import 'package:opennutritracker/features/add_meal/domain/entity/magic_food_item_entity.dart';
-import 'package:opennutritracker/features/add_meal/domain/entity/meal_entity.dart';
-import 'package:opennutritracker/features/add_meal/domain/entity/meal_nutriments_entity.dart';
+import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/features/add_meal/domain/usecase/analyze_meal_with_ai_usecase.dart';
 import 'package:opennutritracker/features/add_meal/presentation/add_meal_screen.dart';
-import 'package:opennutritracker/features/add_meal/presentation/add_meal_type.dart';
-import 'package:opennutritracker/features/diary/presentation/bloc/calendar_day_bloc.dart';
-import 'package:opennutritracker/features/diary/presentation/bloc/diary_bloc.dart';
-import 'package:opennutritracker/features/home/presentation/bloc/home_bloc.dart';
+import 'package:opennutritracker/features/add_meal/presentation/review_meal_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 /// FR-02: photo and/or text → AI-estimated macro breakdown, via the
@@ -32,15 +21,14 @@ import 'package:opennutritracker/generated/l10n.dart';
 /// breakdown toggle, and an inline Provider→Model pair (grouped from the
 /// "Vendor: Model name" convention OpenRouter's catalog already uses,
 /// distinct from Settings' flat searchable list) that can override the
-/// globally configured model for this one analysis.
+/// globally configured model for this one analysis. A successful analysis
+/// hands the results off to [ReviewMealScreen] (FR-03) rather than
+/// rendering them inline — that screen owns quantity editing, confidence
+/// badges, and the add-to-diary / save-as-preset actions.
 class MagicScreen extends StatefulWidget {
   final GetOpenRouterModelsUsecase? getOpenRouterModelsUsecase;
   final GetConfigUsecase? getConfigUsecase;
   final AnalyzeMealWithAiUsecase? analyzeMealWithAiUsecase;
-  final AddIntakeUsecase? addIntakeUsecase;
-  final AddTrackedDayUsecase? addTrackedDayUsecase;
-  final GetKcalGoalUsecase? getKcalGoalUsecase;
-  final GetMacroGoalUsecase? getMacroGoalUsecase;
   final ImagePicker? imagePicker;
 
   const MagicScreen({
@@ -48,10 +36,6 @@ class MagicScreen extends StatefulWidget {
     this.getOpenRouterModelsUsecase,
     this.getConfigUsecase,
     this.analyzeMealWithAiUsecase,
-    this.addIntakeUsecase,
-    this.addTrackedDayUsecase,
-    this.getKcalGoalUsecase,
-    this.getMacroGoalUsecase,
     this.imagePicker,
   });
 
@@ -69,14 +53,6 @@ class _MagicScreenState extends State<MagicScreen> {
       widget.getConfigUsecase ?? locator<GetConfigUsecase>();
   late final AnalyzeMealWithAiUsecase _analyzeUsecase =
       widget.analyzeMealWithAiUsecase ?? locator<AnalyzeMealWithAiUsecase>();
-  late final AddIntakeUsecase _addIntakeUsecase =
-      widget.addIntakeUsecase ?? locator<AddIntakeUsecase>();
-  late final AddTrackedDayUsecase _addTrackedDayUsecase =
-      widget.addTrackedDayUsecase ?? locator<AddTrackedDayUsecase>();
-  late final GetKcalGoalUsecase _getKcalGoalUsecase =
-      widget.getKcalGoalUsecase ?? locator<GetKcalGoalUsecase>();
-  late final GetMacroGoalUsecase _getMacroGoalUsecase =
-      widget.getMacroGoalUsecase ?? locator<GetMacroGoalUsecase>();
   late final ImagePicker _imagePicker = widget.imagePicker ?? ImagePicker();
 
   late AddMealScreenArguments _args;
@@ -94,8 +70,6 @@ class _MagicScreenState extends State<MagicScreen> {
 
   bool _analyzing = false;
   String? _errorMessage;
-  List<MagicFoodItemEntity>? _results;
-  final Set<int> _addedIndices = {};
 
   @override
   void didChangeDependencies() {
@@ -170,7 +144,6 @@ class _MagicScreenState extends State<MagicScreen> {
       if (picked == null) return;
       setState(() {
         _imagePath = picked.path;
-        _results = null;
         _errorMessage = null;
       });
     } catch (e, st) {
@@ -196,8 +169,6 @@ class _MagicScreenState extends State<MagicScreen> {
     setState(() {
       _analyzing = true;
       _errorMessage = null;
-      _results = null;
-      _addedIndices.clear();
     });
 
     try {
@@ -214,11 +185,23 @@ class _MagicScreenState extends State<MagicScreen> {
         base64Image: base64Image,
       );
       if (!mounted) return;
-      setState(() {
-        _analyzing = false;
-        _results = items;
-        if (items.isEmpty) _errorMessage = s.magicEmptyResultError;
-      });
+      if (items.isEmpty) {
+        setState(() {
+          _analyzing = false;
+          _errorMessage = s.magicEmptyResultError;
+        });
+        return;
+      }
+      setState(() => _analyzing = false);
+      Navigator.of(context).pushNamed(
+        NavigationOptions.reviewMealRoute,
+        arguments: ReviewMealScreenArguments(
+          items: items,
+          imagePath: _imagePath,
+          mealType: _args.mealType,
+          day: _args.day,
+        ),
+      );
     } catch (e, st) {
       _log.warning('Magic analysis failed', e, st);
       if (!mounted) return;
@@ -227,76 +210,6 @@ class _MagicScreenState extends State<MagicScreen> {
         _errorMessage = s.magicAnalysisFailedError;
       });
     }
-  }
-
-  Future<void> _onAddToDiary(int index, MagicFoodItemEntity item) async {
-    final nutriments = MealNutrimentsEntity(
-      energyKcal100: item.kcal,
-      carbohydrates100: item.carbsG,
-      fat100: item.fatG,
-      proteins100: item.proteinG,
-      sugars100: null,
-      saturatedFat100: null,
-      fiber100: null,
-    );
-    final meal = MealEntity(
-      code: IdGenerator.getUniqueID(),
-      name: item.name,
-      url: null,
-      mealQuantity: '100',
-      mealUnit: 'gml',
-      servingQuantity: null,
-      servingUnit: 'gml',
-      servingSize: '',
-      nutriments: nutriments,
-      source: MealSourceEntity.custom,
-    );
-    final intake = IntakeEntity(
-      id: IdGenerator.getUniqueID(),
-      unit: 'g',
-      amount: 100,
-      type: _args.mealType.getIntakeType(),
-      meal: meal,
-      dateTime: _args.day,
-    );
-
-    await _addIntakeUsecase.addIntake(intake);
-    final hasTrackedDay = await _addTrackedDayUsecase.hasTrackedDay(_args.day);
-    if (!hasTrackedDay) {
-      final kcalGoal = await _getKcalGoalUsecase.getKcalGoal();
-      await _addTrackedDayUsecase.addNewTrackedDay(
-        _args.day,
-        kcalGoal,
-        await _getMacroGoalUsecase.getCarbsGoal(kcalGoal),
-        await _getMacroGoalUsecase.getFatsGoal(kcalGoal),
-        await _getMacroGoalUsecase.getProteinsGoal(kcalGoal),
-      );
-    }
-    await _addTrackedDayUsecase.addDayCaloriesTracked(
-      _args.day,
-      intake.totalKcal,
-    );
-    await _addTrackedDayUsecase.addDayMacrosTracked(
-      _args.day,
-      carbsTracked: intake.totalCarbsGram,
-      fatTracked: intake.totalFatsGram,
-      proteinTracked: intake.totalProteinsGram,
-    );
-
-    try {
-      locator<HomeBloc>().add(const LoadItemsEvent());
-      locator<DiaryBloc>().add(const LoadDiaryYearEvent());
-      locator<CalendarDayBloc>().add(RefreshCalendarDayEvent());
-    } catch (_) {
-      // Tests without the locator wired up — the intake/tracked-day writes
-      // above already landed, this is just a best-effort UI refresh.
-    }
-
-    if (!mounted) return;
-    setState(() => _addedIndices.add(index));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(S.of(context).magicAddedToDiarySnackbar)),
-    );
   }
 
   @override
@@ -459,27 +372,6 @@ class _MagicScreenState extends State<MagicScreen> {
               style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           ],
-          if (_results != null && _results!.isNotEmpty) ...[
-            const SizedBox(height: 24),
-            Text(
-              s.magicResultsTitle,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            Semantics(
-              identifier: 'magic-results-list',
-              child: Column(
-                children: [
-                  for (var i = 0; i < _results!.length; i++)
-                    _ResultCard(
-                      item: _results![i],
-                      added: _addedIndices.contains(i),
-                      onAdd: () => _onAddToDiary(i, _results![i]),
-                    ),
-                ],
-              ),
-            ),
-          ],
         ],
       ),
     );
@@ -537,59 +429,3 @@ class _PhotoPicker extends StatelessWidget {
   }
 }
 
-class _ResultCard extends StatelessWidget {
-  final MagicFoodItemEntity item;
-  final bool added;
-  final VoidCallback onAdd;
-
-  const _ResultCard({
-    required this.item,
-    required this.added,
-    required this.onAdd,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    final macroParts = <String>[
-      if (item.carbsG != null) '${item.carbsG!.round()}g C',
-      if (item.fatG != null) '${item.fatG!.round()}g F',
-      if (item.proteinG != null) '${item.proteinG!.round()}g P',
-    ];
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.name,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                  Text(
-                    '${item.kcal.round()} ${s.kcalLabel}'
-                    '${macroParts.isEmpty ? '' : ' · ${macroParts.join(' · ')}'}',
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ],
-              ),
-            ),
-            Semantics(
-              identifier: 'magic-add-to-diary',
-              child: Tooltip(
-                message: s.magicAddToDiaryButton,
-                child: FilledButton(
-                  onPressed: added ? null : onAdd,
-                  child: Icon(added ? Icons.check : Icons.add),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

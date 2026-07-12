@@ -4,19 +4,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image_picker_platform_interface/image_picker_platform_interface.dart';
 import 'package:opennutritracker/core/domain/entity/config_entity.dart';
 import 'package:opennutritracker/core/domain/entity/app_theme_entity.dart';
-import 'package:opennutritracker/core/domain/entity/intake_entity.dart';
 import 'package:opennutritracker/core/domain/entity/open_router_model_entity.dart';
-import 'package:opennutritracker/core/domain/usecase/add_intake_usecase.dart';
-import 'package:opennutritracker/core/domain/usecase/add_tracked_day_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_config_usecase.dart';
-import 'package:opennutritracker/core/domain/usecase/get_kcal_goal_usecase.dart';
-import 'package:opennutritracker/core/domain/usecase/get_macro_goal_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_open_router_models_usecase.dart';
+import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/features/add_meal/domain/entity/magic_food_item_entity.dart';
 import 'package:opennutritracker/features/add_meal/domain/usecase/analyze_meal_with_ai_usecase.dart';
 import 'package:opennutritracker/features/add_meal/presentation/add_meal_screen.dart';
 import 'package:opennutritracker/features/add_meal/presentation/add_meal_type.dart';
 import 'package:opennutritracker/features/add_meal/presentation/magic_screen.dart';
+import 'package:opennutritracker/features/add_meal/presentation/review_meal_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 const _models = [
@@ -75,50 +72,20 @@ class _FakeAnalyzeMealWithAiUsecase extends Fake
   }
 }
 
-class _FakeAddIntakeUsecase extends Fake implements AddIntakeUsecase {
-  final List<IntakeEntity> added = [];
+class _SpyNavigatorObserver extends NavigatorObserver {
+  final List<Route<dynamic>> pushed = [];
 
   @override
-  Future<void> addIntake(IntakeEntity intakeEntity) async {
-    added.add(intakeEntity);
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    pushed.add(route);
   }
 }
 
-class _FakeAddTrackedDayUsecase extends Fake implements AddTrackedDayUsecase {
-  @override
-  Future<bool> hasTrackedDay(DateTime day) async => true;
-
-  @override
-  Future<void> addDayCaloriesTracked(DateTime day, double amount) async {}
-
-  @override
-  Future<void> addDayMacrosTracked(
-    DateTime day, {
-    double? carbsTracked,
-    double? fatTracked,
-    double? proteinTracked,
-  }) async {}
-}
-
-class _FakeGetKcalGoalUsecase extends Fake implements GetKcalGoalUsecase {
-  @override
-  Future<double> getKcalGoal({
-    dynamic userEntity,
-    double? totalKcalActivitiesParam,
-    double? kcalUserAdjustment,
-  }) async => 2000;
-}
-
-class _FakeGetMacroGoalUsecase extends Fake implements GetMacroGoalUsecase {
-  @override
-  Future<double> getCarbsGoal(double totalCalorieGoal) async => 250;
-  @override
-  Future<double> getFatsGoal(double totalCalorieGoal) async => 60;
-  @override
-  Future<double> getProteinsGoal(double totalCalorieGoal) async => 100;
-}
-
-Widget _wrap(Widget child) {
+Widget _wrap(Widget child, {NavigatorObserver? observer}) {
+  final args = AddMealScreenArguments(
+    AddMealType.breakfastType,
+    DateTime(2026, 1, 1),
+  );
   return MaterialApp(
     localizationsDelegates: const [
       S.delegate,
@@ -127,25 +94,28 @@ Widget _wrap(Widget child) {
       GlobalCupertinoLocalizations.delegate,
     ],
     supportedLocales: S.delegate.supportedLocales,
-    home: Builder(
-      builder: (context) => Navigator(
-        onGenerateRoute: (settings) => MaterialPageRoute(
-          settings: RouteSettings(
-            arguments: AddMealScreenArguments(
-              AddMealType.breakfastType,
-              DateTime(2026, 1, 1),
-            ),
-          ),
+    navigatorObservers: observer == null ? const [] : [observer],
+    onGenerateRoute: (settings) {
+      if (settings.name == '/') {
+        return MaterialPageRoute(
+          settings: RouteSettings(name: '/', arguments: args),
           builder: (_) => child,
-        ),
-      ),
-    ),
+        );
+      }
+      // The review meal route just needs to exist so pushNamed resolves —
+      // this test only cares about which route/arguments got pushed.
+      return MaterialPageRoute(
+        settings: settings,
+        builder: (_) => Scaffold(body: Text('dest:${settings.name}')),
+      );
+    },
+    initialRoute: '/',
   );
 }
 
 // The full screen (photo picker + buttons + description + toggle +
-// provider/model dropdowns + Analyze + results) is taller than the default
-// test viewport, so widgets past the fold wouldn't otherwise mount into the
+// provider/model dropdowns + Analyze) is taller than the default test
+// viewport, so widgets past the fold wouldn't otherwise mount into the
 // element tree for find.text to see (same fix as strategy_page_test.dart).
 void _useTallViewport(WidgetTester tester) {
   tester.view.physicalSize = const Size(1080, 3000);
@@ -177,10 +147,6 @@ void main() {
             getOpenRouterModelsUsecase: _FakeGetOpenRouterModelsUsecase(),
             getConfigUsecase: _FakeGetConfigUsecase(config),
             analyzeMealWithAiUsecase: _FakeAnalyzeMealWithAiUsecase(),
-            addIntakeUsecase: _FakeAddIntakeUsecase(),
-            addTrackedDayUsecase: _FakeAddTrackedDayUsecase(),
-            getKcalGoalUsecase: _FakeGetKcalGoalUsecase(),
-            getMacroGoalUsecase: _FakeGetMacroGoalUsecase(),
           ),
         ),
       );
@@ -207,10 +173,6 @@ void main() {
             getOpenRouterModelsUsecase: _FakeGetOpenRouterModelsUsecase(),
             getConfigUsecase: _FakeGetConfigUsecase(config),
             analyzeMealWithAiUsecase: _FakeAnalyzeMealWithAiUsecase(),
-            addIntakeUsecase: _FakeAddIntakeUsecase(),
-            addTrackedDayUsecase: _FakeAddTrackedDayUsecase(),
-            getKcalGoalUsecase: _FakeGetKcalGoalUsecase(),
-            getMacroGoalUsecase: _FakeGetMacroGoalUsecase(),
           ),
         ),
       );
@@ -231,7 +193,7 @@ void main() {
     });
 
     testWidgets(
-      'analyzing renders results and Add to diary persists an intake',
+      'analyzing with results navigates to Review meal with the same args',
       (tester) async {
         _useTallViewport(tester);
         final config = ConfigEntity(
@@ -246,12 +208,14 @@ void main() {
             MagicFoodItemEntity(
               name: 'Oatmeal',
               kcal: 300,
+              grams: 250,
+              confidence: MagicConfidence.high,
               carbsG: 50,
               fatG: 6,
               proteinG: 10,
             ),
           ];
-        final addIntakeUsecase = _FakeAddIntakeUsecase();
+        final observer = _SpyNavigatorObserver();
 
         await tester.pumpWidget(
           _wrap(
@@ -259,11 +223,8 @@ void main() {
               getOpenRouterModelsUsecase: _FakeGetOpenRouterModelsUsecase(),
               getConfigUsecase: _FakeGetConfigUsecase(config),
               analyzeMealWithAiUsecase: analyzeUsecase,
-              addIntakeUsecase: addIntakeUsecase,
-              addTrackedDayUsecase: _FakeAddTrackedDayUsecase(),
-              getKcalGoalUsecase: _FakeGetKcalGoalUsecase(),
-              getMacroGoalUsecase: _FakeGetMacroGoalUsecase(),
             ),
+            observer: observer,
           ),
         );
         await tester.pumpAndSettle();
@@ -273,16 +234,15 @@ void main() {
         await tester.tap(find.text(S.current.magicAnalyzeButton));
         await tester.pumpAndSettle();
 
-        expect(find.text('Oatmeal'), findsOneWidget);
         expect(analyzeUsecase.lastDescription, 'a bowl of oatmeal');
         expect(analyzeUsecase.lastMealBreakdown, isFalse);
 
-        await tester.tap(find.byIcon(Icons.add));
-        await tester.pumpAndSettle();
-
-        expect(addIntakeUsecase.added, hasLength(1));
-        expect(addIntakeUsecase.added.single.meal.name, 'Oatmeal');
-        expect(find.text(S.current.magicAddedToDiarySnackbar), findsOneWidget);
+        final pushed = observer.pushed.last.settings;
+        expect(pushed.name, NavigationOptions.reviewMealRoute);
+        final reviewArgs = pushed.arguments as ReviewMealScreenArguments;
+        expect(reviewArgs.items, hasLength(1));
+        expect(reviewArgs.items.single.name, 'Oatmeal');
+        expect(reviewArgs.mealType, AddMealType.breakfastType);
       },
     );
 
@@ -300,10 +260,6 @@ void main() {
             getOpenRouterModelsUsecase: _FakeGetOpenRouterModelsUsecase(),
             getConfigUsecase: _FakeGetConfigUsecase(config),
             analyzeMealWithAiUsecase: _FakeAnalyzeMealWithAiUsecase(),
-            addIntakeUsecase: _FakeAddIntakeUsecase(),
-            addTrackedDayUsecase: _FakeAddTrackedDayUsecase(),
-            getKcalGoalUsecase: _FakeGetKcalGoalUsecase(),
-            getMacroGoalUsecase: _FakeGetMacroGoalUsecase(),
           ),
         ),
       );
@@ -335,10 +291,6 @@ void main() {
             getOpenRouterModelsUsecase: _FakeGetOpenRouterModelsUsecase(),
             getConfigUsecase: _FakeGetConfigUsecase(config),
             analyzeMealWithAiUsecase: analyzeUsecase,
-            addIntakeUsecase: _FakeAddIntakeUsecase(),
-            addTrackedDayUsecase: _FakeAddTrackedDayUsecase(),
-            getKcalGoalUsecase: _FakeGetKcalGoalUsecase(),
-            getMacroGoalUsecase: _FakeGetMacroGoalUsecase(),
           ),
         ),
       );
@@ -350,6 +302,36 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(S.current.magicAnalysisFailedError), findsOneWidget);
+    });
+
+    testWidgets('shows an error when the model found no food', (tester) async {
+      _useTallViewport(tester);
+      final config = ConfigEntity(
+        false,
+        false,
+        false,
+        AppThemeEntity.dark,
+        openRouterApiKey: 'sk-or-test',
+      );
+      final analyzeUsecase = _FakeAnalyzeMealWithAiUsecase()..result = const [];
+
+      await tester.pumpWidget(
+        _wrap(
+          MagicScreen(
+            getOpenRouterModelsUsecase: _FakeGetOpenRouterModelsUsecase(),
+            getConfigUsecase: _FakeGetConfigUsecase(config),
+            analyzeMealWithAiUsecase: analyzeUsecase,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'a bowl of oatmeal');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(S.current.magicAnalyzeButton));
+      await tester.pumpAndSettle();
+
+      expect(find.text(S.current.magicEmptyResultError), findsOneWidget);
     });
 
     testWidgets('meal-breakdown toggle is passed through to the usecase', (
@@ -371,10 +353,6 @@ void main() {
             getOpenRouterModelsUsecase: _FakeGetOpenRouterModelsUsecase(),
             getConfigUsecase: _FakeGetConfigUsecase(config),
             analyzeMealWithAiUsecase: analyzeUsecase,
-            addIntakeUsecase: _FakeAddIntakeUsecase(),
-            addTrackedDayUsecase: _FakeAddTrackedDayUsecase(),
-            getKcalGoalUsecase: _FakeGetKcalGoalUsecase(),
-            getMacroGoalUsecase: _FakeGetMacroGoalUsecase(),
           ),
         ),
       );

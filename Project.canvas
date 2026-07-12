@@ -92,17 +92,17 @@
 			"y": 220,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "900e4472",
 			"type": "text",
-			"text": "## FR-03 Pantalla Review meal\nLista de ítems generados por la IA, badge de confianza por ítem, cantidad en gramos editable, botones 'Add all' y 'Save as preset'.",
+			"text": "## FR-03 Pantalla Review meal\n## FR-03 Pantalla Review meal\nPantalla Review meal nueva entre Magic y el diario: header con foto (si la hay) + kcal total, lista de ítems editables (cantidad en gramos con recalculo en vivo de kcal/macros vía tasa por-100g fija), badge de confianza (low/medium/high, nuevo campo pedido a la IA junto con 'grams'), botones 'Add all (N items)' (persiste cada ítem como intake independiente, mismo patron que el 'Add to diary' de FR-02, y vuelve al dashboard con popUntil(mainRoute)) y 'Save as preset'. MagicScreen ya no renderiza resultados inline: tras un analisis con items no vacios navega directamente a esta pantalla. 'Save as preset' construye un RecipeEntity multi-ingrediente (cada item -> RecipeIngredientEntity con snapshotMeal) y llama a SaveRecipeUseCase, reutilizando el modelo de datos de Recipes en lugar de CustomMealBox (que es de un solo item) -- decision validada investigando el codebase existente. Bug real encontrado y corregido: el TextEditingController del dialogo de nombre del preset se destruia antes de que acabase la animacion de cierre ('used after being disposed'); arreglado extrayendo el dialogo a su propio StatefulWidget con ciclo de vida propio. Gap real encontrado en verificacion manual: los presets guardados no aparecian en la opcion 'Presets' del menu de anadir item porque esa pantalla solo leia CustomMealBox; arreglado fusionando CustomMealsBloc + RecipeRepository.getAllRecipes() en presets_screen.dart. Verificado en vivo en el emulador contra la API real de OpenRouter: Meal breakdown con 3 items (chicken/rice/broccoli), edicion de gramos recalculando en vivo (150g->300g: 250->500 kcal), Save as preset guardado y visible en Presets con badge 'Custom Recipe', tap del preset abriendo MealDetailScreen con macros agregados correctos (125 kcal/100g, 600g), Add all persistiendo y volviendo al Home con el kcal actualizado. 746/746 tests, flutter analyze limpio.",
 			"x": 900,
 			"y": 400,
 			"width": 280,
 			"height": 160,
-			"color": "0"
+			"color": "5"
 		},
 		{
 			"id": "311a95d4",

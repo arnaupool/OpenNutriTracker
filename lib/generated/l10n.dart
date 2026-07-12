@@ -2487,6 +2487,116 @@ class S {
     );
   }
 
+  /// `Review meal`
+  String get reviewMealScreenTitle {
+    return Intl.message(
+      'Review meal',
+      name: 'reviewMealScreenTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{kcal} kcal total`
+  String reviewMealTotalKcalLabel(int kcal) {
+    return Intl.message(
+      '$kcal kcal total',
+      name: 'reviewMealTotalKcalLabel',
+      desc: '',
+      args: [kcal],
+    );
+  }
+
+  /// `low`
+  String get reviewMealConfidenceLow {
+    return Intl.message(
+      'low',
+      name: 'reviewMealConfidenceLow',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `medium`
+  String get reviewMealConfidenceMedium {
+    return Intl.message(
+      'medium',
+      name: 'reviewMealConfidenceMedium',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `high`
+  String get reviewMealConfidenceHigh {
+    return Intl.message(
+      'high',
+      name: 'reviewMealConfidenceHigh',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `g`
+  String get reviewMealGramsUnit {
+    return Intl.message(
+      'g',
+      name: 'reviewMealGramsUnit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add all ({count} items)`
+  String reviewMealAddAllButton(int count) {
+    return Intl.message(
+      'Add all ($count items)',
+      name: 'reviewMealAddAllButton',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `Save as preset`
+  String get reviewMealSaveAsPresetButton {
+    return Intl.message(
+      'Save as preset',
+      name: 'reviewMealSaveAsPresetButton',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Preset name`
+  String get reviewMealSavePresetNameHint {
+    return Intl.message(
+      'Preset name',
+      name: 'reviewMealSavePresetNameHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saved as preset`
+  String get reviewMealPresetSavedSnackbar {
+    return Intl.message(
+      'Saved as preset',
+      name: 'reviewMealPresetSavedSnackbar',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't save this preset — try again`
+  String get reviewMealPresetSaveFailedError {
+    return Intl.message(
+      'Couldn\'t save this preset — try again',
+      name: 'reviewMealPresetSaveFailedError',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Standard`
   String get mealPatternStandard {
     return Intl.message(
