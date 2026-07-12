@@ -213,13 +213,17 @@ class _MiniBarChart extends StatelessWidget {
     final maxValue = values.fold<double>(0, (m, v) => v > m ? v : m);
     final maxY = [maxValue, goal ?? 0].reduce((a, b) => a > b ? a : b) * 1.2;
     final safeMaxY = maxY <= 0 ? 1.0 : maxY;
+    final selectedIndex = days.indexWhere(
+      (d) => DateUtils.isSameDay(d, selectedDay),
+    );
+    final consumed = selectedIndex == -1 ? null : values[selectedIndex];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           '${_capitalize(label)}'
-          '${goal == null ? '' : ' (${goal!.round()} $unit)'}',
+          '${goal == null ? '' : ' (${consumed == null ? '' : '${consumed.round()} / '}${goal!.round()} $unit)'}',
           style: theme.textTheme.labelMedium,
         ),
         const SizedBox(height: 4),

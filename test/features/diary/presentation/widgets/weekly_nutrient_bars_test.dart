@@ -82,12 +82,13 @@ void main() {
 
       expect(find.text(S.current.diaryWeeklyBarsTitle), findsOneWidget);
       expect(find.byType(BarChart), findsNWidgets(4));
-      // Each mini chart shows its selected-day goal in the header text,
-      // title-cased even though the shared label strings are lowercase.
-      expect(find.textContaining('Calories'), findsOneWidget);
-      expect(find.textContaining('Fat'), findsOneWidget);
-      expect(find.textContaining('Protein'), findsOneWidget);
-      expect(find.textContaining('Carbs'), findsOneWidget);
+      // Each mini chart's header shows the selected day's "consumed / goal"
+      // for the header, title-cased even though the shared label strings
+      // are lowercase.
+      expect(find.text('Calories (2300 / 2400 kcal)'), findsOneWidget);
+      expect(find.text('Fat (65 / 70 g)'), findsOneWidget);
+      expect(find.text('Protein (140 / 150 g)'), findsOneWidget);
+      expect(find.text('Carbs (280 / 300 g)'), findsOneWidget);
     });
 
     testWidgets('reloads when the selected date moves to a different week', (
