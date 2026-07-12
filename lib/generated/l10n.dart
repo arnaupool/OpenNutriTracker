@@ -1429,6 +1429,156 @@ class S {
     return Intl.message('Strategy', name: 'strategyLabel', desc: '', args: []);
   }
 
+  /// `1M`
+  String get strategyRangeOneMonth {
+    return Intl.message(
+      '1M',
+      name: 'strategyRangeOneMonth',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `3M`
+  String get strategyRangeThreeMonths {
+    return Intl.message(
+      '3M',
+      name: 'strategyRangeThreeMonths',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `6M`
+  String get strategyRangeSixMonths {
+    return Intl.message(
+      '6M',
+      name: 'strategyRangeSixMonths',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log at least two weigh-ins to see your strategy dashboard.`
+  String get strategyEmptyState {
+    return Intl.message(
+      'Log at least two weigh-ins to see your strategy dashboard.',
+      name: 'strategyEmptyState',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Active`
+  String get strategyEstimatorStatusActiveLabel {
+    return Intl.message(
+      'Active',
+      name: 'strategyEstimatorStatusActiveLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Updating from your data`
+  String get strategyEstimatorStatusActiveDescription {
+    return Intl.message(
+      'Updating from your data',
+      name: 'strategyEstimatorStatusActiveDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Insufficient data`
+  String get strategyEstimatorStatusInsufficientLabel {
+    return Intl.message(
+      'Insufficient data',
+      name: 'strategyEstimatorStatusInsufficientLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log weight and food more consistently to get an estimate`
+  String get strategyEstimatorStatusInsufficientDescription {
+    return Intl.message(
+      'Log weight and food more consistently to get an estimate',
+      name: 'strategyEstimatorStatusInsufficientDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Estimated TDEE`
+  String get strategyEstimatedTdeeLabel {
+    return Intl.message(
+      'Estimated TDEE',
+      name: 'strategyEstimatedTdeeLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Static TDEE`
+  String get strategyStaticTdeeLabel {
+    return Intl.message(
+      'Static TDEE',
+      name: 'strategyStaticTdeeLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current Target`
+  String get strategyCurrentTargetLabel {
+    return Intl.message(
+      'Current Target',
+      name: 'strategyCurrentTargetLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Trend Weight`
+  String get strategyTrendWeightLabel {
+    return Intl.message(
+      'Trend Weight',
+      name: 'strategyTrendWeightLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Weekly Rate`
+  String get strategyWeeklyRateTitle {
+    return Intl.message(
+      'Weekly Rate',
+      name: 'strategyWeeklyRateTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Desired`
+  String get strategyDesiredRateLabel {
+    return Intl.message(
+      'Desired',
+      name: 'strategyDesiredRateLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Observed`
+  String get strategyObservedRateLabel {
+    return Intl.message(
+      'Observed',
+      name: 'strategyObservedRateLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Use system colours`
   String get settingsMaterialYouTitle {
     return Intl.message(
