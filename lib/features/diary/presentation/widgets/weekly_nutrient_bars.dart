@@ -2,32 +2,26 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:opennutritracker/core/domain/entity/tracked_day_entity.dart';
-import 'package:opennutritracker/core/domain/usecase/get_intake_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_tracked_day_usecase.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
-import 'package:opennutritracker/features/diary/presentation/widgets/daily_nutrient_panel.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
-/// FD-03: the calendar-week bar-chart overview (calories, fat, protein,
-/// sodium) that sits above the day summary — one mini [BarChart] per
+/// FD-03: the calendar-week bar-chart overview (calories, carbs, fat,
+/// protein) that sits above the day summary — one mini [BarChart] per
 /// nutrient, a dashed [HorizontalLine] marking the selected day's goal, and
 /// the selected day's own bar drawn brighter than the rest of the week.
 ///
-/// Calories/fat/protein come straight off [TrackedDayEntity] (already
-/// aggregated per day when intake is logged). Sodium has no such field —
-/// [MealNutrimentsDBO] only carries it per-100g — so it's summed from the
-/// day's intake list the same way [DailyNutrientPanel]'s weekly average
-/// does, just bucketed per day instead of merged across the week.
+/// All four come straight off [TrackedDayEntity] (already aggregated per
+/// day when intake is logged) — the same three macros the day view's own
+/// rings show, so this is their weekly trend rather than a new metric.
 class WeeklyNutrientBars extends StatefulWidget {
   final DateTime selectedDate;
   final GetTrackedDayUsecase? getTrackedDayUsecase;
-  final GetIntakeUsecase? getIntakeUsecase;
 
   const WeeklyNutrientBars({
     super.key,
     required this.selectedDate,
     this.getTrackedDayUsecase,
-    this.getIntakeUsecase,
   });
 
   @override
@@ -37,8 +31,6 @@ class WeeklyNutrientBars extends StatefulWidget {
 class _WeeklyNutrientBarsState extends State<WeeklyNutrientBars> {
   late final GetTrackedDayUsecase _trackedDayUsecase =
       widget.getTrackedDayUsecase ?? locator<GetTrackedDayUsecase>();
-  late final GetIntakeUsecase _intakeUsecase =
-      widget.getIntakeUsecase ?? locator<GetIntakeUsecase>();
 
   Future<_WeekData>? _weekDataFuture;
   DateTime? _loadedFor;
@@ -85,19 +77,7 @@ class _WeeklyNutrientBarsState extends State<WeeklyNutrientBars> {
         DateTime(t.day.year, t.day.month, t.day.day): t,
     };
 
-    final sodiumByDay = <DateTime, double>{};
-    for (var i = 0; i < 7; i++) {
-      final day = weekStart.add(Duration(days: i));
-      final dayIntakes = [
-        ...await _intakeUsecase.getBreakfastIntakeByDay(day),
-        ...await _intakeUsecase.getLunchIntakeByDay(day),
-        ...await _intakeUsecase.getDinnerIntakeByDay(day),
-        ...await _intakeUsecase.getSnackIntakeByDay(day),
-      ];
-      sodiumByDay[day] = NutrientPanelTotals.fromIntakes(dayIntakes).sodiumMg;
-    }
-
-    return _WeekData(trackedByDay: trackedByDay, sodiumByDay: sodiumByDay);
+    return _WeekData(trackedByDay: trackedByDay);
   }
 
   @override
@@ -115,7 +95,6 @@ class _WeeklyNutrientBarsState extends State<WeeklyNutrientBars> {
       builder: (context, snapshot) {
         final data = snapshot.data;
         final trackedByDay = data?.trackedByDay ?? const {};
-        final sodiumByDay = data?.sodiumByDay ?? const {};
         final selectedTracked = trackedByDay[selectedDay];
         final s = S.of(context);
         final theme = Theme.of(context);
@@ -172,14 +151,14 @@ class _WeeklyNutrientBarsState extends State<WeeklyNutrientBars> {
                   ),
                   const SizedBox(height: 16),
                   _MiniBarChart(
-                    label: s.sodiumLabel,
-                    unit: 'mg',
+                    label: s.carbsLabel,
+                    unit: 'g',
                     days: days,
                     selectedDay: selectedDay,
-                    values: [for (final d in days) sodiumByDay[d] ?? 0],
-                    goal: DailyNutrientPanel.resolveSodiumReference(
-                      selectedTracked,
-                    ),
+                    values: [
+                      for (final d in days) trackedByDay[d]?.carbsTracked ?? 0,
+                    ],
+                    goal: selectedTracked?.carbsGoal,
                     color: theme.colorScheme.outline,
                   ),
                 ],
@@ -194,9 +173,8 @@ class _WeeklyNutrientBarsState extends State<WeeklyNutrientBars> {
 
 class _WeekData {
   final Map<DateTime, TrackedDayEntity> trackedByDay;
-  final Map<DateTime, double> sodiumByDay;
 
-  const _WeekData({required this.trackedByDay, required this.sodiumByDay});
+  const _WeekData({required this.trackedByDay});
 }
 
 class _MiniBarChart extends StatelessWidget {
@@ -220,6 +198,13 @@ class _MiniBarChart extends StatelessWidget {
     required this.color,
   });
 
+  // The shared nutrient labels (caloriesLabel, fatLabel, ...) are lowercase
+  // because most of their other call sites read them inline mid-sentence
+  // ("106 / 316 g carbs"); this card's own header reads better title-cased.
+  static String _capitalize(String value) => value.isEmpty
+      ? value
+      : '${value[0].toUpperCase()}${value.substring(1)}';
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -233,7 +218,8 @@ class _MiniBarChart extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          '$label${goal == null ? '' : ' (${goal!.round()} $unit)'}',
+          '${_capitalize(label)}'
+          '${goal == null ? '' : ' (${goal!.round()} $unit)'}',
           style: theme.textTheme.labelMedium,
         ),
         const SizedBox(height: 4),
