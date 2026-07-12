@@ -39,10 +39,17 @@ class SetWeeklyWeightGoalDialog extends StatefulWidget {
   final double? currentGoalKg;
   final bool usesImperialUnits;
 
+  /// The user's current weight (trend weight where available, falling back
+  /// to their last logged weight otherwise) — the slider's range is derived
+  /// from this rather than a fixed kg figure, so the bound scales with the
+  /// person instead of applying the same absolute limit to everyone.
+  final double referenceWeightKg;
+
   const SetWeeklyWeightGoalDialog({
     super.key,
     required this.currentGoalKg,
     required this.usesImperialUnits,
+    required this.referenceWeightKg,
   });
 
   @override
@@ -51,10 +58,14 @@ class SetWeeklyWeightGoalDialog extends StatefulWidget {
 }
 
 class _SetWeeklyWeightGoalDialogState extends State<SetWeeklyWeightGoalDialog> {
-  // Slider range in kg/week: -1.0 (lose 1 kg/wk) to +1.0 (gain 1 kg/wk)
-  static const double _minKg = -1.0;
-  static const double _maxKg = 1.0;
-  static const int _divisions = 8; // steps of 0.25 kg
+  // Slider range: ±1% of the user's current weight per week — the commonly
+  // cited safe-rate-of-change guideline — rather than a fixed kg figure
+  // that would let a 50 kg and a 120 kg user set the same absolute pace.
+  static const double _maxRatePct = 0.01;
+  static const int _divisions = 8;
+
+  late final double _minKg = -widget.referenceWeightKg * _maxRatePct;
+  late final double _maxKg = widget.referenceWeightKg * _maxRatePct;
 
   late double _selectedKg;
 
@@ -67,6 +78,15 @@ class _SetWeeklyWeightGoalDialogState extends State<SetWeeklyWeightGoalDialog> {
 
   double get _displayValue =>
       widget.usesImperialUnits ? _selectedKg * 2.20462 : _selectedKg;
+
+  String _formatBound(double kg) {
+    final value = widget.usesImperialUnits ? kg * 2.20462 : kg;
+    final sign = value > 0 ? '+' : '';
+    final unit = widget.usesImperialUnits
+        ? S.of(context).lbsLabel
+        : S.of(context).kgLabel;
+    return '$sign${value.toStringAsFixed(1)} $unit';
+  }
 
   String get _displayLabel {
     if (_selectedKg == 0.0) return S.of(context).goalMaintainWeight;
@@ -97,11 +117,11 @@ class _SetWeeklyWeightGoalDialogState extends State<SetWeeklyWeightGoalDialog> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                widget.usesImperialUnits ? '-2.2 lbs' : '-1.0 kg',
+                _formatBound(_minKg),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
               Text(
-                widget.usesImperialUnits ? '+2.2 lbs' : '+1.0 kg',
+                _formatBound(_maxKg),
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ],

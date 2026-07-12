@@ -136,7 +136,7 @@ class _StrategyPageState extends State<StrategyPage> {
 
   TrackedDayEntity? _todayTracked;
 
-  Future<void> _showSetWeeklyWeightGoalDialog() async {
+  Future<void> _showSetWeeklyWeightGoalDialog(double referenceWeightKg) async {
     final user = _user;
     if (user == null) return;
     final result = await showDialog<WeeklyWeightGoalResult>(
@@ -144,6 +144,7 @@ class _StrategyPageState extends State<StrategyPage> {
       builder: (context) => SetWeeklyWeightGoalDialog(
         currentGoalKg: user.weeklyWeightGoalKg,
         usesImperialUnits: _usesImperialUnits,
+        referenceWeightKg: referenceWeightKg,
       ),
     );
     switch (result) {
@@ -224,7 +225,7 @@ class _StrategyPageState extends State<StrategyPage> {
           observedKgPerWeek: observedWeeklyRateKg,
           referenceWeightKg: trendWeightKg,
           usesImperialUnits: _usesImperialUnits,
-          onEditDesired: _showSetWeeklyWeightGoalDialog,
+          onEditDesired: () => _showSetWeeklyWeightGoalDialog(trendWeightKg),
         ),
       ],
     );

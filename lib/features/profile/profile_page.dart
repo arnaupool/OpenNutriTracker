@@ -400,6 +400,7 @@ class _ProfilePageState extends State<ProfilePage> {
       builder: (context) => SetWeeklyWeightGoalDialog(
         currentGoalKg: userEntity.weeklyWeightGoalKg,
         usesImperialUnits: usesImperialUnits,
+        referenceWeightKg: userEntity.weightKG,
       ),
     );
     switch (result) {
