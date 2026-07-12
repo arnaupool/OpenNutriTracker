@@ -185,16 +185,6 @@
 			"color": "6"
 		},
 		{
-			"id": "477fcfcc",
-			"type": "text",
-			"text": "## FP-04 Fijar tema oscuro verde por defecto\nCambiar el accentColor y el modo por defecto en AppThemeEntity/config_entity.dart a verde menta + oscuro. No hay que construir theming: ColorScheme.fromSeed() y el selector de color custom (accent_colour_screen.dart) ya existen; esto es fijar 1-2 valores por defecto.",
-			"x": 480,
-			"y": 300,
-			"width": 280,
-			"height": 160,
-			"color": "6"
-		},
-		{
 			"id": "833c6d16",
 			"type": "text",
 			"text": "## FP-05 Añadir pestaña Strategy a la bottom nav\nExtender el NavigationBar de 4 a 5 destinos en main_screen.dart (Home/Diary/Recipes/Profile + Strategy), registrar la ruta en NavigationOptions y el mapa routes de main.dart.",
@@ -202,7 +192,7 @@
 			"y": 580,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "1"
 		},
 		{
 			"id": "c66eff14",
@@ -212,7 +202,7 @@
 			"y": 580,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "1"
 		},
 		{
 			"id": "5276e7a6",
@@ -222,7 +212,7 @@
 			"y": 580,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "f96c5d5a",
@@ -232,7 +222,7 @@
 			"y": 760,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "61fa2a0b",
@@ -242,7 +232,7 @@
 			"y": 40,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "1"
 		},
 		{
 			"id": "8934904b",
@@ -252,7 +242,7 @@
 			"y": 220,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "0"
 		},
 		{
 			"id": "cc60413b",
@@ -262,7 +252,7 @@
 			"y": 400,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "1"
 		},
 		{
 			"id": "f7622873",
@@ -293,6 +283,16 @@
 			"width": 280,
 			"height": 160,
 			"color": "6"
+		},
+		{
+			"id": "477fcfcc",
+			"type": "text",
+			"text": "## FP-04 Fijar tema oscuro verde por defecto\nHecho: ConfigDBO.empty() ahora usa AppThemeDBO.defaultTheme (cambiado de system a dark) + useMaterialYou:false + accentColor:0xFF2ECC71 (verde menta, Flat UI 'Emerald', igual al de referencia de XMihura). useMaterialYou en false para que el verde no lo pise el wallpaper dinamico de Android 12+. El usuario sigue pudiendo cambiarlo desde Settings (accent_colour_screen.dart), no se toco esa pantalla. Sin tests rotos, 594 verdes.",
+			"x": 480,
+			"y": 300,
+			"width": 280,
+			"height": 160,
+			"color": "5"
 		},
 		{
 			"id": "d19f9f86",

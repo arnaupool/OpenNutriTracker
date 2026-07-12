@@ -12,7 +12,10 @@ enum AppThemeDBO {
   @HiveField(2)
   system;
 
-  static AppThemeDBO get defaultTheme => AppThemeDBO.system;
+  // Fase Piel: the fork's reference UI (XMihura's build, cloned 1:1 per
+  // the project plan) is dark by default rather than following the
+  // system theme.
+  static AppThemeDBO get defaultTheme => AppThemeDBO.dark;
 
   factory AppThemeDBO.fromAppThemeEntity(AppThemeEntity entity) {
     AppThemeDBO dbo;

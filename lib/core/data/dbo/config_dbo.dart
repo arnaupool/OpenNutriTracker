@@ -122,8 +122,22 @@ class ConfigDBO extends HiveObject {
     this.accentColor,
   });
 
-  factory ConfigDBO.empty() =>
-      ConfigDBO(false, false, false, AppThemeDBO.system);
+  // Fase Piel: mint-green accent matching the reference UI (XMihura's
+  // build, cloned 1:1 per the project plan) — Flat UI Colors' "Emerald".
+  // Material You is off by default so this seed color always wins over
+  // the device wallpaper's dynamic palette on Android 12+; the user can
+  // still re-enable Material You or pick their own colour from Settings
+  // (see accent_colour_screen.dart) exactly as before.
+  static const int defaultAccentColorArgb = 0xFF2ECC71;
+
+  factory ConfigDBO.empty() => ConfigDBO(
+    false,
+    false,
+    false,
+    AppThemeDBO.defaultTheme,
+    useMaterialYou: false,
+    accentColor: defaultAccentColorArgb,
+  );
 
   factory ConfigDBO.fromConfigEntity(ConfigEntity entity) => ConfigDBO(
     entity.hasAcceptedDisclaimer,
