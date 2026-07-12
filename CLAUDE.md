@@ -8,6 +8,8 @@ OpenNutriTracker is a Flutter mobile app (iOS/Android) for nutritional tracking.
 
 Flutter version: **3.41.7** (managed via FVM; see `.fvmrc`)
 
+> This fork (`openfoodtracker-fork`) replaces the static IOM 2005 / fixed 60-25-15 calorie engine described below with a MacroFactor-style dynamic engine (EWMA trend weight, rolling-window TDEE, protein-first macros). See the "Kanvas Workflow" section at the end of this file for the task board tracking that work, and the project's Kanvas artifact plan for the full spec.
+
 ## Commands
 
 All common tasks are in the `justfile`:
@@ -66,11 +68,11 @@ dart run build_runner build
 ### What gets generated and when
 
 | Trigger                            | Generated file(s)                                                                                         | Tool                |
-| ---------------------------------- | --------------------------------------------------------------------------------------------------------- | ------------------- |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------ | -------------------- |
 | Any `@HiveType` / `@HiveField` DBO | `<dbo_file>.g.dart` alongside the source                                                                  | `hive_ce_generator` |
 | Any new DBO added anywhere         | `lib/hive_registrar.g.dart` — the `HiveRegistrar` extension that calls `registerAdapter()` for every type | `hive_ce_generator` |
-| Any `@JsonSerializable` DTO        | `<dto_file>.g.dart` alongside the source                                                                  | `json_serializable` |
-| `.env` file edited                 | `lib/core/utils/env.g.dart` (**gitignored** — must regenerate after every clone)                          | `envied_generator`  |
+| Any `@JsonSerializable` DTO        | `<dto_file>.g.dart` alongside the source                                                                  | `json_serializable`  |
+| `.env` file edited                 | `lib/core/utils/env.g.dart` (**gitignored** — must regenerate after every clone)                          | `envied_generator`   |
 
 **DBO files** live in `lib/core/data/dbo/` and `lib/core/data/data_source/` (one `.g.dart` per file). Whenever you add a `@HiveField` or change a field's type, regenerate — otherwise the binary reader/writer will be out of sync.
 
@@ -107,13 +109,13 @@ Semantics(
 
 ### What's in scope
 
-| In scope (must label) | Out of scope (don't bother) |
-|---|---|
-| `ListTile` / `InkWell` / `GestureDetector` with an `onTap` | Pure display — `Text`, `Icon`, `Image`, `Divider`, charts |
+| In scope (must label)                                                                                                       | Out of scope (don't bother)                              |
+| ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| `ListTile` / `InkWell` / `GestureDetector` with an `onTap`                                                                | Pure display — `Text`, `Icon`, `Image`, `Divider`, charts |
 | Buttons — `ElevatedButton`, `TextButton`, `IconButton`, `FloatingActionButton`, `FilledButton` (when they have `onPressed`) | Layout — `Container` without `onTap`, `Padding`, `SizedBox`, `Row`, `Column` |
 | Input — `TextField`, `TextFormField`, `Slider`, `Switch`, `SwitchListTile`, `Checkbox` (the actual checkbox, not its label) | Generated code (`*.g.dart`, `messages_*.dart`, `l10n.dart`) |
-| Selection — `ChoiceChip`, `FilterChip`, `RadioListTile`, `SegmentedButton`, `DropdownButton` | Theming, transitions, decorative wrappers |
-| Bottom sheets, dialog action buttons (Save/Cancel/OK) | Items inside `ListView.builder` / `GridView.builder` (see below) |
+| Selection — `ChoiceChip`, `FilterChip`, `RadioListTile`, `SegmentedButton`, `DropdownButton`                                | Theming, transitions, decorative wrappers                 |
+| Bottom sheets, dialog action buttons (Save/Cancel/OK)                                                                        | Items inside `ListView.builder` / `GridView.builder` (see below) |
 
 ### Naming convention
 
@@ -187,10 +189,10 @@ enter_text_in_field 'Protein' '10' clear
 
 Reusable ADB scripts live in `tools/adb/`:
 
-| Script | Purpose |
-|--------|---------|
-| `adb-driver.sh` | Core driver library: `tap_id`, `wait_for_id`, `enter_text_at`, `_tap_text`, `screenshot`, `list_ids`, plus form-field helpers `tap_field_by_hint`, `enter_text_in_field`, `fill_fields_by_hint`, `clear_focused_field`, `hide_keyboard`. Source from any test script. |
-| `walk-onboarding.sh` | Walks the 6-page onboarding flow, lands the app on the main screen. Exports `walk_onboarding()`. Run standalone or source it. |
+| Script               | Purpose                                                                                                                                                                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `adb-driver.sh`      | Core driver library: `tap_id`, `wait_for_id`, `enter_text_at`, `_tap_text`, `screenshot`, `list_ids`, plus form-field helpers `tap_field_by_hint`, `enter_text_in_field`, `fill_fields_by_hint`, `clear_focused_field`, `hide_keyboard`. Source from any test script. |
+| `walk-onboarding.sh` | Walks the 6-page onboarding flow, lands the app on the main screen. Exports `walk_onboarding()`. Run standalone or source it.                                             |
 | `run-branch-tests.sh` | Sequential smoke-test runner for all triage branches: builds a debug APK, installs it, walks onboarding, and runs a branch-specific probe. Produces a pass/fail summary and per-branch screenshots. |
 
 Usage:
@@ -281,7 +283,7 @@ Named routes are defined in `NavigationOptions` and registered in `main.dart`. T
 
 **hive_ce** (the actively maintained community fork of Hive) is used for all persistent local storage, AES-256 encrypted. The boxes opened by `HiveDBProvider`:
 
-| Box                            | DBO type / payload          | Purpose                                                              |
+| Box                           | DBO type / payload          | Purpose                                                          |
 | ------------------------------ | --------------------------- | -------------------------------------------------------------------- |
 | `ConfigBox`                    | `ConfigDBO`                 | App settings: theme, units, kcal adjustment, per-macro % goals       |
 | `IntakeBox`                    | `IntakeDBO`                 | Meal log entries (links to `MealDBO`, typed by `IntakeTypeDBO`)      |
@@ -303,15 +305,15 @@ When adding a new `@HiveType`, assign a unique `typeId`. Check all existing DBOs
 
 `ProductsRepository` aggregates three sources via `SearchProductsUseCase`:
 
-| Source          | Class             | Notes                                                            |
-| --------------- | ----------------- | ---------------------------------------------------------------- |
-| Open Food Facts | `OFFDataSource`   | REST API — text search + barcode lookup                          |
-| Supabase FDC    | `SpFdcDataSource` | Full-text search on `fdc_food` table; `en`/`de` column selection |
-| USDA FDC direct | `FDCDataSource`   | Requires `FDC_API_KEY`; not actively surfaced in the UI          |
+| Source          | Class              | Notes                                                             |
+| ---------------- | ------------------- | -------------------------------------------------------------------- |
+| Open Food Facts | `OFFDataSource`    | REST API — text search + barcode lookup                              |
+| Supabase FDC    | `SpFdcDataSource`  | Full-text search on `fdc_food` table; `en`/`de` column selection    |
+| USDA FDC direct | `FDCDataSource`    | Requires `FDC_API_KEY`; not actively surfaced in the UI               |
 
 `SearchProductsUseCase.searchFDCFoodByString` uses the **Supabase** source, not the direct FDC API.
 
-### Calorie and macro calculations
+### Calorie and macro calculations (pre-fork baseline — being replaced, see Kanvas section below)
 
 Calculation utilities live in `lib/core/utils/calc/`:
 
@@ -320,18 +322,120 @@ Calculation utilities live in `lib/core/utils/calc/`:
 - **Macro defaults** — 60% carbs / 25% fat / 15% protein of total kcal goal. Per-macro overrides stored in `ConfigEntity`.
 - **MET** — `MetCalc` converts MET × weight × hours to burned kcal for activities.
 
+**Fase Motor (Kanvas board) replaces this whole section**: `TDEECalc.getTDEEKcalIOM2005()` and the fixed 60/25/15 split are the two things the new engine (EWMA trend weight → dynamic TDEE → protein-first macros) needs to supersede. `WeightLogBox`/`WeightLogDBO` already exist and don't need a schema change — only a new usecase computing the trend on top of the existing raw log.
+
 ### Data export / import
 
 Settings screen exports to a `.zip` that bundles intakes, activities, tracked days, and recipes in both JSON (canonical, re-importable) and CSV (flat, for spreadsheets) formats — see [`docs/export-format.md`](docs/export-format.md) for the full schema. Import accepts the same zip and merges its contents into the existing boxes. User profile data (height, weight, birthday, PAL, goal) is intentionally **not** included in the export. Settings → Import also supports a pasted JSON blob for ad-hoc meal imports.
 
 ## Naming Conventions
 
-| Suffix                     | Meaning                                                       |
-| -------------------------- | ------------------------------------------------------------- |
-| `DBO`                      | Database Object — Hive-annotated local storage model          |
-| `DTO`                      | Data Transfer Object — JSON-deserialized API response model   |
-| `Entity`                   | Domain model — plain Dart class used in business logic and UI |
-| `Bloc` / `Event` / `State` | BLoC pattern state management files                           |
-| `Usecase`                  | Single-responsibility business logic class                    |
-| `Repository`               | Mediates between data sources and use cases                   |
-| `DataSource`               | Direct access to one data store (Hive box or HTTP API)        |
+| Suffix                     | Meaning                                                        |
+| --------------------------- | ---------------------------------------------------------------- |
+| `DBO`                      | Database Object — Hive-annotated local storage model            |
+| `DTO`                      | Data Transfer Object — JSON-deserialized API response model    |
+| `Entity`                   | Domain model — plain Dart class used in business logic and UI  |
+| `Bloc` / `Event` / `State` | BLoC pattern state management files                             |
+| `Usecase`                  | Single-responsibility business logic class                      |
+| `Repository`               | Mediates between data sources and use cases                     |
+| `DataSource`               | Direct access to one data store (Hive box or HTTP API)          |
+
+---
+
+## Kanvas Workflow — Agent Instructions
+
+This project is planned and tracked on an Obsidian Canvas board (`Project.canvas` in this directory), managed by the `canvas-tool.py` CLI (Kanvas — see `RULES.md` for the full protocol). This section governs how to interact with **that board**; everything above governs the **codebase**.
+
+### CRITICAL RULE
+
+**NEVER edit `.canvas` files directly.** All canvas modifications MUST go through the CLI tool:
+
+```bash
+python canvas-tool.py "<file>.canvas" <command> [args]
+```
+
+Direct JSON editing of `.canvas` files is **forbidden**. The CLI tool enforces workflow rules (valid transitions, cycle detection, blocked states) so you don't have to remember them.
+
+### Session Protocol
+
+**1. Start of session — read the board**
+
+```bash
+python canvas-tool.py "Project.canvas" status
+```
+
+Review the board state. Run `normalize` if needed. Report ready tasks, blocked tasks, and any anomalies to the user.
+
+**2. Pick a task**
+
+```bash
+python canvas-tool.py "Project.canvas" ready            # see what's available
+python canvas-tool.py "Project.canvas" show <TASK-ID>    # read task details
+python canvas-tool.py "Project.canvas" start <TASK-ID>   # begin work (red → orange)
+```
+
+If multiple tasks are ready, ask the user which to prioritize.
+
+**3. Work on the task**
+
+Execute the task. If you discover subtasks, propose them:
+
+```bash
+python canvas-tool.py "Project.canvas" propose Development "Subtask title" "Description" --depends-on DV-01
+```
+
+Update notes on your in-progress task:
+
+```bash
+python canvas-tool.py "Project.canvas" edit <TASK-ID> "Updated description with findings."
+```
+
+**4. Finish the task**
+
+```bash
+python canvas-tool.py "Project.canvas" finish <TASK-ID>   # orange → cyan
+```
+
+Tell the user what was done. Do NOT attempt to set the card green — only the human does that.
+
+**5. Repeat**
+
+After the human marks your task green, check for newly unblocked tasks:
+
+```bash
+python canvas-tool.py "Project.canvas" normalize
+python canvas-tool.py "Project.canvas" ready
+```
+
+### What you CAN do
+
+- **Read** the board: `status`, `show`, `list`, `blocked`, `blocking`, `ready`, `dump`
+- **Normalize** the board: `normalize`
+- **Propose** tasks: `propose` or `batch` (creates purple cards)
+- **Propose** groups: `propose-group` or `batch`
+- **Start** a task: `start <ID>` (red → orange)
+- **Finish** a task: `finish <ID>` (orange → cyan)
+- **Pause** a task: `pause <ID>` (orange → red)
+- **Edit** task text: `edit <ID> "<text>"` (only orange tasks)
+- **Add dependencies**: `add-dep <FROM> <TO>`
+
+### What you CANNOT do
+
+- Edit `.canvas` files directly
+- Mark any card green (done) — human only
+- Work on purple cards (proposals awaiting approval)
+- Work on gray cards (blocked)
+- Work on cyan cards (awaiting human review)
+- Remove cards or edges
+- Change green cards
+
+### Color meanings
+
+| Color  | Meaning              | Value |
+| ------- | --------------------- | ------- |
+| Purple | Proposed by agent      | `"6"` |
+| Red    | To Do (ready)          | `"1"` |
+| Orange | Doing                  | `"2"` |
+| Cyan   | Ready to review        | `"5"` |
+| Green  | Done                   | `"4"` |
+| Gray   | Blocked                | `"0"` |
