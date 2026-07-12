@@ -14,6 +14,7 @@ import 'package:opennutritracker/features/edit_meal/presentation/edit_meal_scree
 import 'package:opennutritracker/features/recipes/presentation/bloc/recipes_bloc.dart';
 import 'package:opennutritracker/features/recipes/presentation/screens/recipes_page.dart';
 import 'package:opennutritracker/features/settings/presentation/bloc/custom_meals_bloc.dart';
+import 'package:opennutritracker/features/strategy/presentation/strategy_page.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 class MainScreen extends StatefulWidget {
@@ -35,6 +36,7 @@ class _MainScreenState extends State<MainScreen> {
       const HomePage(),
       const DiaryPage(),
       const RecipesPage(),
+      const StrategyPage(),
       const ProfilePage(),
     ];
     _appbarPages = [
@@ -90,6 +92,7 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ],
       ),
+      MainAppbar(title: S.of(context).strategyLabel, iconData: Icons.bar_chart),
       MainAppbar(
         title: S.of(context).profileLabel,
         iconData: Icons.account_circle,
@@ -146,8 +149,17 @@ class _MainScreenState extends State<MainScreen> {
           ),
           NavigationDestination(
             icon: Semantics(
-              identifier: 'nav-profile',
+              identifier: 'nav-strategy',
               child: _selectedPageIndex == 3
+                  ? const Icon(Icons.bar_chart)
+                  : const Icon(Icons.bar_chart_outlined),
+            ),
+            label: S.of(context).strategyLabel,
+          ),
+          NavigationDestination(
+            icon: Semantics(
+              identifier: 'nav-profile',
+              child: _selectedPageIndex == 4
                   ? const Icon(Icons.account_circle)
                   : const Icon(Icons.account_circle_outlined),
             ),

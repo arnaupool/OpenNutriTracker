@@ -187,12 +187,12 @@
 		{
 			"id": "833c6d16",
 			"type": "text",
-			"text": "## FP-05 Añadir pestaña Strategy a la bottom nav\nExtender el NavigationBar de 4 a 5 destinos en main_screen.dart (Home/Diary/Recipes/Profile + Strategy), registrar la ruta en NavigationOptions y el mapa routes de main.dart.",
+			"text": "## FP-05 Añadir pestaña Strategy a la bottom nav\nHecho: pestana Strategy anadida a MainScreen (Home/Diary/Recipes/Strategy/Profile, Strategy antes de Profile para minimizar disrupcion del orden existente - la referencia de XMihura la pone en otra posicion, ajustable despues si se quiere el orden exacto). StrategyPage placeholder en lib/features/strategy/presentation/ (FD-01 construira el dashboard real). Anadido strategyLabel a intl_en.arb + l10n.dart (otros locales caen a ingles por ahora). Verificado en el emulador con datos de onboarding reales (male, 1998, 190cm, 105kg->90kg, lose weight, low activity): las 5 pestanas se ven, Strategy navega y resalta correctamente. 689 tests verdes, analyze limpio. LECCION: 'flutter install' en esta version NO recompila solo, hay que 'flutter build apk' primero o usar 'flutter run' - la primera verificacion visual fallo por instalar un APK de una build vieja.",
 			"x": 480,
 			"y": 580,
 			"width": 280,
 			"height": 160,
-			"color": "1"
+			"color": "5"
 		},
 		{
 			"id": "c66eff14",
