@@ -152,17 +152,17 @@
 			"y": 220,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "972ba256",
 			"type": "text",
-			"text": "## FM-03 TDEE dinámico\nTDEE = ingesta real − cambio de peso en kcal, sobre ventana móvil de 21 días. Change rate semanal = (trend_hoy − trend_hace_20_días) / 20 × 7.",
+			"text": "## FM-03 TDEE dinámico\nHecho: TdeeDynamicCalc en lib/core/utils/calc/tdee_dynamic_calc.dart. estimateTdee() = ingesta media - cambio de peso implicado en kcal sobre ventana movil (21 dias por defecto), usando WeightTrendCalc como input. weeklyChangeRateKg() = ritmo semanal sobre ventana de 20 dias. 9 tests, incluyendo reproduccion exacta del ejemplo del handbook de MacroFactor (2500kcal asumido, 2000kcal/dia real, perdida real 0.5lb/semana -> TDEE recalculado 2250kcal). dart format + flutter analyze limpios.",
 			"x": 1340,
 			"y": 400,
 			"width": 280,
 			"height": 160,
-			"color": "0"
+			"color": "5"
 		},
 		{
 			"id": "311a95d4",
