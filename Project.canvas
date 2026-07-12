@@ -232,7 +232,7 @@
 			"y": 220,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "5b557dc2",
@@ -267,12 +267,12 @@
 		{
 			"id": "cc60413b",
 			"type": "text",
-			"text": "## FD-03 Pantalla Diary\nBarras semanales por nutriente (calorías, grasa, proteína, sodio), línea discontinua de objetivo, resumen del día.",
+			"text": "## FD-03 Pantalla Diary\nTarjeta 'This week' añadida a Diary (entre el calendario y el resumen del día): 4 mini gráficos de barras por semana natural (calorías, grasa, proteína, sodio), cada uno con línea discontinua del objetivo del día seleccionado y la barra de ese día resaltada frente al resto de la semana. Calorías/grasa/proteína salen de TrackedDayEntity; sodio se suma desde la lista de ingestas del día (no existe un campo persistido, igual que hace DailyNutrientPanel para su media semanal). De paso se corrigió un bug real de límites de fecha compartido con FD-01: TrackedDayDBO.day no siempre está normalizado a medianoche, así que usar 'medianoche de hoy' como límite superior de un rango excluía silenciosamente el día de hoy en cuanto tuviera hora real; ahora el límite superior es el último instante del día. Verificado visualmente en emulador registrando una comida real (Quick add, 600kcal/40C/20F/30P) y confirmando que las 4 barras y las líneas de objetivo se corresponden exactamente con 'Today's nutrients'. 696/696 tests, flutter analyze limpio.",
 			"x": 1780,
 			"y": 400,
 			"width": 280,
 			"height": 160,
-			"color": "1"
+			"color": "5"
 		},
 		{
 			"id": "f7622873",

@@ -16,6 +16,7 @@ import 'package:opennutritracker/features/diary/presentation/bloc/calendar_day_b
 import 'package:opennutritracker/features/diary/presentation/bloc/diary_bloc.dart';
 import 'package:opennutritracker/features/diary/presentation/widgets/diary_table_calendar.dart';
 import 'package:opennutritracker/features/diary/presentation/widgets/day_info_widget.dart';
+import 'package:opennutritracker/features/diary/presentation/widgets/weekly_nutrient_bars.dart';
 import 'package:opennutritracker/features/meal_detail/presentation/bloc/meal_detail_bloc.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
@@ -107,6 +108,11 @@ class _DiaryPageState extends State<DiaryPage> with WidgetsBindingObserver {
           currentDate: _currentDate,
           selectedDate: _selectedDate,
           focusedDate: _focusedDate,
+        ),
+        const SizedBox(height: 16.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: WeeklyNutrientBars(selectedDate: _selectedDate),
         ),
         const SizedBox(height: 16.0),
         BlocBuilder<CalendarDayBloc, CalendarDayState>(
@@ -221,8 +227,7 @@ class _DiaryPageState extends State<DiaryPage> with WidgetsBindingObserver {
       // Custom activities (#70) store the user-entered kcal directly — the
       // MET formula would just return zero for them, so we pass the saved
       // kcal figure through unchanged so a copied entry keeps its calories.
-      final kcal =
-          userActivityEntity.userKcal ?? userActivityEntity.burnedKcal;
+      final kcal = userActivityEntity.userKcal ?? userActivityEntity.burnedKcal;
       _activityDetailBloc.persistActivity(
         kcal.toString(),
         kcal,
@@ -259,11 +264,9 @@ class _DiaryPageState extends State<DiaryPage> with WidgetsBindingObserver {
       ),
     );
     if (changeIntakeAmount != null) {
-      await _calendarDayBloc.updateIntakeItem(
-        intakeEntity.id,
-        {'amount': changeIntakeAmount},
-        _selectedDate,
-      );
+      await _calendarDayBloc.updateIntakeItem(intakeEntity.id, {
+        'amount': changeIntakeAmount,
+      }, _selectedDate);
       _diaryBloc.add(const LoadDiaryYearEvent());
       _calendarDayBloc.add(LoadCalendarDayEvent(_selectedDate));
       _diaryBloc.updateHomePage();
@@ -281,8 +284,7 @@ class _DiaryPageState extends State<DiaryPage> with WidgetsBindingObserver {
   ) async {
     final newDuration = await showDialog<double>(
       context: context,
-      builder: (context) =>
-          EditActivityDialog(activityEntity: activityEntity),
+      builder: (context) => EditActivityDialog(activityEntity: activityEntity),
     );
     if (newDuration != null) {
       await _calendarDayBloc.updateUserActivityItem(
@@ -310,7 +312,8 @@ class _DiaryPageState extends State<DiaryPage> with WidgetsBindingObserver {
       _focusedDate = newDate;
       _calendarDayBloc.add(LoadCalendarDayEvent(newDate));
     });
-    if (newDate.isAfter(_currentDate) && !DateUtils.isSameDay(newDate, _currentDate)) {
+    if (newDate.isAfter(_currentDate) &&
+        !DateUtils.isSameDay(newDate, _currentDate)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(S.of(context).diaryFutureDateWarning)),
       );

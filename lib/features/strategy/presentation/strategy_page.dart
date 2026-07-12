@@ -98,9 +98,16 @@ class _StrategyPageState extends State<StrategyPage> {
     final lookbackStart = todayAtMidnight.subtract(
       const Duration(days: _intakeLookbackDays),
     );
+    // TrackedDayDBO.day isn't always normalized to midnight, so bounding
+    // the range at exactly today's midnight would silently drop today's
+    // entry whenever it carries a real time-of-day component. Push the
+    // upper bound to the last instant of today instead.
+    final endOfToday = todayAtMidnight
+        .add(const Duration(days: 1))
+        .subtract(const Duration(milliseconds: 1));
     final trackedDays = await _trackedDayUsecase.getTrackedDaysByRange(
       lookbackStart,
-      todayAtMidnight,
+      endOfToday,
     );
     final intakeMap = {
       for (final d in trackedDays)

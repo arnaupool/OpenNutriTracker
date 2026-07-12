@@ -3068,6 +3068,16 @@ class S {
     );
   }
 
+  /// `This week`
+  String get diaryWeeklyBarsTitle {
+    return Intl.message(
+      'This week',
+      name: 'diaryWeeklyBarsTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Calories (high to low)`
   String get diarySortByKcal {
     return Intl.message(
@@ -4581,6 +4591,11 @@ class S {
       desc: '',
       args: [],
     );
+  }
+
+  /// `calories`
+  String get caloriesLabel {
+    return Intl.message('calories', name: 'caloriesLabel', desc: '', args: []);
   }
 
   /// `Averaged reference (default)`
