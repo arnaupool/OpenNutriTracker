@@ -87,42 +87,32 @@
 		{
 			"id": "5b557dc2",
 			"type": "text",
-			"text": "## FE-01 Fork de OpenNutriTracker\nForkear/clonar el repo de OpenNutriTracker (Flutter/Android, OSS) como base del proyecto dentro de openfoodtracker-fork.",
+			"text": "## FE-01 Fork de OpenNutriTracker\nHecho: fork privado arnaupool/OpenNutriTracker creado via gh CLI, clonado en openfoodtracker-fork, merge con los archivos de Kanvas (CLAUDE.md fusionado con la doc original del proyecto). Commit local hecho, sin push.",
 			"x": 20,
 			"y": 40,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "4"
 		},
 		{
 			"id": "924dccb0",
 			"type": "text",
-			"text": "## FE-02 Configurar Flutter + Android Studio\nSDK de Android, emulador o dispositivo físico de prueba, primer build corriendo sin modificaciones.",
+			"text": "## FE-02 Configurar Flutter + Android Studio\nHecho: Flutter 3.41.7 pinneado via FVM (coincide con .fvmrc), JDK 17, Android SDK cmdline-tools (platform-tools, platforms 34/35/36, build-tools varios, NDK 28.2), emulador Pixel 6/Android 14 creado. flutter doctor -v sin problemas. App compilada (flavor 'develop') e instalada/corriendo en el emulador, verificada visualmente por el usuario.",
 			"x": 20,
 			"y": 220,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "4"
 		},
 		{
 			"id": "4c62383a",
 			"type": "text",
-			"text": "## FE-03 Auditar código base de OpenNutriTracker\nMapear pantallas, arquitectura y modelos de datos actuales: qué se reusa tal cual y qué hay que reemplazar (motor de cálculo, pantallas nuevas).",
+			"text": "## FE-03 Auditar código base de OpenNutriTracker\nHecho: auditoria de codigo real (no solo README) via agente Explore + hallazgo del CLAUDE.md propio del repo. Confirmado: nav de 4 tabs fija, theming via ColorScheme.fromSeed ya extensible, scan/busqueda/quick-add ya completos sobre AddIntakeUsecase, CERO suavizado de peso (grafico pinta datos crudos), motor de calculo actual = TDEECalc.getTDEEKcalIOM2005() + split fijo 60/25/15 (a reemplazar en Fase Motor). Framework de testing por ADB (Semantics identifiers) documentado para usar en verificacion de UI.",
 			"x": 20,
 			"y": 400,
 			"width": 280,
 			"height": 160,
-			"color": "6"
-		},
-		{
-			"id": "d19f9f86",
-			"type": "text",
-			"text": "## FR-01 Integración OpenRouter\nCliente API compatible con OpenAI Chat Completions, selector de modelo configurable sobre el catálogo completo de OpenRouter, soporte de contenido imagen para modelos con visión.",
-			"x": 900,
-			"y": 40,
-			"width": 280,
-			"height": 160,
-			"color": "6"
+			"color": "4"
 		},
 		{
 			"id": "f0fd4367",
@@ -147,12 +137,12 @@
 		{
 			"id": "6aa2cbda",
 			"type": "text",
-			"text": "## FM-01 Interpolación de huecos de peso\nRellenar huecos en el registro diario de peso mediante interpolación lineal antes de calcular la tendencia (así lo documenta MacroFactor, ~1% de precisión).",
+			"text": "## FM-01 Interpolación de huecos de peso\nHecho: WeightInterpolationCalc.fillGaps() en lib/core/utils/calc/weight_interpolation_calc.dart. Interpola linealmente entre entradas reales (nunca extrapola fuera del rango [primera, ultima]), dedupe por dia, funciona con input sin ordenar. 9 tests unitarios en test/unit_test/weight_interpolation_calc_test.dart, todos pasando. dart format + flutter analyze limpios. Devuelve InterpolatedWeightPoint (date, weightKg, isInterpolated) en vez de reusar WeightLogEntity, para no tocar el modelo persistido.",
 			"x": 1340,
 			"y": 40,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "5"
 		},
 		{
 			"id": "1d02a992",
@@ -162,7 +152,7 @@
 			"y": 220,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "0"
 		},
 		{
 			"id": "972ba256",
@@ -172,17 +162,7 @@
 			"y": 400,
 			"width": 280,
 			"height": 160,
-			"color": "6"
-		},
-		{
-			"id": "c66eff14",
-			"type": "text",
-			"text": "## FD-04 Reenlazar gráfico de peso de Profile a trend weight real\nweight_history_screen.dart hoy pinta puntos crudos (array 'spots') conectados por una curva bezier, sin ningún suavizado estadístico. Sustituir esa fuente de datos por la salida del EWMA de Fase Motor, reusando el fl_chart existente.",
-			"x": 1780,
-			"y": 580,
-			"width": 280,
-			"height": 160,
-			"color": "6"
+			"color": "0"
 		},
 		{
 			"id": "311a95d4",
@@ -205,6 +185,36 @@
 			"color": "6"
 		},
 		{
+			"id": "477fcfcc",
+			"type": "text",
+			"text": "## FP-04 Fijar tema oscuro verde por defecto\nCambiar el accentColor y el modo por defecto en AppThemeEntity/config_entity.dart a verde menta + oscuro. No hay que construir theming: ColorScheme.fromSeed() y el selector de color custom (accent_colour_screen.dart) ya existen; esto es fijar 1-2 valores por defecto.",
+			"x": 480,
+			"y": 300,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "833c6d16",
+			"type": "text",
+			"text": "## FP-05 Añadir pestaña Strategy a la bottom nav\nExtender el NavigationBar de 4 a 5 destinos en main_screen.dart (Home/Diary/Recipes/Profile + Strategy), registrar la ruta en NavigationOptions y el mapa routes de main.dart.",
+			"x": 480,
+			"y": 580,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "c66eff14",
+			"type": "text",
+			"text": "## FD-04 Reenlazar gráfico de peso de Profile a trend weight real\nweight_history_screen.dart hoy pinta puntos crudos (array 'spots') conectados por una curva bezier, sin ningún suavizado estadístico. Sustituir esa fuente de datos por la salida del EWMA de Fase Motor, reusando el fl_chart existente.",
+			"x": 1780,
+			"y": 580,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
 			"id": "5276e7a6",
 			"type": "text",
 			"text": "## FM-04 Cálculo de macros\nProteína primero (1.6–2.2 g/kg, +0.1 g/kg si el objetivo es pérdida), resto de calorías repartido grasa/carbo según Macro Program. Fórmula de grasa mínima: ((altura_cm − 150) × 0.5) + 30 g/día.",
@@ -212,7 +222,7 @@
 			"y": 580,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "0"
 		},
 		{
 			"id": "f96c5d5a",
@@ -222,7 +232,7 @@
 			"y": 760,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "0"
 		},
 		{
 			"id": "61fa2a0b",
@@ -265,26 +275,6 @@
 			"color": "6"
 		},
 		{
-			"id": "477fcfcc",
-			"type": "text",
-			"text": "## FP-04 Fijar tema oscuro verde por defecto\nCambiar el accentColor y el modo por defecto en AppThemeEntity/config_entity.dart a verde menta + oscuro. No hay que construir theming: ColorScheme.fromSeed() y el selector de color custom (accent_colour_screen.dart) ya existen; esto es fijar 1-2 valores por defecto.",
-			"x": 480,
-			"y": 300,
-			"width": 280,
-			"height": 160,
-			"color": "6"
-		},
-		{
-			"id": "833c6d16",
-			"type": "text",
-			"text": "## FP-05 Añadir pestaña Strategy a la bottom nav\nExtender el NavigationBar de 4 a 5 destinos en main_screen.dart (Home/Diary/Recipes/Profile + Strategy), registrar la ruta en NavigationOptions y el mapa routes de main.dart.",
-			"x": 480,
-			"y": 580,
-			"width": 280,
-			"height": 160,
-			"color": "6"
-		},
-		{
 			"id": "5853dc5c",
 			"type": "text",
 			"text": "## FF-02 Integración Apple HealthKit\nLectura de datos de salud/actividad vía HealthKit (iOS). Requiere macOS para compilar (ver tarea de pipeline CI). Backlog.",
@@ -300,6 +290,16 @@
 			"text": "## FF-03 Pipeline CI macOS para build/firma iOS\nGitHub Actions con runner macOS (o Codemagic) para compilar y firmar el IPA sin Mac local. Evaluar Apple Developer Program (99 USD/año) para distribución más allá de 7 días vs. provisioning gratuito.",
 			"x": 2220,
 			"y": 400,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "d19f9f86",
+			"type": "text",
+			"text": "## FR-01 Integración OpenRouter\nCliente API compatible con OpenAI Chat Completions, selector de modelo configurable sobre el catálogo completo de OpenRouter, soporte de contenido imagen para modelos con visión.",
+			"x": 900,
+			"y": 40,
 			"width": 280,
 			"height": 160,
 			"color": "6"
