@@ -959,6 +959,7 @@
   "vitaminCLabel": "vitamin C",
   "vitaminDLabel": "vitamin D",
   "warningLabel": "Warning",
+  "weeklyWeightGoalExplanation": "This is the pace you're aiming for. We compare it against your actual trend-weight movement — if you drift outside the expected range, your calorie target is nudged by a small, gradual amount until you're back on pace.",
   "weeklyWeightGoalKgPerWeek": "{rate} kg/week",
   "weeklyWeightGoalLabel": "Weekly rate",
   "weeklyWeightGoalLbsPerWeek": "{rate} lbs/week",

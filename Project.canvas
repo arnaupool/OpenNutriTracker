@@ -85,36 +85,6 @@
 			"color": "3"
 		},
 		{
-			"id": "5b557dc2",
-			"type": "text",
-			"text": "## FE-01 Fork de OpenNutriTracker\nHecho: fork privado arnaupool/OpenNutriTracker creado via gh CLI, clonado en openfoodtracker-fork, merge con los archivos de Kanvas (CLAUDE.md fusionado con la doc original del proyecto). Commit local hecho, sin push.",
-			"x": 20,
-			"y": 40,
-			"width": 280,
-			"height": 160,
-			"color": "4"
-		},
-		{
-			"id": "924dccb0",
-			"type": "text",
-			"text": "## FE-02 Configurar Flutter + Android Studio\nHecho: Flutter 3.41.7 pinneado via FVM (coincide con .fvmrc), JDK 17, Android SDK cmdline-tools (platform-tools, platforms 34/35/36, build-tools varios, NDK 28.2), emulador Pixel 6/Android 14 creado. flutter doctor -v sin problemas. App compilada (flavor 'develop') e instalada/corriendo en el emulador, verificada visualmente por el usuario.",
-			"x": 20,
-			"y": 220,
-			"width": 280,
-			"height": 160,
-			"color": "4"
-		},
-		{
-			"id": "4c62383a",
-			"type": "text",
-			"text": "## FE-03 Auditar código base de OpenNutriTracker\nHecho: auditoria de codigo real (no solo README) via agente Explore + hallazgo del CLAUDE.md propio del repo. Confirmado: nav de 4 tabs fija, theming via ColorScheme.fromSeed ya extensible, scan/busqueda/quick-add ya completos sobre AddIntakeUsecase, CERO suavizado de peso (grafico pinta datos crudos), motor de calculo actual = TDEECalc.getTDEEKcalIOM2005() + split fijo 60/25/15 (a reemplazar en Fase Motor). Framework de testing por ADB (Semantics identifiers) documentado para usar en verificacion de UI.",
-			"x": 20,
-			"y": 400,
-			"width": 280,
-			"height": 160,
-			"color": "4"
-		},
-		{
 			"id": "f0fd4367",
 			"type": "text",
 			"text": "## FR-02 Pantalla Magic\nFoto y/o texto → desglose de macros vía IA. Toggle 'Single item' / 'Meal breakdown', selector de modelo OpenRouter.",
@@ -130,6 +100,56 @@
 			"text": "## FR-03 Pantalla Review meal\nLista de ítems generados por la IA, badge de confianza por ítem, cantidad en gramos editable, botones 'Add all' y 'Save as preset'.",
 			"x": 900,
 			"y": 400,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "311a95d4",
+			"type": "text",
+			"text": "## FR-04 Scan Product + fallback de etiqueta\nEscáner de código de barras contra base de datos de productos. Si no hay match: fotografiar la etiqueta y que la IA la interprete y la registre.",
+			"x": 900,
+			"y": 580,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "70073d8f",
+			"type": "text",
+			"text": "## FR-05 Recently + Presets\nRe-registro rápido de comidas recientes y presets guardados, con nombre generado automáticamente por la IA al guardar.",
+			"x": 900,
+			"y": 760,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "833c6d16",
+			"type": "text",
+			"text": "## FP-05 Añadir pestaña Strategy a la bottom nav\nHecho: pestana Strategy anadida a MainScreen (Home/Diary/Recipes/Strategy/Profile, Strategy antes de Profile para minimizar disrupcion del orden existente - la referencia de XMihura la pone en otra posicion, ajustable despues si se quiere el orden exacto). StrategyPage placeholder en lib/features/strategy/presentation/ (FD-01 construira el dashboard real). Anadido strategyLabel a intl_en.arb + l10n.dart (otros locales caen a ingles por ahora). Verificado en el emulador con datos de onboarding reales (male, 1998, 190cm, 105kg->90kg, lose weight, low activity): las 5 pestanas se ven, Strategy navega y resalta correctamente. 689 tests verdes, analyze limpio. LECCION: 'flutter install' en esta version NO recompila solo, hay que 'flutter build apk' primero o usar 'flutter run' - la primera verificacion visual fallo por instalar un APK de una build vieja.",
+			"x": 480,
+			"y": 580,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "477fcfcc",
+			"type": "text",
+			"text": "## FP-04 Fijar tema oscuro verde por defecto\nHecho: ConfigDBO.empty() ahora usa AppThemeDBO.defaultTheme (cambiado de system a dark) + useMaterialYou:false + accentColor:0xFF2ECC71 (verde menta, Flat UI 'Emerald', igual al de referencia de XMihura). useMaterialYou en false para que el verde no lo pise el wallpaper dinamico de Android 12+. El usuario sigue pudiendo cambiarlo desde Settings (accent_colour_screen.dart), no se toco esa pantalla. Sin tests rotos, 594 verdes.",
+			"x": 480,
+			"y": 300,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "d19f9f86",
+			"type": "text",
+			"text": "## FR-01 Integración OpenRouter\nCliente API compatible con OpenAI Chat Completions, selector de modelo configurable sobre el catálogo completo de OpenRouter, soporte de contenido imagen para modelos con visión.",
+			"x": 900,
+			"y": 40,
 			"width": 280,
 			"height": 160,
 			"color": "6"
@@ -160,36 +180,6 @@
 			"text": "## FM-03 TDEE dinámico\nHecho: TdeeDynamicCalc en lib/core/utils/calc/tdee_dynamic_calc.dart. estimateTdee() = ingesta media - cambio de peso implicado en kcal sobre ventana movil (21 dias por defecto), usando WeightTrendCalc como input. weeklyChangeRateKg() = ritmo semanal sobre ventana de 20 dias. 9 tests, incluyendo reproduccion exacta del ejemplo del handbook de MacroFactor (2500kcal asumido, 2000kcal/dia real, perdida real 0.5lb/semana -> TDEE recalculado 2250kcal). dart format + flutter analyze limpios.",
 			"x": 1340,
 			"y": 400,
-			"width": 280,
-			"height": 160,
-			"color": "4"
-		},
-		{
-			"id": "311a95d4",
-			"type": "text",
-			"text": "## FR-04 Scan Product + fallback de etiqueta\nEscáner de código de barras contra base de datos de productos. Si no hay match: fotografiar la etiqueta y que la IA la interprete y la registre.",
-			"x": 900,
-			"y": 580,
-			"width": 280,
-			"height": 160,
-			"color": "6"
-		},
-		{
-			"id": "70073d8f",
-			"type": "text",
-			"text": "## FR-05 Recently + Presets\nRe-registro rápido de comidas recientes y presets guardados, con nombre generado automáticamente por la IA al guardar.",
-			"x": 900,
-			"y": 760,
-			"width": 280,
-			"height": 160,
-			"color": "6"
-		},
-		{
-			"id": "833c6d16",
-			"type": "text",
-			"text": "## FP-05 Añadir pestaña Strategy a la bottom nav\nHecho: pestana Strategy anadida a MainScreen (Home/Diary/Recipes/Strategy/Profile, Strategy antes de Profile para minimizar disrupcion del orden existente - la referencia de XMihura la pone en otra posicion, ajustable despues si se quiere el orden exacto). StrategyPage placeholder en lib/features/strategy/presentation/ (FD-01 construira el dashboard real). Anadido strategyLabel a intl_en.arb + l10n.dart (otros locales caen a ingles por ahora). Verificado en el emulador con datos de onboarding reales (male, 1998, 190cm, 105kg->90kg, lose weight, low activity): las 5 pestanas se ven, Strategy navega y resalta correctamente. 689 tests verdes, analyze limpio. LECCION: 'flutter install' en esta version NO recompila solo, hay que 'flutter build apk' primero o usar 'flutter run' - la primera verificacion visual fallo por instalar un APK de una build vieja.",
-			"x": 480,
-			"y": 580,
 			"width": 280,
 			"height": 160,
 			"color": "4"
@@ -232,17 +222,47 @@
 			"y": 40,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "8934904b",
 			"type": "text",
-			"text": "## FD-02 Modal Desired Weekly Change\nSlider de ritmo de cambio semanal deseado ('calorie controller' en la app de referencia), con tooltip del valor y texto explicativo.",
+			"text": "## FD-02 Modal Desired Weekly Change\nModal de ritmo semanal deseado reutilizando SetWeeklyWeightGoalDialog (ya existente en Profile, pre-fork), ahora también accesible desde la fila 'Desired' de la tarjeta Weekly Rate en Strategy (icono de lápiz, Semantics 'strategy-weekly-rate-edit'). Slider -1.0..+1.0 kg/semana con tooltip de valor en vivo (ya lo daba el widget Slider) y nuevo texto explicativo sobre cómo el ritmo alimenta el motor dinámico (Dynamic Maintenance). Persiste vía AddUserUsecase y refresca la UI al instante. Verificado visualmente: arrastre del slider a -1.00 kg/semana, OK, refleja en Strategy y en Profile (misma fuente de datos). 694/694 tests, flutter analyze limpio.",
 			"x": 1780,
 			"y": 220,
 			"width": 280,
 			"height": 160,
-			"color": "0"
+			"color": "5"
+		},
+		{
+			"id": "5b557dc2",
+			"type": "text",
+			"text": "## FE-01 Fork de OpenNutriTracker\nHecho: fork privado arnaupool/OpenNutriTracker creado via gh CLI, clonado en openfoodtracker-fork, merge con los archivos de Kanvas (CLAUDE.md fusionado con la doc original del proyecto). Commit local hecho, sin push.",
+			"x": 20,
+			"y": 40,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "924dccb0",
+			"type": "text",
+			"text": "## FE-02 Configurar Flutter + Android Studio\nHecho: Flutter 3.41.7 pinneado via FVM (coincide con .fvmrc), JDK 17, Android SDK cmdline-tools (platform-tools, platforms 34/35/36, build-tools varios, NDK 28.2), emulador Pixel 6/Android 14 creado. flutter doctor -v sin problemas. App compilada (flavor 'develop') e instalada/corriendo en el emulador, verificada visualmente por el usuario.",
+			"x": 20,
+			"y": 220,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "4c62383a",
+			"type": "text",
+			"text": "## FE-03 Auditar código base de OpenNutriTracker\nHecho: auditoria de codigo real (no solo README) via agente Explore + hallazgo del CLAUDE.md propio del repo. Confirmado: nav de 4 tabs fija, theming via ColorScheme.fromSeed ya extensible, scan/busqueda/quick-add ya completos sobre AddIntakeUsecase, CERO suavizado de peso (grafico pinta datos crudos), motor de calculo actual = TDEECalc.getTDEEKcalIOM2005() + split fijo 60/25/15 (a reemplazar en Fase Motor). Framework de testing por ADB (Semantics identifiers) documentado para usar en verificacion de UI.",
+			"x": 20,
+			"y": 400,
+			"width": 280,
+			"height": 160,
+			"color": "4"
 		},
 		{
 			"id": "cc60413b",
@@ -280,26 +300,6 @@
 			"text": "## FF-03 Pipeline CI macOS para build/firma iOS\nGitHub Actions con runner macOS (o Codemagic) para compilar y firmar el IPA sin Mac local. Evaluar Apple Developer Program (99 USD/año) para distribución más allá de 7 días vs. provisioning gratuito.",
 			"x": 2220,
 			"y": 400,
-			"width": 280,
-			"height": 160,
-			"color": "6"
-		},
-		{
-			"id": "477fcfcc",
-			"type": "text",
-			"text": "## FP-04 Fijar tema oscuro verde por defecto\nHecho: ConfigDBO.empty() ahora usa AppThemeDBO.defaultTheme (cambiado de system a dark) + useMaterialYou:false + accentColor:0xFF2ECC71 (verde menta, Flat UI 'Emerald', igual al de referencia de XMihura). useMaterialYou en false para que el verde no lo pise el wallpaper dinamico de Android 12+. El usuario sigue pudiendo cambiarlo desde Settings (accent_colour_screen.dart), no se toco esa pantalla. Sin tests rotos, 594 verdes.",
-			"x": 480,
-			"y": 300,
-			"width": 280,
-			"height": 160,
-			"color": "4"
-		},
-		{
-			"id": "d19f9f86",
-			"type": "text",
-			"text": "## FR-01 Integración OpenRouter\nCliente API compatible con OpenAI Chat Completions, selector de modelo configurable sobre el catálogo completo de OpenRouter, soporte de contenido imagen para modelos con visión.",
-			"x": 900,
-			"y": 40,
 			"width": 280,
 			"height": 160,
 			"color": "6"

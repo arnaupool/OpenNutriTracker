@@ -4408,6 +4408,16 @@ class S {
     );
   }
 
+  /// `This is the pace you're aiming for. We compare it against your actual trend-weight movement — if you drift outside the expected range, your calorie target is nudged by a small, gradual amount until you're back on pace.`
+  String get weeklyWeightGoalExplanation {
+    return Intl.message(
+      'This is the pace you\'re aiming for. We compare it against your actual trend-weight movement — if you drift outside the expected range, your calorie target is nudged by a small, gradual amount until you\'re back on pace.',
+      name: 'weeklyWeightGoalExplanation',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Not set`
   String get weeklyWeightGoalNoneLabel {
     return Intl.message(

@@ -5,6 +5,7 @@ import 'package:opennutritracker/core/data/repository/config_repository.dart';
 import 'package:opennutritracker/core/domain/entity/tracked_day_entity.dart';
 import 'package:opennutritracker/core/domain/entity/user_entity.dart';
 import 'package:opennutritracker/core/domain/entity/weight_log_entity.dart';
+import 'package:opennutritracker/core/domain/usecase/add_user_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_tracked_day_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_user_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_weight_log_usecase.dart';
@@ -14,6 +15,7 @@ import 'package:opennutritracker/core/utils/calc/unit_calc.dart';
 import 'package:opennutritracker/core/utils/calc/weight_interpolation_calc.dart';
 import 'package:opennutritracker/core/utils/calc/weight_trend_calc.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
+import 'package:opennutritracker/features/profile/presentation/widgets/set_weekly_weight_goal_dialog.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 enum _ChartRange {
@@ -41,6 +43,7 @@ class StrategyPage extends StatefulWidget {
   final GetUserUsecase? getUserUsecase;
   final GetTrackedDayUsecase? getTrackedDayUsecase;
   final ConfigRepository? configRepository;
+  final AddUserUsecase? addUserUsecase;
 
   const StrategyPage({
     super.key,
@@ -48,6 +51,7 @@ class StrategyPage extends StatefulWidget {
     this.getUserUsecase,
     this.getTrackedDayUsecase,
     this.configRepository,
+    this.addUserUsecase,
   });
 
   @override
@@ -67,6 +71,8 @@ class _StrategyPageState extends State<StrategyPage> {
       widget.getTrackedDayUsecase ?? locator<GetTrackedDayUsecase>();
   late final ConfigRepository _configRepository =
       widget.configRepository ?? locator<ConfigRepository>();
+  late final AddUserUsecase _addUserUsecase =
+      widget.addUserUsecase ?? locator<AddUserUsecase>();
 
   bool _loading = true;
   bool _usesImperialUnits = false;
@@ -122,6 +128,30 @@ class _StrategyPageState extends State<StrategyPage> {
   }
 
   TrackedDayEntity? _todayTracked;
+
+  Future<void> _showSetWeeklyWeightGoalDialog() async {
+    final user = _user;
+    if (user == null) return;
+    final result = await showDialog<WeeklyWeightGoalResult>(
+      context: context,
+      builder: (context) => SetWeeklyWeightGoalDialog(
+        currentGoalKg: user.weeklyWeightGoalKg,
+        usesImperialUnits: _usesImperialUnits,
+      ),
+    );
+    switch (result) {
+      case null:
+      case WeeklyWeightGoalCancelled():
+        return;
+      case WeeklyWeightGoalCleared():
+        user.weeklyWeightGoalKg = null;
+      case WeeklyWeightGoalSet(:final kgPerWeek):
+        user.weeklyWeightGoalKg = kgPerWeek;
+    }
+    await _addUserUsecase.addUser(user);
+    if (!mounted) return;
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -187,6 +217,7 @@ class _StrategyPageState extends State<StrategyPage> {
           observedKgPerWeek: observedWeeklyRateKg,
           referenceWeightKg: trendWeightKg,
           usesImperialUnits: _usesImperialUnits,
+          onEditDesired: _showSetWeeklyWeightGoalDialog,
         ),
       ],
     );
@@ -538,12 +569,14 @@ class _WeeklyRateCard extends StatelessWidget {
   final double? observedKgPerWeek;
   final double? referenceWeightKg;
   final bool usesImperialUnits;
+  final VoidCallback onEditDesired;
 
   const _WeeklyRateCard({
     required this.desiredKgPerWeek,
     required this.observedKgPerWeek,
     required this.referenceWeightKg,
     required this.usesImperialUnits,
+    required this.onEditDesired,
   });
 
   String? _formatRate(double? kgPerWeek, BuildContext context) {
@@ -580,15 +613,32 @@ class _WeeklyRateCard extends StatelessWidget {
                 style: theme.textTheme.titleMedium,
               ),
               const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    s.strategyDesiredRateLabel,
-                    style: theme.textTheme.bodyMedium,
+              Semantics(
+                identifier: 'strategy-weekly-rate-edit',
+                child: InkWell(
+                  onTap: onEditDesired,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        s.strategyDesiredRateLabel,
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(desiredText, style: theme.textTheme.bodyMedium),
+                          const SizedBox(width: 4),
+                          Icon(
+                            Icons.edit_outlined,
+                            size: 16,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  Text(desiredText, style: theme.textTheme.bodyMedium),
-                ],
+                ),
               ),
               const SizedBox(height: 4),
               Row(

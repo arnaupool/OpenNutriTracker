@@ -50,8 +50,7 @@ class SetWeeklyWeightGoalDialog extends StatefulWidget {
       _SetWeeklyWeightGoalDialogState();
 }
 
-class _SetWeeklyWeightGoalDialogState
-    extends State<SetWeeklyWeightGoalDialog> {
+class _SetWeeklyWeightGoalDialogState extends State<SetWeeklyWeightGoalDialog> {
   // Slider range in kg/week: -1.0 (lose 1 kg/wk) to +1.0 (gain 1 kg/wk)
   static const double _minKg = -1.0;
   static const double _maxKg = 1.0;
@@ -66,9 +65,8 @@ class _SetWeeklyWeightGoalDialogState
     _selectedKg = _selectedKg.clamp(_minKg, _maxKg);
   }
 
-  double get _displayValue => widget.usesImperialUnits
-      ? _selectedKg * 2.20462
-      : _selectedKg;
+  double get _displayValue =>
+      widget.usesImperialUnits ? _selectedKg * 2.20462 : _selectedKg;
 
   String get _displayLabel {
     if (_selectedKg == 0.0) return S.of(context).goalMaintainWeight;
@@ -86,10 +84,7 @@ class _SetWeeklyWeightGoalDialogState
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            _displayLabel,
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
+          Text(_displayLabel, style: Theme.of(context).textTheme.titleMedium),
           Slider(
             min: _minKg,
             max: _maxKg,
@@ -111,25 +106,35 @@ class _SetWeeklyWeightGoalDialogState
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          Text(
+            S.of(context).weeklyWeightGoalExplanation,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
         ],
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context)
-              .pop<WeeklyWeightGoalResult>(const WeeklyWeightGoalCancelled()),
+          onPressed: () => Navigator.of(
+            context,
+          ).pop<WeeklyWeightGoalResult>(const WeeklyWeightGoalCancelled()),
           child: Text(S.of(context).dialogCancelLabel),
         ),
         // Always offer Reset — users need a way to fall back to the
         // overall weight goal (lose / maintain / gain) even if they
         // opened the slider once and never set an explicit weekly rate.
         TextButton(
-          onPressed: () => Navigator.of(context)
-              .pop<WeeklyWeightGoalResult>(const WeeklyWeightGoalCleared()),
+          onPressed: () => Navigator.of(
+            context,
+          ).pop<WeeklyWeightGoalResult>(const WeeklyWeightGoalCleared()),
           child: Text(S.of(context).buttonResetLabel),
         ),
         TextButton(
-          onPressed: () => Navigator.of(context)
-              .pop<WeeklyWeightGoalResult>(WeeklyWeightGoalSet(_selectedKg)),
+          onPressed: () => Navigator.of(
+            context,
+          ).pop<WeeklyWeightGoalResult>(WeeklyWeightGoalSet(_selectedKg)),
           child: Text(S.of(context).dialogOKLabel),
         ),
       ],
