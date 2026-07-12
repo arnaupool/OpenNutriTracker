@@ -142,17 +142,17 @@
 			"y": 40,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "1d02a992",
 			"type": "text",
-			"text": "## FM-02 Trend weight EWMA\ntrend_t = trend_(t-1) + 0.1 × (peso_t − trend_(t-1)). Constante validada contra mf-sync (reconstrucción real de MacroFactor) y Libra/Hacker's Diet.",
+			"text": "## FM-02 Trend weight EWMA\nHecho: WeightTrendCalc.computeTrend() en lib/core/utils/calc/weight_trend_calc.dart. trend_t = trend_(t-1) + 0.1*(peso_t - trend_(t-1)) sobre la serie ya interpolada de FM-01. Primer punto sembrado a su propio valor crudo. alpha=0.1 por defecto, configurable. 7 tests: caso vacio, semilla, serie constante, step-response verificado contra la formula cerrada 90-10*(0.9)^n, amortiguacion de un pico de un dia, alpha=1.0 sin suavizado. dart format + flutter analyze limpios.",
 			"x": 1340,
 			"y": 220,
 			"width": 280,
 			"height": 160,
-			"color": "0"
+			"color": "5"
 		},
 		{
 			"id": "972ba256",
