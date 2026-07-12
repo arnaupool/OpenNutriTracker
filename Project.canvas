@@ -162,7 +162,7 @@
 			"y": 400,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "311a95d4",
@@ -217,12 +217,12 @@
 		{
 			"id": "5276e7a6",
 			"type": "text",
-			"text": "## FM-04 Cálculo de macros\nProteína primero (1.6–2.2 g/kg, +0.1 g/kg si el objetivo es pérdida), resto de calorías repartido grasa/carbo según Macro Program. Fórmula de grasa mínima: ((altura_cm − 150) × 0.5) + 30 g/día.",
+			"text": "## FM-04 Cálculo de macros\nHecho: MacroDynamicCalc en lib/core/utils/calc/macro_dynamic_calc.dart (nombre distinto del MacroCalc estatico existente para no chocar). proteinGoalG() = g/kg clamped a 1.6-2.2 + bonus 0.1 si objetivo perdida. minimumFatG() = ((altura-150)*0.5)+30, floor 30g. calculateMacros() reparte proteina primero, resto 50/50 kcal fat/carb (programa Balanced, unico con formula exacta en las fuentes), con floor de grasa que si salta absorbe carb el resto. 12 tests, incluyendo reconstruccion exacta de kcal totales y el caso donde el floor de grasa se activa. Los programas High-Carb/Low-Carb/Keto quedan sin implementar (MacroFactor solo los describe cualitativamente) - posible tarea futura si hace falta.",
 			"x": 1340,
 			"y": 580,
 			"width": 280,
 			"height": 160,
-			"color": "0"
+			"color": "5"
 		},
 		{
 			"id": "f96c5d5a",
@@ -232,7 +232,7 @@
 			"y": 760,
 			"width": 280,
 			"height": 160,
-			"color": "0"
+			"color": "1"
 		},
 		{
 			"id": "61fa2a0b",
