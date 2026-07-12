@@ -197,12 +197,12 @@
 		{
 			"id": "c66eff14",
 			"type": "text",
-			"text": "## FD-04 Reenlazar gráfico de peso de Profile a trend weight real\nweight_history_screen.dart hoy pinta puntos crudos (array 'spots') conectados por una curva bezier, sin ningún suavizado estadístico. Sustituir esa fuente de datos por la salida del EWMA de Fase Motor, reusando el fl_chart existente.",
+			"text": "## FD-04 Reenlazar gráfico de peso de Profile a trend weight real\nHecho: weight_history_screen.dart ahora pinta 2 series: Scale (puntos crudos, gris, sin linea conectora) y Trend (linea suavizada via WeightInterpolationCalc+WeightTrendCalc de Fase Motor, color primario verde). Trend se calcula sobre el historial COMPLETO (no solo la ventana de 30 dias) para que el EWMA ya este convergido al llegar a la ventana visible, evitando un artefacto de arranque en frio en el borde izquierdo. Leyenda anadida (Semantics 'weight-history-chart-legend'). Nuevos strings weightHistoryScaleLabel/weightHistoryTrendLabel. 5 tests (4 previos + 1 nuevo verificando 2 lineas + leyenda), 690 tests totales verdes. Verificado visualmente en el emulador con datos reales: la linea trend muestra el lag de convergencia esperado del EWMA, coincide con la teoria.",
 			"x": 1780,
 			"y": 580,
 			"width": 280,
 			"height": 160,
-			"color": "1"
+			"color": "5"
 		},
 		{
 			"id": "5276e7a6",

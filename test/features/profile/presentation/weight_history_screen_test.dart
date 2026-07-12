@@ -45,12 +45,7 @@ class _FakeDeleteWeightLogUsecase extends Fake
 class _FakeConfigRepository extends Fake implements ConfigRepository {
   @override
   Future<ConfigEntity> getConfig() async {
-    return ConfigEntity(
-      false,
-      false,
-      false,
-      AppThemeEntity.system,
-    );
+    return ConfigEntity(false, false, false, AppThemeEntity.system);
   }
 }
 
@@ -78,8 +73,9 @@ Widget _buildScreen(List<WeightLogEntity> entries) {
 
 void main() {
   group('WeightHistoryScreen chart', () {
-    testWidgets('shows the empty-state copy when there are no entries',
-        (tester) async {
+    testWidgets('shows the empty-state copy when there are no entries', (
+      tester,
+    ) async {
       await tester.pumpWidget(_wrap(_buildScreen(const [])));
       await tester.pumpAndSettle();
 
@@ -88,8 +84,9 @@ void main() {
       expect(find.byType(LineChart), findsNothing);
     });
 
-    testWidgets('shows the chart empty-state when there is only one entry',
-        (tester) async {
+    testWidgets('shows the chart empty-state when there is only one entry', (
+      tester,
+    ) async {
       final today = DateTime.now();
       final entries = [
         WeightLogEntity(
@@ -102,14 +99,17 @@ void main() {
       await tester.pumpAndSettle();
 
       // 1 entry: the list shows the row, the chart slot shows the nudge.
-      expect(find.byKey(const Key('weightHistoryChartEmptyState')),
-          findsOneWidget);
+      expect(
+        find.byKey(const Key('weightHistoryChartEmptyState')),
+        findsOneWidget,
+      );
       expect(find.text(S.current.weightHistoryChartEmptyState), findsOneWidget);
       expect(find.byType(LineChart), findsNothing);
     });
 
-    testWidgets('renders the chart when there are three entries',
-        (tester) async {
+    testWidgets('renders the chart when there are three entries', (
+      tester,
+    ) async {
       final today = DateTime.now();
       DateTime day(int daysAgo) {
         final d = today.subtract(Duration(days: daysAgo));
@@ -127,8 +127,40 @@ void main() {
 
       expect(find.byKey(const Key('weightHistoryChart')), findsOneWidget);
       expect(find.byType(LineChart), findsOneWidget);
-      expect(find.byKey(const Key('weightHistoryChartEmptyState')),
-          findsNothing);
+      expect(
+        find.byKey(const Key('weightHistoryChartEmptyState')),
+        findsNothing,
+      );
     });
+
+    testWidgets(
+      'plots both the raw scale weight and the Fase Motor trend weight '
+      'as two separate lines, with a legend distinguishing them',
+      (tester) async {
+        final today = DateTime.now();
+        DateTime day(int daysAgo) {
+          final d = today.subtract(Duration(days: daysAgo));
+          return DateTime(d.year, d.month, d.day);
+        }
+
+        final entries = [
+          WeightLogEntity(date: day(0), weightKg: 71.0),
+          WeightLogEntity(date: day(7), weightKg: 71.5),
+          WeightLogEntity(date: day(14), weightKg: 72.0),
+        ];
+
+        await tester.pumpWidget(_wrap(_buildScreen(entries)));
+        await tester.pumpAndSettle();
+
+        final lineChart = tester.widget<LineChart>(find.byType(LineChart));
+        // Scale (dots-only) + Trend (smoothed line) — FD-04 reenlazó el
+        // gráfico a la salida real de WeightTrendCalc en vez de a los
+        // puntos crudos únicamente.
+        expect(lineChart.data.lineBarsData, hasLength(2));
+
+        expect(find.text(S.current.weightHistoryScaleLabel), findsOneWidget);
+        expect(find.text(S.current.weightHistoryTrendLabel), findsOneWidget);
+      },
+    );
   });
 }

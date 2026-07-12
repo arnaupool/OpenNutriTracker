@@ -953,6 +953,8 @@
   "weightHistoryDateLabel": "Date",
   "weightHistoryNoEntries": "No weight readings yet. Add your first one to start tracking a trend.",
   "weightHistoryNoteLabel": "Note (optional)",
+  "weightHistoryScaleLabel": "Scale",
+  "weightHistoryTrendLabel": "Trend",
   "weightHistoryWeightLabel": "Weight",
   "weightLabel": "Weight",
   "yearsLabel": "{age} years",

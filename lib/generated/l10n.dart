@@ -6718,6 +6718,26 @@ class S {
     );
   }
 
+  /// `Scale`
+  String get weightHistoryScaleLabel {
+    return Intl.message(
+      'Scale',
+      name: 'weightHistoryScaleLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Trend`
+  String get weightHistoryTrendLabel {
+    return Intl.message(
+      'Trend',
+      name: 'weightHistoryTrendLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Weight`
   String get weightHistoryWeightLabel {
     return Intl.message(
