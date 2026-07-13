@@ -70,9 +70,18 @@ class _ProgressPhotoViewerScreenState
             return FutureBuilder<ImageProvider?>(
               future: UserImageStorage.imageProvider(path),
               builder: (context, snapshot) {
-                if (!snapshot.hasData || snapshot.data == null) {
+                if (!snapshot.hasData) {
                   return const Center(
                     child: CircularProgressIndicator(color: Colors.white),
+                  );
+                }
+                if (snapshot.data == null) {
+                  return const Center(
+                    child: Icon(
+                      Icons.broken_image_outlined,
+                      color: Colors.white54,
+                      size: 64,
+                    ),
                   );
                 }
                 return InteractiveViewer(

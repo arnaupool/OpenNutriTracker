@@ -487,33 +487,30 @@ void main() {
             frontPhotoPath: relativePath,
           ),
         ];
-        // A real (if tiny/invalid) file must exist for imageProvider() to
-        // resolve to a FileImage instead of null — it now checks existence
-        // upfront rather than deferring to Image's own errorBuilder.
-        final photoFile = File('${tempDocsDir.path}/$relativePath');
-        await photoFile.create(recursive: true);
-        await photoFile.writeAsBytes([1, 2, 3, 4]);
+        // Deliberately no file on disk — this test is only about the tap
+        // opening the viewer, not about a real image decoding. Writing
+        // fake (non-image) bytes here previously made the real Skia
+        // decoder hang instead of erroring, which hung pumpAndSettle().
 
         await tester.pumpWidget(_wrap(_buildScreen(entries: entries)));
         await tester.pumpAndSettle();
 
-        final thumbnailImage = find.descendant(
-          of: find.byType(ListTile),
-          matching: find.byType(Image),
+        final thumbnailGesture = find.byKey(
+          ValueKey(
+            'body-measurements-thumbnail-'
+            '${DateTime(2026, 7, 1).toIso8601String()}-front',
+          ),
         );
-        expect(thumbnailImage, findsOneWidget);
-
-        // The thumbnail's own GestureDetector is the nearest ancestor; a
-        // second, further one belongs to the enclosing Scrollable.
-        final thumbnailGesture = find
-            .ancestor(
-              of: thumbnailImage,
-              matching: find.byType(GestureDetector),
-            )
-            .first;
+        expect(thumbnailGesture, findsOneWidget);
 
         await tester.tap(thumbnailGesture);
-        await tester.pumpAndSettle();
+        // Not pumpAndSettle(): the viewer's FutureBuilder recreates its
+        // future on every rebuild (same as the pre-existing compare
+        // screen), which keeps scheduling frames and never truly settles
+        // in the test's virtual clock. A route-transition-length pump is
+        // enough to land on the pushed screen.
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 500));
 
         expect(
           find.byWidgetPredicate(

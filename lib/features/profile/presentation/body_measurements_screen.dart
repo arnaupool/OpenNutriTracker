@@ -325,6 +325,10 @@ class _EntryThumbnails extends StatelessWidget {
             Positioned(
               left: i * 6.0,
               child: GestureDetector(
+                key: ValueKey(
+                  'body-measurements-thumbnail-${entry.date.toIso8601String()}-${angles[i].name}',
+                ),
+                behavior: HitTestBehavior.opaque,
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) => ProgressPhotoViewerScreen(
@@ -337,7 +341,7 @@ class _EntryThumbnails extends StatelessWidget {
                   future: UserImageStorage.imageProvider(angles[i].pathFor(entry)!),
                   builder: (context, snapshot) {
                     if (!snapshot.hasData || snapshot.data == null) {
-                      return const SizedBox(width: 24);
+                      return const SizedBox(width: 24, height: 40);
                     }
                     return ClipRRect(
                       borderRadius: BorderRadius.circular(6),
