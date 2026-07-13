@@ -16,6 +16,7 @@ class NavigationOptions {
   static const recipeDetailRoute = "recipeDetail";
   static const importRecipeScannerRoute = "importRecipeScanner";
   static const weightHistoryRoute = "weightHistory";
+  static const bodyMeasurementsRoute = "bodyMeasurements";
   static const fastingRoute = "fasting";
   static const accentColourRoute = "accentColour";
   static const openRouterSettingsRoute = "openRouterSettings";

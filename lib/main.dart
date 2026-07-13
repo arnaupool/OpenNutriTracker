@@ -34,6 +34,7 @@ import 'package:opennutritracker/features/edit_meal/presentation/edit_meal_scree
 import 'package:opennutritracker/features/onboarding/onboarding_screen.dart';
 import 'package:opennutritracker/features/fasting/presentation/fasting_screen.dart';
 import 'package:opennutritracker/features/profile/presentation/weight_history_screen.dart';
+import 'package:opennutritracker/features/profile/presentation/body_measurements_screen.dart';
 import 'package:opennutritracker/features/recipes/presentation/screens/import_recipe_scanner_screen.dart';
 import 'package:opennutritracker/features/recipes/presentation/screens/recipe_builder_screen.dart';
 import 'package:opennutritracker/features/recipes/presentation/screens/recipe_detail_screen.dart';
@@ -281,6 +282,8 @@ class OpenNutriTrackerApp extends StatelessWidget {
             const ImportRecipeScannerScreen(),
         NavigationOptions.weightHistoryRoute: (context) =>
             const WeightHistoryScreen(),
+        NavigationOptions.bodyMeasurementsRoute: (context) =>
+            const BodyMeasurementsScreen(),
         NavigationOptions.fastingRoute: (context) => const FastingScreen(),
       },
     );

@@ -275,6 +275,23 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         Semantics(
+          identifier: 'profile-body-measurements',
+          child: ListTile(
+            title: Text(
+              S.of(context).profileBodyMeasurementsTitle,
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            leading: const SizedBox(
+              height: double.infinity,
+              child: Icon(Icons.straighten_outlined),
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(
+              context,
+            ).pushNamed(NavigationOptions.bodyMeasurementsRoute),
+          ),
+        ),
+        Semantics(
           identifier: 'profile-height',
           child: ListTile(
             title: Text(

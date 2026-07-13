@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:opennutritracker/core/data/data_source/custom_activity_template_dbo.dart';
 import 'package:opennutritracker/core/data/data_source/user_activity_dbo.dart';
+import 'package:opennutritracker/core/data/dbo/body_measurement_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/config_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/fasting_session_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/intake_dbo.dart';
@@ -39,6 +40,7 @@ class HiveDBProvider extends ChangeNotifier {
   // intentionally keeps cancelled and completed sessions side by side with no
   // success/failure label on the record — see `FastingSessionDBO`.
   static const fastingBoxName = 'FastingBox';
+  static const bodyMeasurementBoxName = 'BodyMeasurementBox';
 
   late Box<ConfigDBO> configBox;
   late Box<IntakeDBO> intakeBox;
@@ -53,6 +55,7 @@ class HiveDBProvider extends ChangeNotifier {
   late Box<WeightLogDBO> weightLogBox;
   late Box<WaterIntakeDBO> waterIntakeBox;
   late Box<FastingSessionDBO> fastingBox;
+  late Box<BodyMeasurementDBO> bodyMeasurementBox;
 
   Future<void> initHiveDB(Uint8List encryptionKey) async {
     final encryptionCypher = HiveAesCipher(encryptionKey);
@@ -115,6 +118,10 @@ class HiveDBProvider extends ChangeNotifier {
     );
     fastingBox = await Hive.openBox(
       fastingBoxName,
+      encryptionCipher: encryptionCypher,
+    );
+    bodyMeasurementBox = await Hive.openBox(
+      bodyMeasurementBoxName,
       encryptionCipher: encryptionCypher,
     );
   }

@@ -13,6 +13,8 @@ import 'package:opennutritracker/core/data/data_source/user_activity_data_source
 import 'package:opennutritracker/core/data/data_source/user_data_source.dart';
 import 'package:opennutritracker/core/data/data_source/water_intake_data_source.dart';
 import 'package:opennutritracker/core/data/data_source/weight_log_data_source.dart';
+import 'package:opennutritracker/core/data/data_source/body_measurement_data_source.dart';
+import 'package:opennutritracker/core/data/repository/body_measurement_repository.dart';
 import 'package:opennutritracker/core/data/repository/config_repository.dart';
 import 'package:opennutritracker/core/data/repository/custom_activity_template_repository.dart';
 import 'package:opennutritracker/core/data/repository/intake_repository.dart';
@@ -32,6 +34,9 @@ import 'package:opennutritracker/core/domain/usecase/add_user_activity_usercase.
 import 'package:opennutritracker/core/domain/usecase/add_user_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/add_water_intake_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/add_weight_log_usecase.dart';
+import 'package:opennutritracker/core/domain/usecase/add_body_measurement_usecase.dart';
+import 'package:opennutritracker/core/domain/usecase/get_body_measurement_usecase.dart';
+import 'package:opennutritracker/core/domain/usecase/delete_body_measurement_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/compute_recipe_nutrition_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/delete_all_user_data_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/delete_custom_activity_template_usecase.dart';
@@ -363,6 +368,15 @@ Future<void> initLocator() async {
   locator.registerLazySingleton<DeleteWeightLogUsecase>(
     () => DeleteWeightLogUsecase(locator()),
   );
+  locator.registerLazySingleton<GetBodyMeasurementUsecase>(
+    () => GetBodyMeasurementUsecase(locator()),
+  );
+  locator.registerLazySingleton<AddBodyMeasurementUsecase>(
+    () => AddBodyMeasurementUsecase(locator()),
+  );
+  locator.registerLazySingleton<DeleteBodyMeasurementUsecase>(
+    () => DeleteBodyMeasurementUsecase(locator()),
+  );
   locator.registerLazySingleton<AddWaterIntakeUsecase>(
     () => AddWaterIntakeUsecase(locator()),
   );
@@ -452,6 +466,9 @@ Future<void> initLocator() async {
   locator.registerLazySingleton<WeightLogRepository>(
     () => WeightLogRepository(locator()),
   );
+  locator.registerLazySingleton<BodyMeasurementRepository>(
+    () => BodyMeasurementRepository(locator()),
+  );
   locator.registerLazySingleton<WaterIntakeRepository>(
     () => WaterIntakeRepository(locator()),
   );
@@ -495,6 +512,9 @@ Future<void> initLocator() async {
   );
   locator.registerLazySingleton<WeightLogDataSource>(
     () => WeightLogDataSource(hiveDBProvider.weightLogBox),
+  );
+  locator.registerLazySingleton<BodyMeasurementDataSource>(
+    () => BodyMeasurementDataSource(hiveDBProvider.bodyMeasurementBox),
   );
   locator.registerLazySingleton<WaterIntakeDataSource>(
     () => WaterIntakeDataSource(hiveDBProvider.waterIntakeBox),

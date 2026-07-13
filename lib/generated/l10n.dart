@@ -7453,6 +7453,16 @@ class S {
     );
   }
 
+  /// `Body measurements`
+  String get profileBodyMeasurementsTitle {
+    return Intl.message(
+      'Body measurements',
+      name: 'profileBodyMeasurementsTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Add entry`
   String get weightHistoryAddEntry {
     return Intl.message(
@@ -7531,6 +7541,151 @@ class S {
       desc: '',
       args: [],
     );
+  }
+
+  /// `Add entry`
+  String get bodyMeasurementsAddEntry {
+    return Intl.message(
+      'Add entry',
+      name: 'bodyMeasurementsAddEntry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No measurements yet. Add your first one to start tracking.`
+  String get bodyMeasurementsNoEntries {
+    return Intl.message(
+      'No measurements yet. Add your first one to start tracking.',
+      name: 'bodyMeasurementsNoEntries',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log at least two entries for this metric to see its trend.`
+  String get bodyMeasurementsChartEmptyState {
+    return Intl.message(
+      'Log at least two entries for this metric to see its trend.',
+      name: 'bodyMeasurementsChartEmptyState',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Date`
+  String get bodyMeasurementsDateLabel {
+    return Intl.message(
+      'Date',
+      name: 'bodyMeasurementsDateLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Note (optional)`
+  String get bodyMeasurementsNoteLabel {
+    return Intl.message(
+      'Note (optional)',
+      name: 'bodyMeasurementsNoteLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Neck`
+  String get bodyMeasurementsNeckLabel {
+    return Intl.message(
+      'Neck',
+      name: 'bodyMeasurementsNeckLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Shoulders`
+  String get bodyMeasurementsShouldersLabel {
+    return Intl.message(
+      'Shoulders',
+      name: 'bodyMeasurementsShouldersLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Chest`
+  String get bodyMeasurementsChestLabel {
+    return Intl.message(
+      'Chest',
+      name: 'bodyMeasurementsChestLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Waist`
+  String get bodyMeasurementsWaistLabel {
+    return Intl.message(
+      'Waist',
+      name: 'bodyMeasurementsWaistLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Hips`
+  String get bodyMeasurementsHipsLabel {
+    return Intl.message(
+      'Hips',
+      name: 'bodyMeasurementsHipsLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Biceps`
+  String get bodyMeasurementsBicepsLabel {
+    return Intl.message(
+      'Biceps',
+      name: 'bodyMeasurementsBicepsLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Thigh`
+  String get bodyMeasurementsThighLabel {
+    return Intl.message(
+      'Thigh',
+      name: 'bodyMeasurementsThighLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Waist-to-height`
+  String get bodyMeasurementsWaistToHeightRatioLabel {
+    return Intl.message(
+      'Waist-to-height',
+      name: 'bodyMeasurementsWaistToHeightRatioLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Waist-to-hip`
+  String get bodyMeasurementsWaistToHipRatioLabel {
+    return Intl.message(
+      'Waist-to-hip',
+      name: 'bodyMeasurementsWaistToHipRatioLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `in`
+  String get inLabel {
+    return Intl.message('in', name: 'inLabel', desc: '', args: []);
   }
 
   /// `Custom activity`
