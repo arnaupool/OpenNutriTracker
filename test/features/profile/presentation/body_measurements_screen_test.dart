@@ -16,6 +16,17 @@ import 'package:opennutritracker/core/domain/usecase/get_body_measurement_usecas
 import 'package:opennutritracker/core/domain/usecase/get_user_usecase.dart';
 import 'package:opennutritracker/features/profile/presentation/body_measurements_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
+import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
+
+/// Stub so `UserImageStorage.absolutePath` (used by the entry thumbnails
+/// and the photo pickers) resolves against a real temp dir instead of
+/// throwing `MissingPluginException` in the test binding.
+class _FakePathProvider extends PathProviderPlatform
+    with MockPlatformInterfaceMixin {
+  @override
+  Future<String?> getApplicationDocumentsPath() async => '.';
+}
 
 class _FakeGetBodyMeasurementUsecase extends Fake
     implements GetBodyMeasurementUsecase {
@@ -108,6 +119,10 @@ Widget _buildScreen({
 }
 
 void main() {
+  setUp(() {
+    PathProviderPlatform.instance = _FakePathProvider();
+  });
+
   group('BodyMeasurementsScreen', () {
     testWidgets('shows the empty-state copy with no entries', (tester) async {
       await tester.pumpWidget(_wrap(_buildScreen(entries: const [])));
@@ -300,5 +315,145 @@ void main() {
 
       expect(fakeDelete.lastDeleted, equals(DateTime(2026, 7, 1)));
     });
+
+    testWidgets(
+      'Add entry shows a Front/Side/Back photo picker for each angle',
+      (tester) async {
+        tester.view.physicalSize = const Size(1080, 2400);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        await tester.pumpWidget(_wrap(_buildScreen(entries: const [])));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byIcon(Icons.add));
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text(S.current.bodyMeasurementsPhotoFrontLabel),
+          findsOneWidget,
+        );
+        expect(
+          find.text(S.current.bodyMeasurementsPhotoSideLabel),
+          findsOneWidget,
+        );
+        expect(
+          find.text(S.current.bodyMeasurementsPhotoBackLabel),
+          findsOneWidget,
+        );
+        expect(
+          find.byWidgetPredicate(
+            (w) =>
+                w is Semantics &&
+                w.properties.identifier ==
+                    'body-measurements-photo-picker-front',
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.byWidgetPredicate(
+            (w) =>
+                w is Semantics &&
+                w.properties.identifier ==
+                    'body-measurements-photo-picker-side',
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.byWidgetPredicate(
+            (w) =>
+                w is Semantics &&
+                w.properties.identifier ==
+                    'body-measurements-photo-picker-back',
+          ),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets(
+      'hides the Compare action when no entry has a photo',
+      (tester) async {
+        tester.view.physicalSize = const Size(1080, 2400);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        final noPhotoEntries = [
+          BodyMeasurementEntity(date: DateTime(2026, 7, 1), waistCm: 83.0),
+        ];
+        await tester.pumpWidget(_wrap(_buildScreen(entries: noPhotoEntries)));
+        await tester.pumpAndSettle();
+
+        expect(
+          find.byWidgetPredicate(
+            (w) =>
+                w is Semantics &&
+                w.properties.identifier == 'body-measurements-compare',
+          ),
+          findsNothing,
+        );
+      },
+    );
+
+    testWidgets(
+      'shows the Compare action once an entry has a photo, and tapping '
+      'it opens the compare screen',
+      (tester) async {
+        tester.view.physicalSize = const Size(1080, 2400);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        final withPhotoEntries = [
+          BodyMeasurementEntity(
+            date: DateTime(2026, 7, 1),
+            waistCm: 83.0,
+            frontPhotoPath: 'progress_photos/2026-07-01_front.webp',
+          ),
+        ];
+        await tester.pumpWidget(_wrap(_buildScreen(entries: withPhotoEntries)));
+        await tester.pumpAndSettle();
+
+        final compareButton = find.byWidgetPredicate(
+          (w) =>
+              w is Semantics &&
+              w.properties.identifier == 'body-measurements-compare',
+        );
+        expect(compareButton, findsOneWidget);
+
+        await tester.tap(compareButton);
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text(S.current.bodyMeasurementsCompareTitle),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets(
+      'an entry with a logged photo renders without throwing, even when '
+      'the underlying file is missing',
+      (tester) async {
+        tester.view.physicalSize = const Size(1080, 2400);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        final entries = [
+          BodyMeasurementEntity(
+            date: DateTime(2026, 7, 1),
+            waistCm: 83.0,
+            frontPhotoPath: 'progress_photos/2026-07-01_front.webp',
+          ),
+        ];
+        await tester.pumpWidget(_wrap(_buildScreen(entries: entries)));
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
+      },
+    );
   });
 }

@@ -5,10 +5,12 @@ import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:opennutritracker/core/data/data_source/custom_activity_template_dbo.dart';
 import 'package:opennutritracker/core/data/data_source/user_activity_dbo.dart';
+import 'package:opennutritracker/core/data/dbo/body_measurement_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/intake_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/recipe_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/tracked_day_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/weight_log_dbo.dart';
+import 'package:opennutritracker/core/data/repository/body_measurement_repository.dart';
 import 'package:opennutritracker/core/data/repository/custom_activity_template_repository.dart';
 import 'package:opennutritracker/core/data/repository/intake_repository.dart';
 import 'package:opennutritracker/core/data/repository/recipe_repository.dart';
@@ -25,6 +27,7 @@ class ImportDataUsecase {
   final RecipeRepository _recipeRepository;
   final WeightLogRepository _weightLogRepository;
   final CustomActivityTemplateRepository _customActivityTemplateRepository;
+  final BodyMeasurementRepository _bodyMeasurementRepository;
 
   ImportDataUsecase(
     this._userActivityRepository,
@@ -33,12 +36,14 @@ class ImportDataUsecase {
     this._recipeRepository,
     this._weightLogRepository,
     this._customActivityTemplateRepository,
+    this._bodyMeasurementRepository,
   );
 
   /// Imports user activity, intake, tracked day, and (optionally) recipe,
-  /// weight log or Custom activity template data from a zip file
-  /// containing JSON files. Recipe, weight log and template files are
-  /// treated as optional so zips exported by older versions still import.
+  /// weight log, Custom activity template or body measurement data from a
+  /// zip file containing JSON files. Recipe, weight log, template and body
+  /// measurement files are treated as optional so zips exported by older
+  /// versions still import.
   ///
   /// Returns true if import was successful, false otherwise.
   Future<bool> importData(
@@ -48,6 +53,7 @@ class ImportDataUsecase {
     String recipeJsonFileName,
     String weightLogJsonFileName,
     String customActivityTemplateJsonFileName,
+    String bodyMeasurementJsonFileName,
   ) async {
     // Allow user to pick a zip file
     final result = await FilePicker.pickFiles(
@@ -151,23 +157,39 @@ class ImportDataUsecase {
       await _customActivityTemplateRepository.addAllTemplateDBOs(templateDBOs);
     }
 
-    // Restore any user-attached photos — recipes under `recipe_images/`
-    // and custom meals under `meal_images/`. Each archive entry's name
-    // already matches the relative slug we stored on the matching DBO,
-    // so we just write the bytes back into the right private documents
-    // subdirectory. Anything outside those known prefixes is skipped by
-    // the sanitiser, so a hostile zip can't escape into other folders.
-    final recipeDir =
-        await UserImageStorage.ensureDirectory(UserImageKind.recipe);
-    final mealDir =
-        await UserImageStorage.ensureDirectory(UserImageKind.meal);
+    // Extract and process body measurement data (FC-01/FC-02) — optional
+    // so zips produced before this feature landed still import.
+    final bodyMeasurementFile = archive.findFile(bodyMeasurementJsonFileName);
+    if (bodyMeasurementFile != null) {
+      final bodyMeasurementJsonString =
+          utf8.decode(bodyMeasurementFile.content as List<int>);
+      final bodyMeasurementList = (jsonDecode(bodyMeasurementJsonString) as List)
+          .cast<Map<String, dynamic>>();
+      final bodyMeasurementDBOs = bodyMeasurementList
+          .map((json) => BodyMeasurementDBO.fromJson(json))
+          .toList();
+      await _bodyMeasurementRepository.addAllEntries(bodyMeasurementDBOs);
+    }
+
+    // Restore any user-attached photos — recipes under `recipe_images/`,
+    // custom meals under `meal_images/`, and progress photos under
+    // `progress_photos/` (only present if the export opted in). Each
+    // archive entry's name already matches the relative slug we stored on
+    // the matching DBO, so we just write the bytes back into the right
+    // private documents subdirectory. Anything outside those known
+    // prefixes is skipped by the sanitiser, so a hostile zip can't escape
+    // into other folders.
+    final imageDirs = {
+      for (final kind in UserImageKind.values)
+        kind.subdir: await UserImageStorage.ensureDirectory(kind),
+    };
     for (final entry in archive.files) {
       if (!entry.isFile) continue;
       final sanitized = UserImageStorage.sanitizeRelative(entry.name);
       if (sanitized == null) continue;
       final parts = sanitized.split('/');
-      final targetDir =
-          parts[0] == UserImageKind.recipe.subdir ? recipeDir : mealDir;
+      final targetDir = imageDirs[parts[0]];
+      if (targetDir == null) continue;
       final destPath = '${targetDir.path}/${parts[1]}';
       final destFile = File(destPath);
       await destFile.writeAsBytes(entry.content as List<int>, flush: true);

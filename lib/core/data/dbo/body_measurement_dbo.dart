@@ -25,6 +25,15 @@ class BodyMeasurementDBO extends HiveObject {
   double? thighCm;
   @HiveField(8)
   String? note;
+  // Relative UserImageStorage slugs (e.g. `progress_photos/<id>.webp`),
+  // added alongside the numeric fields since MacroFactor logs photos as
+  // part of the same daily entry rather than a separate flow.
+  @HiveField(9)
+  String? frontPhotoPath;
+  @HiveField(10)
+  String? sidePhotoPath;
+  @HiveField(11)
+  String? backPhotoPath;
 
   BodyMeasurementDBO({
     required this.date,
@@ -36,6 +45,9 @@ class BodyMeasurementDBO extends HiveObject {
     this.bicepsCm,
     this.thighCm,
     this.note,
+    this.frontPhotoPath,
+    this.sidePhotoPath,
+    this.backPhotoPath,
   });
 
   factory BodyMeasurementDBO.fromBodyMeasurementEntity(
@@ -51,6 +63,9 @@ class BodyMeasurementDBO extends HiveObject {
       bicepsCm: entity.bicepsCm,
       thighCm: entity.thighCm,
       note: entity.note,
+      frontPhotoPath: entity.frontPhotoPath,
+      sidePhotoPath: entity.sidePhotoPath,
+      backPhotoPath: entity.backPhotoPath,
     );
   }
 

@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:archive/archive_io.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:opennutritracker/core/data/data_source/custom_meal_data_source.dart';
+import 'package:opennutritracker/core/data/repository/body_measurement_repository.dart';
 import 'package:opennutritracker/core/data/repository/custom_activity_template_repository.dart';
 import 'package:opennutritracker/core/data/repository/intake_repository.dart';
 import 'package:opennutritracker/core/data/repository/recipe_repository.dart';
@@ -27,6 +28,7 @@ class ExportDataUsecase {
   final CustomMealDataSource _customMealDataSource;
   final WeightLogRepository _weightLogRepository;
   final CustomActivityTemplateRepository _customActivityTemplateRepository;
+  final BodyMeasurementRepository _bodyMeasurementRepository;
 
   ExportDataUsecase(
     this._userActivityRepository,
@@ -36,6 +38,7 @@ class ExportDataUsecase {
     this._customMealDataSource,
     this._weightLogRepository,
     this._customActivityTemplateRepository,
+    this._bodyMeasurementRepository,
   );
 
   /// Exports user activity, intake, tracked day, recipe, weight-log and
@@ -55,11 +58,17 @@ class ExportDataUsecase {
     String trackedDayJsonFileName,
     String recipeJsonFileName,
     String weightLogJsonFileName,
-    String customActivityTemplateJsonFileName, {
+    String customActivityTemplateJsonFileName,
+    String bodyMeasurementJsonFileName, {
     ExportFormat format = ExportFormat.json,
     String userActivityCsvFileName = 'user_activity.csv',
     String userIntakeCsvFileName = 'user_intake.csv',
     String trackedDayCsvFileName = 'user_tracked_day.csv',
+    // Progress photos are personal body photos — unlike recipe/meal
+    // photos they're excluded from the export unless the user explicitly
+    // opts in from the Export dialog. The numeric measurements above are
+    // exported unconditionally either way, same treatment as weight log.
+    bool includeProgressPhotos = false,
   }) async {
     final archive = Archive();
 
@@ -173,6 +182,30 @@ class ExportDataUsecase {
           templatesBytes,
         ),
       );
+
+      // Body measurements (FC-01/FC-02) — the numeric fields export the
+      // same as weight log, unconditionally. Progress photos are the
+      // sensitive part and only travel with the zip when the user
+      // explicitly opted in from the Export dialog.
+      final fullBodyMeasurements =
+          await _bodyMeasurementRepository.getAllEntriesDBO();
+      final bodyMeasurementBytes = utf8.encode(jsonEncode(
+        fullBodyMeasurements.map((entry) => entry.toJson()).toList(),
+      ));
+      archive.addFile(
+        ArchiveFile(
+          bodyMeasurementJsonFileName,
+          bodyMeasurementBytes.length,
+          bodyMeasurementBytes,
+        ),
+      );
+      if (includeProgressPhotos) {
+        for (final entry in fullBodyMeasurements) {
+          await _addUserImageIfPresent(archive, entry.frontPhotoPath);
+          await _addUserImageIfPresent(archive, entry.sidePhotoPath);
+          await _addUserImageIfPresent(archive, entry.backPhotoPath);
+        }
+      }
     }
 
     // Save the zip file to the user-specified location

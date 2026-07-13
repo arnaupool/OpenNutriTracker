@@ -31,6 +31,7 @@ class _ExportImportDialogState extends State<ExportImportDialog> {
   final _calendarDayBloc = locator<CalendarDayBloc>();
 
   ExportFormat _exportFormat = ExportFormat.json;
+  bool _includeProgressPhotos = false;
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +87,21 @@ class _ExportImportDialogState extends State<ExportImportDialog> {
                     ),
                   ],
                 ),
+              ] else ...[
+                Semantics(
+                  identifier: 'export-import-include-progress-photos',
+                  child: CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    value: _includeProgressPhotos,
+                    onChanged: (checked) =>
+                        setState(() => _includeProgressPhotos = checked ?? false),
+                    title: Text(
+                      S.of(context).exportImportIncludeProgressPhotosLabel,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                ),
               ],
               const SizedBox(height: 12),
               BlocBuilder<ExportImportBloc, ExportImportState>(
@@ -133,7 +149,10 @@ class _ExportImportDialogState extends State<ExportImportDialog> {
       actions: <Widget>[
         TextButton(
           onPressed: () => _exportImportBloc.add(
-            ExportDataEvent(format: _exportFormat),
+            ExportDataEvent(
+              format: _exportFormat,
+              includeProgressPhotos: _includeProgressPhotos,
+            ),
           ),
           child: Text(S.of(context).exportAction),
         ),

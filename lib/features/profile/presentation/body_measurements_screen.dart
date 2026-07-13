@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:opennutritracker/core/data/repository/config_repository.dart';
 import 'package:opennutritracker/core/domain/entity/body_measurement_entity.dart';
@@ -7,8 +10,11 @@ import 'package:opennutritracker/core/domain/usecase/add_body_measurement_usecas
 import 'package:opennutritracker/core/domain/usecase/delete_body_measurement_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_body_measurement_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_user_usecase.dart';
+import 'package:opennutritracker/core/presentation/widgets/user_image_picker_tile.dart';
 import 'package:opennutritracker/core/utils/calc/unit_calc.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
+import 'package:opennutritracker/core/utils/user_image_storage.dart';
+import 'package:opennutritracker/features/profile/presentation/progress_photo_compare_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 /// The circumferences MacroFactor tracks (up to 21) are more than most
@@ -60,6 +66,36 @@ enum BodyMeasurementMetric {
         return s.bodyMeasurementsBicepsLabel;
       case BodyMeasurementMetric.thigh:
         return s.bodyMeasurementsThighLabel;
+    }
+  }
+}
+
+/// The three angles MacroFactor's progress-photo flow captures per entry.
+enum ProgressPhotoAngle {
+  front,
+  side,
+  back;
+
+  String? pathFor(BodyMeasurementEntity entry) {
+    switch (this) {
+      case ProgressPhotoAngle.front:
+        return entry.frontPhotoPath;
+      case ProgressPhotoAngle.side:
+        return entry.sidePhotoPath;
+      case ProgressPhotoAngle.back:
+        return entry.backPhotoPath;
+    }
+  }
+
+  String label(BuildContext context) {
+    final s = S.of(context);
+    switch (this) {
+      case ProgressPhotoAngle.front:
+        return s.bodyMeasurementsPhotoFrontLabel;
+      case ProgressPhotoAngle.side:
+        return s.bodyMeasurementsPhotoSideLabel;
+      case ProgressPhotoAngle.back:
+        return s.bodyMeasurementsPhotoBackLabel;
     }
   }
 }
@@ -149,8 +185,28 @@ class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final hasAnyPhoto = _entries.any((e) => e.hasAnyPhoto);
     return Scaffold(
-      appBar: AppBar(title: Text(S.of(context).profileBodyMeasurementsTitle)),
+      appBar: AppBar(
+        title: Text(S.of(context).profileBodyMeasurementsTitle),
+        actions: [
+          if (hasAnyPhoto)
+            Semantics(
+              identifier: 'body-measurements-compare',
+              child: IconButton(
+                tooltip: S.of(context).bodyMeasurementsCompareTooltip,
+                icon: const Icon(Icons.compare_outlined),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => ProgressPhotoCompareScreen(
+                      getUsecase: _getUsecase,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
       floatingActionButton: Semantics(
         identifier: 'body-measurements-add',
         child: FloatingActionButton.extended(
@@ -228,6 +284,7 @@ class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
     ];
 
     return ListTile(
+      leading: entry.hasAnyPhoto ? _EntryThumbnails(entry: entry) : null,
       title: Text(
         parts.isEmpty ? dateLabel : parts.join(' · '),
         maxLines: 2,
@@ -239,6 +296,54 @@ class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
       trailing: IconButton(
         icon: const Icon(Icons.delete_outline),
         onPressed: () => _onDelete(entry),
+      ),
+    );
+  }
+}
+
+/// Small stacked thumbnails (up to 3, one per logged angle) shown on an
+/// entry's list tile so photos are visible at a glance without opening
+/// the compare screen.
+class _EntryThumbnails extends StatelessWidget {
+  final BodyMeasurementEntity entry;
+
+  const _EntryThumbnails({required this.entry});
+
+  @override
+  Widget build(BuildContext context) {
+    final paths = [
+      for (final angle in ProgressPhotoAngle.values) angle.pathFor(entry),
+    ].whereType<String>().toList();
+
+    return SizedBox(
+      width: 40,
+      height: double.infinity,
+      child: Stack(
+        children: [
+          for (var i = 0; i < paths.length && i < 3; i++)
+            Positioned(
+              left: i * 6.0,
+              child: FutureBuilder<String>(
+                future: UserImageStorage.absolutePath(paths[i]),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) return const SizedBox(width: 24);
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: Image.file(
+                      File(snapshot.data!),
+                      width: 24,
+                      height: 40,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, error, stack) => const SizedBox(
+                        width: 24,
+                        height: 40,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -514,6 +619,11 @@ class _AddBodyMeasurementEntryDialogState
   late DateTime _date;
   late final Map<BodyMeasurementMetric, TextEditingController> _controllers;
   late TextEditingController _noteController;
+  // Photos are never prefilled from the previous entry — unlike a
+  // circumference, reusing yesterday's photo for today makes no sense.
+  String? _frontPhotoPath;
+  String? _sidePhotoPath;
+  String? _backPhotoPath;
 
   @override
   void initState() {
@@ -558,6 +668,53 @@ class _AddBodyMeasurementEntryDialogState
     }
   }
 
+  String? _pathForAngle(ProgressPhotoAngle angle) => switch (angle) {
+    ProgressPhotoAngle.front => _frontPhotoPath,
+    ProgressPhotoAngle.side => _sidePhotoPath,
+    ProgressPhotoAngle.back => _backPhotoPath,
+  };
+
+  void _setPathForAngle(ProgressPhotoAngle angle, String? path) {
+    switch (angle) {
+      case ProgressPhotoAngle.front:
+        _frontPhotoPath = path;
+      case ProgressPhotoAngle.side:
+        _sidePhotoPath = path;
+      case ProgressPhotoAngle.back:
+        _backPhotoPath = path;
+    }
+  }
+
+  Future<void> _pickPhoto(ProgressPhotoAngle angle, ImageSource source) async {
+    try {
+      final picked = await ImagePicker().pickImage(source: source);
+      if (picked == null) return;
+      final ownerId =
+          '${DateFormat('yyyy-MM-dd').format(_date)}_${angle.name}';
+      final relative = await UserImageStorage.importFrom(
+        kind: UserImageKind.progressPhoto,
+        ownerId: ownerId,
+        sourcePath: picked.path,
+      );
+      // Bust the cache so a replaced photo shows up immediately instead of
+      // redrawing the previous bytes for the same (reused) relative path.
+      FileImage(File(await UserImageStorage.absolutePath(relative))).evict();
+      if (!mounted) return;
+      setState(() => _setPathForAngle(angle, relative));
+    } catch (_) {
+      // Best-effort — a picker/compression failure just leaves the slot
+      // empty rather than blocking the rest of the entry from saving.
+    }
+  }
+
+  Future<void> _removePhoto(ProgressPhotoAngle angle) async {
+    final current = _pathForAngle(angle);
+    if (current == null) return;
+    await UserImageStorage.delete(current);
+    if (!mounted) return;
+    setState(() => _setPathForAngle(angle, null));
+  }
+
   void _submit() {
     double? parse(BodyMeasurementMetric metric) {
       final raw = _controllers[metric]!.text.trim();
@@ -579,6 +736,9 @@ class _AddBodyMeasurementEntryDialogState
         bicepsCm: parse(BodyMeasurementMetric.biceps),
         thighCm: parse(BodyMeasurementMetric.thigh),
         note: note.isEmpty ? null : note,
+        frontPhotoPath: _frontPhotoPath,
+        sidePhotoPath: _sidePhotoPath,
+        backPhotoPath: _backPhotoPath,
       ),
     );
   }
@@ -605,6 +765,36 @@ class _AddBodyMeasurementEntryDialogState
               subtitle: Text(dateLabel),
               onTap: _pickDate,
             ),
+            const SizedBox(height: 4),
+            Text(s.bodyMeasurementsPhotosLabel, style: Theme.of(context).textTheme.titleSmall),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                for (final angle in ProgressPhotoAngle.values)
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        angle.label(context),
+                        style: Theme.of(context).textTheme.labelSmall,
+                      ),
+                      UserImagePickerTile(
+                        kind: UserImageKind.progressPhoto,
+                        imagePath: _pathForAngle(angle),
+                        avatarSize: 68,
+                        semanticsIdentifierOverride:
+                            'body-measurements-photo-picker-${angle.name}',
+                        onPickFromGallery: () =>
+                            _pickPhoto(angle, ImageSource.gallery),
+                        onTakePhoto: () =>
+                            _pickPhoto(angle, ImageSource.camera),
+                        onRemove: () => _removePhoto(angle),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
             for (final metric in BodyMeasurementMetric.values)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8),

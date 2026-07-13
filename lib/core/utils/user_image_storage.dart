@@ -15,7 +15,8 @@ import 'package:path_provider/path_provider.dart';
 /// meals — and the storage layer now reflects that distinction.
 enum UserImageKind {
   recipe('recipe_images'),
-  meal('meal_images');
+  meal('meal_images'),
+  progressPhoto('progress_photos');
 
   const UserImageKind(this.subdir);
 

@@ -44,13 +44,19 @@ void main() {
         UserImageStorage.relativePathFor(UserImageKind.meal, 'abc'),
         'meal_images/abc.webp',
       );
+      expect(
+        UserImageStorage.relativePathFor(UserImageKind.progressPhoto, 'abc'),
+        'progress_photos/abc.webp',
+      );
     });
 
-    test('sanitizeRelative accepts canonical forms for both kinds', () {
+    test('sanitizeRelative accepts canonical forms for all kinds', () {
       expect(UserImageStorage.sanitizeRelative('recipe_images/x.webp'),
           'recipe_images/x.webp');
       expect(UserImageStorage.sanitizeRelative('meal_images/x.webp'),
           'meal_images/x.webp');
+      expect(UserImageStorage.sanitizeRelative('progress_photos/x.webp'),
+          'progress_photos/x.webp');
     });
 
     test('sanitizeRelative rejects malformed and out-of-tree paths', () {

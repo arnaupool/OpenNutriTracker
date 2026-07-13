@@ -26,13 +26,16 @@ class BodyMeasurementDBOAdapter extends TypeAdapter<BodyMeasurementDBO> {
       bicepsCm: (fields[6] as num?)?.toDouble(),
       thighCm: (fields[7] as num?)?.toDouble(),
       note: fields[8] as String?,
+      frontPhotoPath: fields[9] as String?,
+      sidePhotoPath: fields[10] as String?,
+      backPhotoPath: fields[11] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, BodyMeasurementDBO obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.date)
       ..writeByte(1)
@@ -50,7 +53,13 @@ class BodyMeasurementDBOAdapter extends TypeAdapter<BodyMeasurementDBO> {
       ..writeByte(7)
       ..write(obj.thighCm)
       ..writeByte(8)
-      ..write(obj.note);
+      ..write(obj.note)
+      ..writeByte(9)
+      ..write(obj.frontPhotoPath)
+      ..writeByte(10)
+      ..write(obj.sidePhotoPath)
+      ..writeByte(11)
+      ..write(obj.backPhotoPath);
   }
 
   @override
@@ -79,6 +88,9 @@ BodyMeasurementDBO _$BodyMeasurementDBOFromJson(Map<String, dynamic> json) =>
       bicepsCm: (json['bicepsCm'] as num?)?.toDouble(),
       thighCm: (json['thighCm'] as num?)?.toDouble(),
       note: json['note'] as String?,
+      frontPhotoPath: json['frontPhotoPath'] as String?,
+      sidePhotoPath: json['sidePhotoPath'] as String?,
+      backPhotoPath: json['backPhotoPath'] as String?,
     );
 
 Map<String, dynamic> _$BodyMeasurementDBOToJson(BodyMeasurementDBO instance) =>
@@ -92,4 +104,7 @@ Map<String, dynamic> _$BodyMeasurementDBOToJson(BodyMeasurementDBO instance) =>
       'bicepsCm': instance.bicepsCm,
       'thighCm': instance.thighCm,
       'note': instance.note,
+      'frontPhotoPath': instance.frontPhotoPath,
+      'sidePhotoPath': instance.sidePhotoPath,
+      'backPhotoPath': instance.backPhotoPath,
     };

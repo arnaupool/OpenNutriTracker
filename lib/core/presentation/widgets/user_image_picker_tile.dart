@@ -23,6 +23,13 @@ class UserImagePickerTile extends StatelessWidget {
   final Future<void> Function() onPickFromGallery;
   final Future<void> Function() onTakePhoto;
   final Future<void> Function() onRemove;
+  // Body Measurements places three of these (front/side/back) on one
+  // screen — the per-kind default identifier would collide across all
+  // three, so callers with more than one instance per kind override it.
+  final String? semanticsIdentifierOverride;
+  // Three tiles side by side (Body Measurements) need to be narrower than
+  // the single-photo default (recipe/meal) or they overflow the dialog.
+  final double avatarSize;
 
   const UserImagePickerTile({
     super.key,
@@ -31,16 +38,22 @@ class UserImagePickerTile extends StatelessWidget {
     required this.onPickFromGallery,
     required this.onTakePhoto,
     required this.onRemove,
+    this.semanticsIdentifierOverride,
+    this.avatarSize = 96,
   });
 
   IconData get _fallbackIcon => switch (kind) {
         UserImageKind.recipe => Icons.restaurant_menu,
         UserImageKind.meal => Icons.restaurant_outlined,
+        UserImageKind.progressPhoto => Icons.accessibility_new_outlined,
       };
 
-  String get _semanticsIdentifier => switch (kind) {
+  String get _semanticsIdentifier =>
+      semanticsIdentifierOverride ??
+      switch (kind) {
         UserImageKind.recipe => 'recipe-builder-image-picker',
         UserImageKind.meal => 'edit-meal-image-picker',
+        UserImageKind.progressPhoto => 'progress-photo-picker',
       };
 
   _Strings _stringsFor(BuildContext context) {
@@ -59,6 +72,13 @@ class UserImagePickerTile extends StatelessWidget {
           takePhoto: s.mealImageTakePhoto,
           pickFromGallery: s.mealImagePickFromGallery,
           remove: s.mealImageRemove,
+        ),
+      UserImageKind.progressPhoto => _Strings(
+          add: s.progressPhotoImageLabel,
+          replace: s.progressPhotoImageReplace,
+          takePhoto: s.progressPhotoImageTakePhoto,
+          pickFromGallery: s.progressPhotoImagePickFromGallery,
+          remove: s.progressPhotoImageRemove,
         ),
     };
   }
@@ -82,8 +102,8 @@ class UserImagePickerTile extends StatelessWidget {
                 children: [
                   ClipOval(
                     child: SizedBox(
-                      width: 96,
-                      height: 96,
+                      width: avatarSize,
+                      height: avatarSize,
                       child: hasImage
                           ? FutureBuilder<String>(
                               future:
@@ -112,18 +132,18 @@ class UserImagePickerTile extends StatelessWidget {
                               color: theme.colorScheme.primaryContainer,
                               child: Icon(
                                 _fallbackIcon,
-                                size: 36,
+                                size: avatarSize * 0.375,
                                 color: theme.colorScheme.onPrimaryContainer,
                               ),
                             ),
                     ),
                   ),
                   CircleAvatar(
-                    radius: 16,
+                    radius: avatarSize * 0.1667,
                     backgroundColor: theme.colorScheme.primary,
                     child: Icon(
                       hasImage ? Icons.edit : Icons.camera_alt,
-                      size: 18,
+                      size: avatarSize * 0.1875,
                       color: theme.colorScheme.onPrimary,
                     ),
                   ),
@@ -132,7 +152,10 @@ class UserImagePickerTile extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 hasImage ? strings.replace : strings.add,
-                style: theme.textTheme.bodyMedium,
+                textAlign: TextAlign.center,
+                style: avatarSize < 90
+                    ? theme.textTheme.labelSmall
+                    : theme.textTheme.bodyMedium,
               ),
             ],
           ),

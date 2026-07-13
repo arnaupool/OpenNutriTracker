@@ -18,6 +18,16 @@ class BodyMeasurementRepository {
     return dbos.map(BodyMeasurementEntity.fromBodyMeasurementDBO).toList();
   }
 
+  Future<List<BodyMeasurementDBO>> getAllEntriesDBO() async {
+    return _bodyMeasurementDataSource.allEntries();
+  }
+
+  Future<void> addAllEntries(List<BodyMeasurementDBO> entries) async {
+    for (final entry in entries) {
+      await _bodyMeasurementDataSource.addEntry(entry);
+    }
+  }
+
   Future<List<BodyMeasurementEntity>> getEntriesInRange(
     DateTime from,
     DateTime to,

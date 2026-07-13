@@ -10,10 +10,19 @@ class ExportDataEvent extends ExportImportEvent {
   /// restore format the app re-imports from.
   final ExportFormat format;
 
-  const ExportDataEvent({this.format = ExportFormat.json});
+  /// Opt-in checkbox from the Export dialog. Progress photos are personal
+  /// body photos, so — unlike recipe/meal photos — they're left out of
+  /// the zip unless the user explicitly asks for them. Ignored for CSV,
+  /// which never includes any photos.
+  final bool includeProgressPhotos;
+
+  const ExportDataEvent({
+    this.format = ExportFormat.json,
+    this.includeProgressPhotos = false,
+  });
 
   @override
-  List<Object?> get props => [format];
+  List<Object?> get props => [format, includeProgressPhotos];
 }
 
 class ImportDataEvent extends ExportImportEvent {

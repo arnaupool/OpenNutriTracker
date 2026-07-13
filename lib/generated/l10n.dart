@@ -539,6 +539,206 @@ class S {
     );
   }
 
+  /// `Add a photo`
+  String get progressPhotoImageLabel {
+    return Intl.message(
+      'Add a photo',
+      name: 'progressPhotoImageLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose from gallery`
+  String get progressPhotoImagePickFromGallery {
+    return Intl.message(
+      'Choose from gallery',
+      name: 'progressPhotoImagePickFromGallery',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Remove photo`
+  String get progressPhotoImageRemove {
+    return Intl.message(
+      'Remove photo',
+      name: 'progressPhotoImageRemove',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Replace photo`
+  String get progressPhotoImageReplace {
+    return Intl.message(
+      'Replace photo',
+      name: 'progressPhotoImageReplace',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Take photo`
+  String get progressPhotoImageTakePhoto {
+    return Intl.message(
+      'Take photo',
+      name: 'progressPhotoImageTakePhoto',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Photos`
+  String get bodyMeasurementsPhotosLabel {
+    return Intl.message(
+      'Photos',
+      name: 'bodyMeasurementsPhotosLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Front`
+  String get bodyMeasurementsPhotoFrontLabel {
+    return Intl.message(
+      'Front',
+      name: 'bodyMeasurementsPhotoFrontLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Side`
+  String get bodyMeasurementsPhotoSideLabel {
+    return Intl.message(
+      'Side',
+      name: 'bodyMeasurementsPhotoSideLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Back`
+  String get bodyMeasurementsPhotoBackLabel {
+    return Intl.message(
+      'Back',
+      name: 'bodyMeasurementsPhotoBackLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Compare photos`
+  String get bodyMeasurementsCompareTooltip {
+    return Intl.message(
+      'Compare photos',
+      name: 'bodyMeasurementsCompareTooltip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Compare photos`
+  String get bodyMeasurementsCompareTitle {
+    return Intl.message(
+      'Compare photos',
+      name: 'bodyMeasurementsCompareTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Before`
+  String get bodyMeasurementsCompareBeforeLabel {
+    return Intl.message(
+      'Before',
+      name: 'bodyMeasurementsCompareBeforeLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `After`
+  String get bodyMeasurementsCompareAfterLabel {
+    return Intl.message(
+      'After',
+      name: 'bodyMeasurementsCompareAfterLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Select date`
+  String get bodyMeasurementsCompareSelectDateLabel {
+    return Intl.message(
+      'Select date',
+      name: 'bodyMeasurementsCompareSelectDateLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No progress photos yet for this angle.`
+  String get bodyMeasurementsCompareEmptyLabel {
+    return Intl.message(
+      'No progress photos yet for this angle.',
+      name: 'bodyMeasurementsCompareEmptyLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Background`
+  String get bodyMeasurementsCompareBackgroundLabel {
+    return Intl.message(
+      'Background',
+      name: 'bodyMeasurementsCompareBackgroundLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `White`
+  String get bodyMeasurementsCompareBackgroundWhiteLabel {
+    return Intl.message(
+      'White',
+      name: 'bodyMeasurementsCompareBackgroundWhiteLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dark`
+  String get bodyMeasurementsCompareBackgroundDarkLabel {
+    return Intl.message(
+      'Dark',
+      name: 'bodyMeasurementsCompareBackgroundDarkLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Share`
+  String get bodyMeasurementsCompareShareTooltip {
+    return Intl.message(
+      'Share',
+      name: 'bodyMeasurementsCompareShareTooltip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Include progress photos`
+  String get exportImportIncludeProgressPhotosLabel {
+    return Intl.message(
+      'Include progress photos',
+      name: 'exportImportIncludeProgressPhotosLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Scan barcode`
   String get customMealBarcodeScanButton {
     return Intl.message(

@@ -11,6 +11,9 @@ class BodyMeasurementEntity extends Equatable {
   final double? bicepsCm;
   final double? thighCm;
   final String? note;
+  final String? frontPhotoPath;
+  final String? sidePhotoPath;
+  final String? backPhotoPath;
 
   const BodyMeasurementEntity({
     required this.date,
@@ -22,6 +25,9 @@ class BodyMeasurementEntity extends Equatable {
     this.bicepsCm,
     this.thighCm,
     this.note,
+    this.frontPhotoPath,
+    this.sidePhotoPath,
+    this.backPhotoPath,
   });
 
   factory BodyMeasurementEntity.fromBodyMeasurementDBO(
@@ -37,8 +43,14 @@ class BodyMeasurementEntity extends Equatable {
       bicepsCm: dbo.bicepsCm,
       thighCm: dbo.thighCm,
       note: dbo.note,
+      frontPhotoPath: dbo.frontPhotoPath,
+      sidePhotoPath: dbo.sidePhotoPath,
+      backPhotoPath: dbo.backPhotoPath,
     );
   }
+
+  bool get hasAnyPhoto =>
+      frontPhotoPath != null || sidePhotoPath != null || backPhotoPath != null;
 
   @override
   List<Object?> get props => [
@@ -51,5 +63,8 @@ class BodyMeasurementEntity extends Equatable {
     bicepsCm,
     thighCm,
     note,
+    frontPhotoPath,
+    sidePhotoPath,
+    backPhotoPath,
   ];
 }

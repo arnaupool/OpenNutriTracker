@@ -23,6 +23,7 @@ class ExportImportBloc extends Bloc<ExportImportEvent, ExportImportState> {
   // #70 follow-up: saved Custom activity templates (name + typical kcal).
   static const customActivityTemplateJsonFileName =
       'custom_activity_templates.json';
+  static const bodyMeasurementJsonFileName = 'body_measurements.json';
 
   final ExportDataUsecase _exportDataUsecase;
   final ImportDataUsecase _importDataUsecase;
@@ -55,7 +56,9 @@ class ExportImportBloc extends Bloc<ExportImportEvent, ExportImportState> {
           recipeJsonFileName,
           weightLogJsonFileName,
           customActivityTemplateJsonFileName,
+          bodyMeasurementJsonFileName,
           format: event.format,
+          includeProgressPhotos: event.includeProgressPhotos,
         );
 
         if (result) {
@@ -81,6 +84,7 @@ class ExportImportBloc extends Bloc<ExportImportEvent, ExportImportState> {
                 recipeJsonFileName,
                 weightLogJsonFileName,
                 customActivityTemplateJsonFileName,
+                bodyMeasurementJsonFileName,
               );
         if (result) {
           emit(ExportImportSuccess());
