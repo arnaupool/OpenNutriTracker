@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -391,15 +390,15 @@ class _RecipeBuilderScreenState extends State<RecipeBuilderScreen> {
       // source (camera / gallery) the photo came from.
       final picked = await picker.pickImage(source: source);
       if (picked == null) return;
+      final bytes = await picked.readAsBytes();
       final relative = await UserImageStorage.importFrom(
         kind: UserImageKind.recipe,
         ownerId: recipeId,
-        sourcePath: picked.path,
+        sourceBytes: bytes,
       );
-      // Bust the in-memory Image.file cache so the new picture shows up
-      // immediately instead of redrawing the previous bytes for this path.
-      FileImage(File(await UserImageStorage.absolutePath(relative)))
-          .evict();
+      // Bust the cached image so the new picture shows up immediately
+      // instead of redrawing the previous bytes for this path.
+      await UserImageStorage.evictCache(relative);
       _bloc.add(UpdateImagePathEvent(relative));
     } catch (_) {
       if (!context.mounted) return;

@@ -323,14 +323,14 @@ class _ComparePhoto extends StatelessWidget {
         ),
       );
     }
-    return FutureBuilder<String>(
-      future: UserImageStorage.absolutePath(path),
+    return FutureBuilder<ImageProvider?>(
+      future: UserImageStorage.imageProvider(path),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (!snapshot.hasData || snapshot.data == null) {
           return const AspectRatio(aspectRatio: 3 / 4, child: SizedBox());
         }
-        return Image.file(
-          File(snapshot.data!),
+        return Image(
+          image: snapshot.data!,
           fit: BoxFit.contain,
           errorBuilder: (_, error, stack) => AspectRatio(
             aspectRatio: 3 / 4,
@@ -351,14 +351,16 @@ class _Thumb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String>(
-      future: UserImageStorage.absolutePath(path),
+    return FutureBuilder<ImageProvider?>(
+      future: UserImageStorage.imageProvider(path),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return const SizedBox(width: 40, height: 40);
+        if (!snapshot.hasData || snapshot.data == null) {
+          return const SizedBox(width: 40, height: 40);
+        }
         return ClipRRect(
           borderRadius: BorderRadius.circular(6),
-          child: Image.file(
-            File(snapshot.data!),
+          child: Image(
+            image: snapshot.data!,
             width: 40,
             height: 40,
             fit: BoxFit.cover,

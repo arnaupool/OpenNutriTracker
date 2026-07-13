@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:archive/archive_io.dart';
@@ -227,10 +226,8 @@ class ExportDataUsecase {
     if (relativePath == null) return;
     final sanitized = UserImageStorage.sanitizeRelative(relativePath);
     if (sanitized == null) return;
-    final absolute = await UserImageStorage.absolutePath(sanitized);
-    final file = File(absolute);
-    if (!await file.exists()) return;
-    final bytes = await file.readAsBytes();
+    final bytes = await UserImageStorage.readBytes(sanitized);
+    if (bytes == null) return;
     archive.addFile(ArchiveFile(sanitized, bytes.length, bytes));
   }
 }

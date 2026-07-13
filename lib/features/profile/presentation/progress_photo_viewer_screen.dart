@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -68,18 +67,18 @@ class _ProgressPhotoViewerScreenState
           onPageChanged: (index) => setState(() => _currentIndex = index),
           itemBuilder: (context, index) {
             final path = _angles[index].pathFor(widget.entry)!;
-            return FutureBuilder<String>(
-              future: UserImageStorage.absolutePath(path),
+            return FutureBuilder<ImageProvider?>(
+              future: UserImageStorage.imageProvider(path),
               builder: (context, snapshot) {
-                if (!snapshot.hasData) {
+                if (!snapshot.hasData || snapshot.data == null) {
                   return const Center(
                     child: CircularProgressIndicator(color: Colors.white),
                   );
                 }
                 return InteractiveViewer(
                   child: Center(
-                    child: Image.file(
-                      File(snapshot.data!),
+                    child: Image(
+                      image: snapshot.data!,
                       errorBuilder: (_, error, stack) => const Icon(
                         Icons.broken_image_outlined,
                         color: Colors.white54,

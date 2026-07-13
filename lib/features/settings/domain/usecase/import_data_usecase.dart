@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
@@ -179,20 +180,14 @@ class ImportDataUsecase {
     // private documents subdirectory. Anything outside those known
     // prefixes is skipped by the sanitiser, so a hostile zip can't escape
     // into other folders.
-    final imageDirs = {
-      for (final kind in UserImageKind.values)
-        kind.subdir: await UserImageStorage.ensureDirectory(kind),
-    };
     for (final entry in archive.files) {
       if (!entry.isFile) continue;
       final sanitized = UserImageStorage.sanitizeRelative(entry.name);
       if (sanitized == null) continue;
-      final parts = sanitized.split('/');
-      final targetDir = imageDirs[parts[0]];
-      if (targetDir == null) continue;
-      final destPath = '${targetDir.path}/${parts[1]}';
-      final destFile = File(destPath);
-      await destFile.writeAsBytes(entry.content as List<int>, flush: true);
+      await UserImageStorage.writeBytes(
+        sanitized,
+        Uint8List.fromList(entry.content as List<int>),
+      );
     }
 
     return true;

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -24,8 +26,12 @@ import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 /// throwing `MissingPluginException` in the test binding.
 class _FakePathProvider extends PathProviderPlatform
     with MockPlatformInterfaceMixin {
+  _FakePathProvider(this.documentsPath);
+
+  final String documentsPath;
+
   @override
-  Future<String?> getApplicationDocumentsPath() async => '.';
+  Future<String?> getApplicationDocumentsPath() async => documentsPath;
 }
 
 class _FakeGetBodyMeasurementUsecase extends Fake
@@ -119,8 +125,17 @@ Widget _buildScreen({
 }
 
 void main() {
-  setUp(() {
-    PathProviderPlatform.instance = _FakePathProvider();
+  late Directory tempDocsDir;
+
+  setUp(() async {
+    tempDocsDir = await Directory.systemTemp.createTemp('ont_bm_test_');
+    PathProviderPlatform.instance = _FakePathProvider(tempDocsDir.path);
+  });
+
+  tearDown(() async {
+    if (await tempDocsDir.exists()) {
+      await tempDocsDir.delete(recursive: true);
+    }
   });
 
   group('BodyMeasurementsScreen', () {
@@ -464,13 +479,21 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
         addTearDown(tester.view.resetDevicePixelRatio);
 
+        const relativePath = 'progress_photos/2026-07-01_front.webp';
         final entries = [
           BodyMeasurementEntity(
             date: DateTime(2026, 7, 1),
             waistCm: 83.0,
-            frontPhotoPath: 'progress_photos/2026-07-01_front.webp',
+            frontPhotoPath: relativePath,
           ),
         ];
+        // A real (if tiny/invalid) file must exist for imageProvider() to
+        // resolve to a FileImage instead of null — it now checks existence
+        // upfront rather than deferring to Image's own errorBuilder.
+        final photoFile = File('${tempDocsDir.path}/$relativePath');
+        await photoFile.create(recursive: true);
+        await photoFile.writeAsBytes([1, 2, 3, 4]);
+
         await tester.pumpWidget(_wrap(_buildScreen(entries: entries)));
         await tester.pumpAndSettle();
 

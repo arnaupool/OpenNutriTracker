@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -334,14 +333,16 @@ class _EntryThumbnails extends StatelessWidget {
                     ),
                   ),
                 ),
-                child: FutureBuilder<String>(
-                  future: UserImageStorage.absolutePath(angles[i].pathFor(entry)!),
+                child: FutureBuilder<ImageProvider?>(
+                  future: UserImageStorage.imageProvider(angles[i].pathFor(entry)!),
                   builder: (context, snapshot) {
-                    if (!snapshot.hasData) return const SizedBox(width: 24);
+                    if (!snapshot.hasData || snapshot.data == null) {
+                      return const SizedBox(width: 24);
+                    }
                     return ClipRRect(
                       borderRadius: BorderRadius.circular(6),
-                      child: Image.file(
-                        File(snapshot.data!),
+                      child: Image(
+                        image: snapshot.data!,
                         width: 24,
                         height: 40,
                         fit: BoxFit.cover,
@@ -703,14 +704,15 @@ class _AddBodyMeasurementEntryDialogState
       if (picked == null) return;
       final ownerId =
           '${DateFormat('yyyy-MM-dd').format(_date)}_${angle.name}';
+      final bytes = await picked.readAsBytes();
       final relative = await UserImageStorage.importFrom(
         kind: UserImageKind.progressPhoto,
         ownerId: ownerId,
-        sourcePath: picked.path,
+        sourceBytes: bytes,
       );
       // Bust the cache so a replaced photo shows up immediately instead of
       // redrawing the previous bytes for the same (reused) relative path.
-      FileImage(File(await UserImageStorage.absolutePath(relative))).evict();
+      await UserImageStorage.evictCache(relative);
       if (!mounted) return;
       setState(() => _setPathForAngle(angle, relative));
     } catch (_) {

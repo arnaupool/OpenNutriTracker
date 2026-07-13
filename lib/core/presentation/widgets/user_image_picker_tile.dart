@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:opennutritracker/core/utils/user_image_storage.dart';
@@ -105,17 +104,18 @@ class UserImagePickerTile extends StatelessWidget {
                       width: avatarSize,
                       height: avatarSize,
                       child: hasImage
-                          ? FutureBuilder<String>(
+                          ? FutureBuilder<ImageProvider?>(
                               future:
-                                  UserImageStorage.absolutePath(imagePath!),
+                                  UserImageStorage.imageProvider(imagePath!),
                               builder: (context, snapshot) {
-                                if (!snapshot.hasData) {
+                                if (!snapshot.hasData ||
+                                    snapshot.data == null) {
                                   return Container(
                                     color: theme.colorScheme.primaryContainer,
                                   );
                                 }
-                                return Image.file(
-                                  File(snapshot.data!),
+                                return Image(
+                                  image: snapshot.data!,
                                   fit: BoxFit.cover,
                                   errorBuilder: (_, error, stack) => Container(
                                     color: theme.colorScheme.primaryContainer,

@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -102,8 +101,8 @@ class _UserImageThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String>(
-      future: UserImageStorage.absolutePath(relativePath),
+    return FutureBuilder<ImageProvider?>(
+      future: UserImageStorage.imageProvider(relativePath),
       builder: (context, snapshot) {
         final fallback = CircleAvatar(
           backgroundColor: Theme.of(context).colorScheme.primaryContainer,
@@ -112,11 +111,11 @@ class _UserImageThumbnail extends StatelessWidget {
             color: Theme.of(context).colorScheme.onPrimaryContainer,
           ),
         );
-        if (!snapshot.hasData) return fallback;
+        if (!snapshot.hasData || snapshot.data == null) return fallback;
         return ClipRRect(
           borderRadius: BorderRadius.circular(20),
-          child: Image.file(
-            File(snapshot.data!),
+          child: Image(
+            image: snapshot.data!,
             fit: BoxFit.cover,
             width: 40,
             height: 40,

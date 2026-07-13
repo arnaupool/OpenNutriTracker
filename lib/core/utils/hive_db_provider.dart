@@ -41,6 +41,11 @@ class HiveDBProvider extends ChangeNotifier {
   // success/failure label on the record — see `FastingSessionDBO`.
   static const fastingBoxName = 'FastingBox';
   static const bodyMeasurementBoxName = 'BodyMeasurementBox';
+  // FW-02: web has no filesystem, so user photos (recipes/meals/progress)
+  // are stored as raw bytes here instead — see UserImageStorage. Opened
+  // on every platform for simplicity; native ignores it and keeps using
+  // files on disk.
+  static const userImageBytesBoxName = 'UserImageBytesBox';
 
   late Box<ConfigDBO> configBox;
   late Box<IntakeDBO> intakeBox;
@@ -56,6 +61,7 @@ class HiveDBProvider extends ChangeNotifier {
   late Box<WaterIntakeDBO> waterIntakeBox;
   late Box<FastingSessionDBO> fastingBox;
   late Box<BodyMeasurementDBO> bodyMeasurementBox;
+  late Box<Uint8List> userImageBytesBox;
 
   Future<void> initHiveDB(Uint8List encryptionKey) async {
     final encryptionCypher = HiveAesCipher(encryptionKey);
@@ -122,6 +128,10 @@ class HiveDBProvider extends ChangeNotifier {
     );
     bodyMeasurementBox = await Hive.openBox(
       bodyMeasurementBoxName,
+      encryptionCipher: encryptionCypher,
+    );
+    userImageBytesBox = await Hive.openBox(
+      userImageBytesBoxName,
       encryptionCipher: encryptionCypher,
     );
   }

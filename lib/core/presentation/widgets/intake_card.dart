@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -167,16 +166,16 @@ class _LocalMealBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String>(
-      future: UserImageStorage.absolutePath(relativePath),
+    return FutureBuilder<ImageProvider?>(
+      future: UserImageStorage.imageProvider(relativePath),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return const SizedBox.shrink();
-        final file = File(snapshot.data!);
-        if (!file.existsSync()) return const SizedBox.shrink();
+        if (!snapshot.hasData || snapshot.data == null) {
+          return const SizedBox.shrink();
+        }
         return Container(
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: FileImage(file),
+              image: snapshot.data!,
               fit: BoxFit.cover,
             ),
           ),

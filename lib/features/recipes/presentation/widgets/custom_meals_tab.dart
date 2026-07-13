@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -329,15 +328,11 @@ class _MealLeadingThumbnail extends StatelessWidget {
       ),
     );
     if (relative == null) return fallback;
-    return FutureBuilder<String>(
-      future: UserImageStorage.absolutePath(relative),
+    return FutureBuilder<ImageProvider?>(
+      future: UserImageStorage.imageProvider(relative),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) return fallback;
-        final file = File(snapshot.data!);
-        if (!file.existsSync()) return fallback;
-        return CircleAvatar(
-          backgroundImage: FileImage(file),
-        );
+        if (!snapshot.hasData || snapshot.data == null) return fallback;
+        return CircleAvatar(backgroundImage: snapshot.data!);
       },
     );
   }

@@ -94,7 +94,7 @@ void main() {
       final relative = await UserImageStorage.importFrom(
         kind: UserImageKind.recipe,
         ownerId: 'recipe-42',
-        sourcePath: source.path,
+        sourceBytes: await source.readAsBytes(),
       );
 
       expect(relative, 'recipe_images/recipe-42.webp');
@@ -106,7 +106,7 @@ void main() {
       final mealRelative = await UserImageStorage.importFrom(
         kind: UserImageKind.meal,
         ownerId: 'meal-1',
-        sourcePath: source.path,
+        sourceBytes: await source.readAsBytes(),
       );
       expect(mealRelative, 'meal_images/meal-1.webp');
     });
@@ -119,7 +119,7 @@ void main() {
       final relative = await UserImageStorage.importFrom(
         kind: UserImageKind.recipe,
         ownerId: 'r',
-        sourcePath: source.path,
+        sourceBytes: await source.readAsBytes(),
       );
 
       await UserImageStorage.delete(relative);
@@ -147,7 +147,7 @@ void main() {
       final relative = await UserImageStorage.importFrom(
         kind: UserImageKind.meal,
         ownerId: 'round-trip-id',
-        sourcePath: source.path,
+        sourceBytes: await source.readAsBytes(),
       );
 
       // The path stored on the DBO is intentionally relative so that
