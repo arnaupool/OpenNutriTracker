@@ -1,6 +1,15 @@
 {
 	"nodes": [
 		{
+			"id": "group-fasewe",
+			"type": "group",
+			"x": 3080,
+			"y": 0,
+			"width": 380,
+			"height": 1660,
+			"label": "Fase Web"
+		},
+		{
 			"id": "group-fasepi",
 			"type": "group",
 			"x": 440,
@@ -331,7 +340,97 @@
 			"y": 220,
 			"width": 280,
 			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "5f598a36",
+			"type": "text",
+			"text": "## FW-01 Habilitar plataforma web de Flutter\n## FW-01 Habilitar plataforma web de Flutter\nEjecutar `flutter create --platforms=web .` para generar `web/` (index.html, manifest.json, icons) sin tocar `android/`/`ios/`. Verificar que `flutter run -d chrome` levanta la app sin flags especiales (Flutter 3.41.7 via FVM ya soporta web de forma estable). Base de la que dependen el resto de tareas de Fase Web -- sin `web/` no hay target al que compilar.\n\nHecho: web/ generado, .metadata actualizado (nueva plataforma web registrada). Verificado con `flutter build web --release` -- compila limpio (solo un aviso informativo de compatibilidad Wasm en meal_entity.dart, no bloqueante para el target JS normal). No se hizo click-through en navegador real todavia -- eso tiene mas sentido una vez FW-02/FW-03 esten, porque hoy mismo cualquier pantalla que toque fotos (recetas, comidas, medidas corporales) fallaria en web al no tener filesystem. Boilerplate test/widget_test.dart generado por el scaffold se elimino (no aplica, el proyecto tiene su propia suite).",
+			"x": 3100,
+			"y": 40,
+			"width": 280,
+			"height": 160,
 			"color": "5"
+		},
+		{
+			"id": "d876bfc8",
+			"type": "text",
+			"text": "## FW-02 Backend de almacenamiento de fotos para web (IndexedDB via Hive)\nUserImageStorage (lib/core/utils/user_image_storage.dart) usa path_provider + dart:io File para guardar fotos de recetas, comidas y progreso â€” no existe filesystem real en el navegador. Crear una implementacion condicional (import condicional dart.library.io vs web) que en web guarde los bytes WebP comprimidos en un nuevo Hive box indexado por el mismo slug relativo, y devuelva bytes en vez de un File. Obliga a tocar todos los puntos que hacen Image.file(File(await UserImageStorage.absolutePath(...))) -- body_measurements_screen.dart, progress_photo_viewer_screen.dart, progress_photo_compare_screen.dart, user_image_picker_tile.dart, recipe_list_item.dart, custom_meals_tab.dart, intake_card.dart -- para que usen Image.memory(bytes) en web. Es la tarea mas grande de esta fase.",
+			"x": 3100,
+			"y": 220,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "2da24292",
+			"type": "text",
+			"text": "## FW-03 Arreglar importacion de datos para navegador (file_picker path a bytes)\nImportDataUsecase.importData/importDataCsv (lib/features/settings/domain/usecase/import_data_usecase.dart) leen result.files.single.path y hacen File(path) -- en web file_picker siempre devuelve path null, asi que hoy mismo lanzaria 'No file selected' de inmediato. Cambiar a FilePicker.pickFiles(withData: true) y leer result.files.single.bytes en todas las plataformas (funciona igual en Android/iOS, no hace falta duplicar codigo). El restore de fotos dentro del mismo metodo tambien depende del nuevo backend de almacenamiento web.",
+			"x": 3100,
+			"y": 400,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "de50f8ee",
+			"type": "text",
+			"text": "## FW-04 Aislar notificaciones locales de la build web\nflutter_local_notifications no tiene target web soportado oficialmente -- NotificationService.initialize()/scheduleDailyReminder fallarian o quedarian en no-op silencioso. Envolver la UI de recordatorio diario (Settings) y las llamadas en main.dart/NotificationService con kIsWeb para ocultarlas/omitirlas en vez de fallar en silencio. Documentar en Settings que los recordatorios no estan disponibles en la version web (implementarlos de verdad requeriria Web Push + Service Worker + servidor, fuera de alcance de esta fase).",
+			"x": 3100,
+			"y": 580,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "67746049",
+			"type": "text",
+			"text": "## FW-05 Revisar CORS y exposicion de claves en llamadas desde navegador\nConfirmar que las llamadas directas desde el cliente a OpenRouter (magic scan, scan de etiqueta, generacion de nombre de comida), Supabase FDC y Open Food Facts aceptan CORS desde el origen del navegador -- probar con flutter run -d chrome antes de desplegar. La clave de OpenRouter queda visible en la pestana Network del navegador (a diferencia de una app nativa donde solo se ve descompilando); documentar el riesgo y considerar limitar el rate/scope de esa clave. La anon key de Supabase esta pensada para exponerse, no requiere cambios.",
+			"x": 3100,
+			"y": 760,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "16a27dcb",
+			"type": "text",
+			"text": "## FW-06 PWA instalable y mitigacion de purga de datos de Safari (ITP)\nConfigurar web/manifest.json + iconos + apple-touch-icon en web/index.html para que 'Anadir a pantalla de inicio' en iPhone de una app standalone de verdad. No es cosmetico: Safari purga IndexedDB/localStorage (donde vive la base Hive cifrada) de una pestana normal tras ~7 dias sin interaccion (Intelligent Tracking Prevention) -- instalar la PWA a pantalla de inicio es lo que evita ese borrado silencioso. Critico antes de confiar datos reales (peso, medidas, fotos) a la version web.",
+			"x": 3100,
+			"y": 940,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "ce2668fb",
+			"type": "text",
+			"text": "## FW-07 Build de produccion y despliegue en servidor propio\nflutter build web --release genera estaticos en build/web/. Servir con HTTPS obligatorio (necesario tanto para camara/getUserMedia como para instalar la PWA) via reverse proxy con TLS (Caddy con Let's Encrypt es lo mas simple, o nginx + certbot). Mantener la estrategia de URL por defecto basada en hash (#/ruta) en vez de usePathUrlStrategy() para no tener que configurar fallback de SPA en el servidor. Confirmar acceso desde la red donde esten el iPhone y el Android.",
+			"x": 3100,
+			"y": 1120,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "efbd8609",
+			"type": "text",
+			"text": "## FW-08 Verificar escaneo de camara en iPhone y Android reales\nmobile_scanner (usado en scanner_screen.dart y en los 3 flujos de importar-por-QR de receta/comida/actividad) tiene soporte web via getUserMedia, pero es el punto mas inestable en Safari iOS: requiere HTTPS + gesto del usuario, y el comportamiento varia entre versiones de iOS. Probar en el servidor ya desplegado tanto el escaner de codigos de barras de producto como los 3 flujos de compartir-por-QR, en Safari iOS y Chrome Android reales, no solo en el emulador.",
+			"x": 3100,
+			"y": 1300,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "78f3e98e",
+			"type": "text",
+			"text": "## FW-09 Checklist de verificacion manual end-to-end en iPhone y Android\nPase final de humo con dispositivos reales: instalar a pantalla de inicio en iPhone, loguear una comida con foto de camara, escanear un codigo de barras, anadir una entrada de medidas corporales con foto, hacer un export+import de zip completo, cerrar la app instalada y reabrirla para confirmar que los datos de Hive persisten, y comprobar que la seccion de notificaciones se oculta con gracia en vez de fallar. Si todo pasa, esta fase queda lista para uso diario real.",
+			"x": 3100,
+			"y": 1480,
+			"width": 280,
+			"height": 160,
+			"color": "6"
 		}
 	],
 	"edges": [
@@ -515,6 +614,104 @@
 			"fromNode": "67bf819b",
 			"fromSide": "bottom",
 			"toNode": "4fee38a1",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-035",
+			"fromNode": "5f598a36",
+			"fromSide": "bottom",
+			"toNode": "d876bfc8",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-036",
+			"fromNode": "5f598a36",
+			"fromSide": "bottom",
+			"toNode": "2da24292",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-037",
+			"fromNode": "d876bfc8",
+			"fromSide": "bottom",
+			"toNode": "2da24292",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-038",
+			"fromNode": "5f598a36",
+			"fromSide": "bottom",
+			"toNode": "de50f8ee",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-039",
+			"fromNode": "5f598a36",
+			"fromSide": "bottom",
+			"toNode": "67746049",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-040",
+			"fromNode": "5f598a36",
+			"fromSide": "bottom",
+			"toNode": "16a27dcb",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-041",
+			"fromNode": "d876bfc8",
+			"fromSide": "bottom",
+			"toNode": "ce2668fb",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-042",
+			"fromNode": "2da24292",
+			"fromSide": "bottom",
+			"toNode": "ce2668fb",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-043",
+			"fromNode": "de50f8ee",
+			"fromSide": "bottom",
+			"toNode": "ce2668fb",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-044",
+			"fromNode": "16a27dcb",
+			"fromSide": "bottom",
+			"toNode": "ce2668fb",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-045",
+			"fromNode": "ce2668fb",
+			"fromSide": "bottom",
+			"toNode": "efbd8609",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-046",
+			"fromNode": "efbd8609",
+			"fromSide": "bottom",
+			"toNode": "78f3e98e",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-047",
+			"fromNode": "67746049",
+			"fromSide": "bottom",
+			"toNode": "78f3e98e",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-048",
+			"fromNode": "ce2668fb",
+			"fromSide": "bottom",
+			"toNode": "78f3e98e",
 			"toSide": "top"
 		}
 	]
