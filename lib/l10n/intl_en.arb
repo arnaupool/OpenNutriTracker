@@ -199,6 +199,7 @@
   "activityExample": "e.g. running, biking, yoga ...",
   "activityLabel": "Activity",
   "addItemLabel": "Add new Item:",
+  "addItemWeightExample": "e.g. this morning's weigh-in",
   "addItemMenuMagicLabel": "Magic",
   "addItemMenuMagicSubtitle": "Photo, text, or both",
   "addItemMenuSearchLabel": "Search",

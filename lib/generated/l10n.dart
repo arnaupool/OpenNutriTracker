@@ -3328,6 +3328,16 @@ class S {
     );
   }
 
+  /// `e.g. this morning's weigh-in`
+  String get addItemWeightExample {
+    return Intl.message(
+      'e.g. this morning\'s weigh-in',
+      name: 'addItemWeightExample',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Magic`
   String get addItemMenuMagicLabel {
     return Intl.message(
