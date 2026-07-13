@@ -6,7 +6,7 @@
 			"x": 3080,
 			"y": 0,
 			"width": 380,
-			"height": 1660,
+			"height": 1840,
 			"label": "Fase Web"
 		},
 		{
@@ -330,7 +330,7 @@
 			"y": 400,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "de50f8ee",
@@ -355,12 +355,12 @@
 		{
 			"id": "16a27dcb",
 			"type": "text",
-			"text": "## FW-06 PWA instalable y mitigacion de purga de datos de Safari (ITP)\nConfigurar web/manifest.json + iconos + apple-touch-icon en web/index.html para que 'Anadir a pantalla de inicio' en iPhone de una app standalone de verdad. No es cosmetico: Safari purga IndexedDB/localStorage (donde vive la base Hive cifrada) de una pestana normal tras ~7 dias sin interaccion (Intelligent Tracking Prevention) -- instalar la PWA a pantalla de inicio es lo que evita ese borrado silencioso. Critico antes de confiar datos reales (peso, medidas, fotos) a la version web.",
+			"text": "## FW-06 PWA instalable y mitigacion de purga de datos de Safari (ITP)\n## FW-06 PWA instalable y mitigacion de purga de datos de Safari (ITP)\nConfigurar web/manifest.json + iconos + apple-touch-icon en web/index.html para que 'Anadir a pantalla de inicio' en iPhone de una app standalone de verdad. Critico porque Safari purga IndexedDB/localStorage tras ~7 dias sin interaccion salvo que la app este instalada.\n\nHecho: manifest.json y index.html tenian los valores genericos del scaffold de Flutter (name \"opennutritracker\", azul por defecto #0175C2, iconos placeholder). Arreglado: name/short_name/description reales, theme_color/background_color con los colores de marca de la app (#006E2B verde primario, #1A1C19 superficie oscura, coherente con el tema oscuro por defecto), meta theme-color anadida junto a la del manifest. Los iconos web ahora se generan desde el mismo PNG que usan Android/iOS (flutter_launcher_icons con nueva seccion web: en pubspec.yaml) en vez de los cuadrados placeholder de Flutter -- verificado con flutter build web --release + servido real: manifest.json e Icon-192.png (16.8KB, antes 5.2KB del placeholder) llegan correctos.\n\nflutter analyze limpio, 800/800 tests en verde.\n\nImportante -- limitacion real, no solo detalle tecnico: en iOS no existe prompt automatico de instalacion (a diferencia de Chrome/Android con beforeinstallprompt); el usuario tiene que hacer Compartir -> Anadir a pantalla de inicio a mano. Esta tarea deja el manifest/iconos listos para que ESA instalacion salga bien, pero no anade ningun aviso dentro de la app que empuje al usuario a hacerlo -- sin ese empujon, el riesgo de purga de datos de Safari sigue ahi para quien no instale la app. Propongo una tarea de seguimiento (aviso in-app tipo banner en iOS Safari cuando no se esta en modo standalone) si se quiere cerrar el riesgo del todo, no solo la parte tecnica.",
 			"x": 3100,
 			"y": 940,
 			"width": 280,
 			"height": 160,
-			"color": "1"
+			"color": "5"
 		},
 		{
 			"id": "67bf819b",
@@ -431,6 +431,16 @@
 			"width": 280,
 			"height": 160,
 			"color": "0"
+		},
+		{
+			"id": "dd482a5c",
+			"type": "text",
+			"text": "## FW-10 Aviso in-app para instalar a pantalla de inicio en iOS Safari\niOS no tiene prompt automatico de instalacion (a diferencia de beforeinstallprompt en Chrome/Android) -- el usuario debe hacer Compartir -> Anadir a pantalla de inicio a mano, y sin hacerlo Safari puede purgar el Hive cifrado tras ~7 dias de inactividad (ver FW-06). Anadir un banner descartable, mostrado solo quien navega desde Safari iOS en modo navegador normal (no standalone), con instrucciones claras. Detectar via user agent + window.navigator.standalone (dart:html o package:web + js_interop, a decidir en su momento).",
+			"x": 3100,
+			"y": 1660,
+			"width": 280,
+			"height": 160,
+			"color": "6"
 		}
 	],
 	"edges": [
@@ -712,6 +722,13 @@
 			"fromNode": "ce2668fb",
 			"fromSide": "bottom",
 			"toNode": "78f3e98e",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-049",
+			"fromNode": "16a27dcb",
+			"fromSide": "bottom",
+			"toNode": "dd482a5c",
 			"toSide": "top"
 		}
 	]
