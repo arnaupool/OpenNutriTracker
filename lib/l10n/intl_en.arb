@@ -200,6 +200,7 @@
   "activityLabel": "Activity",
   "addItemLabel": "Add new Item:",
   "addItemWeightExample": "e.g. this morning's weigh-in",
+  "addItemBodyMeasurementsExample": "e.g. waist, chest, hips",
   "addItemMenuMagicLabel": "Magic",
   "addItemMenuMagicSubtitle": "Photo, text, or both",
   "addItemMenuSearchLabel": "Search",

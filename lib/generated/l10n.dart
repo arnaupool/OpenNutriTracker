@@ -3338,6 +3338,16 @@ class S {
     );
   }
 
+  /// `e.g. waist, chest, hips`
+  String get addItemBodyMeasurementsExample {
+    return Intl.message(
+      'e.g. waist, chest, hips',
+      name: 'addItemBodyMeasurementsExample',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Magic`
   String get addItemMenuMagicLabel {
     return Intl.message(

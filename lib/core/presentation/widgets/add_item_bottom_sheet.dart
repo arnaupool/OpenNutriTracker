@@ -78,6 +78,34 @@ class AddItemBottomSheet extends StatelessWidget {
               onTap: () => _logWeight(context),
             ),
           ),
+          Semantics(
+            identifier: 'add-item-body-measurements',
+            child: ListTile(
+              title: Text(
+                S.of(context).profileBodyMeasurementsTitle,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              subtitle: Text(
+                S.of(context).addItemBodyMeasurementsExample,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
+              // ignore: sized_box_for_whitespace
+              leading: Container(
+                height: double.infinity,
+                child: Icon(
+                  Icons.straighten_outlined,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              onTap: () => _showBodyMeasurementsScreen(context),
+            ),
+          ),
           const Divider(indent: 16, endIndent: 16),
           if (showActivityTracking) ...[
             Semantics(
@@ -239,6 +267,17 @@ class AddItemBottomSheet extends StatelessWidget {
       NavigationOptions.addActivityRoute,
       arguments: AddActivityScreenArguments(day: day),
     );
+  }
+
+  /// Unlike Weight, measurements are a multi-field (7 optional metrics)
+  /// entry that benefits from seeing prior readings while filling it in —
+  /// so this opens the full Body Measurements screen (same one reachable
+  /// from Profile) rather than a standalone quick dialog. Its own FAB
+  /// already prefills from the last entry, so the extra tap here isn't a
+  /// meaningfully bigger ask than a dedicated quick-add would be.
+  void _showBodyMeasurementsScreen(BuildContext context) {
+    Navigator.of(context).pop();
+    Navigator.of(context).pushNamed(NavigationOptions.bodyMeasurementsRoute);
   }
 
   /// Unlike the quick pencil-edit on the home header (which only updates

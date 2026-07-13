@@ -11,6 +11,7 @@ import 'package:opennutritracker/core/domain/entity/weight_log_entity.dart';
 import 'package:opennutritracker/core/domain/usecase/add_weight_log_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_user_usecase.dart';
 import 'package:opennutritracker/core/presentation/widgets/add_item_bottom_sheet.dart';
+import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
@@ -88,6 +89,10 @@ void main() {
 
       expect(find.text(S.current.activityLabel), findsOneWidget);
       expect(find.text(S.current.weightLabel), findsOneWidget);
+      expect(
+        find.text(S.current.profileBodyMeasurementsTitle),
+        findsOneWidget,
+      );
       expect(find.text(S.current.breakfastLabel), findsOneWidget);
     },
   );
@@ -183,6 +188,54 @@ void main() {
       expect(fakeAddWeightLogUsecase.lastEntry?.date, DateTime(2026, 7, 13));
       expect(fakeAddWeightLogUsecase.lastEntry?.weightKg, closeTo(84.0, 0.01));
       expect(fakeProfileBloc.lastUpdated, isNotNull);
+    },
+  );
+
+  testWidgets(
+    'tapping Body Measurements closes the sheet and navigates to the '
+    'Body Measurements route',
+    (tester) async {
+      tester.view.physicalSize = const Size(1080, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: const [S.delegate],
+          supportedLocales: S.delegate.supportedLocales,
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: Center(
+                child: ElevatedButton(
+                  onPressed: () => showModalBottomSheet<void>(
+                    context: context,
+                    builder: (context) =>
+                        AddItemBottomSheet(day: DateTime(2026, 7, 13)),
+                  ),
+                  child: const Text('open'),
+                ),
+              ),
+            ),
+          ),
+          routes: {
+            NavigationOptions.bodyMeasurementsRoute: (context) =>
+                const Scaffold(body: Text('Body measurements screen')),
+          },
+        ),
+      );
+
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text(S.current.profileBodyMeasurementsTitle));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(S.current.profileBodyMeasurementsTitle),
+        findsNothing,
+      );
+      expect(find.text('Body measurements screen'), findsOneWidget);
     },
   );
 }
