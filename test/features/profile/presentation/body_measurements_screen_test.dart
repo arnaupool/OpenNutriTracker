@@ -455,5 +455,57 @@ void main() {
         expect(tester.takeException(), isNull);
       },
     );
+
+    testWidgets(
+      'tapping an entry thumbnail opens the full-screen photo viewer',
+      (tester) async {
+        tester.view.physicalSize = const Size(1080, 2400);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        final entries = [
+          BodyMeasurementEntity(
+            date: DateTime(2026, 7, 1),
+            waistCm: 83.0,
+            frontPhotoPath: 'progress_photos/2026-07-01_front.webp',
+          ),
+        ];
+        await tester.pumpWidget(_wrap(_buildScreen(entries: entries)));
+        await tester.pumpAndSettle();
+
+        final thumbnailImage = find.descendant(
+          of: find.byType(ListTile),
+          matching: find.byType(Image),
+        );
+        expect(thumbnailImage, findsOneWidget);
+
+        // The thumbnail's own GestureDetector is the nearest ancestor; a
+        // second, further one belongs to the enclosing Scrollable.
+        final thumbnailGesture = find
+            .ancestor(
+              of: thumbnailImage,
+              matching: find.byType(GestureDetector),
+            )
+            .first;
+
+        await tester.tap(thumbnailGesture);
+        await tester.pumpAndSettle();
+
+        expect(
+          find.byWidgetPredicate(
+            (w) =>
+                w is Semantics &&
+                w.properties.identifier == 'progress-photo-viewer',
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.textContaining(S.current.bodyMeasurementsPhotoFrontLabel),
+          findsWidgets,
+        );
+        expect(tester.takeException(), isNull);
+      },
+    );
   });
 }

@@ -15,6 +15,7 @@ import 'package:opennutritracker/core/utils/calc/unit_calc.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/core/utils/user_image_storage.dart';
 import 'package:opennutritracker/features/profile/presentation/progress_photo_compare_screen.dart';
+import 'package:opennutritracker/features/profile/presentation/progress_photo_viewer_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 /// The circumferences MacroFactor tracks (up to 21) are more than most
@@ -311,36 +312,47 @@ class _EntryThumbnails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final paths = [
-      for (final angle in ProgressPhotoAngle.values) angle.pathFor(entry),
-    ].whereType<String>().toList();
+    final angles = [
+      for (final angle in ProgressPhotoAngle.values)
+        if (angle.pathFor(entry) != null) angle,
+    ];
 
     return SizedBox(
       width: 40,
       height: double.infinity,
       child: Stack(
         children: [
-          for (var i = 0; i < paths.length && i < 3; i++)
+          for (var i = 0; i < angles.length && i < 3; i++)
             Positioned(
               left: i * 6.0,
-              child: FutureBuilder<String>(
-                future: UserImageStorage.absolutePath(paths[i]),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) return const SizedBox(width: 24);
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
-                    child: Image.file(
-                      File(snapshot.data!),
-                      width: 24,
-                      height: 40,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, error, stack) => const SizedBox(
+              child: GestureDetector(
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => ProgressPhotoViewerScreen(
+                      entry: entry,
+                      initialAngle: angles[i],
+                    ),
+                  ),
+                ),
+                child: FutureBuilder<String>(
+                  future: UserImageStorage.absolutePath(angles[i].pathFor(entry)!),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return const SizedBox(width: 24);
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: Image.file(
+                        File(snapshot.data!),
                         width: 24,
                         height: 40,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, error, stack) => const SizedBox(
+                          width: 24,
+                          height: 40,
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
         ],
