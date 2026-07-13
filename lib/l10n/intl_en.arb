@@ -913,6 +913,8 @@
   "strategyRangeOneMonth": "1M",
   "strategyRangeThreeMonths": "3M",
   "strategyRangeSixMonths": "6M",
+  "strategyRangeOneYear": "1Y",
+  "strategyRangeAllTime": "All",
   "strategyEmptyState": "Log at least two weigh-ins to see your strategy dashboard.",
   "strategyEstimatorStatusActiveLabel": "Active",
   "strategyEstimatorStatusActiveDescription": "Updating from your data",

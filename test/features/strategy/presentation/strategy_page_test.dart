@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -254,5 +255,51 @@ void main() {
 
       expect(tester.takeException(), isNull);
     });
+
+    testWidgets(
+      'offers 1Y and All range chips, and All renders a chart spanning a '
+      'multi-year weigh-in history without throwing',
+      (tester) async {
+        final today = DateTime.now();
+        DateTime day(int daysAgo) {
+          final d = today.subtract(Duration(days: daysAgo));
+          return DateTime(d.year, d.month, d.day);
+        }
+
+        // Five years of history: 6M/1Y ranges would clip this to just the
+        // last entries, so "All" is the only chip that can show all of it.
+        final weightEntries = [
+          WeightLogEntity(date: day(5 * 365), weightKg: 95.0),
+          WeightLogEntity(date: day(365), weightKg: 88.0),
+          WeightLogEntity(date: day(0), weightKg: 84.0),
+        ];
+
+        tester.view.physicalSize = const Size(1080, 3000);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        await tester.pumpWidget(
+          _wrap(_buildScreen(weightEntries: weightEntries)),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text(S.current.strategyRangeOneYear), findsOneWidget);
+        expect(find.text(S.current.strategyRangeAllTime), findsOneWidget);
+        expect(find.byType(LineChart), findsOneWidget);
+
+        await tester.tap(find.text(S.current.strategyRangeAllTime));
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
+        expect(find.byType(LineChart), findsOneWidget);
+
+        await tester.tap(find.text(S.current.strategyRangeOneYear));
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
+        expect(find.byType(LineChart), findsOneWidget);
+      },
+    );
   });
 }

@@ -1549,6 +1549,26 @@ class S {
     );
   }
 
+  /// `1Y`
+  String get strategyRangeOneYear {
+    return Intl.message(
+      '1Y',
+      name: 'strategyRangeOneYear',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All`
+  String get strategyRangeAllTime {
+    return Intl.message(
+      'All',
+      name: 'strategyRangeAllTime',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Log at least two weigh-ins to see your strategy dashboard.`
   String get strategyEmptyState {
     return Intl.message(

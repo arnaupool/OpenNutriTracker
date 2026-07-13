@@ -21,9 +21,13 @@ import 'package:opennutritracker/generated/l10n.dart';
 enum _ChartRange {
   oneMonth(30),
   threeMonths(90),
-  sixMonths(180);
+  sixMonths(180),
+  oneYear(365),
+  allTime(null);
 
-  final int days;
+  /// Null means "no fixed window" — the chart derives its start date from
+  /// the earliest logged entry instead (see `_WeightChart`).
+  final int? days;
   const _ChartRange(this.days);
 }
 
@@ -247,6 +251,10 @@ class _RangeChips extends StatelessWidget {
         return s.strategyRangeThreeMonths;
       case _ChartRange.sixMonths:
         return s.strategyRangeSixMonths;
+      case _ChartRange.oneYear:
+        return s.strategyRangeOneYear;
+      case _ChartRange.allTime:
+        return s.strategyRangeAllTime;
     }
   }
 
@@ -274,7 +282,7 @@ class _WeightChart extends StatelessWidget {
 
   final List<WeightTrendPoint> trend;
   final List<InterpolatedWeightPoint> scaleEntries;
-  final int rangeDays;
+  final int? rangeDays;
   final bool usesImperialUnits;
 
   const _WeightChart({
@@ -292,7 +300,24 @@ class _WeightChart extends StatelessWidget {
 
     final today = DateTime.now();
     final todayAtMidnight = DateTime(today.year, today.month, today.day);
-    final windowStart = todayAtMidnight.subtract(Duration(days: rangeDays));
+    // A null rangeDays means "all time" — start at the earliest point we
+    // actually have instead of a fixed lookback, so a five-year weigh-in
+    // history isn't truncated by a hardcoded window.
+    final fixedRangeDays = rangeDays;
+    final DateTime windowStart;
+    if (fixedRangeDays != null) {
+      windowStart = todayAtMidnight.subtract(Duration(days: fixedRangeDays));
+    } else {
+      final allDates = [
+        ...scaleEntries.where((p) => !p.isInterpolated).map((p) => p.date),
+        ...trend.map((p) => p.date),
+      ];
+      windowStart = allDates.isEmpty
+          ? todayAtMidnight
+          : allDates.reduce((a, b) => a.isBefore(b) ? a : b);
+    }
+    final effectiveRangeDays = fixedRangeDays ??
+        todayAtMidnight.difference(windowStart).inDays.clamp(1, 1 << 30).toInt();
 
     double displayWeight(double kg) =>
         usesImperialUnits ? UnitCalc.kgToLbs(kg) : kg;
@@ -326,8 +351,12 @@ class _WeightChart extends StatelessWidget {
     final yPadding = ((maxY - minY) * 0.15).clamp(0.5, 5.0);
 
     final localeTag = Localizations.localeOf(context).toLanguageTag();
-    final dateFormat = DateFormat.MMMd(localeTag);
-    final labelInterval = (rangeDays / 4).ceilToDouble();
+    // Beyond ~13 months a bare "Jan 5" label is ambiguous across years, so
+    // switch to a month+year label once the visible span crosses that.
+    final dateFormat = effectiveRangeDays > 400
+        ? DateFormat.yMMM(localeTag)
+        : DateFormat.MMMd(localeTag);
+    final labelInterval = (effectiveRangeDays / 4).ceilToDouble();
 
     return Semantics(
       identifier: 'strategy-weight-chart',
@@ -336,7 +365,7 @@ class _WeightChart extends StatelessWidget {
         child: LineChart(
           LineChartData(
             minX: 0,
-            maxX: rangeDays.toDouble(),
+            maxX: effectiveRangeDays.toDouble(),
             minY: minY - yPadding,
             maxY: maxY + yPadding,
             gridData: const FlGridData(show: false),
