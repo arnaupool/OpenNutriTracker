@@ -350,17 +350,17 @@
 			"y": 40,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "d876bfc8",
 			"type": "text",
-			"text": "## FW-02 Backend de almacenamiento de fotos para web (IndexedDB via Hive)\nUserImageStorage (lib/core/utils/user_image_storage.dart) usa path_provider + dart:io File para guardar fotos de recetas, comidas y progreso â€” no existe filesystem real en el navegador. Crear una implementacion condicional (import condicional dart.library.io vs web) que en web guarde los bytes WebP comprimidos en un nuevo Hive box indexado por el mismo slug relativo, y devuelva bytes en vez de un File. Obliga a tocar todos los puntos que hacen Image.file(File(await UserImageStorage.absolutePath(...))) -- body_measurements_screen.dart, progress_photo_viewer_screen.dart, progress_photo_compare_screen.dart, user_image_picker_tile.dart, recipe_list_item.dart, custom_meals_tab.dart, intake_card.dart -- para que usen Image.memory(bytes) en web. Es la tarea mas grande de esta fase.",
+			"text": "## FW-02 Backend de almacenamiento de fotos para web (IndexedDB via Hive)\n## FW-02 Backend de almacenamiento de fotos para web (IndexedDB via Hive)\nUserImageStorage (lib/core/utils/user_image_storage.dart) usa path_provider + dart:io File para guardar fotos de recetas, comidas y progreso -- no existe filesystem real en el navegador.\n\nHecho: UserImageStorage reescrito con un branch kIsWeb interno (dart:io compila en web pero lanza en runtime, asi que no hace falta import condicional en ficheros separados). Nativo sigue en disco tal cual; web guarda los mismos bytes WebP en un Box<Uint8List> nuevo de Hive (UserImageBytesBox, mismo cifrado AES que el resto). Nuevo metodo imageProvider() (FileImage nativo / MemoryImage web) sustituye los 7 sitios que hacian FutureBuilder<String>+Image.file(File(...)) a mano. importFrom() ahora recibe bytes en vez de una ruta (picked.readAsBytes()), porque XFile.path es una blob: URL en web. export/import usan el mismo readBytes/writeBytes.\n\nDe paso, confirmando los tests salieron 2 bugs reales que tambien se arreglaron: (1) el placeholder del thumbnail no tenia altura, dejando su GestureDetector con area de toque casi nula -- ahora 24x40 + hitTestBehavior opaque; (2) ProgressPhotoViewerScreen mostraba un spinner infinito en vez de un icono de error cuando la foto no existe de verdad (no solo \"aun cargando\").\n\nflutter analyze limpio. Suite completa: 800/800 tests en verde.\n\nDeliberadamente fuera de esta tarea: el bucle de restore de fotos en import_data_usecase.dart usa ya la nueva API, pero el propio file_picker.pickFiles() sigue leyendo result.files.single.path (null en web) -- eso es FW-03. Tampoco se tocaron import_recipes_json_usecase.dart / import_meals_csv_usecase.dart / import_meals_json_usecase.dart / import_recipes_csv_usecase.dart, que tienen el mismo patron de restore de fotos -- FW-03 deberia revisarlos tambien. No se hizo verificacion visual en el emulador Android real ni en `flutter run -d chrome` por presupuesto de tokens -- recomendable antes de dar la fase por cerrada del todo.",
 			"x": 3100,
 			"y": 220,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "5"
 		},
 		{
 			"id": "2da24292",
