@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:opennutritracker/core/data/data_source/custom_meal_data_source.dart';
@@ -66,12 +65,13 @@ class ImportMealsJsonUsecase {
     final picked = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['json'],
+      withData: true,
     );
-    if (picked == null || picked.files.single.path == null) {
+    final bytes = picked?.files.single.bytes;
+    if (bytes == null) {
       return null;
     }
-    final file = File(picked.files.single.path!);
-    final content = await file.readAsString(encoding: utf8);
+    final content = utf8.decode(bytes);
     return importFromJsonString(content);
   }
 

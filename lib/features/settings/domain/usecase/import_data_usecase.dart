@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:archive/archive.dart';
@@ -56,19 +55,21 @@ class ImportDataUsecase {
     String customActivityTemplateJsonFileName,
     String bodyMeasurementJsonFileName,
   ) async {
-    // Allow user to pick a zip file
+    // Allow user to pick a zip file. withData: true is required on web —
+    // file_picker never returns a filesystem `path` there (there isn't
+    // one), only in-memory `bytes` — and works identically on
+    // Android/iOS, so there's no need to branch by platform.
     final result = await FilePicker.pickFiles(
       type: FileType.any,
+      withData: true,
       // allowedExtensions: ['zip'],
     );
 
-    if (result == null || result.files.single.path == null) {
+    final zipBytes = result?.files.single.bytes;
+    if (zipBytes == null) {
       throw Exception('No file selected');
     }
 
-    // Read the file bytes using the file path
-    final file = File(result.files.single.path!);
-    final zipBytes = await file.readAsBytes();
     final archive = ZipDecoder().decodeBytes(zipBytes);
 
     // Extract and process user activity data
@@ -207,13 +208,15 @@ class ImportDataUsecase {
     String userIntakeCsvFileName = 'user_intake.csv',
     String trackedDayCsvFileName = 'user_tracked_day.csv',
   }) async {
-    final result = await FilePicker.pickFiles(type: FileType.any);
-    if (result == null || result.files.single.path == null) {
+    final result = await FilePicker.pickFiles(
+      type: FileType.any,
+      withData: true,
+    );
+    final zipBytes = result?.files.single.bytes;
+    if (zipBytes == null) {
       throw Exception('No file selected');
     }
 
-    final file = File(result.files.single.path!);
-    final zipBytes = await file.readAsBytes();
     final archive = ZipDecoder().decodeBytes(zipBytes);
 
     final activityFile = archive.findFile(userActivityCsvFileName);
