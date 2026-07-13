@@ -7,6 +7,7 @@ import 'package:opennutritracker/core/domain/entity/recipe_entity.dart';
 import 'package:opennutritracker/core/domain/entity/recipe_ingredient_entity.dart';
 import 'package:opennutritracker/core/domain/usecase/add_intake_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/add_tracked_day_usecase.dart';
+import 'package:opennutritracker/core/domain/usecase/get_config_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_kcal_goal_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_macro_goal_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/save_recipe_usecase.dart';
@@ -16,6 +17,7 @@ import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/features/add_meal/domain/entity/magic_food_item_entity.dart';
 import 'package:opennutritracker/features/add_meal/domain/entity/meal_entity.dart';
 import 'package:opennutritracker/features/add_meal/domain/entity/meal_nutriments_entity.dart';
+import 'package:opennutritracker/features/add_meal/domain/usecase/generate_meal_name_usecase.dart';
 import 'package:opennutritracker/features/add_meal/presentation/add_meal_type.dart';
 import 'package:opennutritracker/features/diary/presentation/bloc/calendar_day_bloc.dart';
 import 'package:opennutritracker/features/diary/presentation/bloc/diary_bloc.dart';
@@ -50,6 +52,8 @@ class ReviewMealScreen extends StatefulWidget {
   final GetKcalGoalUsecase? getKcalGoalUsecase;
   final GetMacroGoalUsecase? getMacroGoalUsecase;
   final SaveRecipeUseCase? saveRecipeUseCase;
+  final GetConfigUsecase? getConfigUsecase;
+  final GenerateMealNameUsecase? generateMealNameUsecase;
 
   const ReviewMealScreen({
     super.key,
@@ -58,6 +62,8 @@ class ReviewMealScreen extends StatefulWidget {
     this.getKcalGoalUsecase,
     this.getMacroGoalUsecase,
     this.saveRecipeUseCase,
+    this.getConfigUsecase,
+    this.generateMealNameUsecase,
   });
 
   @override
@@ -75,6 +81,10 @@ class _ReviewMealScreenState extends State<ReviewMealScreen> {
       widget.getMacroGoalUsecase ?? locator<GetMacroGoalUsecase>();
   late final SaveRecipeUseCase _saveRecipeUseCase =
       widget.saveRecipeUseCase ?? locator<SaveRecipeUseCase>();
+  late final GetConfigUsecase _getConfigUsecase =
+      widget.getConfigUsecase ?? locator<GetConfigUsecase>();
+  late final GenerateMealNameUsecase _generateMealNameUsecase =
+      widget.generateMealNameUsecase ?? locator<GenerateMealNameUsecase>();
 
   bool _argsLoaded = false;
   late ReviewMealScreenArguments _args;
@@ -82,6 +92,7 @@ class _ReviewMealScreenState extends State<ReviewMealScreen> {
 
   bool _addingAll = false;
   bool _savingPreset = false;
+  bool _generatingName = false;
 
   @override
   void didChangeDependencies() {
@@ -176,13 +187,41 @@ class _ReviewMealScreenState extends State<ReviewMealScreen> {
     );
   }
 
+  /// FR-05: best-effort AI name suggestion for the save-preset dialog —
+  /// falls back to the single-item name (or blank) on any failure so a
+  /// missing API key / network hiccup never blocks saving, it just means
+  /// the user types the name themselves like before.
+  Future<String> _suggestPresetName() async {
+    setState(() => _generatingName = true);
+    var suggestedName = _items.length == 1 ? _items.first.name : '';
+    try {
+      final config = await _getConfigUsecase.getConfig();
+      final apiKey = config.openRouterApiKey;
+      final modelId = config.openRouterModelId;
+      if (apiKey != null && apiKey.isNotEmpty && modelId != null) {
+        final generated = await _generateMealNameUsecase.generate(
+          apiKey: apiKey,
+          model: modelId,
+          itemNames: _items.map((item) => item.name).toList(),
+        );
+        if (generated.isNotEmpty) suggestedName = generated;
+      }
+    } catch (_) {
+      // Keep the fallback computed above.
+    }
+    if (mounted) setState(() => _generatingName = false);
+    return suggestedName;
+  }
+
   Future<void> _onSaveAsPresetPressed() async {
     final s = S.of(context);
+    final suggestedName = await _suggestPresetName();
+    if (!mounted) return;
+
     final name = await showDialog<String>(
       context: context,
-      builder: (dialogContext) => _SavePresetNameDialog(
-        defaultName: _items.length == 1 ? _items.first.name : '',
-      ),
+      builder: (dialogContext) =>
+          _SavePresetNameDialog(defaultName: suggestedName),
     );
     if (name == null || name.isEmpty) return;
 
@@ -241,7 +280,7 @@ class _ReviewMealScreenState extends State<ReviewMealScreen> {
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
-    final busy = _addingAll || _savingPreset;
+    final busy = _addingAll || _savingPreset || _generatingName;
     return Scaffold(
       appBar: AppBar(title: Text(s.reviewMealScreenTitle)),
       body: Column(
@@ -293,7 +332,7 @@ class _ReviewMealScreenState extends State<ReviewMealScreen> {
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: busy ? null : _onSaveAsPresetPressed,
-                      icon: _savingPreset
+                      icon: (_savingPreset || _generatingName)
                           ? const SizedBox(
                               height: 16,
                               width: 16,

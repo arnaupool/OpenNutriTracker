@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:opennutritracker/core/domain/entity/app_theme_entity.dart';
+import 'package:opennutritracker/core/domain/entity/config_entity.dart';
 import 'package:opennutritracker/core/domain/entity/intake_entity.dart';
 import 'package:opennutritracker/core/domain/entity/recipe_entity.dart';
 import 'package:opennutritracker/core/domain/usecase/add_intake_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/add_tracked_day_usecase.dart';
+import 'package:opennutritracker/core/domain/usecase/get_config_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_kcal_goal_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_macro_goal_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/save_recipe_usecase.dart';
 import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/features/add_meal/domain/entity/magic_food_item_entity.dart';
+import 'package:opennutritracker/features/add_meal/domain/usecase/generate_meal_name_usecase.dart';
 import 'package:opennutritracker/features/add_meal/presentation/add_meal_type.dart';
 import 'package:opennutritracker/features/add_meal/presentation/review_meal_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
@@ -71,6 +75,48 @@ class _FakeSaveRecipeUseCase extends Fake implements SaveRecipeUseCase {
     return recipe;
   }
 }
+
+class _FakeGetConfigUsecase extends Fake implements GetConfigUsecase {
+  ConfigEntity config;
+  _FakeGetConfigUsecase(this.config);
+
+  @override
+  Future<ConfigEntity> getConfig() async => config;
+}
+
+class _FakeGenerateMealNameUsecase extends Fake
+    implements GenerateMealNameUsecase {
+  String? result;
+  Object? error;
+  List<String>? lastItemNames;
+
+  @override
+  Future<String> generate({
+    required String apiKey,
+    required String model,
+    required List<String> itemNames,
+  }) async {
+    lastItemNames = itemNames;
+    if (error != null) throw error!;
+    return result ?? '';
+  }
+}
+
+final _configuredForAi = ConfigEntity(
+  false,
+  false,
+  false,
+  AppThemeEntity.dark,
+  openRouterApiKey: 'sk-or-test',
+  openRouterModelId: 'openai/gpt-4o',
+);
+
+final _notConfiguredForAi = const ConfigEntity(
+  false,
+  false,
+  false,
+  AppThemeEntity.dark,
+);
 
 final _twoItems = [
   const MagicFoodItemEntity(
@@ -157,6 +203,8 @@ void main() {
             getKcalGoalUsecase: _FakeGetKcalGoalUsecase(),
             getMacroGoalUsecase: _FakeGetMacroGoalUsecase(),
             saveRecipeUseCase: _FakeSaveRecipeUseCase(),
+            getConfigUsecase: _FakeGetConfigUsecase(_notConfiguredForAi),
+            generateMealNameUsecase: _FakeGenerateMealNameUsecase(),
           ),
         ),
       );
@@ -184,6 +232,8 @@ void main() {
             getKcalGoalUsecase: _FakeGetKcalGoalUsecase(),
             getMacroGoalUsecase: _FakeGetMacroGoalUsecase(),
             saveRecipeUseCase: _FakeSaveRecipeUseCase(),
+            getConfigUsecase: _FakeGetConfigUsecase(_notConfiguredForAi),
+            generateMealNameUsecase: _FakeGenerateMealNameUsecase(),
           ),
           items: [_twoItems.first],
         ),
@@ -211,6 +261,8 @@ void main() {
               getKcalGoalUsecase: _FakeGetKcalGoalUsecase(),
               getMacroGoalUsecase: _FakeGetMacroGoalUsecase(),
               saveRecipeUseCase: _FakeSaveRecipeUseCase(),
+              getConfigUsecase: _FakeGetConfigUsecase(_notConfiguredForAi),
+              generateMealNameUsecase: _FakeGenerateMealNameUsecase(),
             ),
           ),
         );
@@ -243,6 +295,8 @@ void main() {
               getKcalGoalUsecase: _FakeGetKcalGoalUsecase(),
               getMacroGoalUsecase: _FakeGetMacroGoalUsecase(),
               saveRecipeUseCase: saveRecipeUseCase,
+              getConfigUsecase: _FakeGetConfigUsecase(_notConfiguredForAi),
+              generateMealNameUsecase: _FakeGenerateMealNameUsecase(),
             ),
           ),
         );
@@ -288,6 +342,8 @@ void main() {
             getKcalGoalUsecase: _FakeGetKcalGoalUsecase(),
             getMacroGoalUsecase: _FakeGetMacroGoalUsecase(),
             saveRecipeUseCase: saveRecipeUseCase,
+            getConfigUsecase: _FakeGetConfigUsecase(_notConfiguredForAi),
+            generateMealNameUsecase: _FakeGenerateMealNameUsecase(),
           ),
         ),
       );
@@ -300,5 +356,87 @@ void main() {
 
       expect(saveRecipeUseCase.lastSaved, isNull);
     });
+
+    testWidgets(
+      'Save as preset pre-fills the dialog with an AI-suggested name',
+      (tester) async {
+        _useTallViewport(tester);
+        final generateMealNameUsecase = _FakeGenerateMealNameUsecase()
+          ..result = 'Beef Noodle Stir-Fry';
+        final saveRecipeUseCase = _FakeSaveRecipeUseCase();
+        await tester.pumpWidget(
+          _wrap(
+            ReviewMealScreen(
+              addIntakeUsecase: _FakeAddIntakeUsecase(),
+              addTrackedDayUsecase: _FakeAddTrackedDayUsecase(),
+              getKcalGoalUsecase: _FakeGetKcalGoalUsecase(),
+              getMacroGoalUsecase: _FakeGetMacroGoalUsecase(),
+              saveRecipeUseCase: saveRecipeUseCase,
+              getConfigUsecase: _FakeGetConfigUsecase(_configuredForAi),
+              generateMealNameUsecase: generateMealNameUsecase,
+            ),
+          ),
+        );
+        await _pushReviewScreen(tester);
+
+        await tester.tap(find.text(S.current.reviewMealSaveAsPresetButton));
+        await tester.pumpAndSettle();
+
+        expect(
+          generateMealNameUsecase.lastItemNames,
+          ['Sliced Beef', 'Wide Rice Noodles'],
+        );
+        final dialogNameField = tester.widget<TextField>(
+          find.descendant(
+            of: find.byType(AlertDialog),
+            matching: find.byType(TextField),
+          ),
+        );
+        expect(dialogNameField.controller!.text, 'Beef Noodle Stir-Fry');
+
+        await tester.tap(find.text(S.current.buttonSaveLabel));
+        await tester.pumpAndSettle();
+
+        expect(saveRecipeUseCase.lastSaved?.name, 'Beef Noodle Stir-Fry');
+      },
+    );
+
+    testWidgets(
+      'falls back to the single-item name when name generation fails',
+      (tester) async {
+        _useTallViewport(tester);
+        final generateMealNameUsecase = _FakeGenerateMealNameUsecase()
+          ..error = Exception('network down');
+
+        await tester.pumpWidget(
+          _wrap(
+            ReviewMealScreen(
+              addIntakeUsecase: _FakeAddIntakeUsecase(),
+              addTrackedDayUsecase: _FakeAddTrackedDayUsecase(),
+              getKcalGoalUsecase: _FakeGetKcalGoalUsecase(),
+              getMacroGoalUsecase: _FakeGetMacroGoalUsecase(),
+              saveRecipeUseCase: _FakeSaveRecipeUseCase(),
+              getConfigUsecase: _FakeGetConfigUsecase(_configuredForAi),
+              generateMealNameUsecase: generateMealNameUsecase,
+            ),
+            items: [_twoItems.first],
+          ),
+        );
+        await _pushReviewScreen(tester);
+
+        await tester.tap(find.text(S.current.reviewMealSaveAsPresetButton));
+        await tester.pumpAndSettle();
+
+        final dialogNameField = tester.widget<TextField>(
+          find.descendant(
+            of: find.byType(AlertDialog),
+            matching: find.byType(TextField),
+          ),
+        );
+        // Single item -> falls back to that item's own name, same as when
+        // no API key is configured at all.
+        expect(dialogNameField.controller!.text, 'Sliced Beef');
+      },
+    );
   });
 }

@@ -72,6 +72,7 @@ import 'package:opennutritracker/features/add_meal/data/data_sources/off_data_so
 import 'package:opennutritracker/features/add_meal/data/data_sources/sp_fdc_data_source.dart';
 import 'package:opennutritracker/features/add_meal/data/repository/products_repository.dart';
 import 'package:opennutritracker/features/add_meal/domain/usecase/analyze_meal_with_ai_usecase.dart';
+import 'package:opennutritracker/features/add_meal/domain/usecase/generate_meal_name_usecase.dart';
 import 'package:opennutritracker/features/scanner/domain/usecase/analyze_label_with_ai_usecase.dart';
 import 'package:opennutritracker/features/add_meal/domain/usecase/search_products_usecase.dart';
 import 'package:opennutritracker/features/add_meal/presentation/bloc/add_meal_bloc.dart';
@@ -285,6 +286,9 @@ Future<void> initLocator() async {
   );
   locator.registerLazySingleton<AnalyzeMealWithAiUsecase>(
     () => AnalyzeMealWithAiUsecase(locator()),
+  );
+  locator.registerLazySingleton<GenerateMealNameUsecase>(
+    () => GenerateMealNameUsecase(locator()),
   );
   locator.registerLazySingleton<AnalyzeLabelWithAiUsecase>(
     () => AnalyzeLabelWithAiUsecase(locator()),
