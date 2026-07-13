@@ -1,11 +1,11 @@
 {
-    "name": "opennutritracker",
-    "short_name": "opennutritracker",
+    "name": "OpenNutriTracker",
+    "short_name": "OpenNutriTracker",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#1A1C19",
+    "theme_color": "#006E2B",
+    "description": "Open-Source Calories & Activity Tracker",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
