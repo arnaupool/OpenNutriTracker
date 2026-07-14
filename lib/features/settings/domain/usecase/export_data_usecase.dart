@@ -84,6 +84,58 @@ class ExportDataUsecase {
     String userProfileJsonFileName = 'user_profile.json',
     String userConfigJsonFileName = 'user_config.json',
   }) async {
+    final zipBytes = await buildZipBytes(
+      userActivityJsonFileName: userActivityJsonFileName,
+      userIntakeJsonFileName: userIntakeJsonFileName,
+      trackedDayJsonFileName: trackedDayJsonFileName,
+      recipeJsonFileName: recipeJsonFileName,
+      weightLogJsonFileName: weightLogJsonFileName,
+      customActivityTemplateJsonFileName: customActivityTemplateJsonFileName,
+      bodyMeasurementJsonFileName: bodyMeasurementJsonFileName,
+      format: format,
+      userActivityCsvFileName: userActivityCsvFileName,
+      userIntakeCsvFileName: userIntakeCsvFileName,
+      trackedDayCsvFileName: trackedDayCsvFileName,
+      includeProgressPhotos: includeProgressPhotos,
+      includeProfile: includeProfile,
+      userProfileJsonFileName: userProfileJsonFileName,
+      userConfigJsonFileName: userConfigJsonFileName,
+    );
+
+    final result = await FilePicker.saveFile(
+      fileName: exportZipFileName,
+      type: FileType.custom,
+      allowedExtensions: ['zip'],
+      bytes: zipBytes,
+    );
+
+    return result != null && result.isNotEmpty;
+  }
+
+  /// The archive-building core of [exportData], split out so the
+  /// cloud-backup feature ([CloudBackupUsecase]) can get the same zip
+  /// bytes without going through a file-picker save dialog — it uploads
+  /// them to Supabase Storage instead. Every in-zip filename defaults to
+  /// the same constants [ExportImportBloc] passes explicitly, since a
+  /// caller like the cloud-backup usecase has no reason to care about them.
+  Future<Uint8List> buildZipBytes({
+    String userActivityJsonFileName = 'user_activity.json',
+    String userIntakeJsonFileName = 'user_intake.json',
+    String trackedDayJsonFileName = 'user_tracked_day.json',
+    String recipeJsonFileName = 'user_recipes.json',
+    String weightLogJsonFileName = 'weight_log.json',
+    String customActivityTemplateJsonFileName =
+        'custom_activity_templates.json',
+    String bodyMeasurementJsonFileName = 'body_measurements.json',
+    ExportFormat format = ExportFormat.json,
+    String userActivityCsvFileName = 'user_activity.csv',
+    String userIntakeCsvFileName = 'user_intake.csv',
+    String trackedDayCsvFileName = 'user_tracked_day.csv',
+    bool includeProgressPhotos = false,
+    bool includeProfile = false,
+    String userProfileJsonFileName = 'user_profile.json',
+    String userConfigJsonFileName = 'user_config.json',
+  }) async {
     final archive = Archive();
 
     // Activity dataset
@@ -231,16 +283,7 @@ class ExportDataUsecase {
       }
     }
 
-    // Save the zip file to the user-specified location
-    final zipBytes = ZipEncoder().encode(archive);
-    final result = await FilePicker.saveFile(
-      fileName: exportZipFileName,
-      type: FileType.custom,
-      allowedExtensions: ['zip'],
-      bytes: Uint8List.fromList(zipBytes),
-    );
-
-    return result != null && result.isNotEmpty;
+    return Uint8List.fromList(ZipEncoder().encode(archive));
   }
 
   Future<void> _addUserImageIfPresent(

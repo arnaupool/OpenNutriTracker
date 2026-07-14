@@ -89,6 +89,39 @@ class ImportDataUsecase {
       throw Exception('No file selected');
     }
 
+    return importFromZipBytes(
+      zipBytes,
+      userActivityJsonFileName: userActivityJsonFileName,
+      userIntakeJsonFileName: userIntakeJsonFileName,
+      trackedDayJsonFileName: trackedDayJsonFileName,
+      recipeJsonFileName: recipeJsonFileName,
+      weightLogJsonFileName: weightLogJsonFileName,
+      customActivityTemplateJsonFileName: customActivityTemplateJsonFileName,
+      bodyMeasurementJsonFileName: bodyMeasurementJsonFileName,
+      restoreProfile: restoreProfile,
+      userProfileJsonFileName: userProfileJsonFileName,
+      userConfigJsonFileName: userConfigJsonFileName,
+    );
+  }
+
+  /// The zip-decoding core of [importData], split out so the cloud-backup
+  /// feature ([CloudRestoreUsecase]) can restore from bytes downloaded off
+  /// Supabase Storage instead of a file-picker selection. Filenames default
+  /// to the same constants [ExportImportBloc] passes explicitly.
+  Future<bool> importFromZipBytes(
+    Uint8List zipBytes, {
+    String userActivityJsonFileName = 'user_activity.json',
+    String userIntakeJsonFileName = 'user_intake.json',
+    String trackedDayJsonFileName = 'user_tracked_day.json',
+    String recipeJsonFileName = 'user_recipes.json',
+    String weightLogJsonFileName = 'weight_log.json',
+    String customActivityTemplateJsonFileName =
+        'custom_activity_templates.json',
+    String bodyMeasurementJsonFileName = 'body_measurements.json',
+    bool restoreProfile = false,
+    String userProfileJsonFileName = 'user_profile.json',
+    String userConfigJsonFileName = 'user_config.json',
+  }) async {
     final archive = ZipDecoder().decodeBytes(zipBytes);
 
     // Extract and process user activity data

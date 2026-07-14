@@ -105,6 +105,8 @@ import 'package:opennutritracker/features/recipes/presentation/bloc/recipe_detai
 import 'package:opennutritracker/features/recipes/presentation/bloc/recipes_bloc.dart';
 import 'package:opennutritracker/features/scanner/domain/usecase/search_product_by_barcode_usecase.dart';
 import 'package:opennutritracker/features/scanner/presentation/scanner_bloc.dart';
+import 'package:opennutritracker/features/settings/domain/usecase/cloud_backup_usecase.dart';
+import 'package:opennutritracker/features/settings/domain/usecase/cloud_restore_usecase.dart';
 import 'package:opennutritracker/features/settings/domain/usecase/download_sample_csv_usecase.dart';
 import 'package:opennutritracker/features/settings/domain/usecase/download_sample_json_usecase.dart';
 import 'package:opennutritracker/features/settings/domain/usecase/import_recipes_json_usecase.dart';
@@ -432,6 +434,20 @@ Future<void> initLocator() async {
       locator(),
       locator(),
       locator(),
+    ),
+  );
+  locator.registerLazySingleton(
+    () => CloudBackupUsecase(
+      locator(),
+      locator(),
+      locator<SupabaseClient>(instanceName: 'backupSupabase'),
+    ),
+  );
+  locator.registerLazySingleton(
+    () => CloudRestoreUsecase(
+      locator(),
+      locator(),
+      locator<SupabaseClient>(instanceName: 'backupSupabase'),
     ),
   );
   locator.registerLazySingleton(() => ImportMealsCsvUsecase(locator()));
