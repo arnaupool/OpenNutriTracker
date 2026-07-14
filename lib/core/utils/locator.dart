@@ -406,9 +406,17 @@ Future<void> initLocator() async {
     () => DeleteWaterIntakeUsecase(locator()),
   );
   locator.registerLazySingleton(
-    () => GetKcalGoalUsecase(locator(), locator(), locator()),
+    () => GetKcalGoalUsecase(
+      locator(),
+      locator(),
+      locator(),
+      locator(),
+      locator(),
+    ),
   );
-  locator.registerLazySingleton(() => GetMacroGoalUsecase(locator()));
+  locator.registerLazySingleton(
+    () => GetMacroGoalUsecase(locator(), locator()),
+  );
   locator.registerLazySingleton(
     () => ExportDataUsecase(
       locator(),
