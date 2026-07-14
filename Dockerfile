@@ -59,11 +59,27 @@ ARG SUPABASE_PROJECT_URL
 ARG SUPABASE_PROJECT_ANON_KEY
 ARG FDC_API_KEY
 ARG SENTRY_DNS
-RUN printf 'FDC_API_KEY="%s"\nSENTRY_DNS="%s"\nSUPABASE_PROJECT_URL="%s"\nSUPABASE_PROJECT_ANON_KEY="%s"\n' \
-      "$FDC_API_KEY" "$SENTRY_DNS" "$SUPABASE_PROJECT_URL" "$SUPABASE_PROJECT_ANON_KEY" > .env
+# Fase Cuenta's cloud-backup feature (docs/cloud-backup-setup.md) uses its
+# own Supabase project, separate from the FDC one above.
+ARG BACKUP_SUPABASE_PROJECT_URL
+ARG BACKUP_SUPABASE_PROJECT_ANON_KEY
+RUN printf 'FDC_API_KEY="%s"\nSENTRY_DNS="%s"\nSUPABASE_PROJECT_URL="%s"\nSUPABASE_PROJECT_ANON_KEY="%s"\nBACKUP_SUPABASE_PROJECT_URL="%s"\nBACKUP_SUPABASE_PROJECT_ANON_KEY="%s"\n' \
+      "$FDC_API_KEY" "$SENTRY_DNS" "$SUPABASE_PROJECT_URL" "$SUPABASE_PROJECT_ANON_KEY" "$BACKUP_SUPABASE_PROJECT_URL" "$BACKUP_SUPABASE_PROJECT_ANON_KEY" > .env
 
 RUN dart run build_runner build --delete-conflicting-outputs
-RUN flutter build web --release
+
+# Stamp the build with the commit it was actually built from — read
+# straight from .git (COPY'd in below, not excluded by .dockerignore),
+# not threaded in from outside, so it's automatically correct on any build
+# method (manual `docker build`, `docker compose build`, Portainer's
+# git-clone-and-build) without the user having to maintain it by hand.
+# Shows up in Settings (AppBannerVersion) so a redeploy is visually
+# verifiable instead of trusting a CDN/browser cache didn't quietly keep
+# serving the old one. .git never reaches the final nginx image below —
+# only this intermediate build stage sees it.
+COPY .git .git
+RUN GIT_COMMIT_SHA="$(git rev-parse --short=8 HEAD 2>/dev/null || echo unknown)" \
+    && flutter build web --release --dart-define=GIT_COMMIT_SHA="$GIT_COMMIT_SHA"
 
 FROM nginx:1.27-alpine AS serve
 COPY --from=build /app/build/web /usr/share/nginx/html

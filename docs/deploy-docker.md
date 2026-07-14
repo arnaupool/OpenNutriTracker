@@ -8,7 +8,9 @@ cambio de código, un botón en Portainer ("Pull and redeploy").
 
 - Un dominio apuntando a tu IP pública (Let's Encrypt no emite certificado
   para una IP pelada).
-- Los 4 valores reales de tu `.env` (Supabase, Sentry, FDC) a mano.
+- Los 6 valores reales de tu `.env` a mano: Supabase (búsqueda de comida),
+  Sentry, FDC, y Supabase del backup en la nube (proyecto aparte, ver
+  `docs/cloud-backup-setup.md`).
 - Como tu fork es privado, un **Personal Access Token** de GitHub con
   permiso de lectura sobre el repo: GitHub → Settings → Developer settings →
   Personal access tokens → Generate new token (classic vale; scope `repo`
@@ -39,9 +41,10 @@ Stacks → Add stack → nombre `opennutritracker`:
   clonarlo).
 - **Compose path**: `docker-compose.unraid.yml` (no el `docker-compose.yml`
   por defecto — ese lleva Caddy, que no necesitas con NPM).
-- **Environment variables**: añade las 4 claves reales, una por una:
+- **Environment variables**: añade las 6 claves reales, una por una:
   `SUPABASE_PROJECT_URL`, `SUPABASE_PROJECT_ANON_KEY`, `FDC_API_KEY`,
-  `SENTRY_DNS`.
+  `SENTRY_DNS`, `BACKUP_SUPABASE_PROJECT_URL`,
+  `BACKUP_SUPABASE_PROJECT_ANON_KEY`.
 - **Deploy the stack**.
 
 La primera vez tarda varios minutos (Portainer descarga la imagen base de
@@ -68,6 +71,13 @@ curl -I https://tu-dominio-real.com
 
 `200` esperado. Abre la URL en el navegador y desde el móvil por datos.
 
+Para confirmar que lo que ves es realmente el build más reciente (y no una
+copia en caché de Cloudflare/el navegador — ver el problema real que dio
+esto más abajo): **Settings**, baja del todo, debajo del número de versión
+sale un hash corto de 8 caracteres — es el commit exacto con el que se
+construyó esa imagen. Compáralo con `git log --oneline -1` en tu checkout
+local.
+
 ## Actualizar tras cambios de código
 
 Stacks → `opennutritracker` → botón **"Pull and redeploy"** (o "Update the
@@ -79,7 +89,7 @@ stack" según la versión de Portainer). Vuelve a clonar `main` y reconstruye
 - **Portainer no puede clonar el repo** → revisa el Personal Access Token
   (caducado, o sin scope `repo`) y que "Authentication" esté activado.
 - **Build falla en `dart run build_runner build` / errores de `envied`** →
-  falta alguna de las 4 "Environment variables" en el stack, o tiene un
+  falta alguna de las 6 "Environment variables" en el stack, o tiene un
   valor vacío.
 - **La app carga pero con datos raros / build viejo** → confirma que el
   "Compose path" es `docker-compose.unraid.yml`, no el genérico.

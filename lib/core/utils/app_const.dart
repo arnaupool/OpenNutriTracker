@@ -11,6 +11,15 @@ class AppConst {
   static const sourceCodeUrl =
       "https://github.com/simonoppowa/OpenNutriTracker";
 
+  // Set at Docker build time (see Dockerfile) via `--dart-define`, from
+  // whatever commit was actually checked out for that build — unlike
+  // pubspec.yaml's version (bumped by hand, rarely) this changes on every
+  // deploy, so it's what actually answers "is the build in front of me the
+  // one I just pushed?" (see the FA-13 cache-purge saga in the commit
+  // history for why that question needed a real answer). Empty outside a
+  // Docker build (local `flutter run`), which AppBannerVersion hides.
+  static const gitCommitSha = String.fromEnvironment('GIT_COMMIT_SHA');
+
   static Future<String> getVersionNumber() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     return packageInfo.version;

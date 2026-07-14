@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:opennutritracker/core/presentation/widgets/dynamic_ont_logo.dart';
+import 'package:opennutritracker/core/utils/app_const.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 class AppBannerVersion extends StatelessWidget {
@@ -15,18 +16,33 @@ class AppBannerVersion extends StatelessWidget {
         Text(
           S.of(context).appTitle,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontWeight: FontWeight.w600,
-              ),
+            color: Theme.of(context).colorScheme.onSurface,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         Text(
           S.of(context).appVersionName(versionNumber),
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        // Only set on Docker-built web deploys (see AppConst.gitCommitSha)
+        // — absent on local `flutter run`/store builds, where the plain
+        // version number above is already unambiguous.
+        if (AppConst.gitCommitSha.isNotEmpty)
+          Semantics(
+            identifier: 'settings-build-commit',
+            child: Text(
+              AppConst.gitCommitSha,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(
                   context,
-                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                ).colorScheme.onSurface.withValues(alpha: 0.5),
               ),
-        ),
+            ),
+          ),
       ],
     );
   }
