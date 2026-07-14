@@ -4,6 +4,9 @@ import 'package:introduction_screen/introduction_screen.dart';
 import 'package:opennutritracker/core/domain/entity/calories_profile_entity.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/core/utils/navigation_options.dart';
+import 'package:opennutritracker/features/diary/presentation/bloc/calendar_day_bloc.dart';
+import 'package:opennutritracker/features/diary/presentation/bloc/diary_bloc.dart';
+import 'package:opennutritracker/features/home/presentation/bloc/home_bloc.dart';
 import 'package:opennutritracker/features/onboarding/domain/entity/user_activity_selection_entity.dart';
 import 'package:opennutritracker/features/onboarding/domain/entity/user_gender_selection_entity.dart';
 import 'package:opennutritracker/features/onboarding/domain/entity/user_goal_selection_entity.dart';
@@ -15,6 +18,7 @@ import 'package:opennutritracker/features/onboarding/presentation/widgets/onboar
 import 'package:opennutritracker/features/onboarding/presentation/widgets/highlight_button.dart';
 import 'package:opennutritracker/features/onboarding/presentation/widgets/onboarding_first_page_body.dart';
 import 'package:opennutritracker/features/onboarding/presentation/widgets/onboarding_second_page_body.dart';
+import 'package:opennutritracker/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -101,118 +105,117 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   List<PageViewModel> _getPageViewModels() {
     final selection = _onboardingBloc.userSelection;
     return <PageViewModel>[
-        PageViewModel(
-          title: S.of(context).onboardingWelcomeLabel,
-          decoration: _pageDecoration,
-          image: _defaultImageWidget,
-          bodyWidget: OnboardingIntroPageBody(
-            setPageContent: _setIntroPageData,
-            initialAcceptedPolicy: _introPageButtonActive,
-            initialAcceptedDataCollection: selection.acceptDataCollection,
-          ),
-          footer: HighlightButton(
-            buttonLabel: S.of(context).buttonStartLabel,
-            onButtonPressed: () => _scrollToPage(1),
-            buttonActive: _introPageButtonActive,
-          ),
+      PageViewModel(
+        title: S.of(context).onboardingWelcomeLabel,
+        decoration: _pageDecoration,
+        image: _defaultImageWidget,
+        bodyWidget: OnboardingIntroPageBody(
+          setPageContent: _setIntroPageData,
+          initialAcceptedPolicy: _introPageButtonActive,
+          initialAcceptedDataCollection: selection.acceptDataCollection,
         ),
-        PageViewModel(
-          titleWidget: const SizedBox(),
-          // empty
-          decoration: _pageDecoration,
-          image: _defaultImageWidget,
-          bodyWidget: OnboardingFirstPageBody(
-            setPageContent: _setFirstPageData,
-            initialGender: selection.gender,
-            initialCaloriesProfile: selection.caloriesProfile,
-            initialBirthday: selection.birthday,
-          ),
-          footer: HighlightButton(
-            buttonLabel: S.of(context).buttonNextLabel,
-            onButtonPressed: () => _scrollToPage(2),
-            buttonActive: _firstPageButtonActive,
-          ),
+        footer: HighlightButton(
+          buttonLabel: S.of(context).buttonStartLabel,
+          onButtonPressed: () => _scrollToPage(1),
+          buttonActive: _introPageButtonActive,
         ),
-        PageViewModel(
-          titleWidget: const SizedBox(),
-          // empty
-          decoration: _pageDecoration,
-          image: _defaultImageWidget,
-          bodyWidget: OnboardingSecondPageBody(
-            setButtonContent: _setSecondPageData,
-            initialHeightCm: selection.height,
-            initialWeightKg: selection.weight,
-            initialTargetWeightKg: selection.targetWeight,
-            initialUsesImperial: selection.usesImperialUnits,
-          ),
-          footer: HighlightButton(
-            buttonLabel: S.of(context).buttonNextLabel,
-            onButtonPressed: () => _scrollToPage(3),
-            buttonActive: _secondPageButtonActive,
-          ),
+      ),
+      PageViewModel(
+        titleWidget: const SizedBox(),
+        // empty
+        decoration: _pageDecoration,
+        image: _defaultImageWidget,
+        bodyWidget: OnboardingFirstPageBody(
+          setPageContent: _setFirstPageData,
+          initialGender: selection.gender,
+          initialCaloriesProfile: selection.caloriesProfile,
+          initialBirthday: selection.birthday,
         ),
-        PageViewModel(
-          titleWidget: const SizedBox(),
-          // empty
-          decoration: _pageDecoration,
-          image: _defaultImageWidget,
-          bodyWidget: OnboardingThirdPageBody(
-            setButtonContent: _setThirdPageButton,
-            initialActivity: selection.activity,
-          ),
-          footer: HighlightButton(
-            buttonLabel: S.of(context).buttonNextLabel,
-            onButtonPressed: () => _scrollToPage(4),
-            buttonActive: _thirdPageButtonActive,
-          ),
+        footer: HighlightButton(
+          buttonLabel: S.of(context).buttonNextLabel,
+          onButtonPressed: () => _scrollToPage(2),
+          buttonActive: _firstPageButtonActive,
         ),
-        PageViewModel(
-          titleWidget: const SizedBox(),
-          // empty
-          decoration: _pageDecoration,
-          image: _defaultImageWidget,
-          bodyWidget: OnboardingFourthPageBody(
-            setButtonContent: _setFourthPageButton,
-            initialGoal: selection.goal,
-          ),
-          footer: HighlightButton(
-            buttonLabel: S.of(context).buttonNextLabel,
-            onButtonPressed: () => _scrollToPage(5),
-            buttonActive: _fourthPageButtonActive,
-          ),
+      ),
+      PageViewModel(
+        titleWidget: const SizedBox(),
+        // empty
+        decoration: _pageDecoration,
+        image: _defaultImageWidget,
+        bodyWidget: OnboardingSecondPageBody(
+          setButtonContent: _setSecondPageData,
+          initialHeightCm: selection.height,
+          initialWeightKg: selection.weight,
+          initialTargetWeightKg: selection.targetWeight,
+          initialUsesImperial: selection.usesImperialUnits,
         ),
-        PageViewModel(
-          titleWidget: const SizedBox(),
-          // empty
-          decoration: _pageDecoration,
-          image: _defaultImageWidget,
-          bodyWidget: OnboardingOverviewPageBody(
-            calorieGoalDayString:
-                _onboardingBloc.getOverviewCalorieGoal()?.toInt().toString() ??
-                    "?",
-            carbsGoalString:
-                _onboardingBloc.getOverviewCarbsGoal()?.toInt().toString() ??
-                    "?",
-            fatGoalString:
-                _onboardingBloc.getOverviewFatGoal()?.toInt().toString() ?? "?",
-            proteinGoalString:
-                _onboardingBloc.getOverviewProteinGoal()?.toInt().toString() ??
-                    "?",
-            setButtonActive: _setOverviewPageContent,
-            showLowKcalWarning:
-                _onboardingBloc.isOverviewBelowRecommendedKcalFloor(),
-            lowKcalWarningThreshold:
-                _onboardingBloc.getOverviewRecommendedKcalFloor(),
-          ),
-          footer: HighlightButton(
-            buttonLabel: S.of(context).buttonStartLabel,
-            onButtonPressed: () {
-              _onOverviewStartButtonPressed(context);
-            },
-            buttonActive: _overviewPageButtonActive,
-          ),
+        footer: HighlightButton(
+          buttonLabel: S.of(context).buttonNextLabel,
+          onButtonPressed: () => _scrollToPage(3),
+          buttonActive: _secondPageButtonActive,
         ),
-      ];
+      ),
+      PageViewModel(
+        titleWidget: const SizedBox(),
+        // empty
+        decoration: _pageDecoration,
+        image: _defaultImageWidget,
+        bodyWidget: OnboardingThirdPageBody(
+          setButtonContent: _setThirdPageButton,
+          initialActivity: selection.activity,
+        ),
+        footer: HighlightButton(
+          buttonLabel: S.of(context).buttonNextLabel,
+          onButtonPressed: () => _scrollToPage(4),
+          buttonActive: _thirdPageButtonActive,
+        ),
+      ),
+      PageViewModel(
+        titleWidget: const SizedBox(),
+        // empty
+        decoration: _pageDecoration,
+        image: _defaultImageWidget,
+        bodyWidget: OnboardingFourthPageBody(
+          setButtonContent: _setFourthPageButton,
+          initialGoal: selection.goal,
+        ),
+        footer: HighlightButton(
+          buttonLabel: S.of(context).buttonNextLabel,
+          onButtonPressed: () => _scrollToPage(5),
+          buttonActive: _fourthPageButtonActive,
+        ),
+      ),
+      PageViewModel(
+        titleWidget: const SizedBox(),
+        // empty
+        decoration: _pageDecoration,
+        image: _defaultImageWidget,
+        bodyWidget: OnboardingOverviewPageBody(
+          calorieGoalDayString:
+              _onboardingBloc.getOverviewCalorieGoal()?.toInt().toString() ??
+              "?",
+          carbsGoalString:
+              _onboardingBloc.getOverviewCarbsGoal()?.toInt().toString() ?? "?",
+          fatGoalString:
+              _onboardingBloc.getOverviewFatGoal()?.toInt().toString() ?? "?",
+          proteinGoalString:
+              _onboardingBloc.getOverviewProteinGoal()?.toInt().toString() ??
+              "?",
+          setButtonActive: _setOverviewPageContent,
+          showLowKcalWarning: _onboardingBloc
+              .isOverviewBelowRecommendedKcalFloor(),
+          lowKcalWarningThreshold: _onboardingBloc
+              .getOverviewRecommendedKcalFloor(),
+        ),
+        footer: HighlightButton(
+          buttonLabel: S.of(context).buttonStartLabel,
+          onButtonPressed: () {
+            _onOverviewStartButtonPressed(context);
+          },
+          buttonActive: _overviewPageButtonActive,
+        ),
+      ),
+    ];
   }
 
   void _scrollToPage(int page) {
@@ -311,6 +314,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         usesImperialUnits,
       );
       if (!context.mounted) return;
+
+      // HomeBloc/ProfileBloc/DiaryBloc/CalendarDayBloc are lazy singletons
+      // that persist across this navigation on web (no full process
+      // restart) — HomePage in particular only auto-loads once, the very
+      // first time HomeBloc's state is HomeInitial. Without this, a second
+      // onboarding pass in the same tab (after "Delete all my data", or
+      // any future skip-onboarding-to-restore flow) leaves Home/Profile/
+      // Diary showing the *previous* profile's numbers even though the
+      // new one just saved correctly underneath. Same refresh set
+      // SettingsScreen's cloud-restore flow already uses.
+      locator<HomeBloc>().add(const LoadItemsEvent());
+      locator<ProfileBloc>().add(LoadProfileEvent());
+      locator<DiaryBloc>().add(const LoadDiaryYearEvent());
+      locator<CalendarDayBloc>().add(RefreshCalendarDayEvent());
+
       Navigator.pushReplacementNamed(context, NavigationOptions.mainRoute);
     } else {
       // Error with user input
