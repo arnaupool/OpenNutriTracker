@@ -4,6 +4,11 @@ Guía paso a paso para levantar OpenNutriTracker web en tu propio servidor
 usando Docker Compose, con HTTPS automático. Corresponde a la tarea **FW-07**
 del tablero Kanvas.
 
+> ¿Despliegas en **Portainer sobre Unraid** y ya tienes un reverse proxy
+> corriendo (Nginx Proxy Manager, SWAG...)? Ve directa a
+> [Variante: Portainer en Unraid con un reverse proxy ya existente](#variante-portainer-en-unraid-con-un-reverse-proxy-ya-existente)
+> — el recorrido de abajo asume que Caddy es tu único proxy.
+
 ## Qué vamos a montar
 
 Dos contenedores:
@@ -143,6 +148,95 @@ Docker reconstruye solo las capas que cambiaron — si solo tocaste `lib/`,
 `flutter pub get` no se vuelve a ejecutar gracias al orden de los `COPY` en
 el `Dockerfile` (los manifiestos de dependencias van primero).
 
+## Variante: Portainer en Unraid con un reverse proxy ya existente
+
+Si tu Unraid ya tiene un reverse proxy corriendo (Nginx Proxy Manager, SWAG,
+Traefik...) — muy habitual, y encima suele ocupar ya el puerto 80/443 del
+host junto con la propia GUI de Unraid — **no despliegues el `caddy` del
+`docker-compose.yml` de este repo**: competiría por esos puertos. En su lugar,
+el contenedor `app` se expone en un puerto interno cualquiera y le dices a tu
+proxy existente que apunte ahí; el HTTPS lo sigue gestionando él.
+
+Dos motivos para construir la imagen a mano por SSH en vez de dejar que
+Portainer haga el build él solo desde el repositorio Git: (1) Portainer no
+tiene forma sencilla de meter un fichero `.env` con tus secretos reales dentro
+del árbol que clona internamente antes de compilar, y (2) así tienes control
+total y puedes ver los errores de build directamente en la terminal.
+
+### 1. Clonar y preparar el `.env` por SSH/terminal de Unraid
+
+Usa la terminal de Unraid (icono `>_` en la esquina superior derecha de la
+WebUI) o SSH:
+
+```bash
+mkdir -p /mnt/user/appdata/opennutritracker-web
+cd /mnt/user/appdata/opennutritracker-web
+git clone <tu-fork> .
+cp .env.example .env
+nano .env   # rellena los 4 valores reales, igual que en el Paso 2 de arriba
+```
+
+`/mnt/user/appdata/` es la ubicación habitual en Unraid para los datos
+persistentes de contenedores — así el árbol clonado sobrevive a reinicios del
+array.
+
+### 2. Construir la imagen
+
+```bash
+docker build -t opennutritracker-web:latest .
+```
+
+Tarda varios minutos la primera vez (descarga la imagen de Flutter, ~2-3GB).
+Si falla, el mensaje de error sale directamente en la terminal — normalmente
+es el `.env` incompleto (ver Solución de problemas más abajo).
+
+### 3. Crear el stack en Portainer
+
+Portainer → Stacks → Add stack → nómbralo (p. ej. `opennutritracker`) →
+pestaña **Web editor** → pega:
+
+```yaml
+services:
+  app:
+    image: opennutritracker-web:latest
+    restart: unless-stopped
+    ports:
+      - "8090:80"
+```
+
+El `8090` es arbitrario — cualquier puerto libre del host vale, solo tiene
+que coincidir con lo que configures en tu proxy en el siguiente paso.
+Como la imagen ya está construida localmente (paso 2), Portainer no necesita
+acceso al Dockerfile ni al repo para desplegar este stack — solo referencia
+la imagen por nombre. Pulsa **Deploy the stack**.
+
+### 4. Apuntar tu proxy existente a `<ip-de-unraid>:8090`
+
+Da igual cuál uses — la idea es siempre la misma: un "proxy host" / entrada
+nueva en tu proxy con tu dominio como origen y `<ip-de-unraid>:8090` como
+destino, con su opción de "Force SSL" / Let's Encrypt activada (la gestiona
+tu proxy, no este stack). Consulta la documentación de tu proxy concreto para
+el paso exacto — en Nginx Proxy Manager es "Proxy Hosts → Add Proxy Host".
+
+### 5. Verificar
+
+Igual que el Paso 5 de arriba: `curl -I https://tu-dominio-real.com` debería
+devolver `200`, y la app debería cargar en el navegador y desde el móvil por
+datos.
+
+### Actualizar tras cambios de código (variante Portainer)
+
+```bash
+cd /mnt/user/appdata/opennutritracker-web
+git pull
+docker build -t opennutritracker-web:latest .
+```
+
+Docker no recrea el contenedor solo porque haya una imagen `latest` nueva —
+en Portainer, entra en el contenedor `app` del stack y pulsa **Recreate**
+(con la opción de "pull latest image" desmarcada, ya que la imagen es local,
+no viene de un registro) para que arranque con el build recién hecho.
+
 ## Solución de problemas
 
 **Caddy no consigue el certificado / `docker compose logs caddy` muestra
@@ -156,11 +250,26 @@ curl -I http://tu-dominio-real.com
 Si esto no responde desde fuera de tu red, el problema es DNS o firewall/
 port-forwarding, no Caddy.
 
-**`docker compose build` falla en el paso de `dart run build_runner build`
-con errores de `envied`.**
-El `.env` no existe o le faltan claves — repasa el Paso 2. `envied` necesita
-las 4 claves presentes (aunque sean placeholders) para generar el código;
-solo fallará si el fichero no existe en absoluto o le falta alguna clave.
+**`docker compose build` (o `docker build` en la variante Portainer) falla en
+el paso de `dart run build_runner build` con errores de `envied`.**
+El `.env` no existe o le faltan claves — repasa el Paso 2 (o el paso 1 de la
+variante Portainer). `envied` necesita las 4 claves presentes (aunque sean
+placeholders) para generar el código; solo fallará si el fichero no existe en
+absoluto o le falta alguna clave.
+
+**(Variante Portainer) Recreo el contenedor pero sigue sirviendo la versión
+vieja de la app.**
+Casi seguro que "Pull latest image" estaba marcado al recrear — con eso
+activado, Portainer intenta *descargar* `opennutritracker-web:latest` de un
+registro remoto (que no existe, es una imagen solo local) en vez de usar la
+que acabas de construir con `docker build`. Desmárcalo y vuelve a recrear.
+
+**(Variante Portainer) El puerto que elegí (8090 u otro) ya está en uso.**
+```bash
+docker ps --format '{{.Names}}\t{{.Ports}}'
+```
+para ver qué contenedores ya publican qué puertos en el host, y elige uno
+libre — no hay nada especial en el 8090, es solo un ejemplo.
 
 **La app carga pero las búsquedas de productos no funcionan.**
 Antes de asumir que es cosa del despliegue, mira la consola del navegador
