@@ -685,8 +685,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Semantics(
           identifier: 'settings-cloud-backup-sync',
           child: ListTile(
-            leading: const Icon(Icons.cloud_sync_outlined),
+            leading: const Icon(Icons.cloud_upload_outlined),
             title: Text(s.settingsCloudBackupSyncLabel),
+            subtitle: Text(s.settingsCloudBackupSyncSubtitle),
             trailing: _cloudBackupBusy
                 ? const SizedBox(
                     height: 20,

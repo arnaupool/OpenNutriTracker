@@ -8518,11 +8518,21 @@ class S {
     );
   }
 
-  /// `Sync now`
+  /// `Back up now`
   String get settingsCloudBackupSyncLabel {
     return Intl.message(
-      'Sync now',
+      'Back up now',
       name: 'settingsCloudBackupSyncLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Uploads this device's data to the cloud`
+  String get settingsCloudBackupSyncSubtitle {
+    return Intl.message(
+      "Uploads this device's data to the cloud",
+      name: 'settingsCloudBackupSyncSubtitle',
       desc: '',
       args: [],
     );
@@ -8538,10 +8548,10 @@ class S {
     );
   }
 
-  /// `Sync failed`
+  /// `Backup failed`
   String get settingsCloudBackupSyncErrorLabel {
     return Intl.message(
-      'Sync failed',
+      'Backup failed',
       name: 'settingsCloudBackupSyncErrorLabel',
       desc: '',
       args: [],
@@ -8588,10 +8598,10 @@ class S {
     );
   }
 
-  /// `Overwrites this device's data`
+  /// `Downloads the cloud backup and overwrites this device's data`
   String get settingsCloudBackupRestoreSubtitle {
     return Intl.message(
-      "Overwrites this device's data",
+      "Downloads the cloud backup and overwrites this device's data",
       name: 'settingsCloudBackupRestoreSubtitle',
       desc: '',
       args: [],
