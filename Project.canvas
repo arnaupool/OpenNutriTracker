@@ -340,17 +340,17 @@
 			"y": 580,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "67746049",
 			"type": "text",
-			"text": "## FW-05 Revisar CORS y exposicion de claves en llamadas desde navegador\nConfirmar que las llamadas directas desde el cliente a OpenRouter (magic scan, scan de etiqueta, generacion de nombre de comida), Supabase FDC y Open Food Facts aceptan CORS desde el origen del navegador -- probar con flutter run -d chrome antes de desplegar. La clave de OpenRouter queda visible en la pestana Network del navegador (a diferencia de una app nativa donde solo se ve descompilando); documentar el riesgo y considerar limitar el rate/scope de esa clave. La anon key de Supabase esta pensada para exponerse, no requiere cambios.",
+			"text": "## FW-05 Revisar CORS y exposicion de claves en llamadas desde navegador\n## FW-05 Revisar CORS y exposicion de claves en llamadas desde navegador\nConfirmar que las llamadas directas desde el cliente a OpenRouter, Supabase FDC y Open Food Facts aceptan CORS desde el origen del navegador; documentar el riesgo de exposicion de la clave de OpenRouter.\n\nHallazgo grande, no previsto: mientras verificaba esto, descubri que _searchLangs()/OffCountry.fromLocale()/getPlatformName() usaban dart:io Platform.localeName/isAndroid/isIOS en 6 sitios del pipeline de busqueda de comida (app_const.dart, products_repository.dart, sp_fdc_data_source.dart, off_data_source.dart, meal_entity.dart x2) -- todos lanzarian UnsupportedError en runtime en web, ANTES de llegar siquiera a la capa de red. Es decir: cualquier busqueda de producto habria petado en web sin importar el CORS. Arreglado sustituyendo por dart:ui PlatformDispatcher.instance.locale (funciona en todas las plataformas, mismo formato que Platform.localeName) y defaultTargetPlatform+kIsWeb para el nombre de plataforma del User-Agent.\n\nCORS verificado de verdad con curl (no solo teoria):\n- OpenRouter (openrouter.ai/api/v1): CONFIRMADO -- Access-Control-Allow-Origin: *, permite Authorization y POST.\n- Open Food Facts, endpoint de producto/codigo de barras (world.openfoodfacts.org): CONFIRMADO -- Access-Control-Allow-Origin: *.\n- Open Food Facts, busqueda de texto Search-a-licious (search.openfoodfacts.org): NO VERIFICABLE ahora mismo -- el servicio devolvio 502 en mis pruebas (el propio codigo de la app ya trata 502/503/500 como 'servicio caido' esperado para este backend concreto, asi que probablemente sea caida temporal normal de ese servicio, no un problema mio). Misma familia de infraestructura que el endpoint de producto que si funciono -- alta confianza pero sin confirmar. Recomiendo re-verificar cuando este desplegado.\n- Supabase FDC: NO TESTEABLE en este entorno -- el .env local tiene los valores placeholder de .env.example (SUPABASE_PROJECT_URL=\"PROJECT_URL\", etc.), nunca se relleno con un proyecto real. Alta confianza igualmente: el API REST de Supabase (PostgREST) viene con CORS abierto a todos los origenes por diseno -- es el patron estandar para apps que hablan con Supabase directamente desde el navegador sin backend propio.\n\nExposicion de la clave de OpenRouter -- replanteada tras revisar el codigo real: la clave NO es un secreto compartido de la app (no viene de .env/envied), la introduce cada usuario en Settings -> OpenRouter y se guarda en su propio Hive cifrado -- igual en nativo que en web. El riesgo real no es 'se filtra la clave de todos', es que en web cualquiera con acceso casual a la pestana del navegador de ESE usuario (F12) ve su propia clave mas facil que en nativo (que requeriria root/jailbreak o un proxy MITM). Mitigacion recomendada: sugerir a los usuarios poner un limite de gasto en su propia clave de OpenRouter (soportado nativamente por OpenRouter) y no dejar la pestana abierta en ordenadores compartidos. La anon key de Supabase esta pensada para exponerse (protegida por Row Level Security en el servidor), no requiere cambios.\n\nflutter analyze limpio, 800/800 tests en verde.",
 			"x": 3100,
 			"y": 760,
 			"width": 280,
 			"height": 160,
-			"color": "1"
+			"color": "5"
 		},
 		{
 			"id": "16a27dcb",
@@ -410,7 +410,7 @@
 			"y": 1120,
 			"width": 280,
 			"height": 160,
-			"color": "0"
+			"color": "1"
 		},
 		{
 			"id": "efbd8609",
