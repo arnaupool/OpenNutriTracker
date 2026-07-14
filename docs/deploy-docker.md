@@ -1,10 +1,18 @@
 # Desplegar la versión web en Unraid (Portainer + Nginx Proxy Manager)
 
+Portainer clona tu fork directamente de GitHub y construye la imagen él
+solo — no hace falta SSH ni `docker build` a mano. Para actualizar tras un
+cambio de código, un botón en Portainer ("Pull and redeploy").
+
 ## Prerrequisitos
 
 - Un dominio apuntando a tu IP pública (Let's Encrypt no emite certificado
   para una IP pelada).
 - Los 4 valores reales de tu `.env` (Supabase, Sentry, FDC) a mano.
+- Como tu fork es privado, un **Personal Access Token** de GitHub con
+  permiso de lectura sobre el repo: GitHub → Settings → Developer settings →
+  Personal access tokens → Generate new token (classic vale; scope `repo`
+  basta).
 
 ## 1. Docker + Portainer en Unraid
 
@@ -19,39 +27,28 @@
 - Entra en `http://<ip-unraid>:9000`, crea el usuario admin, elige entorno
   **local**.
 
-## 2. Clonar y construir la imagen
+## 2. Stack en Portainer, apuntando a GitHub
 
-Terminal de Unraid (icono `>_`) o SSH:
+Stacks → Add stack → nombre `opennutritracker`:
 
-```bash
-mkdir -p /mnt/user/appdata/opennutritracker-web
-cd /mnt/user/appdata/opennutritracker-web
-git clone <tu-fork> .
-cp .env.example .env
-nano .env   # rellena los 4 valores reales
-docker build -t opennutritracker-web:latest .
-```
+- Pestaña **Repository** (no Web editor).
+- **Repository URL**: `https://github.com/arnaupool/OpenNutriTracker`
+- **Repository reference**: `refs/heads/main`
+- **Authentication**: actívalo → usuario de GitHub + el Personal Access
+  Token del paso anterior (el repo es privado, sin esto Portainer no puede
+  clonarlo).
+- **Compose path**: `docker-compose.unraid.yml` (no el `docker-compose.yml`
+  por defecto — ese lleva Caddy, que no necesitas con NPM).
+- **Environment variables**: añade las 4 claves reales, una por una:
+  `SUPABASE_PROJECT_URL`, `SUPABASE_PROJECT_ANON_KEY`, `FDC_API_KEY`,
+  `SENTRY_DNS`.
+- **Deploy the stack**.
 
-Tarda varios minutos la primera vez. La imagen es local (nombre sin
-prefijo de registro) — Docker no va a buscarla a ningún sitio.
+La primera vez tarda varios minutos (Portainer descarga la imagen base de
+Flutter, ~2-3GB, y compila la app) — sigue el progreso desde el propio log
+de despliegue que muestra Portainer.
 
-## 3. Stack en Portainer
-
-Stacks → Add stack → nombre `opennutritracker` → Web editor → pega:
-
-```yaml
-services:
-  app:
-    image: opennutritracker-web:latest
-    restart: unless-stopped
-    ports:
-      - "8090:80"
-```
-
-Deploy the stack. (`8090` es libre de elegir — solo tiene que coincidir con
-el paso 4.)
-
-## 4. Nginx Proxy Manager
+## 3. Nginx Proxy Manager
 
 Proxy Hosts → Add Proxy Host:
 
@@ -63,7 +60,7 @@ Proxy Hosts → Add Proxy Host:
 
 Save.
 
-## 5. Verificar
+## 4. Verificar
 
 ```bash
 curl -I https://tu-dominio-real.com
@@ -73,20 +70,19 @@ curl -I https://tu-dominio-real.com
 
 ## Actualizar tras cambios de código
 
-```bash
-cd /mnt/user/appdata/opennutritracker-web
-git pull
-docker build -t opennutritracker-web:latest .
-```
-
-Portainer → Containers → contenedor `app` → **Recreate** → **desmarca "Pull
-latest image"** (la imagen es local, no de un registro) → confirmar.
+Stacks → `opennutritracker` → botón **"Pull and redeploy"** (o "Update the
+stack" según la versión de Portainer). Vuelve a clonar `main` y reconstruye
+— nada de SSH.
 
 ## Problemas típicos
 
+- **Portainer no puede clonar el repo** → revisa el Personal Access Token
+  (caducado, o sin scope `repo`) y que "Authentication" esté activado.
 - **Build falla en `dart run build_runner build` / errores de `envied`** →
-  falta el `.env` o le faltan claves.
-- **Recreate sigue sirviendo la versión vieja** → "Pull latest image" estaba
-  marcado; desmárcalo.
-- **Puerto 8090 ocupado** → `docker ps --format '{{.Names}}\t{{.Ports}}'` y
-  elige otro libre.
+  falta alguna de las 4 "Environment variables" en el stack, o tiene un
+  valor vacío.
+- **La app carga pero con datos raros / build viejo** → confirma que el
+  "Compose path" es `docker-compose.unraid.yml`, no el genérico.
+- **Puerto 8090 ocupado** → `docker ps --format '{{.Names}}\t{{.Ports}}'` en
+  la terminal de Unraid y elige otro libre (edítalo también en el stack y en
+  Nginx Proxy Manager).

@@ -1,0 +1,15 @@
+# For Portainer's "Repository" stack method behind an existing reverse
+# proxy (Nginx Proxy Manager, SWAG...) — no Caddy, just the app exposed
+# on a host port your proxy forwards to. See docs/deploy-docker.md.
+services:
+  app:
+    build:
+      context: .
+      args:
+        SUPABASE_PROJECT_URL: ${SUPABASE_PROJECT_URL}
+        SUPABASE_PROJECT_ANON_KEY: ${SUPABASE_PROJECT_ANON_KEY}
+        FDC_API_KEY: ${FDC_API_KEY}
+        SENTRY_DNS: ${SENTRY_DNS}
+    restart: unless-stopped
+    ports:
+      - "8090:80"

@@ -1,6 +1,12 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      args:
+        SUPABASE_PROJECT_URL: ${SUPABASE_PROJECT_URL}
+        SUPABASE_PROJECT_ANON_KEY: ${SUPABASE_PROJECT_ANON_KEY}
+        FDC_API_KEY: ${FDC_API_KEY}
+        SENTRY_DNS: ${SENTRY_DNS}
     restart: unless-stopped
     expose:
       - "80"

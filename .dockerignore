@@ -1,10 +1,8 @@
 # The Dockerfile COPYs only the specific paths it needs (see its COPY
 # instructions) — that explicit list, not this file, is what keeps
-# secrets and native-platform cruft out of the image. .env is
-# deliberately NOT excluded here: the Dockerfile does `COPY .env ./`
-# on purpose (envied needs it at build time), and .dockerignore entries
-# remove files from the build context entirely — excluding .env here
-# would make that COPY fail with "file not found".
+# secrets and native-platform cruft out of the image. Secrets arrive as
+# build ARGs (see Dockerfile), not a copied file, so .env never needs
+# to be in the build context at all.
 
 android/
 ios/

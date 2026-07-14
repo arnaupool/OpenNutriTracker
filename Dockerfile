@@ -24,11 +24,21 @@ COPY web/ web/
 COPY assets/ assets/
 COPY fonts/ fonts/
 
-# .env carries the real secrets (Supabase, Sentry, FDC) baked in at build
-# time by envied — see docs/deploy-docker.md for how to create it on the
-# server before running `docker compose build`. This is the same file
-# `just build` reads locally; nothing Docker-specific about its contents.
-COPY .env ./
+# Secrets (Supabase, Sentry, FDC) arrive as build ARGs rather than a
+# copied .env file, so this also works when Portainer clones the repo
+# and builds it directly (Stacks -> Add stack -> Repository) — there's
+# no straightforward way to inject an arbitrary file into that cloned
+# tree, but Portainer's stack "Environment variables" UI maps cleanly
+# onto compose build args. `docker compose build` also auto-populates
+# these from a local .env file if one exists next to the compose file
+# (standard Compose behaviour) — see docs/deploy-docker.md.
+ARG SUPABASE_PROJECT_URL
+ARG SUPABASE_PROJECT_ANON_KEY
+ARG FDC_API_KEY
+ARG SENTRY_DNS
+RUN printf 'FDC_API_KEY="%s"\nSENTRY_DNS="%s"\nSUPABASE_PROJECT_URL="%s"\nSUPABASE_PROJECT_ANON_KEY="%s"\n' \
+      "$FDC_API_KEY" "$SENTRY_DNS" "$SUPABASE_PROJECT_URL" "$SUPABASE_PROJECT_ANON_KEY" > .env
+
 RUN dart run build_runner build --delete-conflicting-outputs
 RUN flutter build web --release
 
