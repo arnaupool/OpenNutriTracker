@@ -28,14 +28,14 @@ class AppBannerVersion extends StatelessWidget {
             ).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
-        // Only set on Docker-built web deploys (see AppConst.gitCommitSha)
-        // — absent on local `flutter run`/store builds, where the plain
+        // Only set on Docker-built web deploys (see AppConst.buildStamp) —
+        // absent on local `flutter run`/store builds, where the plain
         // version number above is already unambiguous.
-        if (AppConst.gitCommitSha.isNotEmpty)
+        if (AppConst.buildStamp.isNotEmpty)
           Semantics(
-            identifier: 'settings-build-commit',
+            identifier: 'settings-build-stamp',
             child: Text(
-              AppConst.gitCommitSha,
+              AppConst.buildStamp,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(
                   context,

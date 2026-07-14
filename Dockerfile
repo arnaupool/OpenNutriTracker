@@ -68,18 +68,17 @@ RUN printf 'FDC_API_KEY="%s"\nSENTRY_DNS="%s"\nSUPABASE_PROJECT_URL="%s"\nSUPABA
 
 RUN dart run build_runner build --delete-conflicting-outputs
 
-# Stamp the build with the commit it was actually built from — read
-# straight from .git (COPY'd in below, not excluded by .dockerignore),
-# not threaded in from outside, so it's automatically correct on any build
-# method (manual `docker build`, `docker compose build`, Portainer's
-# git-clone-and-build) without the user having to maintain it by hand.
-# Shows up in Settings (AppBannerVersion) so a redeploy is visually
-# verifiable instead of trusting a CDN/browser cache didn't quietly keep
-# serving the old one. .git never reaches the final nginx image below —
-# only this intermediate build stage sees it.
-COPY .git .git
-RUN GIT_COMMIT_SHA="$(git rev-parse --short=8 HEAD 2>/dev/null || echo unknown)" \
-    && flutter build web --release --dart-define=GIT_COMMIT_SHA="$GIT_COMMIT_SHA"
+# Stamp the build with when it actually happened. A git-commit-hash stamp
+# was tried first, but Portainer's "Repository" build method doesn't hand
+# the build stage a .git directory at all (it clones on the host, then
+# hands docker compose a plain file tree) -- COPY .git .git failed there
+# with "/.git: not found". A UTC timestamp needs nothing from git and
+# always exists, so it works identically on every build method (manual
+# `docker build`, `docker compose build`, Portainer). Shows up in Settings
+# (AppBannerVersion) so a redeploy is visually verifiable instead of
+# trusting a CDN/browser cache didn't quietly keep serving the old build.
+RUN BUILD_STAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+    && flutter build web --release --dart-define=BUILD_STAMP="$BUILD_STAMP"
 
 FROM nginx:1.27-alpine AS serve
 COPY --from=build /app/build/web /usr/share/nginx/html

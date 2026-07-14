@@ -74,9 +74,10 @@ curl -I https://tu-dominio-real.com
 Para confirmar que lo que ves es realmente el build más reciente (y no una
 copia en caché de Cloudflare/el navegador — ver el problema real que dio
 esto más abajo): **Settings**, baja del todo, debajo del número de versión
-sale un hash corto de 8 caracteres — es el commit exacto con el que se
-construyó esa imagen. Compáralo con `git log --oneline -1` en tu checkout
-local.
+sale la fecha/hora UTC en la que se construyó esa imagen. Si acabas de
+darle a "Pull and redeploy" y sigue saliendo una hora de hace rato, no es
+el build nuevo lo que estás viendo — toca purgar caché (Cloudflare y/o el
+navegador/PWA).
 
 ## Actualizar tras cambios de código
 
