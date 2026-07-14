@@ -2267,6 +2267,16 @@ class S {
     );
   }
 
+  /// `Not available on the web version`
+  String get settingsNotificationsUnavailableWebLabel {
+    return Intl.message(
+      'Not available on the web version',
+      name: 'settingsNotificationsUnavailableWebLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Notification permission denied.`
   String get notificationsPermissionDeniedSnack {
     return Intl.message(

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:logging/logging.dart';
@@ -5,6 +6,13 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 
 /// #312: Service for scheduling daily meal reminder notifications.
+///
+/// FW-04: flutter_local_notifications has no web implementation — every
+/// public method below is a no-op on web (kIsWeb guard first thing) so
+/// callers (Settings, the fasting timer, app startup) never have to
+/// know or care that scheduling silently isn't available there. The
+/// Settings UI additionally hides the toggle on web with an explanatory
+/// label, so this is a defensive backstop, not the primary UX fix.
 class NotificationService {
   static const int _dailyReminderId = 0;
   static const int _fastingCompleteId = 1;
@@ -25,6 +33,11 @@ class NotificationService {
   /// Initializes the plugin. Must be called before any other method.
   Future<void> initialize() async {
     if (_initialized) return;
+    if (kIsWeb) {
+      _initialized = true;
+      _log.fine('NotificationService: no web support, skipping init');
+      return;
+    }
     tz.initializeTimeZones();
     final String timeZoneName = await FlutterTimezone.getLocalTimezone();
     tz.setLocalLocation(tz.getLocation(timeZoneName));
@@ -46,6 +59,7 @@ class NotificationService {
 
   /// Requests the OS notification permission (Android 13+ / iOS).
   Future<bool> requestPermission() async {
+    if (kIsWeb) return false;
     final android = _plugin
         .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>();
@@ -73,6 +87,7 @@ class NotificationService {
     required String channelName,
     required String channelDescription,
   }) async {
+    if (kIsWeb) return;
     await _ensureInitialized();
     await _plugin.cancel(_dailyReminderId);
 
@@ -107,6 +122,7 @@ class NotificationService {
 
   /// Cancels any pending daily reminder.
   Future<void> cancelDailyReminder() async {
+    if (kIsWeb) return;
     await _ensureInitialized();
     await _plugin.cancel(_dailyReminderId);
     _log.fine('Daily reminder cancelled');
@@ -123,6 +139,7 @@ class NotificationService {
     required String channelName,
     required String channelDescription,
   }) async {
+    if (kIsWeb) return;
     await _ensureInitialized();
     await _plugin.cancel(_fastingCompleteId);
 
@@ -151,6 +168,7 @@ class NotificationService {
 
   /// Cancels any pending fasting-complete notification.
   Future<void> cancelFastingComplete() async {
+    if (kIsWeb) return;
     await _ensureInitialized();
     await _plugin.cancel(_fastingCompleteId);
     _log.fine('Fasting-complete notification cancelled');

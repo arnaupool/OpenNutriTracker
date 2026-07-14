@@ -972,6 +972,7 @@
   "settingsMetricLabel": "Metric (kg, cm, ml)",
   "settingsNotificationsLabel": "Daily Reminder",
   "settingsNotificationsTimeLabel": "Reminder time: {time}",
+  "settingsNotificationsUnavailableWebLabel": "Not available on the web version",
   "settingsNutrientGoalsHint": "Personal targets for every nutrient on the daily panel. The diary uses these in place of the default daily references whenever you set one.",
   "settingsNutrientGoalsLabel": "Nutrient goals",
   "settingsNutrientsHelp": "Choose which nutrients are visible on the daily panel. Hidden ones can be turned back on at any time.",

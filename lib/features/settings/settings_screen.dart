@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opennutritracker/core/domain/entity/app_theme_entity.dart';
@@ -230,46 +231,60 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onTap: () =>
                       _showLanguageDialog(context, state.selectedLocale),
                 ),
-                SwitchListTile(
-                  secondary: const Icon(Icons.notifications_outlined),
-                  title: Text(S.of(context).settingsNotificationsLabel),
-                  subtitle: state.notificationsEnabled
-                      ? Text(
-                          S
-                              .of(context)
-                              .settingsNotificationsTimeLabel(
-                                _formatNotificationTime(
-                                  state.notificationHour,
-                                  state.notificationMinute,
-                                ),
-                              ),
-                        )
-                      : null,
-                  value: state.notificationsEnabled,
-                  onChanged: (bool value) =>
-                      _onNotificationToggled(context, value, state),
-                ),
-                if (state.notificationsEnabled)
+                // FW-04: flutter_local_notifications has no web
+                // implementation — show a disabled, explanatory tile
+                // instead of a toggle that would do nothing.
+                if (kIsWeb)
                   ListTile(
-                    leading: const Icon(Icons.access_time_outlined),
-                    title: Text(
-                      S
-                          .of(context)
-                          .settingsNotificationsTimeLabel(
-                            _formatNotificationTime(
-                              state.notificationHour,
-                              state.notificationMinute,
-                            ),
-                          ),
+                    leading: const Icon(Icons.notifications_off_outlined),
+                    title: Text(S.of(context).settingsNotificationsLabel),
+                    subtitle: Text(
+                      S.of(context).settingsNotificationsUnavailableWebLabel,
                     ),
-                    onTap: () => _pickNotificationTime(
-                      context,
-                      TimeOfDay(
-                        hour: state.notificationHour,
-                        minute: state.notificationMinute,
+                    enabled: false,
+                  )
+                else ...[
+                  SwitchListTile(
+                    secondary: const Icon(Icons.notifications_outlined),
+                    title: Text(S.of(context).settingsNotificationsLabel),
+                    subtitle: state.notificationsEnabled
+                        ? Text(
+                            S
+                                .of(context)
+                                .settingsNotificationsTimeLabel(
+                                  _formatNotificationTime(
+                                    state.notificationHour,
+                                    state.notificationMinute,
+                                  ),
+                                ),
+                          )
+                        : null,
+                    value: state.notificationsEnabled,
+                    onChanged: (bool value) =>
+                        _onNotificationToggled(context, value, state),
+                  ),
+                  if (state.notificationsEnabled)
+                    ListTile(
+                      leading: const Icon(Icons.access_time_outlined),
+                      title: Text(
+                        S
+                            .of(context)
+                            .settingsNotificationsTimeLabel(
+                              _formatNotificationTime(
+                                state.notificationHour,
+                                state.notificationMinute,
+                              ),
+                            ),
+                      ),
+                      onTap: () => _pickNotificationTime(
+                        context,
+                        TimeOfDay(
+                          hour: state.notificationHour,
+                          minute: state.notificationMinute,
+                        ),
                       ),
                     ),
-                  ),
+                ],
                 const Divider(),
                 // AI
                 Semantics(
