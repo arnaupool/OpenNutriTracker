@@ -7,6 +7,7 @@ import 'package:opennutritracker/core/presentation/widgets/app_banner_version.da
 import 'package:opennutritracker/core/presentation/widgets/disclaimer_dialog.dart';
 import 'package:opennutritracker/core/domain/usecase/delete_all_user_data_usecase.dart';
 import 'package:opennutritracker/core/utils/app_const.dart';
+import 'package:opennutritracker/core/utils/cloud_backup_token_service.dart';
 import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/core/utils/energy_unit_provider.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
@@ -18,10 +19,14 @@ import 'package:opennutritracker/features/diary/presentation/bloc/calendar_day_b
 import 'package:opennutritracker/features/diary/presentation/bloc/diary_bloc.dart';
 import 'package:opennutritracker/features/home/presentation/bloc/home_bloc.dart';
 import 'package:opennutritracker/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:opennutritracker/features/settings/domain/usecase/cloud_backup_usecase.dart';
+import 'package:opennutritracker/features/settings/domain/usecase/cloud_restore_usecase.dart';
 import 'package:opennutritracker/features/settings/presentation/bloc/settings_bloc.dart';
+import 'package:opennutritracker/features/settings/presentation/widgets/cloud_backup_token_dialog.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/export_import_dialog.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/import_custom_food_data_dialog.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/nutrient_visibility_screen.dart';
+import 'package:opennutritracker/features/settings/presentation/widgets/pair_cloud_backup_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
@@ -46,6 +51,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late HomeBloc _homeBloc;
   late DiaryBloc _diaryBloc;
   late CalendarDayBloc _calendarDayBloc;
+  late final CloudBackupTokenService _cloudBackupTokenService =
+      locator<CloudBackupTokenService>();
+
+  // Fase Cuenta: whether this device has a cloud-backup pairing token —
+  // decides which row (activate vs. sync/view-code/restore) the Cloud
+  // backup section shows. Kept as plain local state rather than routed
+  // through SettingsBloc: it's device-pairing state, not an app-wide
+  // reactive preference the rest of the screen's bloc-driven rows are.
+  bool _hasCloudBackupToken = false;
+  bool _cloudBackupBusy = false;
 
   @override
   void initState() {
@@ -63,6 +78,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // leaves stale values on the screen for the rest of the session.
     // Refresh on every entry instead.
     _settingsBloc.add(LoadSettingsEvent());
+    _refreshCloudBackupTokenState();
+  }
+
+  Future<void> _refreshCloudBackupTokenState() async {
+    final hasToken = await _cloudBackupTokenService.hasToken();
+    if (!mounted) return;
+    setState(() => _hasCloudBackupToken = hasToken);
   }
 
   @override
@@ -313,6 +335,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: Text(S.of(context).exportImportAppDataLabel),
                   onTap: () => _showExportImportDialog(context),
                 ),
+                ..._buildCloudBackupTiles(context),
                 ListTile(
                   leading: const Icon(Icons.cached_outlined),
                   title: Text(S.of(context).clearOffCacheLabel),
@@ -632,6 +655,174 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _showExportImportDialog(BuildContext context) {
     showDialog(context: context, builder: (context) => ExportImportDialog());
+  }
+
+  // Fase Cuenta (FA-13): a small view-your-own-data-elsewhere feature, not
+  // a full account system — see docs/cloud-backup-setup.md for the design
+  // (a private Storage bucket keyed by a locally generated pairing token,
+  // no login). Not activated: one row to turn it on. Activated: sync
+  // (push), view the pairing code again (to link another device), and
+  // restore (pull, destructive — always behind its own confirm dialog).
+  // "Link this device" is always shown since re-pairing to a different
+  // token is a legitimate action even when one is already set up.
+  List<Widget> _buildCloudBackupTiles(BuildContext context) {
+    final s = S.of(context);
+    return [
+      if (!_hasCloudBackupToken)
+        Semantics(
+          identifier: 'settings-cloud-backup-activate',
+          child: ListTile(
+            leading: const Icon(Icons.cloud_outlined),
+            title: Text(s.settingsCloudBackupActivateLabel),
+            subtitle: Text(s.settingsCloudBackupActivateSubtitle),
+            enabled: !_cloudBackupBusy,
+            onTap: () => _activateCloudBackup(context),
+          ),
+        )
+      else ...[
+        Semantics(
+          identifier: 'settings-cloud-backup-sync',
+          child: ListTile(
+            leading: const Icon(Icons.cloud_sync_outlined),
+            title: Text(s.settingsCloudBackupSyncLabel),
+            trailing: _cloudBackupBusy
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : null,
+            enabled: !_cloudBackupBusy,
+            onTap: () => _syncCloudBackup(context),
+          ),
+        ),
+        Semantics(
+          identifier: 'settings-cloud-backup-view-code',
+          child: ListTile(
+            leading: const Icon(Icons.qr_code_outlined),
+            title: Text(s.settingsCloudBackupViewCodeLabel),
+            enabled: !_cloudBackupBusy,
+            onTap: () => showCloudBackupTokenDialog(context),
+          ),
+        ),
+      ],
+      Semantics(
+        identifier: 'settings-cloud-backup-link-device',
+        child: ListTile(
+          leading: const Icon(Icons.link_outlined),
+          title: Text(s.settingsCloudBackupLinkDeviceLabel),
+          subtitle: Text(s.settingsCloudBackupLinkDeviceSubtitle),
+          enabled: !_cloudBackupBusy,
+          onTap: () => _openPairCloudBackupScreen(context),
+        ),
+      ),
+      if (_hasCloudBackupToken)
+        Semantics(
+          identifier: 'settings-cloud-backup-restore',
+          child: ListTile(
+            leading: Icon(
+              Icons.cloud_download_outlined,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            title: Text(
+              s.settingsCloudBackupRestoreLabel,
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
+            ),
+            subtitle: Text(s.settingsCloudBackupRestoreSubtitle),
+            enabled: !_cloudBackupBusy,
+            onTap: () => _confirmAndRestoreCloudBackup(context),
+          ),
+        ),
+    ];
+  }
+
+  Future<void> _activateCloudBackup(BuildContext context) async {
+    await showCloudBackupTokenDialog(context);
+    await _refreshCloudBackupTokenState();
+  }
+
+  Future<void> _openPairCloudBackupScreen(BuildContext context) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => const PairCloudBackupScreen()),
+    );
+    await _refreshCloudBackupTokenState();
+  }
+
+  Future<void> _syncCloudBackup(BuildContext context) async {
+    final s = S.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _cloudBackupBusy = true);
+    try {
+      await locator<CloudBackupUsecase>().backup();
+      messenger.showSnackBar(
+        SnackBar(content: Text(s.settingsCloudBackupSyncSuccessLabel)),
+      );
+    } on CloudBackupNotPairedException {
+      messenger.showSnackBar(
+        SnackBar(content: Text(s.settingsCloudBackupNotPairedError)),
+      );
+    } catch (_) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(s.settingsCloudBackupSyncErrorLabel)),
+      );
+    } finally {
+      if (mounted) setState(() => _cloudBackupBusy = false);
+    }
+  }
+
+  Future<void> _confirmAndRestoreCloudBackup(BuildContext context) async {
+    final s = S.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(s.settingsCloudBackupRestoreConfirmTitle),
+        content: Text(s.settingsCloudBackupRestoreConfirmContent),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(s.dialogCancelLabel),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(ctx).colorScheme.error,
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(s.settingsCloudBackupRestoreConfirmAction),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _cloudBackupBusy = true);
+    try {
+      await locator<CloudRestoreUsecase>().restore();
+      // The restored snapshot may have touched almost every box —
+      // refresh every bloc this screen already holds a handle to, same
+      // pattern _showUnitsDialog uses after a unit-system change. Theme/
+      // locale/energy-unit Providers aren't re-synced here (that's a
+      // startup-time concern, not a per-toggle one elsewhere either), so
+      // the success message asks for a restart to catch those too.
+      _settingsBloc.add(LoadSettingsEvent());
+      _profileBloc.add(LoadProfileEvent());
+      _homeBloc.add(LoadItemsEvent());
+      _diaryBloc.add(const LoadDiaryYearEvent());
+      _calendarDayBloc.add(RefreshCalendarDayEvent());
+      messenger.showSnackBar(
+        SnackBar(content: Text(s.settingsCloudBackupRestoreSuccessLabel)),
+      );
+    } on CloudBackupNotPairedException {
+      messenger.showSnackBar(
+        SnackBar(content: Text(s.settingsCloudBackupNotPairedError)),
+      );
+    } catch (_) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(s.settingsCloudBackupRestoreErrorLabel)),
+      );
+    } finally {
+      if (mounted) setState(() => _cloudBackupBusy = false);
+    }
   }
 
   void _showImportCustomFoodDataDialog(BuildContext context) {

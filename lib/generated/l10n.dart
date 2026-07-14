@@ -8497,6 +8497,166 @@ class S {
       args: [],
     );
   }
+
+  /// `Enable cloud backup`
+  String get settingsCloudBackupActivateLabel {
+    return Intl.message(
+      'Enable cloud backup',
+      name: 'settingsCloudBackupActivateLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Generate a pairing code to see your data on another device`
+  String get settingsCloudBackupActivateSubtitle {
+    return Intl.message(
+      'Generate a pairing code to see your data on another device',
+      name: 'settingsCloudBackupActivateSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sync now`
+  String get settingsCloudBackupSyncLabel {
+    return Intl.message(
+      'Sync now',
+      name: 'settingsCloudBackupSyncLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Backup uploaded`
+  String get settingsCloudBackupSyncSuccessLabel {
+    return Intl.message(
+      'Backup uploaded',
+      name: 'settingsCloudBackupSyncSuccessLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sync failed`
+  String get settingsCloudBackupSyncErrorLabel {
+    return Intl.message(
+      'Sync failed',
+      name: 'settingsCloudBackupSyncErrorLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `View pairing code`
+  String get settingsCloudBackupViewCodeLabel {
+    return Intl.message(
+      'View pairing code',
+      name: 'settingsCloudBackupViewCodeLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Link this device`
+  String get settingsCloudBackupLinkDeviceLabel {
+    return Intl.message(
+      'Link this device',
+      name: 'settingsCloudBackupLinkDeviceLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Scan or paste a pairing code from another device`
+  String get settingsCloudBackupLinkDeviceSubtitle {
+    return Intl.message(
+      'Scan or paste a pairing code from another device',
+      name: 'settingsCloudBackupLinkDeviceSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Restore from cloud`
+  String get settingsCloudBackupRestoreLabel {
+    return Intl.message(
+      'Restore from cloud',
+      name: 'settingsCloudBackupRestoreLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Overwrites this device's data`
+  String get settingsCloudBackupRestoreSubtitle {
+    return Intl.message(
+      "Overwrites this device's data",
+      name: 'settingsCloudBackupRestoreSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Restore from cloud?`
+  String get settingsCloudBackupRestoreConfirmTitle {
+    return Intl.message(
+      'Restore from cloud?',
+      name: 'settingsCloudBackupRestoreConfirmTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This replaces everything on this device — diary, profile, settings, recipes and more — with the latest cloud backup. This cannot be undone.`
+  String get settingsCloudBackupRestoreConfirmContent {
+    return Intl.message(
+      'This replaces everything on this device — diary, profile, settings, recipes and more — with the latest cloud backup. This cannot be undone.',
+      name: 'settingsCloudBackupRestoreConfirmContent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Restore`
+  String get settingsCloudBackupRestoreConfirmAction {
+    return Intl.message(
+      'Restore',
+      name: 'settingsCloudBackupRestoreConfirmAction',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Data restored. Restart the app to see every change.`
+  String get settingsCloudBackupRestoreSuccessLabel {
+    return Intl.message(
+      'Data restored. Restart the app to see every change.',
+      name: 'settingsCloudBackupRestoreSuccessLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Restore failed`
+  String get settingsCloudBackupRestoreErrorLabel {
+    return Intl.message(
+      'Restore failed',
+      name: 'settingsCloudBackupRestoreErrorLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Set up cloud backup first`
+  String get settingsCloudBackupNotPairedError {
+    return Intl.message(
+      'Set up cloud backup first',
+      name: 'settingsCloudBackupNotPairedError',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
