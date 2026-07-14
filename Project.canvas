@@ -10,6 +10,15 @@
 			"label": "Fase Web"
 		},
 		{
+			"id": "group-fasecu",
+			"type": "group",
+			"x": 3520,
+			"y": 0,
+			"width": 380,
+			"height": 1840,
+			"label": "Fase Cuenta"
+		},
+		{
 			"id": "group-fasemo",
 			"type": "group",
 			"x": 1320,
@@ -441,6 +450,66 @@
 			"width": 280,
 			"height": 160,
 			"color": "1"
+		},
+		{
+			"id": "16698779",
+			"type": "text",
+			"text": "## FA-09 Bucket privado en Supabase Storage (RLS por auth.uid)\nBucket 'backups' en Supabase Storage con politica RLS por patron de ruta (no auth.uid, no tabla de tokens, no Edge Function). Solo permite leer/escribir objetos cuyo nombre case con el patron backups/[a-f0-9]{64}/latest.zip -- posesion del token (256 bits generado en el dispositivo al activar el backup) equivale a acceso, igual que un enlace 'cualquiera con el link'. El cliente usa solo la anon key, sin sesion ni login.",
+			"x": 3560,
+			"y": 60,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "7911deda",
+			"type": "text",
+			"text": "## FA-14 Verificacion con dos dispositivos reales\nGenerar backup desde el movil, restaurar en otro dispositivo (ordenador u otro movil), confirmar que perfil, ajustes, diario y fotos llegan integros.",
+			"x": 3560,
+			"y": 960,
+			"width": 280,
+			"height": 160,
+			"color": "0"
+		},
+		{
+			"id": "c4b2783d",
+			"type": "text",
+			"text": "## FA-13 UI de backup en la nube en Settings\nSeccion 'Backup en la nube': login, boton 'Sincronizar ahora' (sube el snapshot actual). En un dispositivo nuevo: 'Restaurar desde la nube' (login, descarga, aviso explicito de que sobrescribe los datos locales antes de confirmar -- accion destructiva, no fusion).",
+			"x": 3560,
+			"y": 780,
+			"width": 280,
+			"height": 160,
+			"color": "0"
+		},
+		{
+			"id": "5596537d",
+			"type": "text",
+			"text": "## FA-12 CloudBackupUsecase y CloudRestoreUsecase\nReutilizan casi entero el zip-building de ExportDataUsecase/ImportDataUsecase -- solo cambia el destino/origen (Supabase Storage en vez de disco local). Las fotos de recetas/comidas/progreso ya viajan dentro del zip, asi que no hace falta un camino de sync aparte para binarios (a diferencia del diseño de sync bidireccional que se descarto).",
+			"x": 3560,
+			"y": 600,
+			"width": 280,
+			"height": 160,
+			"color": "0"
+		},
+		{
+			"id": "c0503b72",
+			"type": "text",
+			"text": "## FA-11 Incluir perfil y ajustes en el snapshot de nube\nEl export/import local actual excluye a proposito UserBox y ConfigBox. Para el backup en la nube (pensado para ver los datos en otro dispositivo, no solo como copia de seguridad de diario) si interesa incluirlos. Extender la serializacion existente sin tocar el comportamiento del export/import local que ya usan otros flujos (Settings -> Exportar).",
+			"x": 3560,
+			"y": 420,
+			"width": 280,
+			"height": 160,
+			"color": "2"
+		},
+		{
+			"id": "7b177fa9",
+			"type": "text",
+			"text": "## FA-15 Generar token local de emparejamiento + codigo QR\nAl activar 'Backup en la nube' en Settings, generar un token aleatorio de 256 bits (formato acorde al patron RLS de FA-09) y guardarlo local (secure storage). Mostrarlo como QR (paquete tipo qr_flutter) y como texto copiable de respaldo. El emparejamiento de un dispositivo nuevo es escanear ese QR con la camara (paquete tipo mobile_scanner) o pegar el texto -- una sola vez por dispositivo, no en cada sincronizacion; a partir de ahi el token queda guardado local y 'Sincronizar'/'Actualizar' son solo un boton. Reemplaza a FA-10 (login/signup), que ya no hace falta.",
+			"x": 3560,
+			"y": 1140,
+			"width": 280,
+			"height": 160,
+			"color": "1"
 		}
 	],
 	"edges": [
@@ -730,6 +799,48 @@
 			"fromSide": "bottom",
 			"toNode": "dd482a5c",
 			"toSide": "top"
+		},
+		{
+			"id": "edge-060",
+			"fromNode": "16698779",
+			"fromSide": "bottom",
+			"toNode": "5596537d",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-062",
+			"fromNode": "c0503b72",
+			"fromSide": "bottom",
+			"toNode": "5596537d",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-063",
+			"fromNode": "5596537d",
+			"fromSide": "bottom",
+			"toNode": "c4b2783d",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-064",
+			"fromNode": "c4b2783d",
+			"fromSide": "bottom",
+			"toNode": "7911deda",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-065",
+			"fromNode": "16698779",
+			"fromSide": "bottom",
+			"toNode": "7b177fa9",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-066",
+			"fromNode": "7b177fa9",
+			"fromSide": "top",
+			"toNode": "5596537d",
+			"toSide": "bottom"
 		}
 	]
 }
