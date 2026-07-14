@@ -350,7 +350,7 @@
 			"y": 760,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "16a27dcb",
@@ -405,12 +405,12 @@
 		{
 			"id": "ce2668fb",
 			"type": "text",
-			"text": "## FW-07 Build de produccion y despliegue en servidor propio\nflutter build web --release genera estaticos en build/web/. Servir con HTTPS obligatorio (necesario tanto para camara/getUserMedia como para instalar la PWA) via reverse proxy con TLS (Caddy con Let's Encrypt es lo mas simple, o nginx + certbot). Mantener la estrategia de URL por defecto basada en hash (#/ruta) en vez de usePathUrlStrategy() para no tener que configurar fallback de SPA en el servidor. Confirmar acceso desde la red donde esten el iPhone y el Android.",
+			"text": "## FW-07 Build de produccion y despliegue en servidor propio\n## FW-07 Build de produccion y despliegue en servidor propio\nflutter build web --release genera estaticos en build/web/. Servir con HTTPS obligatorio via reverse proxy con TLS.\n\nHecho -- adaptado a Docker segun lo pedido (el servidor del usuario corre todo en contenedores):\n- Dockerfile multi-stage: ghcr.io/cirruslabs/flutter:3.41.7 compila build/web/, nginx:1.27-alpine sirve los estaticos. La imagen final no lleva el SDK, el codigo fuente ni el .env -- solo los estaticos compilados.\n- docker-compose.yml con un segundo servicio, Caddy, delante como reverse proxy -- consigue y renueva el certificado Let's Encrypt solo con declarar el dominio en el Caddyfile, sin configuracion TLS manual.\n- .dockerignore deliberadamente NO excluye .env (el Dockerfile lo copia a proposito para que envied genere env.g.dart en build time; si dockerignore lo excluyera, ese COPY fallaria).\n- docs/deploy-docker.md: tutorial completo -- por que hace falta un dominio real (Let's Encrypt no emite para una IP pelada, y HTTPS ya es obligatorio para camara/PWA por FW-05/FW-06), prerrequisitos, preparar .env en el servidor, editar el Caddyfile, build y arranque, verificacion, actualizar tras cambios, solucion de problemas.\n\nVerificado que la imagen ghcr.io/cirruslabs/flutter:3.41.7 existe de verdad y es descargable (consultado el registro directamente). No se pudo ejecutar un docker build real -- Docker no esta instalado en este entorno de desarrollo -- asi que el primer build real sera en el servidor del usuario; el tutorial incluye pasos de verificacion tempranos para detectar cualquier problema rapido.\n\nflutter analyze limpio.",
 			"x": 3100,
 			"y": 1120,
 			"width": 280,
 			"height": 160,
-			"color": "1"
+			"color": "5"
 		},
 		{
 			"id": "efbd8609",
