@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:http/http.dart' as http;
 import 'package:logging/logging.dart';
@@ -21,7 +21,9 @@ class OFFDataSource {
   /// English appended as a fallback so non-English locales still match the
   /// large English-only slice of the catalogue.
   String _searchLangs() {
-    final lang = SupportedLanguage.fromCode(Platform.localeName).name;
+    final lang = SupportedLanguage.fromCode(
+      PlatformDispatcher.instance.locale.toString(),
+    ).name;
     return lang == 'en' ? 'en' : '$lang,en';
   }
 

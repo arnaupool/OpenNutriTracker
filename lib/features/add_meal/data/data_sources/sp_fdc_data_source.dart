@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:logging/logging.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
@@ -18,7 +18,9 @@ class SpFdcDataSource {
         log.fine('Fetching Supabase FDC results');
         final supaBaseClient = locator<SupabaseClient>();
         final queryDescriptionColumn = SPConst.getFdcFoodDescriptionColumnName(
-          SupportedLanguage.fromCode(Platform.localeName),
+          SupportedLanguage.fromCode(
+            PlatformDispatcher.instance.locale.toString(),
+          ),
         );
 
         final response = await supaBaseClient

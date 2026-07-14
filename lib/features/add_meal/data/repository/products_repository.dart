@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:logging/logging.dart';
 import 'package:opennutritracker/core/utils/off_country.dart';
@@ -48,7 +48,9 @@ class ProductsRepository {
     // re-rank by fusing relevance position with OFF's popularity_key so
     // popular, well-maintained products surface first — without letting
     // popularity drag in off-topic matches the way a hard popularity sort does.
-    final userCountryTag = OffCountry.fromLocale(Platform.localeName);
+    final userCountryTag = OffCountry.fromLocale(
+      PlatformDispatcher.instance.locale.toString(),
+    );
     final candidates = <_RankedOffProduct>[];
     for (var i = 0; i < offWordResponse.products.length; i++) {
       final dto = offWordResponse.products[i];
