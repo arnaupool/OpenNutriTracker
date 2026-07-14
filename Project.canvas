@@ -484,12 +484,12 @@
 		{
 			"id": "c4b2783d",
 			"type": "text",
-			"text": "## FA-13 UI de backup en la nube en Settings\nSeccion 'Backup en la nube': login, boton 'Sincronizar ahora' (sube el snapshot actual). En un dispositivo nuevo: 'Restaurar desde la nube' (login, descarga, aviso explicito de que sobrescribe los datos locales antes de confirmar -- accion destructiva, no fusion).",
+			"text": "## FA-13 UI de backup en la nube en Settings\nSeccion 'Backup en la nube' en Settings: boton para activar (genera token + muestra QR via showCloudBackupTokenDialog), boton 'Sincronizar ahora' (CloudBackupUsecase.backup()), y 'Vincular este dispositivo' que abre PairCloudBackupScreen (escanear/pegar) seguido de un aviso explicito de que 'Restaurar' sobrescribe los datos locales antes de confirmar CloudRestoreUsecase.restore() -- accion destructiva, no fusion. Ya no hay login, se sustituyo por el esquema de token/QR de FA-15.",
 			"x": 3560,
 			"y": 1020,
 			"width": 280,
 			"height": 160,
-			"color": "0"
+			"color": "5"
 		},
 		{
 			"id": "7b177fa9",
@@ -509,7 +509,7 @@
 			"y": 780,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		}
 	],
 	"edges": [
