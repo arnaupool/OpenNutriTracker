@@ -335,12 +335,12 @@
 		{
 			"id": "de50f8ee",
 			"type": "text",
-			"text": "## FW-04 Aislar notificaciones locales de la build web\nflutter_local_notifications no tiene target web soportado oficialmente -- NotificationService.initialize()/scheduleDailyReminder fallarian o quedarian en no-op silencioso. Envolver la UI de recordatorio diario (Settings) y las llamadas en main.dart/NotificationService con kIsWeb para ocultarlas/omitirlas en vez de fallar en silencio. Documentar en Settings que los recordatorios no estan disponibles en la version web (implementarlos de verdad requeriria Web Push + Service Worker + servidor, fuera de alcance de esta fase).",
+			"text": "## FW-04 Aislar notificaciones locales de la build web\n## FW-04 Aislar notificaciones locales de la build web\nflutter_local_notifications no tiene target web soportado oficialmente -- NotificationService.initialize()/scheduleDailyReminder fallarian o quedarian en no-op silencioso.\n\nHecho: los 6 metodos publicos de NotificationService (initialize, requestPermission, scheduleDailyReminder, cancelDailyReminder, scheduleFastingComplete, cancelFastingComplete) ahora comprueban kIsWeb como primera linea y no tocan el plugin en absoluto -- un unico punto de guarda que protege a los 3 llamadores reales (el toggle de Settings, el aviso de fin de ayuno en fasting_screen.dart, y el arranque en main.dart) sin que ninguno tenga que saber que esta en web. Ademas, en Settings, el SwitchListTile del recordatorio diario se sustituye por un ListTile deshabilitado con texto explicando que no esta disponible en la version web -- el guard del servicio es red de seguridad, este es el arreglo real de UX (un switch que no hiciera nada habria sido confuso).\n\nflutter analyze limpio, 800/800 tests en verde (el test existente de NotificationService solo cubre computeNextOccurrence, la funcion pura, no le afecta el cambio). No hay forma de testear la rama kIsWeb=true con `flutter test` normal (corre en la VM, kIsWeb siempre false ahi) -- necesitaria `flutter test --platform chrome`, fuera de como este proyecto corre tests hoy. Verificado que arranca sin errores nuevos en consola con el build real en localhost:8080.",
 			"x": 3100,
 			"y": 580,
 			"width": 280,
 			"height": 160,
-			"color": "1"
+			"color": "5"
 		},
 		{
 			"id": "67746049",
@@ -360,7 +360,7 @@
 			"y": 940,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "67bf819b",
@@ -440,7 +440,7 @@
 			"y": 1660,
 			"width": 280,
 			"height": 160,
-			"color": "6"
+			"color": "1"
 		}
 	],
 	"edges": [
