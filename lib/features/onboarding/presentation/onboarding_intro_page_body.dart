@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:opennutritracker/core/presentation/sources_screen.dart';
 import 'package:opennutritracker/core/presentation/widgets/app_banner_version.dart';
 import 'package:opennutritracker/core/utils/app_const.dart';
+import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/core/utils/url_const.dart';
+import 'package:opennutritracker/features/settings/presentation/widgets/cloud_backup_restore_flow.dart';
+import 'package:opennutritracker/features/settings/presentation/widgets/pair_cloud_backup_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -27,6 +30,7 @@ class OnboardingIntroPageBody extends StatefulWidget {
 class _OnboardingIntroPageBodyState extends State<OnboardingIntroPageBody> {
   late bool _acceptedPolicy = widget.initialAcceptedPolicy;
   late bool _acceptedDataCollection = widget.initialAcceptedDataCollection;
+  bool _restoringFromCloud = false;
 
   @override
   Widget build(BuildContext context) {
@@ -61,9 +65,9 @@ class _OnboardingIntroPageBodyState extends State<OnboardingIntroPageBody> {
                       TextSpan(
                         text: ' ${S.of(context).privacyPolicyLabel}',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                              decoration: TextDecoration.underline,
-                            ),
+                          color: Theme.of(context).colorScheme.primary,
+                          decoration: TextDecoration.underline,
+                        ),
                         recognizer: TapGestureRecognizer()
                           ..onTap = () {
                             _launchUrl();
@@ -105,6 +109,22 @@ class _OnboardingIntroPageBodyState extends State<OnboardingIntroPageBody> {
                 icon: const Icon(Icons.menu_book_outlined),
                 label: Text(S.of(context).onboardingIntroSourcesLinkLabel),
               ),
+              Semantics(
+                identifier: 'onboarding-restore-from-cloud',
+                child: TextButton.icon(
+                  onPressed: _restoringFromCloud
+                      ? null
+                      : () => _restoreFromCloud(context),
+                  icon: _restoringFromCloud
+                      ? const SizedBox(
+                          height: 16,
+                          width: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.cloud_download_outlined),
+                  label: Text(S.of(context).onboardingRestoreFromCloudLabel),
+                ),
+              ),
             ],
           );
         } else {
@@ -129,9 +149,32 @@ class _OnboardingIntroPageBodyState extends State<OnboardingIntroPageBody> {
   }
 
   void _openSources(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const SourcesScreen()),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => const SourcesScreen()));
+  }
+
+  /// FA-16: lets someone who already has a cloud backup (Fase Cuenta) skip
+  /// filling in onboarding data that's just going to be overwritten anyway.
+  /// Pair, then chain straight into the same confirm-and-restore flow
+  /// Settings uses ([confirmAndRestoreCloudBackup]) — on success this
+  /// device now has real user data, so it goes to the main route instead
+  /// of continuing the onboarding pages.
+  Future<void> _restoreFromCloud(BuildContext context) async {
+    setState(() => _restoringFromCloud = true);
+    try {
+      final paired = await Navigator.of(context).push<bool>(
+        MaterialPageRoute<bool>(builder: (_) => const PairCloudBackupScreen()),
+      );
+      if (paired != true || !context.mounted) return;
+
+      final restored = await confirmAndRestoreCloudBackup(context);
+      if (restored && context.mounted) {
+        Navigator.of(context).pushReplacementNamed(NavigationOptions.mainRoute);
+      }
+    } finally {
+      if (mounted) setState(() => _restoringFromCloud = false);
+    }
   }
 
   Future<void> _launchUrl() async {

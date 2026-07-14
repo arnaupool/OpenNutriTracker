@@ -549,6 +549,7 @@
   "onboardingKjPerDayLabel": "kJ per day",
   "onboardingNonBinaryDisclaimer": "There's no published non-binary calorie baseline, so by default we use an average of the male and female formulas — a starting point, not a precise estimate. You can fine-tune anytime in Settings → Calculations.",
   "onboardingOverviewLabel": "Overview",
+  "onboardingRestoreFromCloudLabel": "Already have a cloud backup? Restore it",
   "onboardingSaveUserError": "Wrong input, please try again",
   "onboardingTargetWeightHintOptional": "Optional",
   "onboardingTargetWeightSubtitle": "Is there a weight you're working towards? You can leave this blank or change it later in Profile.",

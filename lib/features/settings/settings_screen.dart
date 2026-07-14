@@ -21,8 +21,8 @@ import 'package:opennutritracker/features/diary/presentation/bloc/diary_bloc.dar
 import 'package:opennutritracker/features/home/presentation/bloc/home_bloc.dart';
 import 'package:opennutritracker/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:opennutritracker/features/settings/domain/usecase/cloud_backup_usecase.dart';
-import 'package:opennutritracker/features/settings/domain/usecase/cloud_restore_usecase.dart';
 import 'package:opennutritracker/features/settings/presentation/bloc/settings_bloc.dart';
+import 'package:opennutritracker/features/settings/presentation/widgets/cloud_backup_restore_flow.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/cloud_backup_token_dialog.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/export_import_dialog.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/import_custom_food_data_dialog.dart';
@@ -775,56 +775,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _confirmAndRestoreCloudBackup(BuildContext context) async {
-    final s = S.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(s.settingsCloudBackupRestoreConfirmTitle),
-        content: Text(s.settingsCloudBackupRestoreConfirmContent),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(s.dialogCancelLabel),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(ctx).colorScheme.error,
-            ),
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(s.settingsCloudBackupRestoreConfirmAction),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !context.mounted) return;
-
-    final messenger = ScaffoldMessenger.of(context);
     setState(() => _cloudBackupBusy = true);
     try {
-      await locator<CloudRestoreUsecase>().restore();
-      // The restored snapshot may have touched almost every box —
-      // refresh every bloc this screen already holds a handle to, same
-      // pattern _showUnitsDialog uses after a unit-system change. Theme/
-      // locale/energy-unit Providers aren't re-synced here (that's a
-      // startup-time concern, not a per-toggle one elsewhere either), so
-      // the success message asks for a restart to catch those too.
-      _settingsBloc.add(LoadSettingsEvent());
-      _profileBloc.add(LoadProfileEvent());
-      _homeBloc.add(LoadItemsEvent());
-      _diaryBloc.add(const LoadDiaryYearEvent());
-      _calendarDayBloc.add(RefreshCalendarDayEvent());
-      messenger.showSnackBar(
-        SnackBar(content: Text(s.settingsCloudBackupRestoreSuccessLabel)),
-      );
-    } on CloudBackupNotPairedException {
-      messenger.showSnackBar(
-        SnackBar(content: Text(s.settingsCloudBackupNotPairedError)),
-      );
-    } catch (e, st) {
-      _log.warning('Cloud backup restore failed', e, st);
-      messenger.showSnackBar(
-        SnackBar(content: Text(s.settingsCloudBackupRestoreErrorLabel)),
-      );
+      await confirmAndRestoreCloudBackup(context);
     } finally {
       if (mounted) setState(() => _cloudBackupBusy = false);
     }

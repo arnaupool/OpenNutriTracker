@@ -12,6 +12,10 @@ import 'package:opennutritracker/generated/l10n.dart';
 /// to the same cloud-backup slot. A one-time pairing action per device —
 /// once stored, the token lives in secure storage and every later sync
 /// just reuses it, no re-scanning needed.
+///
+/// Pops `true` on a successful pair (`false`/`null` otherwise) so a caller
+/// that wants to chain straight into a restore — FA-16's onboarding entry
+/// point — knows whether to proceed.
 class PairCloudBackupScreen extends StatefulWidget {
   final CloudBackupTokenService? tokenService;
 
@@ -141,7 +145,7 @@ class _PairCloudBackupScreenState extends State<PairCloudBackupScreen>
     try {
       await _tokenService.store(raw.trim());
       if (!mounted) return;
-      Navigator.of(context).pop();
+      Navigator.of(context).pop(true);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(S.of(context).cloudBackupPairSuccessLabel)),
       );

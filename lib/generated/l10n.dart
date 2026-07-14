@@ -1404,6 +1404,16 @@ class S {
     );
   }
 
+  /// `Already have a cloud backup? Restore it`
+  String get onboardingRestoreFromCloudLabel {
+    return Intl.message(
+      'Already have a cloud backup? Restore it',
+      name: 'onboardingRestoreFromCloudLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Wrong input, please try again`
   String get onboardingSaveUserError {
     return Intl.message(
