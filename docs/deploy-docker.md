@@ -150,6 +150,9 @@ el `Dockerfile` (los manifiestos de dependencias van primero).
 
 ## Variante: Portainer en Unraid con un reverse proxy ya existente
 
+Tutorial completo desde cero — asume que no tienes Docker ni Portainer
+tocados todavía. Si ya tienes alguno de los primeros pasos hecho, sáltatelo.
+
 Si tu Unraid ya tiene un reverse proxy corriendo (Nginx Proxy Manager, SWAG,
 Traefik...) — muy habitual, y encima suele ocupar ya el puerto 80/443 del
 host junto con la propia GUI de Unraid — **no despliegues el `caddy` del
@@ -157,13 +160,56 @@ host junto con la propia GUI de Unraid — **no despliegues el `caddy` del
 el contenedor `app` se expone en un puerto interno cualquiera y le dices a tu
 proxy existente que apunte ahí; el HTTPS lo sigue gestionando él.
 
-Dos motivos para construir la imagen a mano por SSH en vez de dejar que
-Portainer haga el build él solo desde el repositorio Git: (1) Portainer no
-tiene forma sencilla de meter un fichero `.env` con tus secretos reales dentro
-del árbol que clona internamente antes de compilar, y (2) así tienes control
-total y puedes ver los errores de build directamente en la terminal.
+Construimos la imagen a mano por SSH/terminal en vez de dejar que Portainer
+haga el build él solo desde el repositorio Git, por dos motivos: (1)
+Portainer no tiene forma sencilla de meter un fichero `.env` con tus secretos
+reales dentro del árbol que clona internamente antes de compilar, y (2) así
+ves los errores de build directamente en la terminal en vez de tener que
+interpretarlos desde el log de Portainer.
 
-### 1. Clonar y preparar el `.env` por SSH/terminal de Unraid
+### 0. Habilitar Docker en Unraid
+
+Unraid trae Docker integrado en el propio sistema operativo — no hay que
+instalar nada aparte, solo confirmar que está encendido: **Settings → Docker**
+→ el interruptor **"Enable Docker"** tiene que estar en **Yes**. Si lo acabas
+de activar, dale a Apply y espera a que el servicio arranque (unos segundos).
+
+### 1. Instalar el plugin Community Applications (si no lo tienes)
+
+Es la "tienda de apps" de Unraid — la necesitas para instalar Portainer con
+un par de clics en vez de a mano. Para comprobar si ya la tienes: mira si
+existe una pestaña **"Apps"** en el menú superior de la WebUI de Unraid. Si
+sí, salta al paso 2.
+
+Si no la tienes: **Plugins → Install Plugin**, pega esta URL en el campo y
+pulsa Install:
+
+```
+https://raw.githubusercontent.com/Squidly271/community.applications/master/plugins/community.applications.plg
+```
+
+Al terminar te aparecerá la pestaña "Apps" en el menú.
+
+### 2. Instalar Portainer desde Community Applications
+
+**Apps** → busca `Portainer` en el buscador → aparecerán varios resultados,
+elige el que se llama **"Portainer-CE"** (Community Edition — es el oficial,
+mantenido por el propio proyecto Portainer, no un fork de terceros) → botón
+**Install**.
+
+Te abre la plantilla de configuración del contenedor — los valores por
+defecto sirven tal cual (WebUI en el puerto `9000`, datos persistentes en
+`/mnt/user/appdata/portainer`). Baja del todo y pulsa **Apply**. Tarda medio
+minuto en descargarse y arrancar.
+
+### 3. Primer acceso a Portainer
+
+Abre `http://<ip-de-tu-unraid>:9000` en el navegador. La primera vez te pide
+crear un usuario administrador (usuario + contraseña) — dáselo, y en la
+siguiente pantalla elige el entorno **"local"** (el Docker de tu propio
+Unraid). Ya estás dentro.
+
+### 4. Clonar el repo y preparar el `.env` por SSH/terminal de Unraid
 
 Usa la terminal de Unraid (icono `>_` en la esquina superior derecha de la
 WebUI) o SSH:
@@ -180,20 +226,40 @@ nano .env   # rellena los 4 valores reales, igual que en el Paso 2 de arriba
 persistentes de contenedores — así el árbol clonado sobrevive a reinicios del
 array.
 
-### 2. Construir la imagen
+### 5. Construir la imagen
 
 ```bash
 docker build -t opennutritracker-web:latest .
 ```
 
-Tarda varios minutos la primera vez (descarga la imagen de Flutter, ~2-3GB).
-Si falla, el mensaje de error sale directamente en la terminal — normalmente
-es el `.env` incompleto (ver Solución de problemas más abajo).
+Tarda varios minutos la primera vez (descarga la imagen base de Flutter,
+~2-3GB, y compila la app). Si falla, el mensaje de error sale directamente en
+la terminal — normalmente es el `.env` incompleto (ver Solución de problemas
+más abajo).
 
-### 3. Crear el stack en Portainer
+Esta imagen es 100% tuya: la construyó Docker en tu propio servidor, a partir
+del `Dockerfile` de tu fork de GitHub — no viene de ningún registro público
+ni "oficial". El nombre `opennutritracker-web:latest` no lleva prefijo de
+registro (no es `docker.io/algo` ni `ghcr.io/algo`), así que Docker la trata
+como una imagen puramente local: en el paso 6 la va a usar tal cual, sin ir a
+buscarla a ningún sitio. Si quieres comprobarlo tú mismo:
 
-Portainer → Stacks → Add stack → nómbralo (p. ej. `opennutritracker`) →
-pestaña **Web editor** → pega:
+```bash
+docker image inspect opennutritracker-web:latest --format '{{.Created}}'
+```
+
+te da la fecha/hora exacta en la que la construiste — y `docker history
+opennutritracker-web:latest` te enseña las capas reales del build (`flutter
+pub get`, `flutter build web --release`...), no algo genérico.
+
+### 6. Crear el stack en Portainer
+
+- Menú lateral izquierdo → **Stacks**.
+- Botón **"+ Add stack"** (arriba a la derecha).
+- Campo **Name**: `opennutritracker`.
+- Debajo hay varias pestañas de método de creación — deja marcada **"Web
+  editor"** (la que sale por defecto).
+- En el cuadro de texto grande, pega:
 
 ```yaml
 services:
@@ -205,12 +271,24 @@ services:
 ```
 
 El `8090` es arbitrario — cualquier puerto libre del host vale, solo tiene
-que coincidir con lo que configures en tu proxy en el siguiente paso.
-Como la imagen ya está construida localmente (paso 2), Portainer no necesita
-acceso al Dockerfile ni al repo para desplegar este stack — solo referencia
-la imagen por nombre. Pulsa **Deploy the stack**.
+que coincidir con lo que configures en tu proxy en el paso 8. Como la imagen
+ya está construida localmente (paso 5), Portainer no necesita acceso al
+Dockerfile ni al repo para este stack — solo referencia la imagen por
+nombre.
 
-### 4. Apuntar tu proxy existente a `<ip-de-unraid>:8090`
+- Baja del todo y pulsa el botón azul **"Deploy the stack"**. Tarda pocos
+  segundos (no construye nada, solo arranca un contenedor).
+
+### 7. Comprobar que arrancó
+
+Te lleva de vuelta a la lista de Stacks — el tuyo debería tener un punto
+verde. Entra en su nombre y verás el contenedor `app` listado, también en
+verde ("running"). Si está en rojo/parado: clic en el nombre del contenedor →
+pestaña **"Logs"**. Lo más típico es que la imagen no exista todavía porque
+el `docker build` del paso 5 falló o no llegó a ejecutarse — confírmalo con
+`docker images | grep opennutritracker` en la terminal.
+
+### 8. Apuntar tu proxy existente a `<ip-de-unraid>:8090`
 
 Da igual cuál uses — la idea es siempre la misma: un "proxy host" / entrada
 nueva en tu proxy con tu dominio como origen y `<ip-de-unraid>:8090` como
@@ -218,7 +296,7 @@ destino, con su opción de "Force SSL" / Let's Encrypt activada (la gestiona
 tu proxy, no este stack). Consulta la documentación de tu proxy concreto para
 el paso exacto — en Nginx Proxy Manager es "Proxy Hosts → Add Proxy Host".
 
-### 5. Verificar
+### 9. Verificar
 
 Igual que el Paso 5 de arriba: `curl -I https://tu-dominio-real.com` debería
 devolver `200`, y la app debería cargar en el navegador y desde el móvil por
@@ -232,10 +310,19 @@ git pull
 docker build -t opennutritracker-web:latest .
 ```
 
-Docker no recrea el contenedor solo porque haya una imagen `latest` nueva —
-en Portainer, entra en el contenedor `app` del stack y pulsa **Recreate**
-(con la opción de "pull latest image" desmarcada, ya que la imagen es local,
-no viene de un registro) para que arranque con el build recién hecho.
+Docker no recrea el contenedor solo porque haya una imagen `latest` nueva.
+En Portainer: **Containers** → busca el contenedor `app` de este stack
+(nombre tipo `opennutritracker-app-1`) → ábrelo → botón **"Recreate"** arriba
+→ en el diálogo, **desmarca "Pull latest image"** (importante — marcado
+intentaría descargar de un registro que no existe, en vez de usar la imagen
+local que acabas de construir) → confirmar.
+
+Para llevar la cuenta de qué commit está corriendo en cada momento, puedes
+etiquetar también con el hash corto de git al construir:
+
+```bash
+docker build -t opennutritracker-web:latest -t "opennutritracker-web:$(git rev-parse --short HEAD)" .
+```
 
 ## Solución de problemas
 
@@ -252,7 +339,7 @@ port-forwarding, no Caddy.
 
 **`docker compose build` (o `docker build` en la variante Portainer) falla en
 el paso de `dart run build_runner build` con errores de `envied`.**
-El `.env` no existe o le faltan claves — repasa el Paso 2 (o el paso 1 de la
+El `.env` no existe o le faltan claves — repasa el Paso 2 (o el paso 4 de la
 variante Portainer). `envied` necesita las 4 claves presentes (aunque sean
 placeholders) para generar el código; solo fallará si el fichero no existe en
 absoluto o le falta alguna clave.
