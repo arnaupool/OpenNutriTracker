@@ -1,0 +1,6 @@
+# Replace with your real domain — see docs/deploy-docker.md. Caddy
+# requests and renews a Let's Encrypt certificate for it automatically;
+# no extra TLS configuration is needed here.
+your-domain.example.com {
+    reverse_proxy app:80
+}
