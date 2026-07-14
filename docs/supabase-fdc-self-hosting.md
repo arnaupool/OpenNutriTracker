@@ -73,6 +73,25 @@ The fiddly part is the per-locale description columns. There is no machine-reada
 
 The same applies to any of the other locales (Polish, Czech, Italian, Turkish, Ukrainian, Chinese): the columns don't exist in production today, so you'd be paving new ground if you added them.
 
+## Quick start: schema only, no seed
+
+You don't have to do the full USDA import in one sitting. Steps 1 and 2
+below (create the project, apply the schema/RLS from the Appendix) take a
+few minutes and give you a real, working `SUPABASE_PROJECT_URL` /
+`SUPABASE_PROJECT_ANON_KEY` pair — the app builds and runs exactly as it
+would with a fully seeded database, `Supabase.initialize()` succeeds, RLS
+is in place. The only difference is that FDC search (via this Supabase
+path specifically — Open Food Facts search is unaffected) returns empty
+results until you come back and run "Seeding from USDA Food Data Central"
+below.
+
+This is the right move whenever you need real credentials *now* — e.g.
+rebuilding a Docker stack that got wiped and needs all six `.env` values
+present for `envied` to compile at all — but don't want to block on a
+multi-GB CSV import to get there. Nothing about the schema-only state is
+provisional or needs redoing later; seeding on top of it later is
+additive, not a do-over.
+
 ## Setting up the Supabase project
 
 These steps assume you've signed up for a free Supabase project at [supabase.com](https://supabase.com). The free tier is more than enough for personal use; the production project fits comfortably inside it.
