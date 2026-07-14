@@ -8437,6 +8437,66 @@ class S {
       args: [],
     );
   }
+
+  /// `Cloud backup pairing code`
+  String get cloudBackupTokenDialogTitle {
+    return Intl.message(
+      'Cloud backup pairing code',
+      name: 'cloudBackupTokenDialogTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Link this device`
+  String get cloudBackupPairScreenTitle {
+    return Intl.message(
+      'Link this device',
+      name: 'cloudBackupPairScreenTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Scan the QR code shown on your other device, or paste the pairing code manually.`
+  String get cloudBackupPairInstructionsLabel {
+    return Intl.message(
+      'Scan the QR code shown on your other device, or paste the pairing code manually.',
+      name: 'cloudBackupPairInstructionsLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paste the pairing code here`
+  String get cloudBackupPairPasteHint {
+    return Intl.message(
+      'Paste the pairing code here',
+      name: 'cloudBackupPairPasteHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Device linked`
+  String get cloudBackupPairSuccessLabel {
+    return Intl.message(
+      'Device linked',
+      name: 'cloudBackupPairSuccessLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `That doesn't look like a valid pairing code`
+  String get cloudBackupPairInvalidTokenError {
+    return Intl.message(
+      "That doesn't look like a valid pairing code",
+      name: 'cloudBackupPairInvalidTokenError',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

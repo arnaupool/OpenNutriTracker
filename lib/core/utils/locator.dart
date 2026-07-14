@@ -64,6 +64,7 @@ import 'package:opennutritracker/core/domain/usecase/save_recipe_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/send_open_router_chat_completion_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/update_intake_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/update_user_activity_usecase.dart';
+import 'package:opennutritracker/core/utils/cloud_backup_token_service.dart';
 import 'package:opennutritracker/core/utils/env.dart';
 import 'package:opennutritracker/core/utils/hive_db_provider.dart';
 import 'package:opennutritracker/core/utils/notification_service.dart';
@@ -149,6 +150,9 @@ Future<void> initLocator() async {
       Env.backupSupabaseProjectAnonKey,
     ),
     instanceName: 'backupSupabase',
+  );
+  locator.registerLazySingleton<CloudBackupTokenService>(
+    () => CloudBackupTokenService(),
   );
 
   // Notification service (#312)
