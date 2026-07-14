@@ -6,8 +6,31 @@
 # means nginx only ever needs to serve real files (index.html, main.dart.js,
 # assets/, icons/, manifest.json, flutter_service_worker.js); no SPA
 # fallback / rewrite rule is required.
+#
+# Build stage is a plain Debian image with the Flutter SDK fetched by hand,
+# NOT ghcr.io/cirruslabs/flutter — that image bundles the full Android SDK
+# and build-tools (multiple GB) unconditionally, which `flutter build web`
+# never touches and which has been known to exhaust small Docker storage
+# allocations (e.g. Unraid's default docker vDisk) for no reason.
 
-FROM ghcr.io/cirruslabs/flutter:3.41.7 AS build
+FROM debian:bookworm-slim AS build
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      curl ca-certificates git unzip xz-utils \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSL https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.41.7-stable.tar.xz -o /tmp/flutter.tar.xz \
+    && tar xf /tmp/flutter.tar.xz -C /opt \
+    && rm /tmp/flutter.tar.xz
+ENV PATH="/opt/flutter/bin:${PATH}"
+
+# Avoids a "detected dubious ownership" git error some Flutter tool
+# commands hit when running as root against an SDK checkout it doesn't
+# itself own the git history of.
+RUN git config --global --add safe.directory /opt/flutter \
+    && flutter config --no-analytics --no-cli-animations \
+    && flutter precache --web
+
 WORKDIR /app
 
 # Copy dependency manifests first so `flutter pub get` is cached across

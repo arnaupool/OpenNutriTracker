@@ -86,3 +86,14 @@ stack" según la versión de Portainer). Vuelve a clonar `main` y reconstruye
 - **Puerto 8090 ocupado** → `docker ps --format '{{.Names}}\t{{.Ports}}'` en
   la terminal de Unraid y elige otro libre (edítalo también en el stack y en
   Nginx Proxy Manager).
+- **"no space left on device" durante el build** → el `Dockerfile` ya no usa
+  la imagen base `cirruslabs/flutter` (llevaba el SDK de Android entero
+  metido, varios GB que un build web no toca para nada); ahora instala solo
+  el SDK de Flutter a pelo. Si ya te quedaste sin espacio con un intento
+  anterior, límpialo antes de reintentar — terminal de Unraid:
+  ```bash
+  docker system prune -a
+  ```
+  (borra imágenes y caché de build sin usar; no toca contenedores en
+  marcha). Si el build sigue sin caber, sube el tamaño del docker vDisk en
+  Settings → Docker.
