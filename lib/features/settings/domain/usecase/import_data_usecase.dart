@@ -10,12 +10,16 @@ import 'package:opennutritracker/core/data/dbo/intake_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/recipe_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/tracked_day_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/weight_log_dbo.dart';
+import 'package:opennutritracker/core/data/dbo/config_dbo.dart';
+import 'package:opennutritracker/core/data/dbo/user_dbo.dart';
 import 'package:opennutritracker/core/data/repository/body_measurement_repository.dart';
+import 'package:opennutritracker/core/data/repository/config_repository.dart';
 import 'package:opennutritracker/core/data/repository/custom_activity_template_repository.dart';
 import 'package:opennutritracker/core/data/repository/intake_repository.dart';
 import 'package:opennutritracker/core/data/repository/recipe_repository.dart';
 import 'package:opennutritracker/core/data/repository/tracked_day_repository.dart';
 import 'package:opennutritracker/core/data/repository/user_activity_repository.dart';
+import 'package:opennutritracker/core/data/repository/user_repository.dart';
 import 'package:opennutritracker/core/data/repository/weight_log_repository.dart';
 import 'package:opennutritracker/core/utils/csv_data_exporter.dart';
 import 'package:opennutritracker/core/utils/user_image_storage.dart';
@@ -28,6 +32,8 @@ class ImportDataUsecase {
   final WeightLogRepository _weightLogRepository;
   final CustomActivityTemplateRepository _customActivityTemplateRepository;
   final BodyMeasurementRepository _bodyMeasurementRepository;
+  final UserRepository _userRepository;
+  final ConfigRepository _configRepository;
 
   ImportDataUsecase(
     this._userActivityRepository,
@@ -37,6 +43,8 @@ class ImportDataUsecase {
     this._weightLogRepository,
     this._customActivityTemplateRepository,
     this._bodyMeasurementRepository,
+    this._userRepository,
+    this._configRepository,
   );
 
   /// Imports user activity, intake, tracked day, and (optionally) recipe,
@@ -53,8 +61,19 @@ class ImportDataUsecase {
     String recipeJsonFileName,
     String weightLogJsonFileName,
     String customActivityTemplateJsonFileName,
-    String bodyMeasurementJsonFileName,
-  ) async {
+    String bodyMeasurementJsonFileName, {
+    // Unlike the optional sections above (restored whenever the file is
+    // present in the zip), profile/settings restoration requires this
+    // explicit opt-in even if the files are present — overwriting a
+    // person's height/weight/goals or app preferences is a bigger deal
+    // than merging in some extra recipes, so the caller (the cloud-backup
+    // restore flow, which shows its own destructive-action warning first)
+    // has to ask for it on purpose. The regular Settings → Import screen
+    // never passes this, so it can't happen by accident there.
+    bool restoreProfile = false,
+    String userProfileJsonFileName = 'user_profile.json',
+    String userConfigJsonFileName = 'user_config.json',
+  }) async {
     // Allow user to pick a zip file. withData: true is required on web —
     // file_picker never returns a filesystem `path` there (there isn't
     // one), only in-memory `bytes` — and works identically on
@@ -94,11 +113,12 @@ class ImportDataUsecase {
     final intakeFile = archive.findFile(userIntakeJsonFileName);
     if (intakeFile != null) {
       final intakeJsonString = utf8.decode(intakeFile.content as List<int>);
-      final intakeList =
-          (jsonDecode(intakeJsonString) as List).cast<Map<String, dynamic>>();
+      final intakeList = (jsonDecode(intakeJsonString) as List)
+          .cast<Map<String, dynamic>>();
 
-      final intakeDBOs =
-          intakeList.map((json) => IntakeDBO.fromJson(json)).toList();
+      final intakeDBOs = intakeList
+          .map((json) => IntakeDBO.fromJson(json))
+          .toList();
 
       await _intakeRepository.addAllIntakeDBOs(intakeDBOs);
     } else {
@@ -114,8 +134,9 @@ class ImportDataUsecase {
       final trackedDayList = (jsonDecode(trackedDayJsonString) as List)
           .cast<Map<String, dynamic>>();
 
-      final trackedDayDBOs =
-          trackedDayList.map((json) => TrackedDayDBO.fromJson(json)).toList();
+      final trackedDayDBOs = trackedDayList
+          .map((json) => TrackedDayDBO.fromJson(json))
+          .toList();
 
       await _trackedDayRepository.addAllTrackedDays(trackedDayDBOs);
     } else {
@@ -126,22 +147,25 @@ class ImportDataUsecase {
     final recipeFile = archive.findFile(recipeJsonFileName);
     if (recipeFile != null) {
       final recipeJsonString = utf8.decode(recipeFile.content as List<int>);
-      final recipeList =
-          (jsonDecode(recipeJsonString) as List).cast<Map<String, dynamic>>();
-      final recipeDBOs =
-          recipeList.map((json) => RecipeDBO.fromJson(json)).toList();
+      final recipeList = (jsonDecode(recipeJsonString) as List)
+          .cast<Map<String, dynamic>>();
+      final recipeDBOs = recipeList
+          .map((json) => RecipeDBO.fromJson(json))
+          .toList();
       await _recipeRepository.addAllRecipeDBOs(recipeDBOs);
     }
 
     // Extract and process weight log data — optional so older zips still import.
     final weightLogFile = archive.findFile(weightLogJsonFileName);
     if (weightLogFile != null) {
-      final weightLogJsonString =
-          utf8.decode(weightLogFile.content as List<int>);
+      final weightLogJsonString = utf8.decode(
+        weightLogFile.content as List<int>,
+      );
       final weightLogList = (jsonDecode(weightLogJsonString) as List)
           .cast<Map<String, dynamic>>();
-      final weightLogDBOs =
-          weightLogList.map((json) => WeightLogDBO.fromJson(json)).toList();
+      final weightLogDBOs = weightLogList
+          .map((json) => WeightLogDBO.fromJson(json))
+          .toList();
       await _weightLogRepository.addAllEntries(weightLogDBOs);
     }
 
@@ -149,8 +173,7 @@ class ImportDataUsecase {
     // — also optional so zips produced before templates landed still import.
     final templateFile = archive.findFile(customActivityTemplateJsonFileName);
     if (templateFile != null) {
-      final templateJsonString =
-          utf8.decode(templateFile.content as List<int>);
+      final templateJsonString = utf8.decode(templateFile.content as List<int>);
       final templateList = (jsonDecode(templateJsonString) as List)
           .cast<Map<String, dynamic>>();
       final templateDBOs = templateList
@@ -163,14 +186,39 @@ class ImportDataUsecase {
     // so zips produced before this feature landed still import.
     final bodyMeasurementFile = archive.findFile(bodyMeasurementJsonFileName);
     if (bodyMeasurementFile != null) {
-      final bodyMeasurementJsonString =
-          utf8.decode(bodyMeasurementFile.content as List<int>);
-      final bodyMeasurementList = (jsonDecode(bodyMeasurementJsonString) as List)
-          .cast<Map<String, dynamic>>();
+      final bodyMeasurementJsonString = utf8.decode(
+        bodyMeasurementFile.content as List<int>,
+      );
+      final bodyMeasurementList =
+          (jsonDecode(bodyMeasurementJsonString) as List)
+              .cast<Map<String, dynamic>>();
       final bodyMeasurementDBOs = bodyMeasurementList
           .map((json) => BodyMeasurementDBO.fromJson(json))
           .toList();
       await _bodyMeasurementRepository.addAllEntries(bodyMeasurementDBOs);
+    }
+
+    // Restore profile + settings — explicit opt-in, see restoreProfile doc
+    // above. Overwrites the local UserBox/ConfigBox record outright (both
+    // are single-record boxes keyed by a hardcoded key, so there's nothing
+    // to merge — it's a plain replace, same as the rest of this method's
+    // upsert-by-key sections, just with no per-record granularity).
+    if (restoreProfile) {
+      final userProfileFile = archive.findFile(userProfileJsonFileName);
+      if (userProfileFile != null) {
+        final userJson =
+            jsonDecode(utf8.decode(userProfileFile.content as List<int>))
+                as Map<String, dynamic>;
+        await _userRepository.saveUserDBO(UserDBO.fromJson(userJson));
+      }
+
+      final userConfigFile = archive.findFile(userConfigJsonFileName);
+      if (userConfigFile != null) {
+        final configJson =
+            jsonDecode(utf8.decode(userConfigFile.content as List<int>))
+                as Map<String, dynamic>;
+        await _configRepository.saveConfigDBO(ConfigDBO.fromJson(configJson));
+      }
     }
 
     // Restore any user-attached photos — recipes under `recipe_images/`,

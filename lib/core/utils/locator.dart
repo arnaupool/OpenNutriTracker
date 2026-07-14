@@ -131,12 +131,25 @@ Future<void> initLocator() async {
     () => DeleteAllUserDataUsecase(locator()),
   );
 
-  // Backend
+  // Backend (shared FDC food-search project)
   await Supabase.initialize(
     url: Env.supabaseProjectUrl,
     anonKey: Env.supabaseProjectAnonKey,
   );
   locator.registerLazySingleton<SupabaseClient>(() => Supabase.instance.client);
+
+  // Backend (separate project for the cloud-backup feature -- see
+  // docs/cloud-backup-setup.md. Deliberately not the same client/project as
+  // the FDC search above: this one only ever sees the anon-scoped
+  // token-pattern RLS policies for the user's own private backup blob, not
+  // the shared food-search data other forks also read from.)
+  locator.registerLazySingleton<SupabaseClient>(
+    () => SupabaseClient(
+      Env.backupSupabaseProjectUrl,
+      Env.backupSupabaseProjectAnonKey,
+    ),
+    instanceName: 'backupSupabase',
+  );
 
   // Notification service (#312)
   locator.registerLazySingleton<NotificationService>(
@@ -400,10 +413,14 @@ Future<void> initLocator() async {
       locator(),
       locator(),
       locator(),
+      locator(),
+      locator(),
     ),
   );
   locator.registerLazySingleton(
     () => ImportDataUsecase(
+      locator(),
+      locator(),
       locator(),
       locator(),
       locator(),

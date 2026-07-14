@@ -23,4 +23,8 @@ class UserRepository {
     final userDBO = await _userDataSource.getUserData();
     return userDBO;
   }
+
+  Future<void> saveUserDBO(UserDBO userDBO) async {
+    await _userDataSource.saveUserData(userDBO);
+  }
 }

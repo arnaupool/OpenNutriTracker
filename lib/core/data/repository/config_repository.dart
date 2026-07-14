@@ -51,6 +51,10 @@ class ConfigRepository {
     return configDBO;
   }
 
+  Future<void> saveConfigDBO(ConfigDBO configDBO) async {
+    await _configDataSource.addConfig(configDBO);
+  }
+
   Future<void> setConfigUsesImperialUnits(bool usesImperialUnits) async {
     await _configDataSource.setConfigUsesImperialUnits(usesImperialUnits);
   }

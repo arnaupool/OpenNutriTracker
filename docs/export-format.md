@@ -25,7 +25,19 @@ The export is a single `.zip` file (default filename
 
 User profile (height, weight, birthday, PAL, goal) is intentionally **not**
 included — see `core/data/data_source/user_data_source.dart` for the box that
-stores it.
+stores it. Same goes for app settings (`ConfigBox`). Both stay excluded from
+this Settings → Export flow by design: this bundle is a plaintext backup
+meant to be moved around freely (Syncthing, a spreadsheet, etc.), and
+profile/settings are a poor fit for that.
+
+`ExportDataUsecase.exportData()` does have an `includeProfile` parameter
+that adds `user_profile.json` / `user_config.json` to the archive — but
+Settings → Export never passes it. It exists for the separate cloud-backup
+feature (Kanvas `Fase Cuenta`), which has its own destination (a private
+Supabase Storage bucket, see `docs/cloud-backup-setup.md`) and its own
+explicit-overwrite warning before importing them back — precisely because
+overwriting your profile silently is not something this general-purpose
+export/import flow should ever do.
 
 The user can re-import the same zip via **Settings → Import**. The importer
 reads the JSON files and ignores the CSV companions. The CSV files exist so a

@@ -5,11 +5,13 @@ import 'package:archive/archive_io.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:opennutritracker/core/data/data_source/custom_meal_data_source.dart';
 import 'package:opennutritracker/core/data/repository/body_measurement_repository.dart';
+import 'package:opennutritracker/core/data/repository/config_repository.dart';
 import 'package:opennutritracker/core/data/repository/custom_activity_template_repository.dart';
 import 'package:opennutritracker/core/data/repository/intake_repository.dart';
 import 'package:opennutritracker/core/data/repository/recipe_repository.dart';
 import 'package:opennutritracker/core/data/repository/tracked_day_repository.dart';
 import 'package:opennutritracker/core/data/repository/user_activity_repository.dart';
+import 'package:opennutritracker/core/data/repository/user_repository.dart';
 import 'package:opennutritracker/core/data/repository/weight_log_repository.dart';
 import 'package:opennutritracker/core/utils/csv_data_exporter.dart';
 import 'package:opennutritracker/core/utils/user_image_storage.dart';
@@ -28,6 +30,8 @@ class ExportDataUsecase {
   final WeightLogRepository _weightLogRepository;
   final CustomActivityTemplateRepository _customActivityTemplateRepository;
   final BodyMeasurementRepository _bodyMeasurementRepository;
+  final UserRepository _userRepository;
+  final ConfigRepository _configRepository;
 
   ExportDataUsecase(
     this._userActivityRepository,
@@ -38,6 +42,8 @@ class ExportDataUsecase {
     this._weightLogRepository,
     this._customActivityTemplateRepository,
     this._bodyMeasurementRepository,
+    this._userRepository,
+    this._configRepository,
   );
 
   /// Exports user activity, intake, tracked day, recipe, weight-log and
@@ -68,16 +74,25 @@ class ExportDataUsecase {
     // opts in from the Export dialog. The numeric measurements above are
     // exported unconditionally either way, same treatment as weight log.
     bool includeProgressPhotos = false,
+    // UserBox (profile) and ConfigBox (app settings) are deliberately
+    // excluded from the regular Settings → Export flow — see
+    // docs/export-format.md. The cloud-backup feature (Fase Cuenta) wants
+    // them too, since the whole point there is viewing your data on
+    // another device, not just backing up the diary — so it's an opt-in
+    // addition rather than a change to the existing default.
+    bool includeProfile = false,
+    String userProfileJsonFileName = 'user_profile.json',
+    String userConfigJsonFileName = 'user_config.json',
   }) async {
     final archive = Archive();
 
     // Activity dataset
-    final fullUserActivity =
-        await _userActivityRepository.getAllUserActivityDBO();
+    final fullUserActivity = await _userActivityRepository
+        .getAllUserActivityDBO();
     if (format == ExportFormat.json) {
-      final bytes = utf8.encode(jsonEncode(
-        fullUserActivity.map((a) => a.toJson()).toList(),
-      ));
+      final bytes = utf8.encode(
+        jsonEncode(fullUserActivity.map((a) => a.toJson()).toList()),
+      );
       archive.addFile(
         ArchiveFile(userActivityJsonFileName, bytes.length, bytes),
       );
@@ -93,35 +108,27 @@ class ExportDataUsecase {
     // Intake dataset
     final fullIntake = await _intakeRepository.getAllIntakesDBO();
     if (format == ExportFormat.json) {
-      final bytes = utf8.encode(jsonEncode(
-        fullIntake.map((i) => i.toJson()).toList(),
-      ));
-      archive.addFile(
-        ArchiveFile(userIntakeJsonFileName, bytes.length, bytes),
+      final bytes = utf8.encode(
+        jsonEncode(fullIntake.map((i) => i.toJson()).toList()),
       );
+      archive.addFile(ArchiveFile(userIntakeJsonFileName, bytes.length, bytes));
     } else {
       final bytes = utf8.encode(CsvDataExporter.intakesToCsv(fullIntake));
-      archive.addFile(
-        ArchiveFile(userIntakeCsvFileName, bytes.length, bytes),
-      );
+      archive.addFile(ArchiveFile(userIntakeCsvFileName, bytes.length, bytes));
     }
 
     // Tracked day dataset
     final fullTrackedDay = await _trackedDayRepository.getAllTrackedDaysDBO();
     if (format == ExportFormat.json) {
-      final bytes = utf8.encode(jsonEncode(
-        fullTrackedDay.map((d) => d.toJson()).toList(),
-      ));
-      archive.addFile(
-        ArchiveFile(trackedDayJsonFileName, bytes.length, bytes),
+      final bytes = utf8.encode(
+        jsonEncode(fullTrackedDay.map((d) => d.toJson()).toList()),
       );
+      archive.addFile(ArchiveFile(trackedDayJsonFileName, bytes.length, bytes));
     } else {
       final bytes = utf8.encode(
         CsvDataExporter.trackedDaysToCsv(fullTrackedDay),
       );
-      archive.addFile(
-        ArchiveFile(trackedDayCsvFileName, bytes.length, bytes),
-      );
+      archive.addFile(ArchiveFile(trackedDayCsvFileName, bytes.length, bytes));
     }
 
     // Recipes, photos, weight log and Custom activity templates — JSON
@@ -133,9 +140,9 @@ class ExportDataUsecase {
     // CSV path under Import Custom Food Data.
     if (format == ExportFormat.json) {
       final fullRecipes = _recipeRepository.getAllRecipesDBO();
-      final recipeBytes = utf8.encode(jsonEncode(
-        fullRecipes.map((r) => r.toJson()).toList(),
-      ));
+      final recipeBytes = utf8.encode(
+        jsonEncode(fullRecipes.map((r) => r.toJson()).toList()),
+      );
       archive.addFile(
         ArchiveFile(recipeJsonFileName, recipeBytes.length, recipeBytes),
       );
@@ -157,9 +164,9 @@ class ExportDataUsecase {
 
       // Weight-log dataset
       final fullWeightLog = await _weightLogRepository.getAllEntriesDBO();
-      final weightLogBytes = utf8.encode(jsonEncode(
-        fullWeightLog.map((entry) => entry.toJson()).toList(),
-      ));
+      final weightLogBytes = utf8.encode(
+        jsonEncode(fullWeightLog.map((entry) => entry.toJson()).toList()),
+      );
       archive.addFile(
         ArchiveFile(
           weightLogJsonFileName,
@@ -169,11 +176,11 @@ class ExportDataUsecase {
       );
 
       // Custom activity templates (#70 follow-up)
-      final fullTemplates =
-          await _customActivityTemplateRepository.allTemplateDBOs();
-      final templatesBytes = utf8.encode(jsonEncode(
-        fullTemplates.map((template) => template.toJson()).toList(),
-      ));
+      final fullTemplates = await _customActivityTemplateRepository
+          .allTemplateDBOs();
+      final templatesBytes = utf8.encode(
+        jsonEncode(fullTemplates.map((template) => template.toJson()).toList()),
+      );
       archive.addFile(
         ArchiveFile(
           customActivityTemplateJsonFileName,
@@ -186,11 +193,13 @@ class ExportDataUsecase {
       // same as weight log, unconditionally. Progress photos are the
       // sensitive part and only travel with the zip when the user
       // explicitly opted in from the Export dialog.
-      final fullBodyMeasurements =
-          await _bodyMeasurementRepository.getAllEntriesDBO();
-      final bodyMeasurementBytes = utf8.encode(jsonEncode(
-        fullBodyMeasurements.map((entry) => entry.toJson()).toList(),
-      ));
+      final fullBodyMeasurements = await _bodyMeasurementRepository
+          .getAllEntriesDBO();
+      final bodyMeasurementBytes = utf8.encode(
+        jsonEncode(
+          fullBodyMeasurements.map((entry) => entry.toJson()).toList(),
+        ),
+      );
       archive.addFile(
         ArchiveFile(
           bodyMeasurementJsonFileName,
@@ -204,6 +213,21 @@ class ExportDataUsecase {
           await _addUserImageIfPresent(archive, entry.sidePhotoPath);
           await _addUserImageIfPresent(archive, entry.backPhotoPath);
         }
+      }
+
+      // Profile + settings — opt-in only, see the includeProfile doc above.
+      if (includeProfile) {
+        final userDBO = await _userRepository.getUserDBO();
+        final userBytes = utf8.encode(jsonEncode(userDBO.toJson()));
+        archive.addFile(
+          ArchiveFile(userProfileJsonFileName, userBytes.length, userBytes),
+        );
+
+        final configDBO = await _configRepository.getConfigDBO();
+        final configBytes = utf8.encode(jsonEncode(configDBO.toJson()));
+        archive.addFile(
+          ArchiveFile(userConfigJsonFileName, configBytes.length, configBytes),
+        );
       }
     }
 
