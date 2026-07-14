@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -142,11 +144,11 @@ final _twoItems = [
 Widget _wrap(
   Widget child, {
   List<MagicFoodItemEntity>? items,
-  String? imagePath,
+  Uint8List? imageBytes,
 }) {
   final args = ReviewMealScreenArguments(
     items: items ?? _twoItems,
-    imagePath: imagePath,
+    imageBytes: imageBytes,
     mealType: AddMealType.breakfastType,
     day: DateTime(2026, 1, 1),
   );

@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -63,7 +63,7 @@ class _ScanLabelScreenState extends State<ScanLabelScreen> {
   bool _argsLoaded = false;
   late ScanLabelScreenArguments _args;
 
-  String? _imagePath;
+  Uint8List? _imageBytes;
   bool _analyzing = false;
   String? _errorMessage;
 
@@ -98,14 +98,15 @@ class _ScanLabelScreenState extends State<ScanLabelScreen> {
     });
   }
 
-  bool get _canAnalyze => !_analyzing && _imagePath != null && !_loadingConfig;
+  bool get _canAnalyze => !_analyzing && _imageBytes != null && !_loadingConfig;
 
   Future<void> _onPickImage(ImageSource source) async {
     try {
       final picked = await _imagePicker.pickImage(source: source);
       if (picked == null) return;
+      final bytes = await picked.readAsBytes();
       setState(() {
-        _imagePath = picked.path;
+        _imageBytes = bytes;
         _errorMessage = null;
       });
     } catch (e, st) {
@@ -114,7 +115,7 @@ class _ScanLabelScreenState extends State<ScanLabelScreen> {
   }
 
   void _onRemoveImage() {
-    setState(() => _imagePath = null);
+    setState(() => _imageBytes = null);
   }
 
   Future<void> _onAnalyzePressed() async {
@@ -134,8 +135,7 @@ class _ScanLabelScreenState extends State<ScanLabelScreen> {
     });
 
     try {
-      final bytes = await File(_imagePath!).readAsBytes();
-      final base64Image = base64Encode(bytes);
+      final base64Image = base64Encode(_imageBytes!);
       final label = await _analyzeUsecase.analyze(
         apiKey: _apiKey!,
         model: _modelId!,
@@ -199,7 +199,7 @@ class _ScanLabelScreenState extends State<ScanLabelScreen> {
           Text(s.scanLabelExplanation, style: Theme.of(context).textTheme.bodyMedium),
           const SizedBox(height: 16),
           PhotoPickerCard(
-            imagePath: _imagePath,
+            imageBytes: _imageBytes,
             onRemove: _onRemoveImage,
             placeholderLabel: s.scanLabelPhotoPlaceholder,
             removeButtonSemanticsId: 'scan-label-remove-photo',

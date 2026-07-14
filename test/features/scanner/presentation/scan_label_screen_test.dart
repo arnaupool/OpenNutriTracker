@@ -43,8 +43,9 @@ class _FakeAnalyzeLabelWithAiUsecase extends Fake
 }
 
 /// Returns a canned [XFile] pointing at a real temp file — the screen
-/// reads the file's bytes via `dart:io`, so the picked path must resolve
-/// to something that actually exists on disk.
+/// reads the bytes via `XFile.readAsBytes()` (cross-platform, works the
+/// same on web where the path is a blob: URL), so the picked path must
+/// still resolve to something that actually exists on disk here.
 class _FakeImagePickerPlatform extends ImagePickerPlatform {
   final String path;
   _FakeImagePickerPlatform(this.path);
@@ -94,16 +95,25 @@ void _useTallViewport(WidgetTester tester) {
   addTearDown(tester.view.resetDevicePixelRatio);
 }
 
-/// Taps Analyze and waits for it to finish. Two things make this trickier
-/// than a plain tap + pumpAndSettle:
-///  - pumpAndSettle never settles while the Analyze button's indeterminate
-///    CircularProgressIndicator is still animating.
-///  - `_onAnalyzePressed` does a genuine `File(...).readAsBytes()` — real
-///    OS-driven I/O whose completion doesn't reliably interleave with
-///    plain `tester.pump()` calls, which only drain Flutter-scheduled
-///    frame work, not arbitrary real-world async completions. Wrapping the
-///    tap in `runAsync` lets the real Future actually resolve; the
-///    trailing `pump()` then flushes the resulting setState into the tree.
+/// Taps the camera button and waits for the pick to land. `_onPickImage`
+/// does a genuine `XFile.readAsBytes()` — real OS-driven I/O whose
+/// completion doesn't reliably interleave with plain `tester.pump()`
+/// calls, which only drain Flutter-scheduled frame work, not arbitrary
+/// real-world async completions. Wrapping the tap in `runAsync` lets the
+/// real Future actually resolve; the trailing `pump()` then flushes the
+/// resulting setState into the tree.
+Future<void> _tapCameraAndWait(WidgetTester tester) async {
+  await tester.runAsync(() async {
+    await tester.tap(find.text(S.current.magicCameraButton));
+    await Future<void>.delayed(const Duration(milliseconds: 200));
+  });
+  await tester.pump();
+  await tester.pump();
+}
+
+/// Taps Analyze and waits for it to finish — pumpAndSettle never settles
+/// while the Analyze button's indeterminate CircularProgressIndicator is
+/// still animating.
 Future<void> _tapAnalyzeAndWait(WidgetTester tester) async {
   await tester.runAsync(() async {
     await tester.tap(find.text(S.current.scanLabelAnalyzeButton));
@@ -113,7 +123,7 @@ Future<void> _tapAnalyzeAndWait(WidgetTester tester) async {
   await tester.pump();
 }
 
-// A minimal valid 1x1 transparent PNG — Image.file needs real decodable
+// A minimal valid 1x1 transparent PNG — Image.memory needs real decodable
 // bytes; garbage bytes make the codec error in a way that keeps
 // pumpAndSettle from ever settling under the test binding.
 final _tinyPngBytes = base64Decode(
@@ -172,8 +182,7 @@ void main() {
       );
       expect(analyzeButtonBefore.onPressed, isNull);
 
-      await tester.tap(find.text(S.current.magicCameraButton));
-      await tester.pumpAndSettle();
+      await _tapCameraAndWait(tester);
 
       final analyzeButtonAfter = tester.widget<FilledButton>(
         find.byType(FilledButton),
@@ -221,8 +230,7 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        await tester.tap(find.text(S.current.magicCameraButton));
-        await tester.pumpAndSettle();
+        await _tapCameraAndWait(tester);
         await _tapAnalyzeAndWait(tester);
 
         expect(find.text('edit-meal'), findsOneWidget);
@@ -259,8 +267,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text(S.current.magicCameraButton));
-      await tester.pumpAndSettle();
+      await _tapCameraAndWait(tester);
       await tester.tap(find.text(S.current.scanLabelAnalyzeButton));
       await tester.pumpAndSettle();
 
@@ -293,8 +300,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text(S.current.magicCameraButton));
-      await tester.pumpAndSettle();
+      await _tapCameraAndWait(tester);
       await _tapAnalyzeAndWait(tester);
 
       expect(find.text(S.current.scanLabelAnalysisFailedError), findsOneWidget);

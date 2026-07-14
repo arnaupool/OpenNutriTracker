@@ -1,21 +1,27 @@
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
 /// A tappable-looking photo slot: an empty placeholder with an icon/label
-/// until [imagePath] is set, then the picked image with a small remove
+/// until [imageBytes] is set, then the picked image with a small remove
 /// button overlaid. Shared between any screen that lets the user attach a
 /// single photo for AI analysis (FR-02's Magic screen, FR-04's scan-label
 /// fallback) — the picking/removal logic itself lives in the caller.
+///
+/// Takes raw bytes rather than a file path: the photo here is purely
+/// transient (sent to the AI, never persisted via UserImageStorage), and
+/// `XFile.path` is a `blob:` URL on web — not something `dart:io.File` can
+/// read. Reading bytes once via `XFile.readAsBytes()` at pick time and
+/// keeping them in memory works identically on every platform.
 class PhotoPickerCard extends StatelessWidget {
-  final String? imagePath;
+  final Uint8List? imageBytes;
   final VoidCallback onRemove;
   final String placeholderLabel;
   final String removeButtonSemanticsId;
 
   const PhotoPickerCard({
     super.key,
-    required this.imagePath,
+    required this.imageBytes,
     required this.onRemove,
     required this.placeholderLabel,
     required this.removeButtonSemanticsId,
@@ -31,7 +37,7 @@ class PhotoPickerCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
       ),
       clipBehavior: Clip.antiAlias,
-      child: imagePath == null
+      child: imageBytes == null
           ? Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -47,7 +53,7 @@ class PhotoPickerCard extends StatelessWidget {
           : Stack(
               fit: StackFit.expand,
               children: [
-                Image.file(File(imagePath!), fit: BoxFit.cover),
+                Image.memory(imageBytes!, fit: BoxFit.cover),
                 Positioned(
                   top: 4,
                   right: 4,

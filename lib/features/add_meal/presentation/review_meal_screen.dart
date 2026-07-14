@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:opennutritracker/core/domain/entity/intake_entity.dart';
@@ -29,13 +27,13 @@ import 'package:opennutritracker/generated/l10n.dart';
 /// become editable rows on this screen.
 class ReviewMealScreenArguments {
   final List<MagicFoodItemEntity> items;
-  final String? imagePath;
+  final Uint8List? imageBytes;
   final AddMealType mealType;
   final DateTime day;
 
   const ReviewMealScreenArguments({
     required this.items,
-    required this.imagePath,
+    required this.imageBytes,
     required this.mealType,
     required this.day,
   });
@@ -286,7 +284,7 @@ class _ReviewMealScreenState extends State<ReviewMealScreen> {
       body: Column(
         children: [
           _HeaderBanner(
-            imagePath: _args.imagePath,
+            imageBytes: _args.imageBytes,
             totalKcalLabel: s.reviewMealTotalKcalLabel(_totalKcal.round()),
           ),
           Expanded(
@@ -407,14 +405,15 @@ class _SavePresetNameDialogState extends State<_SavePresetNameDialog> {
 }
 
 class _HeaderBanner extends StatelessWidget {
-  final String? imagePath;
+  final Uint8List? imageBytes;
   final String totalKcalLabel;
 
-  const _HeaderBanner({required this.imagePath, required this.totalKcalLabel});
+  const _HeaderBanner({required this.imageBytes, required this.totalKcalLabel});
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final hasImage = imageBytes != null;
     return Container(
       height: 180,
       width: double.infinity,
@@ -423,15 +422,15 @@ class _HeaderBanner extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          if (imagePath != null) Image.file(File(imagePath!), fit: BoxFit.cover),
+          if (hasImage) Image.memory(imageBytes!, fit: BoxFit.cover),
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  colorScheme.primary.withValues(alpha: imagePath != null ? 0.45 : 0.0),
-                  colorScheme.primary.withValues(alpha: imagePath != null ? 0.65 : 0.0),
+                  colorScheme.primary.withValues(alpha: hasImage ? 0.45 : 0.0),
+                  colorScheme.primary.withValues(alpha: hasImage ? 0.65 : 0.0),
                 ],
               ),
             ),
@@ -441,7 +440,7 @@ class _HeaderBanner extends StatelessWidget {
               totalKcalLabel,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: imagePath != null ? Colors.white : colorScheme.onPrimaryContainer,
+                color: hasImage ? Colors.white : colorScheme.onPrimaryContainer,
                 fontWeight: FontWeight.bold,
               ),
             ),

@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
@@ -60,7 +60,7 @@ class _MagicScreenState extends State<MagicScreen> {
 
   final _descriptionController = TextEditingController();
 
-  String? _imagePath;
+  Uint8List? _imageBytes;
   bool _mealBreakdown = false;
 
   bool _loadingModels = true;
@@ -132,7 +132,7 @@ class _MagicScreenState extends State<MagicScreen> {
 
   bool get _canAnalyze {
     final hasInput =
-        _imagePath != null || _descriptionController.text.trim().isNotEmpty;
+        _imageBytes != null || _descriptionController.text.trim().isNotEmpty;
     return !_analyzing &&
         hasInput &&
         _selectedModelId != null &&
@@ -143,8 +143,9 @@ class _MagicScreenState extends State<MagicScreen> {
     try {
       final picked = await _imagePicker.pickImage(source: source);
       if (picked == null) return;
+      final bytes = await picked.readAsBytes();
       setState(() {
-        _imagePath = picked.path;
+        _imageBytes = bytes;
         _errorMessage = null;
       });
     } catch (e, st) {
@@ -153,7 +154,7 @@ class _MagicScreenState extends State<MagicScreen> {
   }
 
   void _onRemoveImage() {
-    setState(() => _imagePath = null);
+    setState(() => _imageBytes = null);
   }
 
   Future<void> _onAnalyzePressed() async {
@@ -174,9 +175,8 @@ class _MagicScreenState extends State<MagicScreen> {
 
     try {
       String? base64Image;
-      if (_imagePath != null) {
-        final bytes = await File(_imagePath!).readAsBytes();
-        base64Image = base64Encode(bytes);
+      if (_imageBytes != null) {
+        base64Image = base64Encode(_imageBytes!);
       }
       final items = await _analyzeUsecase.analyze(
         apiKey: _apiKey!,
@@ -198,7 +198,7 @@ class _MagicScreenState extends State<MagicScreen> {
         NavigationOptions.reviewMealRoute,
         arguments: ReviewMealScreenArguments(
           items: items,
-          imagePath: _imagePath,
+          imageBytes: _imageBytes,
           mealType: _args.mealType,
           day: _args.day,
         ),
@@ -222,7 +222,7 @@ class _MagicScreenState extends State<MagicScreen> {
         padding: const EdgeInsets.all(16.0),
         children: [
           PhotoPickerCard(
-            imagePath: _imagePath,
+            imageBytes: _imageBytes,
             onRemove: _onRemoveImage,
             placeholderLabel: s.mealImageLabel,
             removeButtonSemanticsId: 'magic-remove-photo',
