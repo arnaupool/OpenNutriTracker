@@ -92,8 +92,12 @@ stack" según la versión de Portainer). Vuelve a clonar `main` y reconstruye
   el SDK de Flutter a pelo. Si ya te quedaste sin espacio con un intento
   anterior, límpialo antes de reintentar — terminal de Unraid:
   ```bash
-  docker system prune -a
+  docker builder prune -a -f
+  docker image prune -a -f
   ```
-  (borra imágenes y caché de build sin usar; no toca contenedores en
-  marcha). Si el build sigue sin caber, sube el tamaño del docker vDisk en
-  Settings → Docker.
+  Ninguno de los dos toca contenedores, ni parados ni en marcha — solo
+  caché de build e imágenes que ningún contenedor esté usando (ahí cae la
+  imagen grande de Android si llegó a descargarse). **No uses `docker system
+  prune`** para esto: ese sí borra todos los contenedores parados de tu
+  Unraid, no solo lo relacionado con este build. Si el build sigue sin
+  caber, sube el tamaño del docker vDisk en Settings → Docker.
