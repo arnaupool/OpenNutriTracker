@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:logging/logging.dart';
 import 'package:opennutritracker/core/domain/entity/app_theme_entity.dart';
 import 'package:opennutritracker/core/presentation/sources_screen.dart';
 import 'package:opennutritracker/core/presentation/widgets/app_banner_version.dart';
@@ -46,6 +47,7 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  final _log = Logger('SettingsScreen');
   late SettingsBloc _settingsBloc;
   late ProfileBloc _profileBloc;
   late HomeBloc _homeBloc;
@@ -761,7 +763,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       messenger.showSnackBar(
         SnackBar(content: Text(s.settingsCloudBackupNotPairedError)),
       );
-    } catch (_) {
+    } catch (e, st) {
+      _log.warning('Cloud backup sync failed', e, st);
       messenger.showSnackBar(
         SnackBar(content: Text(s.settingsCloudBackupSyncErrorLabel)),
       );
@@ -816,7 +819,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       messenger.showSnackBar(
         SnackBar(content: Text(s.settingsCloudBackupNotPairedError)),
       );
-    } catch (_) {
+    } catch (e, st) {
+      _log.warning('Cloud backup restore failed', e, st);
       messenger.showSnackBar(
         SnackBar(content: Text(s.settingsCloudBackupRestoreErrorLabel)),
       );
