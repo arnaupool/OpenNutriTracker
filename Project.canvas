@@ -462,11 +462,21 @@
 			"color": "4"
 		},
 		{
+			"id": "c0503b72",
+			"type": "text",
+			"text": "## FA-11 Incluir perfil y ajustes en el snapshot de nube\nEl export/import local actual excluye a proposito UserBox y ConfigBox. Para el backup en la nube (pensado para ver los datos en otro dispositivo, no solo como copia de seguridad de diario) si interesa incluirlos. Extender la serializacion existente sin tocar el comportamiento del export/import local que ya usan otros flujos (Settings -> Exportar).",
+			"x": 3560,
+			"y": 300,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
 			"id": "7911deda",
 			"type": "text",
 			"text": "## FA-14 Verificacion con dos dispositivos reales\nGenerar backup desde el movil, restaurar en otro dispositivo (ordenador u otro movil), confirmar que perfil, ajustes, diario y fotos llegan integros.",
 			"x": 3560,
-			"y": 960,
+			"y": 1220,
 			"width": 280,
 			"height": 160,
 			"color": "0"
@@ -476,40 +486,30 @@
 			"type": "text",
 			"text": "## FA-13 UI de backup en la nube en Settings\nSeccion 'Backup en la nube': login, boton 'Sincronizar ahora' (sube el snapshot actual). En un dispositivo nuevo: 'Restaurar desde la nube' (login, descarga, aviso explicito de que sobrescribe los datos locales antes de confirmar -- accion destructiva, no fusion).",
 			"x": 3560,
-			"y": 780,
+			"y": 1020,
 			"width": 280,
 			"height": 160,
 			"color": "0"
-		},
-		{
-			"id": "5596537d",
-			"type": "text",
-			"text": "## FA-12 CloudBackupUsecase y CloudRestoreUsecase\nReutilizan casi entero el zip-building de ExportDataUsecase/ImportDataUsecase -- solo cambia el destino/origen (Supabase Storage en vez de disco local). Las fotos de recetas/comidas/progreso ya viajan dentro del zip, asi que no hace falta un camino de sync aparte para binarios (a diferencia del diseño de sync bidireccional que se descarto).",
-			"x": 3560,
-			"y": 600,
-			"width": 280,
-			"height": 160,
-			"color": "0"
-		},
-		{
-			"id": "c0503b72",
-			"type": "text",
-			"text": "## FA-11 Incluir perfil y ajustes en el snapshot de nube\nEl export/import local actual excluye a proposito UserBox y ConfigBox. Para el backup en la nube (pensado para ver los datos en otro dispositivo, no solo como copia de seguridad de diario) si interesa incluirlos. Extender la serializacion existente sin tocar el comportamiento del export/import local que ya usan otros flujos (Settings -> Exportar).",
-			"x": 3560,
-			"y": 420,
-			"width": 280,
-			"height": 160,
-			"color": "2"
 		},
 		{
 			"id": "7b177fa9",
 			"type": "text",
 			"text": "## FA-15 Generar token local de emparejamiento + codigo QR\nAl activar 'Backup en la nube' en Settings, generar un token aleatorio de 256 bits (formato acorde al patron RLS de FA-09) y guardarlo local (secure storage). Mostrarlo como QR (paquete tipo qr_flutter) y como texto copiable de respaldo. El emparejamiento de un dispositivo nuevo es escanear ese QR con la camara (paquete tipo mobile_scanner) o pegar el texto -- una sola vez por dispositivo, no en cada sincronizacion; a partir de ahi el token queda guardado local y 'Sincronizar'/'Actualizar' son solo un boton. Reemplaza a FA-10 (login/signup), que ya no hace falta.",
 			"x": 3560,
-			"y": 1140,
+			"y": 560,
 			"width": 280,
 			"height": 160,
-			"color": "1"
+			"color": "5"
+		},
+		{
+			"id": "5596537d",
+			"type": "text",
+			"text": "## FA-12 CloudBackupUsecase y CloudRestoreUsecase\nReutilizan casi entero el zip-building de ExportDataUsecase/ImportDataUsecase -- solo cambia el destino/origen (Supabase Storage en vez de disco local). Las fotos de recetas/comidas/progreso ya viajan dentro del zip, asi que no hace falta un camino de sync aparte para binarios (a diferencia del diseño de sync bidireccional que se descarto).",
+			"x": 3560,
+			"y": 780,
+			"width": 280,
+			"height": 160,
+			"color": "0"
 		}
 	],
 	"edges": [
@@ -808,13 +808,6 @@
 			"toSide": "top"
 		},
 		{
-			"id": "edge-062",
-			"fromNode": "c0503b72",
-			"fromSide": "bottom",
-			"toNode": "5596537d",
-			"toSide": "top"
-		},
-		{
 			"id": "edge-063",
 			"fromNode": "5596537d",
 			"fromSide": "bottom",
@@ -841,6 +834,13 @@
 			"fromSide": "top",
 			"toNode": "5596537d",
 			"toSide": "bottom"
+		},
+		{
+			"id": "edge-062",
+			"fromNode": "c0503b72",
+			"fromSide": "bottom",
+			"toNode": "5596537d",
+			"toSide": "top"
 		}
 	]
 }
