@@ -225,7 +225,15 @@ class _ScannerScreenState extends State<ScannerScreen>
                     }
                   }
 
-                  if (barcode.type == BarcodeType.product) {
+                  // ML Kit's barcode.type classifier is reliable for QR /
+                  // data-matrix but sometimes labels a valid retail EAN/UPC
+                  // barcode as BarcodeType.unknown depending on print
+                  // quality and camera angle (this silently dropped every
+                  // detection on real iPhone hardware while working fine on
+                  // the Android emulator, which never exercises the real
+                  // classifier). Use the same check-digit validation the
+                  // manual-entry path below already relies on instead.
+                  if (isValidBarcodeCheckDigit(raw)) {
                     _scannedBarcode = raw;
                     log.fine('Barcode found: $raw');
                     _scannerBloc.add(ScannerLoadProductEvent(barcode: raw));
