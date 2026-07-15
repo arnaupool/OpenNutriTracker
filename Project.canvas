@@ -15,7 +15,7 @@
 			"x": 1320,
 			"y": 0,
 			"width": 380,
-			"height": 1840,
+			"height": 2020,
 			"label": "Fase Motor"
 		},
 		{
@@ -570,6 +570,16 @@
 			"width": 280,
 			"height": 160,
 			"color": "4"
+		},
+		{
+			"id": "e5092995",
+			"type": "text",
+			"text": "## FM-11 FM-11 Amortiguar el TDEE dinamico y mezclarlo gradualmente\nUna simulacion de 30 dias en el emulador real (peso bajando de forma constante, intake fijo) mostro el objetivo diario subiendo ~700kcal (+27%) en el mes bajo el motor original: una lectura fresca sin suavizar de TdeeDynamicCalc.estimateTdee() cada vez, saltando de 0% a 100% de influencia dinamica en el instante en que el historial de tendencia cruzaba 7 puntos. Contrastado contra las fuentes propias de MacroFactor (algorithm-accuracy, help center) y contra investigacion de Kevin Hall (NIH) sobre adaptacion metabolica real -- decision del usuario via AskUserQuestion: anadir amortiguacion. Implementado: TdeeDynamicCalc.estimateTdeeSmoothed (EWMA sobre la secuencia de lecturas TDEE crudas, mismo alpha=0.1 que WeightTrendCalc) + mezcla lineal estatico->dinamico en GetKcalGoalUsecase de 7 a 21 puntos de tendencia (TdeeDynamicCalc.dynamicBlendWeight), con un tercer estado 'Calibrating' en Strategy compartiendo la misma fuente de verdad. flutter analyze limpio, 822/822 tests. Re-simulacion de los mismos 30 dias en el emulador real tras el fix: el salto instantaneo desaparece (0% de mezcla exacto en el punto de 7 dias, en vez de un salto de +470kcal), la subida diaria maxima baja a ~30-49kcal/dia (frente a un salto discreto), y el estado Calibrating/Active en Strategy coincide exactamente con el diseño (Active justo al cruzar 21 puntos de tendencia). El rango total del mes (2174->3166 kcal) sigue siendo grande porque el escenario es un stress-test extremo (perdida de peso sostenida con intake fijo) y la senal de TDEE subyacente es real, no ruido -- la mejora es la suavidad del camino, no el destino final.",
+			"x": 1380,
+			"y": 1840,
+			"width": 280,
+			"height": 160,
+			"color": "6"
 		}
 	],
 	"edges": [
@@ -963,6 +973,13 @@
 			"fromNode": "72db3936",
 			"fromSide": "bottom",
 			"toNode": "b284c604",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-076",
+			"fromNode": "b284c604",
+			"fromSide": "bottom",
+			"toNode": "e5092995",
 			"toSide": "top"
 		}
 	]
