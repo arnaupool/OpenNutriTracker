@@ -110,5 +110,30 @@ void main() {
         const ScannerFailedState(ScannerFailedStateType.error),
       );
     });
+
+    test(
+      'ScannerResetEvent returns to ScannerInitial from a failed state — '
+      'the "Scan again" action re-opens the camera instead of re-submitting '
+      'the same (deterministically failing) barcode',
+      () async {
+        final bloc = ScannerBloc(
+          _FakeSearchUseCase(error: ProductNotFoundException()),
+          _FakeGetConfigUsecase(),
+        );
+        addTearDown(bloc.close);
+
+        bloc.add(const ScannerLoadProductEvent(barcode: '0000000000000'));
+        await _settle();
+        expect(
+          bloc.state,
+          const ScannerFailedState(ScannerFailedStateType.productNotFound),
+        );
+
+        bloc.add(const ScannerResetEvent());
+        await _settle();
+
+        expect(bloc.state, isA<ScannerInitial>());
+      },
+    );
   });
 }

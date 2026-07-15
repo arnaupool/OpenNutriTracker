@@ -83,6 +83,7 @@ dependencies:
   flutter_timezone: ^3.0.0
 
   dynamic_color: ^1.7.0
+  permission_handler: ^12.0.3
 
 dev_dependencies:
   flutter_test:

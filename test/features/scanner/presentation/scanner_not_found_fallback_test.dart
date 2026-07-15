@@ -123,8 +123,11 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(S.current.scannerPhotographLabelButton), findsOneWidget);
-      // The fallback still offers a plain retry underneath the primary CTA.
-      expect(find.text(S.current.retryLabel), findsOneWidget);
+      // The fallback still offers a way back to the camera underneath the
+      // primary CTA — re-submitting the identical barcode would just fail
+      // identically every time (a 404 is deterministic), so this is "Scan
+      // again" rather than the network-error "Retry" used elsewhere.
+      expect(find.text(S.current.scannerScanAgainButton), findsOneWidget);
 
       await tester.tap(find.text(S.current.scannerPhotographLabelButton));
       await tester.pumpAndSettle();

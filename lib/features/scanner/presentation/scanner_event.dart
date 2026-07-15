@@ -16,3 +16,11 @@ class ScannerLoadProductEvent extends ScannerEvent {
   @override
   List<Object?> get props => [barcode];
 }
+
+/// Returns to [ScannerInitial] so the screen re-shows the live camera.
+/// Used by the "product not found" fallback's "Scan again" action —
+/// re-submitting the same barcode string would just fail identically
+/// every time, since a 404 from OFF is deterministic, not transient.
+class ScannerResetEvent extends ScannerEvent {
+  const ScannerResetEvent();
+}

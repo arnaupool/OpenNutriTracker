@@ -19,6 +19,7 @@ import 'package:opennutritracker/features/scanner/presentation/scan_label_screen
 import 'package:opennutritracker/features/scanner/presentation/scanner_bloc.dart';
 import 'package:opennutritracker/features/scanner/util/barcode_check_digit.dart';
 import 'package:opennutritracker/generated/l10n.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ScannerScreen extends StatefulWidget {
   const ScannerScreen({super.key});
@@ -47,6 +48,13 @@ class _ScannerScreenState extends State<ScannerScreen>
   late ScannerBloc _scannerBloc;
   // MobileScanner stops but doesn't dispose externally-owned controllers.
   late final MobileScannerController _cameraController;
+  // Populated async; only phones with 2+ rear lenses (most "Pro"/flagship
+  // models) report more than one here, which is what gates the lens-switch
+  // button below — the default lens's fixed minimum focus distance makes
+  // close-up barcodes blurry, and switching to the ultra-wide lens (which
+  // focuses much closer) is the fix, but there's nothing to switch to on
+  // single-lens phones.
+  Set<CameraLensType> _supportedLenses = const {};
 
   @override
   void initState() {
@@ -54,6 +62,12 @@ class _ScannerScreenState extends State<ScannerScreen>
     _scannerBloc = locator<ScannerBloc>();
     _cameraController = MobileScannerController();
     WidgetsBinding.instance.addObserver(this);
+    unawaited(
+      _cameraController.getSupportedLenses().then((lenses) {
+        if (!mounted) return;
+        setState(() => _supportedLenses = lenses);
+      }),
+    );
   }
 
   @override
@@ -149,7 +163,7 @@ class _ScannerScreenState extends State<ScannerScreen>
               child: offerLabelFallback
                   ? _ProductNotFoundFallback(
                       onPhotographLabel: _onPhotographLabelPressed,
-                      onRetry: _onRefreshButtonPressed,
+                      onScanAgain: _onScanAgainPressed,
                     )
                   : ErrorDialog(
                       errorText:
@@ -192,6 +206,20 @@ class _ScannerScreenState extends State<ScannerScreen>
             icon: const Icon(Icons.flip_camera_android_outlined),
             onPressed: () => _cameraController.switchCamera(),
           ),
+          if (_supportedLenses
+                  .where((lens) => lens != CameraLensType.any)
+                  .length >=
+              2)
+            Semantics(
+              identifier: 'scanner-switch-lens',
+              child: IconButton(
+                icon: const Icon(Icons.center_focus_strong_outlined),
+                tooltip: S.of(context).scannerSwitchLensButton,
+                onPressed: () => unawaited(
+                  _cameraController.switchCamera(const ToggleLensType()),
+                ),
+              ),
+            ),
         ],
       ),
       body: Column(
@@ -199,6 +227,10 @@ class _ScannerScreenState extends State<ScannerScreen>
           Expanded(
             child: MobileScanner(
               controller: _cameraController,
+              errorBuilder: (context, error) => _ScannerErrorFallback(
+                error: error,
+                onRetry: () => unawaited(_cameraController.start()),
+              ),
               onDetect: (capture) {
                 if (_scannedBarcode != null) return;
                 final List<Barcode> barcodes = capture.barcodes;
@@ -372,6 +404,96 @@ class _ScannerScreenState extends State<ScannerScreen>
       );
     }
   }
+
+  // Re-submitting the same barcode after a genuine "not found" (a real OFF
+  // 404, not a network blip — see ProductNotFoundException) would fail
+  // identically every time, so this re-opens the live camera instead of
+  // calling _onRefreshButtonPressed.
+  void _onScanAgainPressed() {
+    _scannedBarcode = null;
+    _scannerBloc.add(const ScannerResetEvent());
+  }
+}
+
+/// Replaces [MobileScanner]'s default black screen + unstyled English
+/// string on any camera error. [MobileScannerErrorCode.permissionDenied]
+/// gets its own dead-end-free treatment: per the package's own docs, once
+/// denied on iOS/macOS/web there is no way to re-request the permission
+/// from within the app, so "try again" alone can permanently strand the
+/// user — this offers a direct path to the OS settings screen instead.
+/// Other error codes (unsupported device, generic failures) just get a
+/// retry, matching the app's existing error-fallback style.
+class _ScannerErrorFallback extends StatelessWidget {
+  final MobileScannerException error;
+  final VoidCallback onRetry;
+
+  const _ScannerErrorFallback({required this.error, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    final isPermissionDenied =
+        error.errorCode == MobileScannerErrorCode.permissionDenied;
+    return ColoredBox(
+      color: Colors.black,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isPermissionDenied
+                    ? Icons.no_photography_outlined
+                    : Icons.error_outline,
+                size: 64,
+                color: Colors.white,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                isPermissionDenied
+                    ? s.scannerCameraPermissionDeniedTitle
+                    : error.errorCode.message,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(color: Colors.white),
+                textAlign: TextAlign.center,
+              ),
+              if (isPermissionDenied) ...[
+                const SizedBox(height: 8),
+                Text(
+                  s.scannerCameraPermissionDeniedExplanation,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.white70),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+              const SizedBox(height: 16),
+              if (isPermissionDenied)
+                Semantics(
+                  identifier: 'scanner-open-settings',
+                  child: FilledButton.icon(
+                    onPressed: () => unawaited(openAppSettings()),
+                    icon: const Icon(Icons.settings_outlined),
+                    label: Text(s.scannerOpenSettingsButton),
+                  ),
+                ),
+              const SizedBox(height: 8),
+              TextButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh_outlined, color: Colors.white),
+                label: Text(
+                  s.retryLabel,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 /// FR-04: shown instead of the generic [ErrorDialog] when a barcode
@@ -380,11 +502,11 @@ class _ScannerScreenState extends State<ScannerScreen>
 /// wants to try scanning again.
 class _ProductNotFoundFallback extends StatelessWidget {
   final VoidCallback onPhotographLabel;
-  final VoidCallback onRetry;
+  final VoidCallback onScanAgain;
 
   const _ProductNotFoundFallback({
     required this.onPhotographLabel,
-    required this.onRetry,
+    required this.onScanAgain,
   });
 
   @override
@@ -419,9 +541,9 @@ class _ProductNotFoundFallback extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           TextButton.icon(
-            onPressed: onRetry,
+            onPressed: onScanAgain,
             icon: const Icon(Icons.refresh_outlined),
-            label: Text(s.retryLabel),
+            label: Text(s.scannerScanAgainButton),
           ),
         ],
       ),

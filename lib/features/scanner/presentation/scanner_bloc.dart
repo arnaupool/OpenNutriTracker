@@ -40,5 +40,7 @@ class ScannerBloc extends Bloc<ScannerEvent, ScannerState> {
         }
       }
     });
+
+    on<ScannerResetEvent>((event, emit) => emit(ScannerInitial()));
   }
 }

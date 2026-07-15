@@ -4763,6 +4763,57 @@ class S {
     );
   }
 
+  /// `Scan again`
+  String get scannerScanAgainButton {
+    return Intl.message(
+      'Scan again',
+      name: 'scannerScanAgainButton',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Camera access needed`
+  String get scannerCameraPermissionDeniedTitle {
+    return Intl.message(
+      'Camera access needed',
+      name: 'scannerCameraPermissionDeniedTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `OpenNutriTracker needs camera access to scan barcodes. Enable it in your device settings, then come back and try again.`
+  String get scannerCameraPermissionDeniedExplanation {
+    return Intl.message(
+      'OpenNutriTracker needs camera access to scan barcodes. Enable it in '
+      'your device settings, then come back and try again.',
+      name: 'scannerCameraPermissionDeniedExplanation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open Settings`
+  String get scannerOpenSettingsButton {
+    return Intl.message(
+      'Open Settings',
+      name: 'scannerOpenSettingsButton',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Switch lens (helps with close-up barcodes)`
+  String get scannerSwitchLensButton {
+    return Intl.message(
+      'Switch lens (helps with close-up barcodes)',
+      name: 'scannerSwitchLensButton',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Scan label`
   String get scanLabelScreenTitle {
     return Intl.message(
