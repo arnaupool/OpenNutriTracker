@@ -11,6 +11,7 @@ import 'package:opennutritracker/core/utils/calc/unit_calc.dart';
 import 'package:opennutritracker/core/utils/calc/weight_interpolation_calc.dart';
 import 'package:opennutritracker/core/utils/calc/weight_trend_calc.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
+import 'package:opennutritracker/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 /// Screen for browsing and adding weight log entries.
@@ -30,6 +31,7 @@ class WeightHistoryScreen extends StatefulWidget {
   final DeleteWeightLogUsecase? deleteUsecase;
   final ConfigRepository? configRepository;
   final GetUserUsecase? getUserUsecase;
+  final ProfileBloc? profileBloc;
 
   const WeightHistoryScreen({
     super.key,
@@ -38,6 +40,7 @@ class WeightHistoryScreen extends StatefulWidget {
     this.deleteUsecase,
     this.configRepository,
     this.getUserUsecase,
+    this.profileBloc,
   });
 
   @override
@@ -60,6 +63,12 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> {
       (locator.isRegistered<GetUserUsecase>()
           ? locator<GetUserUsecase>()
           : null);
+  // Also optional in tests, for the same reason. Real usage always has
+  // both registered — this only stays null in lightweight chart-only
+  // tests that never call _onAddEntry/_onDelete.
+  late final ProfileBloc? _profileBloc =
+      widget.profileBloc ??
+      (locator.isRegistered<ProfileBloc>() ? locator<ProfileBloc>() : null);
 
   bool _loading = true;
   bool _usesImperialUnits = false;
@@ -182,11 +191,28 @@ class _WeightHistoryScreenState extends State<WeightHistoryScreen> {
       ),
     );
     await _load();
+    await _refreshDependents();
   }
 
   Future<void> _onDelete(WeightLogEntity entry) async {
     await _deleteUsecase.deleteEntry(entry.date);
     await _load();
+    await _refreshDependents();
+  }
+
+  /// The dynamic engine's kcal goal (FM-06/FM-07) is derived from the
+  /// weight log, so any add/delete here can change what Home, Diary, and
+  /// Profile are already showing. Routing through [ProfileBloc.updateUser]
+  /// re-runs that whole cascade — the same mechanism the quick weight-log
+  /// entry point (`AddItemBottomSheet._logWeight`) already uses — instead
+  /// of leaving those screens stale until something else happens to
+  /// trigger a reload.
+  Future<void> _refreshDependents() async {
+    final userUsecase = _getUserUsecase;
+    final profileBloc = _profileBloc;
+    if (userUsecase == null || profileBloc == null) return;
+    final user = await userUsecase.getUserData();
+    await profileBloc.updateUser(user);
   }
 }
 

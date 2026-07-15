@@ -5,10 +5,16 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:opennutritracker/core/data/repository/config_repository.dart';
 import 'package:opennutritracker/core/domain/entity/app_theme_entity.dart';
 import 'package:opennutritracker/core/domain/entity/config_entity.dart';
+import 'package:opennutritracker/core/domain/entity/user_entity.dart';
+import 'package:opennutritracker/core/domain/entity/user_gender_entity.dart';
+import 'package:opennutritracker/core/domain/entity/user_pal_entity.dart';
+import 'package:opennutritracker/core/domain/entity/user_weight_goal_entity.dart';
 import 'package:opennutritracker/core/domain/entity/weight_log_entity.dart';
 import 'package:opennutritracker/core/domain/usecase/add_weight_log_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/delete_weight_log_usecase.dart';
+import 'package:opennutritracker/core/domain/usecase/get_user_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_weight_log_usecase.dart';
+import 'package:opennutritracker/features/profile/presentation/bloc/profile_bloc.dart';
 import 'package:opennutritracker/features/profile/presentation/weight_history_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
@@ -49,6 +55,34 @@ class _FakeConfigRepository extends Fake implements ConfigRepository {
   }
 }
 
+class _FakeGetUserUsecase extends Fake implements GetUserUsecase {
+  final UserEntity _user;
+  _FakeGetUserUsecase(this._user);
+
+  @override
+  Future<UserEntity> getUserData() async => _user;
+}
+
+class _FakeProfileBloc extends Fake implements ProfileBloc {
+  int updateUserCallCount = 0;
+
+  @override
+  Future<void> updateUser(UserEntity userEntity) async {
+    updateUserCallCount++;
+  }
+}
+
+UserEntity _buildUser() {
+  return UserEntity(
+    birthday: DateTime(1990, 1, 1),
+    heightCM: 178,
+    weightKG: 84,
+    gender: UserGenderEntity.male,
+    goal: UserWeightGoalEntity.maintainWeight,
+    pal: UserPALEntity.lowActive,
+  );
+}
+
 Widget _wrap(Widget child) {
   return MaterialApp(
     localizationsDelegates: const [
@@ -62,12 +96,18 @@ Widget _wrap(Widget child) {
   );
 }
 
-Widget _buildScreen(List<WeightLogEntity> entries) {
+Widget _buildScreen(
+  List<WeightLogEntity> entries, {
+  GetUserUsecase? getUserUsecase,
+  ProfileBloc? profileBloc,
+}) {
   return WeightHistoryScreen(
     getUsecase: _FakeGetWeightLogUsecase(entries),
     addUsecase: _FakeAddWeightLogUsecase(),
     deleteUsecase: _FakeDeleteWeightLogUsecase(),
     configRepository: _FakeConfigRepository(),
+    getUserUsecase: getUserUsecase,
+    profileBloc: profileBloc,
   );
 }
 
@@ -162,5 +202,36 @@ void main() {
         expect(find.text(S.current.weightHistoryTrendLabel), findsOneWidget);
       },
     );
+  });
+
+  group('WeightHistoryScreen dependent refresh', () {
+    testWidgets('deleting an entry refreshes Home/Diary/Profile via '
+        'ProfileBloc.updateUser, not just the local list', (tester) async {
+      final today = DateTime.now();
+      final entries = [WeightLogEntity(date: today, weightKg: 71.0)];
+      final fakeProfileBloc = _FakeProfileBloc();
+
+      await tester.pumpWidget(
+        _wrap(
+          _buildScreen(
+            entries,
+            getUserUsecase: _FakeGetUserUsecase(_buildUser()),
+            profileBloc: fakeProfileBloc,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(fakeProfileBloc.updateUserCallCount, 0);
+
+      await tester.tap(find.byIcon(Icons.delete_outline));
+      await tester.pumpAndSettle();
+
+      // The dynamic engine's kcal goal (FM-06/FM-07) is derived from the
+      // weight log, so Home/Diary/Profile must be told to reload after a
+      // weigh-in disappears — otherwise they keep showing a goal that no
+      // longer matches the data behind it until the app is restarted.
+      expect(fakeProfileBloc.updateUserCallCount, 1);
+    });
   });
 }
