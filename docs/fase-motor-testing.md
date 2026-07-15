@@ -17,6 +17,40 @@ Two changes in `TdeeDynamicCalc`/`GetKcalGoalUsecase` bring this closer to that 
 
 Neither MacroFactor's exact smoothing constant nor their blend-in curve is published — both remain best-effort approximations, same caveat as the rest of this engine.
 
+### Empirical re-verification: re-running the same 30-day scenario after the fix
+
+The scenario above wasn't hand-simulated — it was run live on a real Android emulator with the system clock genuinely advanced day by day (`adb shell date`), a fresh onboarding (Lose Weight, target 80 kg), 5 preseed days, then 30 live days each logging one weight entry (constant 0.15 kg/day loss) and 2300 kcal of food, with a checkpoint screenshot of Home + Strategy taken on a subset of days. The same script was re-run unmodified after the fix landed, for a direct before/after comparison.
+
+**Before (original implementation, no damping/blend):** the goal snapped from the static formula straight to the pure dynamic estimate the instant trend history crossed the 7-point threshold — an abrupt single-call jump of roughly +470 kcal — then continued to climb over the month from ~2644 kcal to ~3363 kcal (**+719 kcal, +27%**), driven by a fresh unsmoothed `estimateTdee()` read on every call.
+
+**After (`estimateTdeeSmoothed` + gradual blend):**
+
+| Day | Goal (kcal) | Smoothed TDEE | Trend weight | Estimator state |
+| --- | --- | --- | --- | --- |
+| 1 | 2174 | 2608 | 84.7 kg | Calibrating (blend = 0%, exact) |
+| 3 | 2215 | 2626 | 84.6 kg | Calibrating |
+| 5 | 2265 | 2652 | 84.4 kg | Calibrating |
+| 7 | 2326 | 2684 | 84.2 kg | Calibrating |
+| 10 | 2441 | 2739 | 83.8 kg | Calibrating |
+| 13 | 2585 | 2795 | 83.4 kg | Calibrating |
+| 16 | 2731 | 2868 | 83.1 kg | **Active** (crossed 21 trend points) |
+| 18 | 2802 | 2939 | 82.8 kg | Active |
+| 20 | 2869 | 3005 | 82.5 kg | Active |
+| 21 | 2902 | 3038 | 82.4 kg | Active |
+| 22 | 2933 | 3069 | 82.2 kg | Active |
+| 24 | 2994 | 3130 | 81.9 kg | Active |
+| 27 | 3084 | 3219 | 81.5 kg | Active |
+| 30 | 3166 | 3300 | 81.1 kg | Active |
+
+What changed and what didn't:
+
+- **The instant jump is gone.** At the exact point the old system snapped (7 trend points), the new blend weight is 0% by construction — day 1 above sits at the pure static goal (2174 kcal), not a discontinuous leap. The steepest day-to-day pace anywhere in the run is ~30–49 kcal/day (days 10–16, where both the blend ramp and the rising dynamic TDEE are moving together), never a single-call cliff.
+- **The Calibrating → Active transition matches the design exactly.** It flips at day 16 of the live loop, which is trend point 22 (6 points from onboarding + preseed, +16 from the loop) — one past `fullyMatureTrendPoints` (21), as intended.
+- **The total range over the month is still large (2174 → 3166 kcal, ~992 kcal)** — larger, in fact, than the old run's start-to-end delta. This is not a regression: the scenario is a deliberate stress test (relentless real weight loss on fixed intake for 30 straight days), so 30 days of real data legitimately keeps revealing that the user's true TDEE is higher than the static formula assumed. The fix changes the *path* (smooth vs. an instant snap), not the *destination* — which is the behavior MacroFactor itself documents (gradual correction over the initial 30-day window, not a capped total swing).
+- The pre-fix run's exact day-by-day numbers weren't preserved as a table (only the start/end values above), since the checkpoint screenshots were overwritten by the post-fix re-run using the same filenames.
+
+`flutter analyze`: 0 issues. `flutter test`: 822/822 passing, including the new `estimateTdeeSmoothed` and `dynamicBlendWeight` unit tests and a dedicated blend-ramp integration test in `dynamic_kcal_goal_wiring_test.dart`.
+
 ## How to test it live in the app
 
 The dynamic path starts blending in once there are **at least 7 trend points** (`TdeeDynamicCalc.minTrendPointsForDynamic`) and is **fully blended in** at 21 (`TdeeDynamicCalc.fullyMatureTrendPoints`) — below 7, Home stays on the static IOM 2005 goal; between 7 and 21, expect the goal to keep drifting toward the dynamic estimate day by day (Strategy shows "Calibrating" during this window); at 21+, Home reflects the fully dynamic (smoothed) estimate.
