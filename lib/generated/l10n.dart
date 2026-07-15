@@ -1829,6 +1829,26 @@ class S {
     );
   }
 
+  /// `Calibrating`
+  String get strategyEstimatorStatusCalibratingLabel {
+    return Intl.message(
+      'Calibrating',
+      name: 'strategyEstimatorStatusCalibratingLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Blending toward your dynamic estimate as more data comes in — usually settles within a couple of weeks`
+  String get strategyEstimatorStatusCalibratingDescription {
+    return Intl.message(
+      'Blending toward your dynamic estimate as more data comes in — usually settles within a couple of weeks',
+      name: 'strategyEstimatorStatusCalibratingDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Estimated TDEE`
   String get strategyEstimatedTdeeLabel {
     return Intl.message(

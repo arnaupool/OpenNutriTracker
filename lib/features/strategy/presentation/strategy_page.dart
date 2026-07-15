@@ -34,6 +34,14 @@ enum _ChartRange {
   const _ChartRange(this.days);
 }
 
+/// Mirrors [TdeeDynamicCalc.dynamicBlendWeight]'s three phases:
+/// [insufficient] (below the noise floor, static only), [calibrating]
+/// (blending, matching MacroFactor's own documented "gradually
+/// improving" estimates over the first weeks rather than a hard
+/// static→dynamic snap), and [active] (fully mature, no more blend-in
+/// left).
+enum _EstimatorState { insufficient, calibrating, active }
+
 /// Fase Motor's real dashboard (FD-01, reworked by FM-09): now that
 /// [GetKcalGoalUsecase]/[GetMacroGoalUsecase] actually govern the app's
 /// live goal (FM-06/FM-07), this page explains *why* today's number is
@@ -216,7 +224,7 @@ class _StrategyPageState extends State<StrategyPage> {
       );
     }
 
-    final tdeeDynamic = TdeeDynamicCalc.estimateTdee(
+    final tdeeDynamic = TdeeDynamicCalc.estimateTdeeSmoothed(
       trendSeries: trend,
       dailyIntakeKcal: _dailyIntakeKcal,
     );
@@ -224,7 +232,23 @@ class _StrategyPageState extends State<StrategyPage> {
         ? TDEECalc.getTDEEKcalIOM2005(_user!)
         : null;
     final trendWeightKg = trend.last.trendWeightKg;
-    final isActive = tdeeDynamic != null;
+    // Mirrors GetKcalGoalUsecase._computeCoreGoal's own gating exactly —
+    // trend.length >= minTrendPointsForDynamic, not just "estimateTdee
+    // returned a number" (which only needs 2 points) — so this card never
+    // claims the estimator is live before it's actually influencing
+    // today's real goal, and "calibrating" reflects the same gradual
+    // blend Home is applying, not a separate approximation of it.
+    final hasEnoughTrend =
+        trend.length >= TdeeDynamicCalc.minTrendPointsForDynamic;
+    final isActive = hasEnoughTrend && tdeeDynamic != null;
+    final blendWeight = isActive
+        ? TdeeDynamicCalc.dynamicBlendWeight(trend.length)
+        : 0.0;
+    final estimatorState = !isActive
+        ? _EstimatorState.insufficient
+        : blendWeight >= 1.0
+        ? _EstimatorState.active
+        : _EstimatorState.calibrating;
     final displayTdee = tdeeDynamic ?? tdeeStatic;
     final explanation = isActive && _user != null
         ? _buildExplanation(context, _user!, trendWeightKg)
@@ -245,7 +269,7 @@ class _StrategyPageState extends State<StrategyPage> {
           usesImperialUnits: _usesImperialUnits,
         ),
         const SizedBox(height: 20),
-        _EstimatorStatusCard(isActive: isActive),
+        _EstimatorStatusCard(state: estimatorState),
         const SizedBox(height: 16),
         _TodayGoalCard(
           targetKcal: _todayTargetKcal,
@@ -468,17 +492,32 @@ class _WeightChart extends StatelessWidget {
 }
 
 class _EstimatorStatusCard extends StatelessWidget {
-  final bool isActive;
+  final _EstimatorState state;
 
-  const _EstimatorStatusCard({required this.isActive});
+  const _EstimatorStatusCard({required this.state});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final s = S.of(context);
-    final dotColor = isActive
-        ? theme.colorScheme.primary
-        : theme.colorScheme.outline;
+
+    final Color dotColor;
+    final String label;
+    final String description;
+    switch (state) {
+      case _EstimatorState.insufficient:
+        dotColor = theme.colorScheme.outline;
+        label = s.strategyEstimatorStatusInsufficientLabel;
+        description = s.strategyEstimatorStatusInsufficientDescription;
+      case _EstimatorState.calibrating:
+        dotColor = theme.colorScheme.tertiary;
+        label = s.strategyEstimatorStatusCalibratingLabel;
+        description = s.strategyEstimatorStatusCalibratingDescription;
+      case _EstimatorState.active:
+        dotColor = theme.colorScheme.primary;
+        label = s.strategyEstimatorStatusActiveLabel;
+        description = s.strategyEstimatorStatusActiveDescription;
+    }
 
     return Semantics(
       identifier: 'strategy-estimator-status',
@@ -500,16 +539,9 @@ class _EstimatorStatusCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(label, style: theme.textTheme.titleMedium),
                     Text(
-                      isActive
-                          ? s.strategyEstimatorStatusActiveLabel
-                          : s.strategyEstimatorStatusInsufficientLabel,
-                      style: theme.textTheme.titleMedium,
-                    ),
-                    Text(
-                      isActive
-                          ? s.strategyEstimatorStatusActiveDescription
-                          : s.strategyEstimatorStatusInsufficientDescription,
+                      description,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),

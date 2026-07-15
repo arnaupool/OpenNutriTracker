@@ -127,21 +127,19 @@ void main() {
     todayMidnight.day,
   ).subtract(Duration(days: n));
 
-  /// Seeds a 10-day weight trend (well above the 7-point threshold) that
-  /// steps from 88kg to 84kg, ending today, plus matching intake so
-  /// TdeeDynamicCalc.estimateTdee has real data to read — mirrors the
-  /// step-response shape weight_motor_engine_test already validated the
-  /// math against.
-  Future<void> seedTenDayHistory({double dailyIntakeKcal = 2600}) async {
+  Future<void> seedStepHistory({
+    required int days,
+    required double dailyIntakeKcal,
+  }) async {
     await weightLogDataSource.addEntry(
-      WeightLogDBO(date: daysAgo(9), weightKg: 88.0),
+      WeightLogDBO(date: daysAgo(days - 1), weightKg: 88.0),
     );
-    for (var daysBack = 8; daysBack >= 0; daysBack--) {
+    for (var daysBack = days - 2; daysBack >= 0; daysBack--) {
       await weightLogDataSource.addEntry(
         WeightLogDBO(date: daysAgo(daysBack), weightKg: 84.0),
       );
     }
-    for (var daysBack = 9; daysBack >= 0; daysBack--) {
+    for (var daysBack = days - 1; daysBack >= 0; daysBack--) {
       await trackedDayDataSource.saveTrackedDay(
         TrackedDayDBO(
           day: daysAgo(daysBack),
@@ -152,18 +150,41 @@ void main() {
     }
   }
 
-  /// Recomputes exactly what the dynamic branch should have produced,
+  /// Seeds a 10-day weight trend — above the 7-point floor where the
+  /// dynamic estimate starts blending in, but below
+  /// TdeeDynamicCalc.fullyMatureTrendPoints (21) where it's blended in
+  /// *fully* — that steps from 88kg to 84kg, ending today, plus matching
+  /// intake so TdeeDynamicCalc.estimateTdee has real data to read —
+  /// mirrors the step-response shape weight_motor_engine_test already
+  /// validated the math against. Used by the tests that specifically
+  /// exercise the static/dynamic *blend ramp* itself.
+  Future<void> seedTenDayHistory({double dailyIntakeKcal = 2600}) async {
+    await seedStepHistory(days: 10, dailyIntakeKcal: dailyIntakeKcal);
+  }
+
+  /// Same step shape as [seedTenDayHistory], but long enough (25 days)
+  /// to clear TdeeDynamicCalc.fullyMatureTrendPoints (21) — the dynamic
+  /// estimate is blended in at 100%, so tests using this can assert
+  /// against the pure dynamic branch without also reasoning about the
+  /// blend ramp.
+  Future<void> seedMatureHistory({double dailyIntakeKcal = 2600}) async {
+    await seedStepHistory(days: 25, dailyIntakeKcal: dailyIntakeKcal);
+  }
+
+  /// Recomputes exactly what the dynamic branch should have produced
+  /// (post-smoothing, matching what GetKcalGoalUsecase actually calls),
   /// independently of GetKcalGoalUsecase, to compare against.
-  Future<double> expectedDynamicTdee({double dailyIntakeKcal = 2600}) async {
+  Future<double> expectedDynamicTdee() async {
     final entries = await weightLogRepository.getAllEntries();
     final trend = WeightTrendCalc.computeTrend(
       WeightInterpolationCalc.fillGaps(entries),
     );
+    final trackedDays = await trackedDayDataSource.getAllTrackedDays();
     final intake = {
-      for (var daysBack = 9; daysBack >= 0; daysBack--)
-        daysAgo(daysBack): dailyIntakeKcal,
+      for (final d in trackedDays)
+        DateTime(d.day.year, d.day.month, d.day.day): d.caloriesTracked,
     };
-    return TdeeDynamicCalc.estimateTdee(
+    return TdeeDynamicCalc.estimateTdeeSmoothed(
       trendSeries: trend,
       dailyIntakeKcal: intake,
     )!;
@@ -225,7 +246,7 @@ void main() {
       await userDataSource.saveUserData(
         baseUser(targetWeightKg: 75.0), // >0.7kg from the ~84kg trend
       );
-      await seedTenDayHistory();
+      await seedMatureHistory();
 
       final goal = await getKcalGoalUsecase.getKcalGoal(
         totalKcalActivitiesParam: 0,
@@ -256,7 +277,7 @@ void main() {
         await userDataSource.saveUserData(
           baseUser(goal: UserWeightGoalDBO.maintainWeight),
         );
-        await seedTenDayHistory();
+        await seedMatureHistory();
 
         final goal = await getKcalGoalUsecase.getKcalGoal(
           totalKcalActivitiesParam: 0,
@@ -269,7 +290,7 @@ void main() {
     test('enough history but no target weight set bridges with the '
         'existing flat adjustment on top of the dynamic TDEE', () async {
       await userDataSource.saveUserData(baseUser()); // no targetWeightKg
-      await seedTenDayHistory();
+      await seedMatureHistory();
 
       final goal = await getKcalGoalUsecase.getKcalGoal(
         totalKcalActivitiesParam: 0,
@@ -277,6 +298,33 @@ void main() {
       final tdee = await expectedDynamicTdee();
       // loseWeight's flat adjustment (CalorieGoalCalc.loseWeightKcalAdjustment).
       expect(goal, closeTo(tdee - 500, 0.01));
+    });
+
+    test('between the noise floor and full maturity, the goal is a linear '
+        'blend of static and dynamic — not an all-or-nothing snap', () async {
+      final user = baseUser(goal: UserWeightGoalDBO.maintainWeight);
+      await userDataSource.saveUserData(user);
+      await seedTenDayHistory(); // 10 trend points: floor=7, mature=21
+
+      final goal = await getKcalGoalUsecase.getKcalGoal(
+        totalKcalActivitiesParam: 0,
+      );
+
+      final staticGoal = CalorieGoalCalc.getTotalKcalGoal(
+        await UserRepository(userDataSource).getUserData(),
+        0,
+      );
+      final dynamicTdee = await expectedDynamicTdee();
+      // 10 trend points, floor 7, mature 21 -> (10-7)/(21-7) = 3/14.
+      const expectedBlendWeight = 3 / 14;
+      final expectedGoal =
+          staticGoal + expectedBlendWeight * (dynamicTdee - staticGoal);
+
+      expect(goal, closeTo(expectedGoal, 0.01));
+      // Sanity: sits strictly between the two pure branches, not equal
+      // to either — proves this is really a blend, not a coincidence.
+      expect(goal, isNot(closeTo(staticGoal, 1.0)));
+      expect(goal, isNot(closeTo(dynamicTdee, 1.0)));
     });
   });
 

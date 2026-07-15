@@ -19,13 +19,6 @@ class GetKcalGoalUsecase {
   final WeightLogRepository _weightLogRepository;
   final TrackedDayRepository _trackedDayRepository;
 
-  // Fase Motor: minimum trend points before the dynamic path is trusted to
-  // actually govern the goal. TdeeDynamicCalc.estimateTdee itself only
-  // needs 2 to return a number at all, but a 2-3 day estimate swings the
-  // goal around wildly — this is a stricter, separate bar for "trust it
-  // enough to replace the static fallback," not a change to the estimator.
-  static const int _minTrendPointsForDynamic = 7;
-
   // Matches StrategyPage's lookback — enough slack above
   // TdeeDynamicCalc.defaultWindowDays (21) that a full window of real
   // intake is available even if today hasn't been tracked yet.
@@ -61,13 +54,33 @@ class GetKcalGoalUsecase {
   /// compute in one shot, minus the trailing `kcalUserAdjustment` /
   /// activities terms, which [getKcalGoal] adds once, uniformly, on top
   /// of whichever path ran here.
+  ///
+  /// Blends static and dynamic linearly between
+  /// [TdeeDynamicCalc.minTrendPointsForDynamic] (0% dynamic — too little
+  /// data to trust it at all) and [TdeeDynamicCalc.fullyMatureTrendPoints]
+  /// (100% dynamic) rather than snapping straight from one to the other
+  /// the moment the floor is crossed. MacroFactor documents its own
+  /// estimates "gradually improving" over the initial weeks, not jumping;
+  /// a hard cutover here would otherwise show the user a sudden multi-
+  /// hundred-kcal jump in their goal the day the count crosses the floor.
   Future<double> _computeCoreGoal(UserEntity user) async {
-    final dynamicGoal = await _computeDynamicCoreGoal(user);
-    if (dynamicGoal != null) return dynamicGoal;
+    final staticGoal = _computeStaticCoreGoal(user);
 
-    // No dynamic estimate available (new user, not enough weigh-ins yet,
-    // or no logged intake overlapping the window) — exactly today's
-    // static formula, unchanged.
+    final weightEntries = await _weightLogRepository.getAllEntries();
+    final filled = WeightInterpolationCalc.fillGaps(weightEntries);
+    final trend = WeightTrendCalc.computeTrend(filled);
+    if (trend.length < TdeeDynamicCalc.minTrendPointsForDynamic) {
+      return staticGoal;
+    }
+
+    final dynamicGoal = await _computeDynamicCoreGoal(user, trend);
+    if (dynamicGoal == null) return staticGoal;
+
+    final blendWeight = TdeeDynamicCalc.dynamicBlendWeight(trend.length);
+    return staticGoal + blendWeight * (dynamicGoal - staticGoal);
+  }
+
+  double _computeStaticCoreGoal(UserEntity user) {
     final baseAdjustment = CalorieGoalCalc.getKcalGoalAdjustment(
       user.goal,
       weeklyWeightGoalKg: user.weeklyWeightGoalKg,
@@ -82,8 +95,9 @@ class GetKcalGoalUsecase {
     return CalorieGoalCalc.getTdee(user) + adjustment;
   }
 
-  /// The Fase Motor path — null whenever there isn't enough real history
-  /// to trust it, in which case [_computeCoreGoal] falls back to static.
+  /// The Fase Motor path — null whenever there isn't enough overlapping
+  /// intake data to trust it, in which case [_computeCoreGoal] falls back
+  /// to (or blends toward) static.
   ///
   /// Phased, not a single formula, because the two pieces this composes
   /// (TdeeDynamicCalc, DynamicMaintenanceCalc) each model a different part
@@ -96,12 +110,10 @@ class GetKcalGoalUsecase {
   /// here. Near goal (inside DynamicMaintenanceCalc's band), that same
   /// rate-driven deficit would overshoot, so the band's own gentle
   /// 0.15%/week nudge takes over instead.
-  Future<double?> _computeDynamicCoreGoal(UserEntity user) async {
-    final weightEntries = await _weightLogRepository.getAllEntries();
-    final filled = WeightInterpolationCalc.fillGaps(weightEntries);
-    final trend = WeightTrendCalc.computeTrend(filled);
-    if (trend.length < _minTrendPointsForDynamic) return null;
-
+  Future<double?> _computeDynamicCoreGoal(
+    UserEntity user,
+    List<WeightTrendPoint> trend,
+  ) async {
     final today = DateTime.now();
     final todayAtMidnight = DateTime(today.year, today.month, today.day);
     final lookbackStart = todayAtMidnight.subtract(
@@ -123,7 +135,7 @@ class GetKcalGoalUsecase {
         DateTime(d.day.year, d.day.month, d.day.day): d.caloriesTracked,
     };
 
-    final dynamicTdee = TdeeDynamicCalc.estimateTdee(
+    final dynamicTdee = TdeeDynamicCalc.estimateTdeeSmoothed(
       trendSeries: trend,
       dailyIntakeKcal: dailyIntakeKcal,
     );

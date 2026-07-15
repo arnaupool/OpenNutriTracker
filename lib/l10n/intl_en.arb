@@ -952,6 +952,8 @@
   "strategyEstimatorStatusActiveDescription": "Updating from your data",
   "strategyEstimatorStatusInsufficientLabel": "Insufficient data",
   "strategyEstimatorStatusInsufficientDescription": "Log weight and food more consistently to get an estimate",
+  "strategyEstimatorStatusCalibratingLabel": "Calibrating",
+  "strategyEstimatorStatusCalibratingDescription": "Blending toward your dynamic estimate as more data comes in — usually settles within a couple of weeks",
   "strategyEstimatedTdeeLabel": "Estimated TDEE",
   "strategyTrendWeightLabel": "Trend Weight",
   "strategyTodayTargetLabel": "Today's Target",

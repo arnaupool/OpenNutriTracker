@@ -102,6 +102,108 @@ void main() {
     });
   });
 
+  group('estimateTdeeSmoothed', () {
+    test('returns null when no day ever produces a valid raw estimate', () {
+      final result = TdeeDynamicCalc.estimateTdeeSmoothed(
+        trendSeries: [trendPoint(DateTime(2026, 1, 1), 80.0)],
+        dailyIntakeKcal: {},
+      );
+      expect(result, isNull);
+    });
+
+    test('stable trend weight: matches raw estimateTdee exactly (a constant '
+        'series has nothing to smooth away)', () {
+      final series = List.generate(
+        8,
+        (i) => trendPoint(DateTime(2026, 1, 1 + i), 80.0),
+      );
+      final intake = {
+        for (var i = 0; i < 8; i++) DateTime(2026, 1, 1 + i): 2400.0,
+      };
+
+      final result = TdeeDynamicCalc.estimateTdeeSmoothed(
+        trendSeries: series,
+        dailyIntakeKcal: intake,
+      );
+
+      expect(result, closeTo(2400.0, 0.001));
+    });
+
+    test('dampens a single day\'s raw jump instead of snapping straight to '
+        'it — MacroFactor documents an equivalent "smoothing layer...to '
+        'avoid over-corrections"', () {
+      // 15 flat days at 80kg (raw TDEE == the flat 2400 intake every
+      // day, since weightChangeKg is 0 for any window ending inside
+      // the flat run) seed the smoothed accumulator at exactly 2400.
+      // Day 16 introduces a real 1kg drop, which on its own would
+      // raise the *raw*, single-window estimate to ~2914 kcal.
+      final flatDays = List.generate(
+        15,
+        (i) => trendPoint(DateTime(2026, 1, 1 + i), 80.0),
+      );
+      final series = [...flatDays, trendPoint(DateTime(2026, 1, 16), 79.0)];
+      final intake = {
+        for (var i = 0; i < 16; i++) DateTime(2026, 1, 1 + i): 2400.0,
+      };
+
+      final raw = TdeeDynamicCalc.estimateTdee(
+        trendSeries: series,
+        dailyIntakeKcal: intake,
+      )!;
+      final smoothed = TdeeDynamicCalc.estimateTdeeSmoothed(
+        trendSeries: series,
+        dailyIntakeKcal: intake,
+      )!;
+
+      // Closed-form: dailyStored = -1kg * kcalPerKgBodyMass / 15 days;
+      // raw = 2400 - dailyStored.
+      final expectedDailyStored = -1.0 * TdeeDynamicCalc.kcalPerKgBodyMass / 15;
+      final expectedRaw = 2400.0 - expectedDailyStored;
+      expect(raw, closeTo(expectedRaw, 0.5));
+
+      // Smoothed accumulator was flat at 2400 through day 15, so day
+      // 16 moves it only alpha (10%) of the way to the new raw value.
+      final expectedSmoothed =
+          2400.0 +
+          TdeeDynamicCalc.expenditureSmoothingAlpha * (expectedRaw - 2400.0);
+      expect(smoothed, closeTo(expectedSmoothed, 0.5));
+
+      // The whole point: smoothed sits much closer to the pre-existing
+      // 2400 baseline than the raw, single-day-reactive estimate does.
+      expect((smoothed - 2400.0).abs(), lessThan((raw - 2400.0).abs()));
+    });
+  });
+
+  group('dynamicBlendWeight', () {
+    test('is 0 at or below the noise floor', () {
+      expect(TdeeDynamicCalc.dynamicBlendWeight(2), 0.0);
+      expect(
+        TdeeDynamicCalc.dynamicBlendWeight(
+          TdeeDynamicCalc.minTrendPointsForDynamic,
+        ),
+        0.0,
+      );
+    });
+
+    test('is 1 at or above full maturity', () {
+      expect(
+        TdeeDynamicCalc.dynamicBlendWeight(
+          TdeeDynamicCalc.fullyMatureTrendPoints,
+        ),
+        1.0,
+      );
+      expect(TdeeDynamicCalc.dynamicBlendWeight(365), 1.0);
+    });
+
+    test('is linear in between', () {
+      final midpoint =
+          (TdeeDynamicCalc.minTrendPointsForDynamic +
+              TdeeDynamicCalc.fullyMatureTrendPoints) ~/
+          2;
+      expect(TdeeDynamicCalc.dynamicBlendWeight(midpoint), closeTo(0.5, 0.05));
+    });
+  });
+
   group('weeklyChangeRateKg', () {
     test('returns null with fewer than 2 trend points', () {
       final result = TdeeDynamicCalc.weeklyChangeRateKg([
