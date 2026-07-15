@@ -1839,26 +1839,6 @@ class S {
     );
   }
 
-  /// `Static TDEE`
-  String get strategyStaticTdeeLabel {
-    return Intl.message(
-      'Static TDEE',
-      name: 'strategyStaticTdeeLabel',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Current Target`
-  String get strategyCurrentTargetLabel {
-    return Intl.message(
-      'Current Target',
-      name: 'strategyCurrentTargetLabel',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Trend Weight`
   String get strategyTrendWeightLabel {
     return Intl.message(
@@ -1869,31 +1849,61 @@ class S {
     );
   }
 
-  /// `Weekly Rate`
-  String get strategyWeeklyRateTitle {
+  /// `Today's Target`
+  String get strategyTodayTargetLabel {
     return Intl.message(
-      'Weekly Rate',
-      name: 'strategyWeeklyRateTitle',
+      'Today\'s Target',
+      name: 'strategyTodayTargetLabel',
       desc: '',
       args: [],
     );
   }
 
-  /// `Desired`
-  String get strategyDesiredRateLabel {
+  /// `Maintaining — matches your observed TDEE`
+  String get strategyExplanationMaintaining {
     return Intl.message(
-      'Desired',
-      name: 'strategyDesiredRateLabel',
+      'Maintaining — matches your observed TDEE',
+      name: 'strategyExplanationMaintaining',
       desc: '',
       args: [],
     );
   }
 
-  /// `Observed`
-  String get strategyObservedRateLabel {
+  /// `No target weight set — applying a flat {adjustment} kcal/day adjustment on top of your observed TDEE. Set a target weight in Profile for automatic correction.`
+  String strategyExplanationNoTargetWeight(String adjustment) {
     return Intl.message(
-      'Observed',
-      name: 'strategyObservedRateLabel',
+      'No target weight set — applying a flat $adjustment kcal/day adjustment on top of your observed TDEE. Set a target weight in Profile for automatic correction.',
+      name: 'strategyExplanationNoTargetWeight',
+      desc: '',
+      args: [adjustment],
+    );
+  }
+
+  /// `Within 0.7 kg of your target — maintaining at your observed TDEE`
+  String get strategyExplanationWithinBand {
+    return Intl.message(
+      'Within 0.7 kg of your target — maintaining at your observed TDEE',
+      name: 'strategyExplanationWithinBand',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{distanceKg} kg from your target — correcting by {correctionKcal} kcal/day toward goal`
+  String strategyExplanationCorrecting(String distanceKg, String correctionKcal) {
+    return Intl.message(
+      '$distanceKg kg from your target — correcting by $correctionKcal kcal/day toward goal',
+      name: 'strategyExplanationCorrecting',
+      desc: '',
+      args: [distanceKg, correctionKcal],
+    );
+  }
+
+  /// `Macro Distribution`
+  String get strategyMacroDistributionTitle {
+    return Intl.message(
+      'Macro Distribution',
+      name: 'strategyMacroDistributionTitle',
       desc: '',
       args: [],
     );
@@ -5226,66 +5236,6 @@ class S {
   /// `Goal`
   String get goalLabel {
     return Intl.message('Goal', name: 'goalLabel', desc: '', args: []);
-  }
-
-  /// `Weekly rate`
-  String get weeklyWeightGoalLabel {
-    return Intl.message(
-      'Weekly rate',
-      name: 'weeklyWeightGoalLabel',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `This is the pace you're aiming for. We compare it against your actual trend-weight movement — if you drift outside the expected range, your calorie target is nudged by a small, gradual amount until you're back on pace.`
-  String get weeklyWeightGoalExplanation {
-    return Intl.message(
-      'This is the pace you\'re aiming for. We compare it against your actual trend-weight movement — if you drift outside the expected range, your calorie target is nudged by a small, gradual amount until you\'re back on pace.',
-      name: 'weeklyWeightGoalExplanation',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Not set`
-  String get weeklyWeightGoalNoneLabel {
-    return Intl.message(
-      'Not set',
-      name: 'weeklyWeightGoalNoneLabel',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `{rate} kg/week`
-  String weeklyWeightGoalKgPerWeek(String rate) {
-    return Intl.message(
-      '$rate kg/week',
-      name: 'weeklyWeightGoalKgPerWeek',
-      desc: '',
-      args: [rate],
-    );
-  }
-
-  /// `{rate} lbs/week`
-  String weeklyWeightGoalLbsPerWeek(String rate) {
-    return Intl.message(
-      '$rate lbs/week',
-      name: 'weeklyWeightGoalLbsPerWeek',
-      desc: '',
-      args: [rate],
-    );
-  }
-
-  /// `Weekly weight rate`
-  String get chooseWeeklyWeightGoalLabel {
-    return Intl.message(
-      'Weekly weight rate',
-      name: 'chooseWeeklyWeightGoalLabel',
-      desc: '',
-      args: [],
-    );
   }
 
   /// `Select Height`

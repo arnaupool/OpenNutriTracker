@@ -182,20 +182,6 @@
       }
     }
   },
-  "@weeklyWeightGoalKgPerWeek": {
-    "placeholders": {
-      "rate": {
-        "type": "String"
-      }
-    }
-  },
-  "@weeklyWeightGoalLbsPerWeek": {
-    "placeholders": {
-      "rate": {
-        "type": "String"
-      }
-    }
-  },
   "activityExample": "e.g. running, biking, yoga ...",
   "activityLabel": "Activity",
   "addItemLabel": "Add new Item:",
@@ -253,7 +239,6 @@
   "carbsLabel": "carbs",
   "carbsLabelShort": "c",
   "cholesterolLabel": "cholesterol",
-  "chooseWeeklyWeightGoalLabel": "Weekly weight rate",
   "chooseWeightGoalLabel": "Choose Weight Goal",
   "clearOffCacheConfirmContent": "Removes the locally cached search and scan results from Open Food Facts and FDC. The cache rebuilds automatically as you search and scan products. Your custom meals are not affected.",
   "clearOffCacheConfirmTitle": "Clear cached items?",
@@ -968,12 +953,13 @@
   "strategyEstimatorStatusInsufficientLabel": "Insufficient data",
   "strategyEstimatorStatusInsufficientDescription": "Log weight and food more consistently to get an estimate",
   "strategyEstimatedTdeeLabel": "Estimated TDEE",
-  "strategyStaticTdeeLabel": "Static TDEE",
-  "strategyCurrentTargetLabel": "Current Target",
   "strategyTrendWeightLabel": "Trend Weight",
-  "strategyWeeklyRateTitle": "Weekly Rate",
-  "strategyDesiredRateLabel": "Desired",
-  "strategyObservedRateLabel": "Observed",
+  "strategyTodayTargetLabel": "Today's Target",
+  "strategyExplanationMaintaining": "Maintaining — matches your observed TDEE",
+  "strategyExplanationNoTargetWeight": "No target weight set — applying a flat {adjustment} kcal/day adjustment on top of your observed TDEE. Set a target weight in Profile for automatic correction.",
+  "strategyExplanationWithinBand": "Within 0.7 kg of your target — maintaining at your observed TDEE",
+  "strategyExplanationCorrecting": "{distanceKg} kg from your target — correcting by {correctionKcal} kcal/day toward goal",
+  "strategyMacroDistributionTitle": "Macro Distribution",
   "settingsMaterialYouTitle": "Use system colours",
   "settingsMaterialYouSubtitle": "Match your wallpaper accent on Android 12 and newer.",
   "settingsAccentColourTitle": "Accent colour",
@@ -1068,11 +1054,6 @@
   "vitaminCLabel": "vitamin C",
   "vitaminDLabel": "vitamin D",
   "warningLabel": "Warning",
-  "weeklyWeightGoalExplanation": "This is the pace you're aiming for. We compare it against your actual trend-weight movement — if you drift outside the expected range, your calorie target is nudged by a small, gradual amount until you're back on pace.",
-  "weeklyWeightGoalKgPerWeek": "{rate} kg/week",
-  "weeklyWeightGoalLabel": "Weekly rate",
-  "weeklyWeightGoalLbsPerWeek": "{rate} lbs/week",
-  "weeklyWeightGoalNoneLabel": "Not set",
   "weightHistoryAddEntry": "Add entry",
   "weightHistoryChartEmptyState": "Log at least two days to see your trend.",
   "weightHistoryDateLabel": "Date",

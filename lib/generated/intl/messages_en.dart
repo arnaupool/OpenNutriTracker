@@ -39,10 +39,6 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m7(count) => "Import ${count} activities?";
 
-  static String m8(rate) => "${rate} kg/week";
-
-  static String m9(rate) => "${rate} lbs/week";
-
   static String m10(qty, unit) => "Per ${qty} ${unit}";
 
   static String m11(time) => "Reminder time: ${time}";
@@ -178,8 +174,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "carbsLabel": MessageLookupByLibrary.simpleMessage("carbs"),
         "carbsLabelShort": MessageLookupByLibrary.simpleMessage("c"),
         "cholesterolLabel": MessageLookupByLibrary.simpleMessage("cholesterol"),
-        "chooseWeeklyWeightGoalLabel":
-            MessageLookupByLibrary.simpleMessage("Weekly weight rate"),
         "chooseWeightGoalLabel":
             MessageLookupByLibrary.simpleMessage("Choose Weight Goal"),
         "cmLabel": MessageLookupByLibrary.simpleMessage("cm"),
@@ -1249,12 +1243,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "vitaminCLabel": MessageLookupByLibrary.simpleMessage("vitamin C"),
         "vitaminDLabel": MessageLookupByLibrary.simpleMessage("vitamin D"),
         "warningLabel": MessageLookupByLibrary.simpleMessage("Warning"),
-        "weeklyWeightGoalKgPerWeek": m8,
-        "weeklyWeightGoalLabel":
-            MessageLookupByLibrary.simpleMessage("Weekly rate"),
-        "weeklyWeightGoalLbsPerWeek": m9,
-        "weeklyWeightGoalNoneLabel":
-            MessageLookupByLibrary.simpleMessage("Not set"),
         "weightLabel": MessageLookupByLibrary.simpleMessage("Weight"),
         "yearsLabel": m3,
         "zincLabel": MessageLookupByLibrary.simpleMessage("zinc"),

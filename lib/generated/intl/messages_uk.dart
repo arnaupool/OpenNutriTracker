@@ -37,10 +37,6 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m6(count) =>
       "${count} елемент(ів) не вдалося отримати з OpenFoodFacts.";
 
-  static String m8(rate) => "${rate} кг/тиждень";
-
-  static String m9(rate) => "${rate} фунт/тиждень";
-
   static String m10(qty, unit) => "На ${qty} ${unit}";
 
   static String m11(time) => "Час нагадування: ${time}";
@@ -179,8 +175,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "carbsLabel": MessageLookupByLibrary.simpleMessage("вуглеводи"),
         "carbsLabelShort": MessageLookupByLibrary.simpleMessage("в"),
         "cholesterolLabel": MessageLookupByLibrary.simpleMessage("холестерин"),
-        "chooseWeeklyWeightGoalLabel":
-            MessageLookupByLibrary.simpleMessage("Тижневий темп ваги"),
         "chooseWeightGoalLabel":
             MessageLookupByLibrary.simpleMessage("Виберіть ціль ваги"),
         "clearOffCacheConfirmContent": MessageLookupByLibrary.simpleMessage(
@@ -1275,12 +1269,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "vitaminCLabel": MessageLookupByLibrary.simpleMessage("вітамін C"),
         "vitaminDLabel": MessageLookupByLibrary.simpleMessage("вітамін D"),
         "warningLabel": MessageLookupByLibrary.simpleMessage("Попередження"),
-        "weeklyWeightGoalKgPerWeek": m8,
-        "weeklyWeightGoalLabel":
-            MessageLookupByLibrary.simpleMessage("Тижневий темп"),
-        "weeklyWeightGoalLbsPerWeek": m9,
-        "weeklyWeightGoalNoneLabel":
-            MessageLookupByLibrary.simpleMessage("Не встановлено"),
         "weightLabel": MessageLookupByLibrary.simpleMessage("Вага"),
         "yearsLabel": m3,
         "zincLabel": MessageLookupByLibrary.simpleMessage("цинк"),

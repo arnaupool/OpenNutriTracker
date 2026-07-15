@@ -123,20 +123,6 @@
       }
     }
   },
-  "@weeklyWeightGoalKgPerWeek": {
-    "placeholders": {
-      "rate": {
-        "type": "String"
-      }
-    }
-  },
-  "@weeklyWeightGoalLbsPerWeek": {
-    "placeholders": {
-      "rate": {
-        "type": "String"
-      }
-    }
-  },
   "activityExample": "z. B. Laufen, Radfahren, Yoga ...",
   "activityLabel": "Aktivität",
   "addItemLabel": "Neuen Eintrag hinzufügen:",
@@ -182,7 +168,6 @@
   "carbsLabel": "Kohlenhydrate",
   "carbsLabelShort": "k",
   "cholesterolLabel": "Cholesterin",
-  "chooseWeeklyWeightGoalLabel": "Wöchentliche Gewichtsrate",
   "chooseWeightGoalLabel": "Gewichtsziel wählen",
   "clearOffCacheConfirmContent": "Entfernt die lokal zwischengespeicherten Such- und Scan-Ergebnisse von Open Food Facts und FDC. Der Cache wird beim Suchen und Scannen automatisch neu aufgebaut. Deine eigenen Mahlzeiten sind nicht betroffen.",
   "clearOffCacheConfirmTitle": "Cache leeren?",
@@ -902,10 +887,6 @@
   "vitaminCLabel": "Vitamin C",
   "vitaminDLabel": "Vitamin D",
   "warningLabel": "Warnung",
-  "weeklyWeightGoalKgPerWeek": "{rate} kg/Woche",
-  "weeklyWeightGoalLabel": "Wöchentliche Rate",
-  "weeklyWeightGoalLbsPerWeek": "{rate} lbs/Woche",
-  "weeklyWeightGoalNoneLabel": "Nicht festgelegt",
   "weightHistoryAddEntry": "Eintrag hinzufügen",
   "weightHistoryChartEmptyState": "Trage mindestens zwei Tage ein, um deinen Verlauf zu sehen.",
   "weightHistoryDateLabel": "Datum",

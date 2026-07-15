@@ -35,10 +35,6 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m6(count) => "无法从OpenFoodFacts获取 ${count} 个项目。";
 
-  static String m8(rate) => "${rate} 千克/周";
-
-  static String m9(rate) => "${rate} 磅/周";
-
   static String m10(qty, unit) => "每 ${qty} ${unit}";
 
   static String m11(time) => "提醒时间：${time}";
@@ -174,8 +170,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "carbsLabel": MessageLookupByLibrary.simpleMessage("碳水"),
         "carbsLabelShort": MessageLookupByLibrary.simpleMessage("碳"),
         "cholesterolLabel": MessageLookupByLibrary.simpleMessage("胆固醇"),
-        "chooseWeeklyWeightGoalLabel":
-            MessageLookupByLibrary.simpleMessage("每周体重速率"),
         "chooseWeightGoalLabel": MessageLookupByLibrary.simpleMessage("选择体重目标"),
         "clearOffCacheConfirmContent": MessageLookupByLibrary.simpleMessage(
             "移除本地缓存的 Open Food Facts 和 FDC 搜索及扫描结果。缓存会在您搜索和扫描产品时自动重建。您的自定义餐食不会受影响。"),
@@ -1114,12 +1108,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "vitaminCLabel": MessageLookupByLibrary.simpleMessage("维生素 C"),
         "vitaminDLabel": MessageLookupByLibrary.simpleMessage("维生素 D"),
         "warningLabel": MessageLookupByLibrary.simpleMessage("警告"),
-        "weeklyWeightGoalKgPerWeek": m8,
-        "weeklyWeightGoalLabel":
-            MessageLookupByLibrary.simpleMessage("每周速率"),
-        "weeklyWeightGoalLbsPerWeek": m9,
-        "weeklyWeightGoalNoneLabel":
-            MessageLookupByLibrary.simpleMessage("未设置"),
         "weightLabel": MessageLookupByLibrary.simpleMessage("体重"),
         "yearsLabel": m3,
         "zincLabel": MessageLookupByLibrary.simpleMessage("锌"),

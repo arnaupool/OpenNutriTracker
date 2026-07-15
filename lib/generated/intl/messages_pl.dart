@@ -36,10 +36,6 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m6(count) =>
       "Nie udało się pobrać ${count} pozycji z OpenFoodFacts.";
 
-  static String m8(rate) => "${rate} kg/tydzień";
-
-  static String m9(rate) => "${rate} lbs/tydzień";
-
   static String m10(qty, unit) => "Na ${qty} ${unit}";
 
   static String m11(time) => "Czas przypomnienia: ${time}";
@@ -179,8 +175,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "carbsLabel": MessageLookupByLibrary.simpleMessage("węglowodany"),
         "carbsLabelShort": MessageLookupByLibrary.simpleMessage("w"),
         "cholesterolLabel": MessageLookupByLibrary.simpleMessage("cholesterol"),
-        "chooseWeeklyWeightGoalLabel":
-            MessageLookupByLibrary.simpleMessage("Tygodniowe tempo wagi"),
         "chooseWeightGoalLabel":
             MessageLookupByLibrary.simpleMessage("Wybierz cel wagowy"),
         "clearOffCacheConfirmContent": MessageLookupByLibrary.simpleMessage(
@@ -1271,12 +1265,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "vitaminCLabel": MessageLookupByLibrary.simpleMessage("witamina C"),
         "vitaminDLabel": MessageLookupByLibrary.simpleMessage("witamina D"),
         "warningLabel": MessageLookupByLibrary.simpleMessage("Ostrzeżenie"),
-        "weeklyWeightGoalKgPerWeek": m8,
-        "weeklyWeightGoalLabel":
-            MessageLookupByLibrary.simpleMessage("Tygodniowe tempo"),
-        "weeklyWeightGoalLbsPerWeek": m9,
-        "weeklyWeightGoalNoneLabel":
-            MessageLookupByLibrary.simpleMessage("Nie ustawiono"),
         "weightLabel": MessageLookupByLibrary.simpleMessage("Waga"),
         "yearsLabel": m3,
         "zincLabel": MessageLookupByLibrary.simpleMessage("cynk"),

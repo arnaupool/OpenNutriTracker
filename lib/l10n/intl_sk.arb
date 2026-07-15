@@ -140,20 +140,6 @@
       }
     }
   },
-  "@weeklyWeightGoalKgPerWeek": {
-    "placeholders": {
-      "rate": {
-        "type": "String"
-      }
-    }
-  },
-  "@weeklyWeightGoalLbsPerWeek": {
-    "placeholders": {
-      "rate": {
-        "type": "String"
-      }
-    }
-  },
   "activityExample": "napr. beh, cyklistika, joga ...",
   "activityLabel": "Aktivita",
   "addItemLabel": "Pridať novú položku:",
@@ -198,7 +184,6 @@
   "carbsLabel": "sacharidy",
   "carbsLabelShort": "s",
   "cholesterolLabel": "cholesterol",
-  "chooseWeeklyWeightGoalLabel": "Týždenné tempo hmotnosti",
   "chooseWeightGoalLabel": "Zvoľte cieľovú hmotnosť",
   "clearOffCacheConfirmContent": "Odstráni lokálne uložené výsledky vyhľadávania a skenovania z Open Food Facts a FDC. Pamäť sa automaticky obnoví pri ďalšom vyhľadávaní a skenovaní produktov. Vaše vlastné jedlá to neovplyvní.",
   "clearOffCacheConfirmTitle": "Vymazať uložené položky?",
@@ -901,10 +886,6 @@
   "vitaminCLabel": "vitamín C",
   "vitaminDLabel": "vitamín D",
   "warningLabel": "Upozornenie",
-  "weeklyWeightGoalKgPerWeek": "{rate} kg/týždeň",
-  "weeklyWeightGoalLabel": "Týždenné tempo",
-  "weeklyWeightGoalLbsPerWeek": "{rate} lbs/týždeň",
-  "weeklyWeightGoalNoneLabel": "Nenastavené",
   "weightHistoryAddEntry": "Pridať záznam",
   "weightHistoryChartEmptyState": "Zaznamenajte aspoň dva dni, aby ste videli svoj trend.",
   "weightHistoryDateLabel": "Dátum",

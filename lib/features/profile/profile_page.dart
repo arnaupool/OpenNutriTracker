@@ -15,7 +15,6 @@ import 'package:opennutritracker/features/profile/presentation/widgets/bmi_overv
 import 'package:opennutritracker/features/profile/presentation/widgets/set_gender_dialog.dart';
 import 'package:opennutritracker/features/profile/presentation/widgets/set_goal_dialog.dart';
 import 'package:opennutritracker/features/profile/presentation/widgets/set_height_dialog.dart';
-import 'package:opennutritracker/features/profile/presentation/widgets/set_weekly_weight_goal_dialog.dart';
 import 'package:opennutritracker/features/profile/presentation/widgets/set_pal_category_dialog.dart';
 import 'package:opennutritracker/features/profile/presentation/widgets/set_target_weight_dialog.dart';
 import 'package:opennutritracker/features/profile/presentation/widgets/set_weight_dialog.dart';
@@ -118,28 +117,6 @@ class _ProfilePageState extends State<ProfilePage> {
               child: Icon(Icons.flag_outlined),
             ),
             onTap: () => _showSetGoalDialog(context, user),
-          ),
-        ),
-        Semantics(
-          identifier: 'profile-weekly-goal',
-          child: ListTile(
-            title: Text(
-              S.of(context).weeklyWeightGoalLabel,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            subtitle: Text(
-              _weeklyGoalSubtitle(context, user, usesImperialUnits),
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            leading: const SizedBox(
-              height: double.infinity,
-              child: Icon(Icons.trending_down_outlined),
-            ),
-            onTap: () => _showSetWeeklyWeightGoalDialog(
-              context,
-              user,
-              usesImperialUnits,
-            ),
           ),
         ),
         Semantics(
@@ -389,49 +366,6 @@ class _ProfilePageState extends State<ProfilePage> {
       userEntity.pal = selectedPalCategory;
       _profileBloc.updateUser(userEntity);
     }
-  }
-
-  String _weeklyGoalSubtitle(
-    BuildContext context,
-    UserEntity user,
-    bool usesImperialUnits,
-  ) {
-    final goal = user.weeklyWeightGoalKg;
-    if (goal == null) return S.of(context).weeklyWeightGoalNoneLabel;
-    if (goal == 0.0) return S.of(context).goalMaintainWeight;
-    final displayValue = usesImperialUnits ? goal * 2.20462 : goal;
-    final sign = displayValue > 0 ? '+' : '';
-    final formatted = '$sign${displayValue.toStringAsFixed(2)}';
-    return usesImperialUnits
-        ? S.of(context).weeklyWeightGoalLbsPerWeek(formatted)
-        : S.of(context).weeklyWeightGoalKgPerWeek(formatted);
-  }
-
-  Future<void> _showSetWeeklyWeightGoalDialog(
-    BuildContext context,
-    UserEntity userEntity,
-    bool usesImperialUnits,
-  ) async {
-    final result = await showDialog<WeeklyWeightGoalResult>(
-      context: context,
-      builder: (context) => SetWeeklyWeightGoalDialog(
-        currentGoalKg: userEntity.weeklyWeightGoalKg,
-        usesImperialUnits: usesImperialUnits,
-        referenceWeightKg: userEntity.weightKG,
-      ),
-    );
-    switch (result) {
-      // null when the framework returns from a back-button pop, treated
-      // as cancellation alongside the explicit Cancel case.
-      case null:
-      case WeeklyWeightGoalCancelled():
-        return;
-      case WeeklyWeightGoalCleared():
-        userEntity.weeklyWeightGoalKg = null;
-      case WeeklyWeightGoalSet(:final kgPerWeek):
-        userEntity.weeklyWeightGoalKg = kgPerWeek;
-    }
-    await _profileBloc.updateUser(userEntity);
   }
 
   Future<void> _showSetGoalDialog(

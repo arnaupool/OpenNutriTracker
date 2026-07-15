@@ -2,20 +2,23 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:opennutritracker/core/data/repository/config_repository.dart';
-import 'package:opennutritracker/core/domain/entity/tracked_day_entity.dart';
 import 'package:opennutritracker/core/domain/entity/user_entity.dart';
+import 'package:opennutritracker/core/domain/entity/user_weight_goal_entity.dart';
 import 'package:opennutritracker/core/domain/entity/weight_log_entity.dart';
-import 'package:opennutritracker/core/domain/usecase/add_user_usecase.dart';
+import 'package:opennutritracker/core/domain/usecase/get_kcal_goal_usecase.dart';
+import 'package:opennutritracker/core/domain/usecase/get_macro_goal_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_tracked_day_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_user_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_weight_log_usecase.dart';
+import 'package:opennutritracker/core/utils/calc/calorie_goal_calc.dart';
+import 'package:opennutritracker/core/utils/calc/dynamic_maintenance_calc.dart';
+import 'package:opennutritracker/core/utils/calc/macro_dynamic_calc.dart';
 import 'package:opennutritracker/core/utils/calc/tdee_calc.dart';
 import 'package:opennutritracker/core/utils/calc/tdee_dynamic_calc.dart';
 import 'package:opennutritracker/core/utils/calc/unit_calc.dart';
 import 'package:opennutritracker/core/utils/calc/weight_interpolation_calc.dart';
 import 'package:opennutritracker/core/utils/calc/weight_trend_calc.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
-import 'package:opennutritracker/features/profile/presentation/widgets/set_weekly_weight_goal_dialog.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 enum _ChartRange {
@@ -31,23 +34,20 @@ enum _ChartRange {
   const _ChartRange(this.days);
 }
 
-/// Fase Motor's real dashboard (FD-01): scale weight vs. trend weight,
-/// dynamic (Fase Motor) vs. static (IOM 2005) TDEE side by side, and the
-/// desired vs. observed weekly rate — the same comparison MacroFactor's
-/// own Expenditure screen and XMihura's reference build show.
-///
-/// This is a read-only surface: it computes and displays what Fase Motor's
-/// engine outputs alongside what the app's existing static engine already
-/// produces (today's tracked-day calorie goal). It does not yet replace
-/// that goal-setting flow — swapping the app's *actual* daily target over
-/// to the dynamic engine is a separate integration decision, out of scope
-/// here.
+/// Fase Motor's real dashboard (FD-01, reworked by FM-09): now that
+/// [GetKcalGoalUsecase]/[GetMacroGoalUsecase] actually govern the app's
+/// live goal (FM-06/FM-07), this page explains *why* today's number is
+/// what it is — trend weight vs. scale weight, the estimator's status,
+/// the observed TDEE, and (when a target weight is set) distance to goal
+/// and the correction being applied — rather than a static-vs-dynamic
+/// comparison that's now redundant.
 class StrategyPage extends StatefulWidget {
   final GetWeightLogUsecase? getWeightLogUsecase;
   final GetUserUsecase? getUserUsecase;
   final GetTrackedDayUsecase? getTrackedDayUsecase;
   final ConfigRepository? configRepository;
-  final AddUserUsecase? addUserUsecase;
+  final GetKcalGoalUsecase? getKcalGoalUsecase;
+  final GetMacroGoalUsecase? getMacroGoalUsecase;
 
   const StrategyPage({
     super.key,
@@ -55,7 +55,8 @@ class StrategyPage extends StatefulWidget {
     this.getUserUsecase,
     this.getTrackedDayUsecase,
     this.configRepository,
-    this.addUserUsecase,
+    this.getKcalGoalUsecase,
+    this.getMacroGoalUsecase,
   });
 
   @override
@@ -75,8 +76,10 @@ class _StrategyPageState extends State<StrategyPage> {
       widget.getTrackedDayUsecase ?? locator<GetTrackedDayUsecase>();
   late final ConfigRepository _configRepository =
       widget.configRepository ?? locator<ConfigRepository>();
-  late final AddUserUsecase _addUserUsecase =
-      widget.addUserUsecase ?? locator<AddUserUsecase>();
+  late final GetKcalGoalUsecase _kcalGoalUsecase =
+      widget.getKcalGoalUsecase ?? locator<GetKcalGoalUsecase>();
+  late final GetMacroGoalUsecase _macroGoalUsecase =
+      widget.getMacroGoalUsecase ?? locator<GetMacroGoalUsecase>();
 
   bool _loading = true;
   bool _usesImperialUnits = false;
@@ -84,6 +87,11 @@ class _StrategyPageState extends State<StrategyPage> {
   UserEntity? _user;
   Map<DateTime, double> _dailyIntakeKcal = const {};
   _ChartRange _range = _ChartRange.oneMonth;
+
+  double? _todayTargetKcal;
+  double? _proteinG;
+  double? _fatG;
+  double? _carbG;
 
   @override
   void initState() {
@@ -118,14 +126,16 @@ class _StrategyPageState extends State<StrategyPage> {
         DateTime(d.day.year, d.day.month, d.day.day): d.caloriesTracked,
     };
 
-    TrackedDayEntity? todayTracked;
-    for (final d in trackedDays) {
-      final day = DateTime(d.day.year, d.day.month, d.day.day);
-      if (day == todayAtMidnight) {
-        todayTracked = d;
-        break;
-      }
-    }
+    // The literal live number Home/Diary show today, not a page-local
+    // recomputation — this is what "Today's Target" and the macro
+    // distribution actually feed off, so this page never drifts out of
+    // sync with what's actually governing the app.
+    final todayTargetKcal = await _kcalGoalUsecase.getKcalGoal(
+      userEntity: user,
+    );
+    final proteinG = await _macroGoalUsecase.getProteinsGoal(todayTargetKcal);
+    final fatG = await _macroGoalUsecase.getFatsGoal(todayTargetKcal);
+    final carbG = await _macroGoalUsecase.getCarbsGoal(todayTargetKcal);
 
     if (!mounted) return;
     setState(() {
@@ -133,36 +143,55 @@ class _StrategyPageState extends State<StrategyPage> {
       _weightEntries = entries;
       _user = user;
       _dailyIntakeKcal = intakeMap;
-      _todayTracked = todayTracked;
+      _todayTargetKcal = todayTargetKcal;
+      _proteinG = proteinG;
+      _fatG = fatG;
+      _carbG = carbG;
       _loading = false;
     });
   }
 
-  TrackedDayEntity? _todayTracked;
-
-  Future<void> _showSetWeeklyWeightGoalDialog(double referenceWeightKg) async {
-    final user = _user;
-    if (user == null) return;
-    final result = await showDialog<WeeklyWeightGoalResult>(
-      context: context,
-      builder: (context) => SetWeeklyWeightGoalDialog(
-        currentGoalKg: user.weeklyWeightGoalKg,
-        usesImperialUnits: _usesImperialUnits,
-        referenceWeightKg: referenceWeightKg,
-      ),
-    );
-    switch (result) {
-      case null:
-      case WeeklyWeightGoalCancelled():
-        return;
-      case WeeklyWeightGoalCleared():
-        user.weeklyWeightGoalKg = null;
-      case WeeklyWeightGoalSet(:final kgPerWeek):
-        user.weeklyWeightGoalKg = kgPerWeek;
+  /// Mirrors the branches [GetKcalGoalUsecase._computeDynamicCoreGoal]
+  /// takes once the dynamic estimator is active, translated into a
+  /// sentence explaining which one applied. Returns null when the
+  /// estimator isn't active yet — [_EstimatorStatusCard] already covers
+  /// that case, so there's nothing to add here.
+  String? _buildExplanation(
+    BuildContext context,
+    UserEntity user,
+    double trendWeightKg,
+  ) {
+    final s = S.of(context);
+    if (user.goal == UserWeightGoalEntity.maintainWeight) {
+      return s.strategyExplanationMaintaining;
     }
-    await _addUserUsecase.addUser(user);
-    if (!mounted) return;
-    setState(() {});
+
+    final targetWeightKg = user.targetWeightKg;
+    if (targetWeightKg == null) {
+      final baseAdjustment = CalorieGoalCalc.getKcalGoalAdjustment(
+        user.goal,
+        weeklyWeightGoalKg: user.weeklyWeightGoalKg,
+      );
+      final sign = baseAdjustment > 0 ? '+' : '';
+      return s.strategyExplanationNoTargetWeight(
+        '$sign${baseAdjustment.round()}',
+      );
+    }
+
+    final diffKg = trendWeightKg - targetWeightKg;
+    if (diffKg.abs() <= DynamicMaintenanceCalc.maintenanceBandKg) {
+      return s.strategyExplanationWithinBand;
+    }
+
+    final correctionKcalPerDay =
+        (DynamicMaintenanceCalc.correctionRatePerWeek *
+            trendWeightKg *
+            DynamicMaintenanceCalc.kcalPerKgBodyMass) /
+        7;
+    return s.strategyExplanationCorrecting(
+      diffKg.abs().toStringAsFixed(1),
+      correctionKcalPerDay.round().toString(),
+    );
   }
 
   @override
@@ -191,13 +220,15 @@ class _StrategyPageState extends State<StrategyPage> {
       trendSeries: trend,
       dailyIntakeKcal: _dailyIntakeKcal,
     );
-    final observedWeeklyRateKg = TdeeDynamicCalc.weeklyChangeRateKg(trend);
     final tdeeStatic = _user != null
         ? TDEECalc.getTDEEKcalIOM2005(_user!)
         : null;
     final trendWeightKg = trend.last.trendWeightKg;
-    final desiredWeeklyRateKg = _user?.weeklyWeightGoalKg;
     final isActive = tdeeDynamic != null;
+    final displayTdee = tdeeDynamic ?? tdeeStatic;
+    final explanation = isActive && _user != null
+        ? _buildExplanation(context, _user!, trendWeightKg)
+        : null;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
@@ -216,21 +247,15 @@ class _StrategyPageState extends State<StrategyPage> {
         const SizedBox(height: 20),
         _EstimatorStatusCard(isActive: isActive),
         const SizedBox(height: 16),
-        _MetricsGrid(
-          estimatedTdeeKcal: tdeeDynamic,
-          staticTdeeKcal: tdeeStatic,
-          currentTargetKcal: _todayTracked?.calorieGoal,
+        _TodayGoalCard(
+          targetKcal: _todayTargetKcal,
+          estimatedTdeeKcal: displayTdee,
           trendWeightKg: trendWeightKg,
+          explanation: explanation,
           usesImperialUnits: _usesImperialUnits,
         ),
         const SizedBox(height: 16),
-        _WeeklyRateCard(
-          desiredKgPerWeek: desiredWeeklyRateKg,
-          observedKgPerWeek: observedWeeklyRateKg,
-          referenceWeightKg: trendWeightKg,
-          usesImperialUnits: _usesImperialUnits,
-          onEditDesired: () => _showSetWeeklyWeightGoalDialog(trendWeightKg),
-        ),
+        _MacroDistributionCard(proteinG: _proteinG, fatG: _fatG, carbG: _carbG),
       ],
     );
   }
@@ -316,8 +341,13 @@ class _WeightChart extends StatelessWidget {
           ? todayAtMidnight
           : allDates.reduce((a, b) => a.isBefore(b) ? a : b);
     }
-    final effectiveRangeDays = fixedRangeDays ??
-        todayAtMidnight.difference(windowStart).inDays.clamp(1, 1 << 30).toInt();
+    final effectiveRangeDays =
+        fixedRangeDays ??
+        todayAtMidnight
+            .difference(windowStart)
+            .inDays
+            .clamp(1, 1 << 30)
+            .toInt();
 
     double displayWeight(double kg) =>
         usesImperialUnits ? UnitCalc.kgToLbs(kg) : kg;
@@ -495,23 +525,24 @@ class _EstimatorStatusCard extends StatelessWidget {
   }
 }
 
-class _MetricsGrid extends StatelessWidget {
+class _TodayGoalCard extends StatelessWidget {
+  final double? targetKcal;
   final double? estimatedTdeeKcal;
-  final double? staticTdeeKcal;
-  final double? currentTargetKcal;
   final double? trendWeightKg;
+  final String? explanation;
   final bool usesImperialUnits;
 
-  const _MetricsGrid({
+  const _TodayGoalCard({
+    required this.targetKcal,
     required this.estimatedTdeeKcal,
-    required this.staticTdeeKcal,
-    required this.currentTargetKcal,
     required this.trendWeightKg,
+    required this.explanation,
     required this.usesImperialUnits,
   });
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final s = S.of(context);
     final weightUnit = usesImperialUnits ? s.lbsLabel : s.kgLabel;
     final displayTrendWeight = trendWeightKg == null
@@ -521,44 +552,60 @@ class _MetricsGrid extends StatelessWidget {
               : trendWeightKg!);
 
     return Semantics(
-      identifier: 'strategy-metrics-grid',
-      child: GridView.count(
-        crossAxisCount: 2,
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 1.7,
-        children: [
-          _MetricTile(
-            icon: Icons.local_fire_department_outlined,
-            label: s.strategyEstimatedTdeeLabel,
-            value: estimatedTdeeKcal == null
-                ? '—'
-                : '${estimatedTdeeKcal!.round()} ${s.kcalLabel}',
+      identifier: 'strategy-today-goal',
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                s.strategyTodayTargetLabel,
+                style: theme.textTheme.titleMedium,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                targetKcal == null
+                    ? '—'
+                    : '${targetKcal!.round()} ${s.kcalLabel}',
+                style: theme.textTheme.headlineMedium,
+              ),
+              if (explanation != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  explanation!,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _MetricTile(
+                      icon: Icons.local_fire_department_outlined,
+                      label: s.strategyEstimatedTdeeLabel,
+                      value: estimatedTdeeKcal == null
+                          ? '—'
+                          : '${estimatedTdeeKcal!.round()} ${s.kcalLabel}',
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _MetricTile(
+                      icon: Icons.trending_down_outlined,
+                      label: s.strategyTrendWeightLabel,
+                      value: displayTrendWeight == null
+                          ? '—'
+                          : '${displayTrendWeight.toStringAsFixed(1)} $weightUnit',
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          _MetricTile(
-            icon: Icons.flag_outlined,
-            label: s.strategyCurrentTargetLabel,
-            value: currentTargetKcal == null
-                ? '—'
-                : '${currentTargetKcal!.round()} ${s.kcalLabel}',
-          ),
-          _MetricTile(
-            icon: Icons.trending_down_outlined,
-            label: s.strategyTrendWeightLabel,
-            value: displayTrendWeight == null
-                ? '—'
-                : '${displayTrendWeight.toStringAsFixed(1)} $weightUnit',
-          ),
-          _MetricTile(
-            icon: Icons.calculate_outlined,
-            label: s.strategyStaticTdeeLabel,
-            value: staticTdeeKcal == null
-                ? '—'
-                : '${staticTdeeKcal!.round()} ${s.kcalLabel}',
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -601,44 +648,46 @@ class _MetricTile extends StatelessWidget {
   }
 }
 
-class _WeeklyRateCard extends StatelessWidget {
-  final double? desiredKgPerWeek;
-  final double? observedKgPerWeek;
-  final double? referenceWeightKg;
-  final bool usesImperialUnits;
-  final VoidCallback onEditDesired;
+/// The MacroFactor-style "distribution of calories by macronutrient" bar
+/// chart FM-09 was asked to bring in: today's real target (matching
+/// [_TodayGoalCard]) broken into protein/fat/carb, each bar's height
+/// proportional to the kcal it contributes rather than its gram count, so
+/// fat (9 kcal/g) doesn't visually shrink next to carbs and protein (4
+/// kcal/g each) at equal gram amounts.
+class _MacroDistributionCard extends StatelessWidget {
+  final double? proteinG;
+  final double? fatG;
+  final double? carbG;
 
-  const _WeeklyRateCard({
-    required this.desiredKgPerWeek,
-    required this.observedKgPerWeek,
-    required this.referenceWeightKg,
-    required this.usesImperialUnits,
-    required this.onEditDesired,
+  const _MacroDistributionCard({
+    required this.proteinG,
+    required this.fatG,
+    required this.carbG,
   });
-
-  String? _formatRate(double? kgPerWeek, BuildContext context) {
-    if (kgPerWeek == null) return null;
-    final s = S.of(context);
-    final unit = usesImperialUnits ? s.lbsLabel : s.kgLabel;
-    final displayValue = usesImperialUnits
-        ? UnitCalc.kgToLbs(kgPerWeek)
-        : kgPerWeek;
-    final pctPart = referenceWeightKg == null || referenceWeightKg == 0
-        ? ''
-        : ' (${((kgPerWeek / referenceWeightKg!) * 100).toStringAsFixed(2)}%/wk)';
-    final sign = displayValue > 0 ? '+' : '';
-    return '$sign${displayValue.toStringAsFixed(2)} $unit/wk$pctPart';
-  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final s = S.of(context);
-    final desiredText = _formatRate(desiredKgPerWeek, context) ?? '—';
-    final observedText = _formatRate(observedKgPerWeek, context) ?? '—';
+
+    final protein = proteinG;
+    final fat = fatG;
+    final carb = carbG;
+    if (protein == null || fat == null || carb == null) {
+      return const SizedBox.shrink();
+    }
+
+    final proteinKcal = protein * MacroDynamicCalc.kcalPerGramProtein;
+    final fatKcal = fat * MacroDynamicCalc.kcalPerGramFat;
+    final carbKcal = carb * MacroDynamicCalc.kcalPerGramCarb;
+    final maxKcal = [
+      proteinKcal,
+      fatKcal,
+      carbKcal,
+    ].reduce((a, b) => a > b ? a : b);
 
     return Semantics(
-      identifier: 'strategy-weekly-rate',
+      identifier: 'strategy-macro-distribution',
       child: Card(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -646,52 +695,102 @@ class _WeeklyRateCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                s.strategyWeeklyRateTitle,
+                s.strategyMacroDistributionTitle,
                 style: theme.textTheme.titleMedium,
               ),
-              const SizedBox(height: 8),
-              Semantics(
-                identifier: 'strategy-weekly-rate-edit',
-                child: InkWell(
-                  onTap: onEditDesired,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        s.strategyDesiredRateLabel,
-                        style: theme.textTheme.bodyMedium,
-                      ),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(desiredText, style: theme.textTheme.bodyMedium),
-                          const SizedBox(width: 4),
-                          Icon(
-                            Icons.edit_outlined,
-                            size: 16,
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 4),
+              const SizedBox(height: 16),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text(
-                    s.strategyObservedRateLabel,
-                    style: theme.textTheme.bodyMedium,
+                  Expanded(
+                    child: _MacroBar(
+                      label: s.proteinLabel,
+                      grams: protein,
+                      kcal: proteinKcal,
+                      maxKcal: maxKcal,
+                      color: theme.colorScheme.secondary,
+                    ),
                   ),
-                  Text(observedText, style: theme.textTheme.bodyMedium),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _MacroBar(
+                      label: s.fatLabel,
+                      grams: fat,
+                      kcal: fatKcal,
+                      maxKcal: maxKcal,
+                      color: theme.colorScheme.tertiary,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _MacroBar(
+                      label: s.carbsLabel,
+                      grams: carb,
+                      kcal: carbKcal,
+                      maxKcal: maxKcal,
+                      color: theme.colorScheme.outline,
+                    ),
+                  ),
                 ],
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _MacroBar extends StatelessWidget {
+  static const double _maxBarHeight = 120;
+  static const double _minBarHeight = 8;
+
+  final String label;
+  final double grams;
+  final double kcal;
+  final double maxKcal;
+  final Color color;
+
+  const _MacroBar({
+    required this.label,
+    required this.grams,
+    required this.kcal,
+    required this.maxKcal,
+    required this.color,
+  });
+
+  // The shared nutrient labels (proteinLabel, fatLabel, carbsLabel) are
+  // lowercase because most of their other call sites read them inline
+  // mid-sentence ("106 / 316 g carbs"); this chart's own label reads
+  // better title-cased.
+  static String _capitalize(String value) =>
+      value.isEmpty ? value : '${value[0].toUpperCase()}${value.substring(1)}';
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final barHeight = maxKcal <= 0
+        ? _minBarHeight
+        : ((kcal / maxKcal) * _maxBarHeight).clamp(
+            _minBarHeight,
+            _maxBarHeight,
+          );
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text('${grams.round()}g', style: theme.textTheme.labelMedium),
+        const SizedBox(height: 4),
+        Container(
+          height: barHeight,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(_capitalize(label), style: theme.textTheme.labelSmall),
+      ],
     );
   }
 }

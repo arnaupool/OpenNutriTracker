@@ -123,20 +123,6 @@
       }
     }
   },
-  "@weeklyWeightGoalKgPerWeek": {
-    "placeholders": {
-      "rate": {
-        "type": "String"
-      }
-    }
-  },
-  "@weeklyWeightGoalLbsPerWeek": {
-    "placeholders": {
-      "rate": {
-        "type": "String"
-      }
-    }
-  },
   "activityExample": "ör. koşu, bisiklet, yoga ...",
   "activityLabel": "Aktivite",
   "addItemLabel": "Yeni Öğe Ekle:",
@@ -182,7 +168,6 @@
   "carbsLabel": "karbonhidrat",
   "carbsLabelShort": "k",
   "cholesterolLabel": "kolesterol",
-  "chooseWeeklyWeightGoalLabel": "Haftalık kilo oranı",
   "chooseWeightGoalLabel": "Kilo Hedefini Seçin",
   "clearOffCacheConfirmContent": "Open Food Facts ve FDC'den yerel olarak önbelleğe alınmış arama ve tarama sonuçlarını kaldırır. Önbellek, ürünleri aradıkça ve tarattıkça otomatik olarak yeniden oluşur. Özel öğünleriniz etkilenmez.",
   "clearOffCacheConfirmTitle": "Önbelleği temizle?",
@@ -902,10 +887,6 @@
   "vitaminCLabel": "C vitamini",
   "vitaminDLabel": "D vitamini",
   "warningLabel": "Uyarı",
-  "weeklyWeightGoalKgPerWeek": "{rate} kg/hafta",
-  "weeklyWeightGoalLabel": "Haftalık oran",
-  "weeklyWeightGoalLbsPerWeek": "{rate} lbs/hafta",
-  "weeklyWeightGoalNoneLabel": "Ayarlanmadı",
   "weightHistoryAddEntry": "Kayıt ekle",
   "weightHistoryChartEmptyState": "Eğilimini görmek için en az iki gün kaydet.",
   "weightHistoryDateLabel": "Tarih",

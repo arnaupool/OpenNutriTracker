@@ -37,10 +37,6 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m6(count) =>
       "${count} položiek sa nepodarilo načítať z OpenFoodFacts.";
 
-  static String m8(rate) => "${rate} kg/týždeň";
-
-  static String m9(rate) => "${rate} lbs/týždeň";
-
   static String m10(qty, unit) => "Na ${qty} ${unit}";
 
   static String m11(time) => "Čas pripomienky: ${time}";
@@ -177,8 +173,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "carbsLabel": MessageLookupByLibrary.simpleMessage("sacharidy"),
         "carbsLabelShort": MessageLookupByLibrary.simpleMessage("s"),
         "cholesterolLabel": MessageLookupByLibrary.simpleMessage("cholesterol"),
-        "chooseWeeklyWeightGoalLabel":
-            MessageLookupByLibrary.simpleMessage("Týždenné tempo hmotnosti"),
         "chooseWeightGoalLabel":
             MessageLookupByLibrary.simpleMessage("Zvoľte cieľovú hmotnosť"),
         "clearOffCacheConfirmContent": MessageLookupByLibrary.simpleMessage(
@@ -1175,12 +1169,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "vitaminCLabel": MessageLookupByLibrary.simpleMessage("vitamín C"),
         "vitaminDLabel": MessageLookupByLibrary.simpleMessage("vitamín D"),
         "warningLabel": MessageLookupByLibrary.simpleMessage("Upozornenie"),
-        "weeklyWeightGoalKgPerWeek": m8,
-        "weeklyWeightGoalLabel":
-            MessageLookupByLibrary.simpleMessage("Týždenné tempo"),
-        "weeklyWeightGoalLbsPerWeek": m9,
-        "weeklyWeightGoalNoneLabel":
-            MessageLookupByLibrary.simpleMessage("Nenastavené"),
         "weightHistoryAddEntry":
             MessageLookupByLibrary.simpleMessage("Pridať záznam"),
         "weightHistoryChartEmptyState":

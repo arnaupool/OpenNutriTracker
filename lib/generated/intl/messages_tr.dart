@@ -39,10 +39,6 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m7(count) => "Import ${count} activities?";
 
-  static String m8(rate) => "${rate} kg/hafta";
-
-  static String m9(rate) => "${rate} lbs/hafta";
-
   static String m10(qty, unit) => "${qty} ${unit} başına";
 
   static String m11(time) => "Hatırlatma zamanı: ${time}";
@@ -181,8 +177,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "carbsLabel": MessageLookupByLibrary.simpleMessage("karbonhidrat"),
         "carbsLabelShort": MessageLookupByLibrary.simpleMessage("k"),
         "cholesterolLabel": MessageLookupByLibrary.simpleMessage("kolesterol"),
-        "chooseWeeklyWeightGoalLabel":
-            MessageLookupByLibrary.simpleMessage("Haftalık kilo oranı"),
         "chooseWeightGoalLabel":
             MessageLookupByLibrary.simpleMessage("Kilo Hedefini Seçin"),
         "clearOffCacheConfirmContent": MessageLookupByLibrary.simpleMessage(
@@ -1247,12 +1241,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "vitaminCLabel": MessageLookupByLibrary.simpleMessage("C vitamini"),
         "vitaminDLabel": MessageLookupByLibrary.simpleMessage("D vitamini"),
         "warningLabel": MessageLookupByLibrary.simpleMessage("Uyarı"),
-        "weeklyWeightGoalKgPerWeek": m8,
-        "weeklyWeightGoalLabel":
-            MessageLookupByLibrary.simpleMessage("Haftalık oran"),
-        "weeklyWeightGoalLbsPerWeek": m9,
-        "weeklyWeightGoalNoneLabel":
-            MessageLookupByLibrary.simpleMessage("Ayarlanmadı"),
         "weightLabel": MessageLookupByLibrary.simpleMessage("Kilo"),
         "yearsLabel": m3,
         "zincLabel": MessageLookupByLibrary.simpleMessage("çinko"),
