@@ -379,7 +379,7 @@
 			"y": 1400,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "72db3936",
@@ -389,17 +389,17 @@
 			"y": 1280,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "b284c604",
 			"type": "text",
-			"text": "## FM-10 Tests y verificacion end-to-end del motor dinamico gobernando Home\nflutter analyze + suite completa + verificacion manual en emulador: usuario nuevo (fallback estatico correcto desde el primer dia), usuario con historial suficiente (Home refleja el TDEE dinamico y la correccion Dynamic Maintenance), transicion entre ambos estados sin saltos raros.",
+			"text": "## FM-10 Tests y verificacion end-to-end del motor dinamico gobernando Home\nflutter analyze limpio, 815/815 tests. Verificacion manual en emulador (Android, flavor full debug): (1) usuario nuevo sin historial -> Home y Strategy muestran correctamente el fallback estatico IOM2005, Strategy en empty-state. (2) 2 pesadas (9 dias de trend via interpolacion) + 1 dia de intake real -> el motor dinamico se activa, Home y Strategy coinciden exactamente (3933 kcal TDEE observado); cambio de goal Maintain->Lose con target weight ya fijado activa la correccion Dynamic Maintenance (5.2kg del objetivo, corrigiendo 113kcal/dia) y el bar chart de macros se ve correcto. (3) Transicion: BUG REAL encontrado y arreglado -- anadir/borrar una entrada desde Profile > Weight History nunca refrescaba HomeBloc/DiaryBloc (solo su propio _load() local), asi que Home se quedaba mostrando el kcal goal viejo hasta reiniciar la app. Corregido en weight_history_screen.dart: _onAddEntry/_onDelete ahora llaman a ProfileBloc.updateUser tras la mutacion, igual que ya hacia AddItemBottomSheet._logWeight. Test de regresion anadido. Verificado en el emulador tras el fix: tanto anadir como borrar refrescan Home al instante, en ambas direcciones (estatico<->dinamico), sin reinicio.",
 			"x": 1380,
 			"y": 1660,
 			"width": 280,
 			"height": 160,
-			"color": "0"
+			"color": "5"
 		},
 		{
 			"id": "311a95d4",
