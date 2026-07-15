@@ -479,6 +479,7 @@ class _ProfilePageState extends State<ProfilePage> {
       initialDate: userEntity.birthday,
       firstDate: DateTime(1900),
       lastDate: DateTime(2100),
+      locale: const Locale('en', 'GB'),
     );
     if (selectedDate != null) {
       userEntity.birthday = selectedDate;

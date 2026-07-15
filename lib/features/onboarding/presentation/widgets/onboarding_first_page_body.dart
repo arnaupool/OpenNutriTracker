@@ -7,6 +7,16 @@ import 'package:opennutritracker/core/utils/bounds/validator.dart';
 import 'package:opennutritracker/features/onboarding/domain/entity/user_gender_selection_entity.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
+// A fixed dd/MM/yyyy pattern rather than a locale-derived one — the app has
+// no supported locale that reliably resolves to day-first, and this is a
+// plain numeric date with no month/weekday names, so hand-formatting avoids
+// pulling in package:intl's DateFormat purely for its locale-data machinery.
+String _formatDdMmYyyy(DateTime date) {
+  final day = date.day.toString().padLeft(2, '0');
+  final month = date.month.toString().padLeft(2, '0');
+  return '$day/$month/${date.year}';
+}
+
 class OnboardingFirstPageBody extends StatefulWidget {
   final Function(
     bool active,
@@ -51,8 +61,7 @@ class _OnboardingFirstPageBodyState extends State<OnboardingFirstPageBody> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_selectedDate != null && _dateInput.text.isEmpty) {
-      _dateInput.text =
-          MaterialLocalizations.of(context).formatCompactDate(_selectedDate!);
+      _dateInput.text = _formatDdMmYyyy(_selectedDate!);
     }
   }
 
@@ -227,10 +236,10 @@ class _OnboardingFirstPageBodyState extends State<OnboardingFirstPageBody> {
       initialDate: ValueValidator.getLastDate(),
       firstDate: ValueValidator.getFirstDate(),
       lastDate: ValueValidator.getLastDate(),
+      locale: const Locale('en', 'GB'),
     );
     if (pickedDate == null || !mounted) return;
-    final localizations = MaterialLocalizations.of(context);
-    final formattedDate = localizations.formatCompactDate(pickedDate);
+    final formattedDate = _formatDdMmYyyy(pickedDate);
     setState(() {
       _selectedDate = pickedDate;
       _dateInput.text = formattedDate;

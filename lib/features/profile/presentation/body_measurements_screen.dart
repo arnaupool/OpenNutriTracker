@@ -679,6 +679,7 @@ class _AddBodyMeasurementEntryDialogState
       initialDate: _date,
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
+      locale: const Locale('en', 'GB'),
     );
     if (picked != null) {
       setState(() => _date = picked);

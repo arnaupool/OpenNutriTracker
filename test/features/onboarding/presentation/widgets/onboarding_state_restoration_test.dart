@@ -73,9 +73,9 @@ void main() {
       )));
       await tester.pumpAndSettle();
 
-      // The displayed text is locale-formatted; just confirm the field is non-empty.
+      // Fixed dd/MM/yyyy regardless of locale — see _formatDdMmYyyy.
       final dateField = tester.widget<TextFormField>(find.byType(TextFormField));
-      expect(dateField.controller?.text, isNotEmpty);
+      expect(dateField.controller?.text, '15/06/1990');
     });
   });
 
