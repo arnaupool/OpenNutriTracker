@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
+
 class OFFConst {
   static const offWebsiteUrl = "https://world.openfoodfacts.org/";
   static const _offBaseUrl = "world.openfoodfacts.org";
@@ -90,6 +92,16 @@ class OFFConst {
     _offNutrimentsTag,
   ];
 
+  // Search-a-licious does not send Access-Control-Allow-Origin, so a browser
+  // blocks the request outright even though the service itself is healthy
+  // (confirmed by hitting it directly — 200 OK with real hits). world.
+  // openfoodfacts.org (used below for barcode lookups) does send CORS
+  // headers and needs no such workaround. On web, route through the
+  // same-origin proxy configured in nginx.default.conf instead of calling
+  // the upstream host directly; native builds aren't subject to CORS and
+  // keep calling it directly, same as before.
+  static const _webSearchProxyPath = "/off-search-proxy/search";
+
   static String _joinFields(List<String> fields) => fields.join(",");
 
   static Uri getOffWordSearchUrl(String searchString, {String langs = 'en'}) {
@@ -100,6 +112,17 @@ class OFFConst {
       _salPageSizeTag: '$searchCandidatePoolSize',
       _salPageTag: '1',
     };
+
+    if (kIsWeb) {
+      final origin = Uri.base;
+      return Uri(
+        scheme: origin.scheme,
+        host: origin.host,
+        port: origin.hasPort ? origin.port : null,
+        path: _webSearchProxyPath,
+        queryParameters: queryParameters,
+      );
+    }
 
     return Uri.https(_salBaseUrl, _salSearchTag, queryParameters);
   }
