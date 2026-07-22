@@ -240,6 +240,16 @@ class S {
     );
   }
 
+  /// `Weigh-in Habit`
+  String get homeWeighInHabitCardTitle {
+    return Intl.message(
+      'Weigh-in Habit',
+      name: 'homeWeighInHabitCardTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Diary`
   String get diaryLabel {
     return Intl.message('Diary', name: 'diaryLabel', desc: '', args: []);

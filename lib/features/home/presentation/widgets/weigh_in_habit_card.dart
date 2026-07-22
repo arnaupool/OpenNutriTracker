@@ -1,0 +1,84 @@
+import 'package:flutter/material.dart';
+import 'package:opennutritracker/core/domain/usecase/get_weight_log_usecase.dart';
+import 'package:opennutritracker/core/utils/locator.dart';
+import 'package:opennutritracker/features/home/presentation/widgets/compact_habit_calendar.dart';
+import 'package:opennutritracker/generated/l10n.dart';
+
+class WeighInHabitCard extends StatefulWidget {
+  final GetWeightLogUsecase? getWeightLogUsecase;
+
+  const WeighInHabitCard({super.key, this.getWeightLogUsecase});
+
+  @override
+  State<WeighInHabitCard> createState() => _WeighInHabitCardState();
+}
+
+class _WeighInHabitCardState extends State<WeighInHabitCard> {
+  late final GetWeightLogUsecase _weightUsecase =
+      widget.getWeightLogUsecase ?? locator<GetWeightLogUsecase>();
+
+  bool _loading = true;
+  Set<DateTime> _markedDays = const {};
+  late DateTime _now;
+  late DateTime _monthStart;
+  late DateTime _monthEnd;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final now = DateTime.now();
+    final monthStart = DateTime(now.year, now.month, 1);
+    final monthEnd = DateTime(now.year, now.month + 1, 0);
+    final entries = await _weightUsecase.getEntriesInRange(
+      monthStart,
+      monthEnd,
+    );
+    final markedDays = entries
+        .map((e) => DateTime(e.date.year, e.date.month, e.date.day))
+        .toSet();
+
+    if (!mounted) return;
+    setState(() {
+      _now = now;
+      _monthStart = monthStart;
+      _monthEnd = monthEnd;
+      _markedDays = markedDays;
+      _loading = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_loading) return const SizedBox.shrink();
+    final s = S.of(context);
+
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 4.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              s.homeWeighInHabitCardTitle,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            Semantics(
+              identifier: 'home-weigh-in-habit-calendar',
+              child: CompactHabitCalendar(
+                markedDays: _markedDays,
+                firstDay: _monthStart,
+                lastDay: _monthEnd,
+                focusedDay: _now,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
