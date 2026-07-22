@@ -200,6 +200,7 @@ class _DiaryPageState extends State<DiaryPage> with WidgetsBindingObserver {
     IntakeEntity intakeEntity,
     TrackedDayEntity? trackedDayEntity,
     AddMealType? type,
+    DateTime targetDate,
   ) async {
     IntakeTypeEntity finalType;
     if (type == null) {
@@ -213,7 +214,7 @@ class _DiaryPageState extends State<DiaryPage> with WidgetsBindingObserver {
       intakeEntity.amount.toString(),
       finalType,
       intakeEntity.meal,
-      DateTime.now(),
+      targetDate,
     );
     _diaryBloc.updateHomePage();
   }

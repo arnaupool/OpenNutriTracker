@@ -4036,8 +4036,28 @@ class S {
   /// `Which meal type do you want to copy to?`
   String get copyDialogTitle {
     return Intl.message(
-      'Which meal type do you want to copy to?',
+      'Copy to which meal and day?',
       name: 'copyDialogTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Day`
+  String get copyDialogDateLabel {
+    return Intl.message(
+      'Day',
+      name: 'copyDialogDateLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copy`
+  String get copyActionLabel {
+    return Intl.message(
+      'Copy',
+      name: 'copyActionLabel',
       desc: '',
       args: [],
     );
@@ -4053,10 +4073,10 @@ class S {
     );
   }
 
-  /// `With "Copy to today" you can copy the meal to today. With "Delete" you can delete the meal.`
+  /// `With "Copy" you can copy the meal elsewhere. With "Delete" you can delete the meal.`
   String get copyOrDeleteTimeDialogContent {
     return Intl.message(
-      'With "Copy to today" you can copy the meal to today. With "Delete" you can delete the meal.',
+      'With "Copy" you can copy the meal elsewhere. With "Delete" you can delete the meal.',
       name: 'copyOrDeleteTimeDialogContent',
       desc: '',
       args: [],

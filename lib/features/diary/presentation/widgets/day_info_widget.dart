@@ -64,6 +64,7 @@ class DayInfoWidget extends StatefulWidget {
     IntakeEntity intake,
     TrackedDayEntity? trackedDayEntity,
     AddMealType? type,
+    DateTime targetDate,
   ) onCopyIntake;
   final Function(
     UserActivityEntity userActivityEntity,
@@ -408,7 +409,8 @@ class _DayInfoWidgetState extends State<DayInfoWidget> {
   ) async {
     final copyOrDelete = await showDialog<bool>(
       context: context,
-      builder: (context) => const CopyOrDeleteDialog(),
+      builder: (context) =>
+          CopyOrDeleteDialog(copyLabel: S.of(context).copyActionLabel),
     );
     if (context.mounted) {
       if (copyOrDelete != null && !copyOrDelete) {
@@ -429,13 +431,15 @@ class _DayInfoWidgetState extends State<DayInfoWidget> {
 
     final copyDialog = CopyDialog(
       initialValue: defaultMealType,
+      initialDate: DateTime.now(),
     );
-    final selectedMealType = await showDialog<AddMealType>(
+    final result = await showDialog<CopyDialogResult>(
       context: context,
       builder: (context) => copyDialog,
     );
-    if (selectedMealType != null) {
-      widget.onCopyIntake(intakeEntity, null, selectedMealType);
+    if (result != null) {
+      final (selectedMealType, selectedDate) = result;
+      widget.onCopyIntake(intakeEntity, null, selectedMealType, selectedDate);
     }
   }
 
@@ -452,15 +456,16 @@ class _DayInfoWidgetState extends State<DayInfoWidget> {
     }
   }
 
+  // Previously skipped straight to the delete-only dialog when viewing
+  // today, since copying only ever targeted today anyway (a no-op from
+  // today's own view). Now that CopyDialog lets the user pick any target
+  // day, copying from today (e.g. "move this to tomorrow") is a real,
+  // useful action, so the copy-or-delete choice is offered unconditionally.
   void onIntakeItemLongPressed(
     BuildContext context,
     IntakeEntity intakeEntity,
   ) async {
-    if (DateUtils.isSameDay(widget.selectedDay, DateTime.now())) {
-      showDeleteIntakeDialog(context, intakeEntity);
-    } else {
-      showCopyOrDeleteIntakeDialog(context, intakeEntity);
-    }
+    showCopyOrDeleteIntakeDialog(context, intakeEntity);
   }
 
   void onActivityItemLongPressed(

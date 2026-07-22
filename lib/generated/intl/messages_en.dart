@@ -178,11 +178,13 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Choose Weight Goal"),
         "cmLabel": MessageLookupByLibrary.simpleMessage("cm"),
         "codeCopiedLabel": MessageLookupByLibrary.simpleMessage("Code copied"),
+        "copyActionLabel": MessageLookupByLibrary.simpleMessage("Copy"),
         "copyCodeLabel": MessageLookupByLibrary.simpleMessage("Copy code"),
+        "copyDialogDateLabel": MessageLookupByLibrary.simpleMessage("Day"),
         "copyDialogTitle": MessageLookupByLibrary.simpleMessage(
-            "Which meal type do you want to copy to?"),
+            "Copy to which meal and day?"),
         "copyOrDeleteTimeDialogContent": MessageLookupByLibrary.simpleMessage(
-            "With \"Copy to today\" you can copy the meal to today. With \"Delete\" you can delete the meal."),
+            "With \"Copy\" you can copy the meal elsewhere. With \"Delete\" you can delete the meal."),
         "copyOrDeleteTimeDialogTitle":
             MessageLookupByLibrary.simpleMessage("What do you want to do?"),
         "createCustomDialogContent": MessageLookupByLibrary.simpleMessage(

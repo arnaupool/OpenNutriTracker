@@ -39,6 +39,7 @@ class IntakeVerticalList extends StatefulWidget {
     IntakeEntity intake,
     TrackedDayEntity? trackedDayEntity,
     AddMealType? type,
+    DateTime targetDate,
   )?
   onCopyIntakeCallback;
   final TrackedDayEntity? trackedDayEntity;
@@ -189,17 +190,20 @@ class _IntakeVerticalListState extends State<IntakeVerticalList> {
                     case VerticalListPopupMenuSelections.onCopy:
                       final copyDialog = CopyDialog(
                         initialValue: widget.addMealType,
+                        initialDate: DateTime.now(),
                       );
-                      final selectedMealType = await showDialog<AddMealType>(
+                      final result = await showDialog<CopyDialogResult>(
                         context: context,
                         builder: (context) => copyDialog,
                       );
-                      if (selectedMealType != null) {
+                      if (result != null) {
+                        final (selectedMealType, selectedDate) = result;
                         for (IntakeEntity intake in widget.intakeList) {
                           widget.onCopyIntakeCallback!(
                             intake,
                             null,
                             selectedMealType,
+                            selectedDate,
                           );
                         }
                       }
@@ -251,7 +255,7 @@ class _IntakeVerticalListState extends State<IntakeVerticalList> {
                       if (widget.onCopyIntakeCallback != null && totalKcal > 0)
                         PopupMenuItem<VerticalListPopupMenuSelections>(
                           value: VerticalListPopupMenuSelections.onCopy,
-                          child: Text(S.of(context).dialogCopyLabel),
+                          child: Text(S.of(context).copyActionLabel),
                         ),
                       if (totalKcal > 0)
                         PopupMenuItem<VerticalListPopupMenuSelections>(

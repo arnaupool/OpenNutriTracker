@@ -5,13 +5,18 @@ import 'package:opennutritracker/features/add_meal/presentation/add_meal_type.da
 import 'package:opennutritracker/generated/l10n.dart';
 
 void main() {
+  final initialDate = DateTime(2026, 5, 21);
+
   testWidgets('shows the initialValue as the dropdown selection on open',
       (tester) async {
     await tester.pumpWidget(MaterialApp(
       localizationsDelegates: const [S.delegate],
       supportedLocales: S.delegate.supportedLocales,
-      home: const Scaffold(
-        body: CopyDialog(initialValue: AddMealType.dinnerType),
+      home: Scaffold(
+        body: CopyDialog(
+          initialValue: AddMealType.dinnerType,
+          initialDate: initialDate,
+        ),
       ),
     ));
     await tester.pumpAndSettle();
@@ -21,9 +26,25 @@ void main() {
     expect(dropdown.value, AddMealType.dinnerType);
   });
 
-  testWidgets('OK returns the initial value when nothing is changed',
-      (tester) async {
-    AddMealType? returned;
+  testWidgets('shows the initialDate formatted as dd/MM/yyyy', (tester) async {
+    await tester.pumpWidget(MaterialApp(
+      localizationsDelegates: const [S.delegate],
+      supportedLocales: S.delegate.supportedLocales,
+      home: Scaffold(
+        body: CopyDialog(
+          initialValue: AddMealType.dinnerType,
+          initialDate: initialDate,
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(find.text('21/05/2026'), findsOneWidget);
+  });
+
+  testWidgets('OK returns the initial meal type and date when nothing is '
+      'changed', (tester) async {
+    CopyDialogResult? returned;
     late BuildContext capturedContext;
 
     await tester.pumpWidget(MaterialApp(
@@ -38,9 +59,12 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    final future = showDialog<AddMealType>(
+    final future = showDialog<CopyDialogResult>(
       context: capturedContext,
-      builder: (_) => const CopyDialog(initialValue: AddMealType.lunchType),
+      builder: (_) => CopyDialog(
+        initialValue: AddMealType.lunchType,
+        initialDate: initialDate,
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -48,12 +72,14 @@ void main() {
     await tester.pumpAndSettle();
     returned = await future;
 
-    expect(returned, AddMealType.lunchType);
+    expect(returned, isNotNull);
+    expect(returned!.$1, AddMealType.lunchType);
+    expect(returned.$2, initialDate);
   });
 
   testWidgets('Cancel returns null even when initialValue is set',
       (tester) async {
-    AddMealType? returned;
+    CopyDialogResult? returned;
     late BuildContext capturedContext;
 
     await tester.pumpWidget(MaterialApp(
@@ -68,9 +94,12 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    final future = showDialog<AddMealType>(
+    final future = showDialog<CopyDialogResult>(
       context: capturedContext,
-      builder: (_) => const CopyDialog(initialValue: AddMealType.snackType),
+      builder: (_) => CopyDialog(
+        initialValue: AddMealType.snackType,
+        initialDate: initialDate,
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -81,9 +110,9 @@ void main() {
     expect(returned, isNull);
   });
 
-  testWidgets('user can change the selection and OK returns the new value',
+  testWidgets('user can change the meal type and OK returns the new value',
       (tester) async {
-    AddMealType? returned;
+    CopyDialogResult? returned;
     late BuildContext capturedContext;
 
     await tester.pumpWidget(MaterialApp(
@@ -98,10 +127,12 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    final future = showDialog<AddMealType>(
+    final future = showDialog<CopyDialogResult>(
       context: capturedContext,
-      builder: (_) =>
-          const CopyDialog(initialValue: AddMealType.breakfastType),
+      builder: (_) => CopyDialog(
+        initialValue: AddMealType.breakfastType,
+        initialDate: initialDate,
+      ),
     );
     await tester.pumpAndSettle();
 
@@ -115,6 +146,8 @@ void main() {
     await tester.pumpAndSettle();
     returned = await future;
 
-    expect(returned, AddMealType.dinnerType);
+    expect(returned, isNotNull);
+    expect(returned!.$1, AddMealType.dinnerType);
+    expect(returned.$2, initialDate);
   });
 }

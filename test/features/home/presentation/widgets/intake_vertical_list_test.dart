@@ -186,7 +186,7 @@ void main() {
         intakeList: intakes,
         usesImperialUnits: false,
         showMealMacros: true,
-        onCopyIntakeCallback: (_, _, _) {},
+        onCopyIntakeCallback: (_, _, _, _) {},
         onDeleteIntakeCallback: (_, _) {},
       )));
       await tester.pump();
@@ -194,7 +194,7 @@ void main() {
       await tester.tap(find.byType(PopupMenuButton<VerticalListPopupMenuSelections>));
       await tester.pumpAndSettle();
 
-      expect(find.text(S.current.dialogCopyLabel), findsOneWidget);
+      expect(find.text(S.current.copyActionLabel), findsOneWidget);
       expect(find.text(S.current.deleteAllLabel), findsOneWidget);
       expect(find.text(S.current.shareMealLabel), findsOneWidget);
       expect(find.text(S.current.importMealLabel), findsOneWidget);
@@ -221,7 +221,7 @@ void main() {
 
       // Empty section: no Copy/Delete/Share — nothing to act on. Import is
       // always available so the user can scan a QR to populate the section.
-      expect(find.text(S.current.dialogCopyLabel), findsNothing);
+      expect(find.text(S.current.copyActionLabel), findsNothing);
       expect(find.text(S.current.deleteAllLabel), findsNothing);
       expect(find.text(S.current.shareMealLabel), findsNothing);
       expect(find.text(S.current.importMealLabel), findsOneWidget);
