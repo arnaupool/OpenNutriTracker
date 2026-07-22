@@ -13,6 +13,7 @@ import 'package:opennutritracker/features/home/presentation/widgets/fasting_home
 import 'package:opennutritracker/features/home/presentation/widgets/quick_water_widget.dart';
 import 'package:opennutritracker/features/home/presentation/widgets/quick_weight_widget.dart';
 import 'package:opennutritracker/features/home/presentation/widgets/weekly_expenditure_card.dart';
+import 'package:opennutritracker/features/home/presentation/widgets/weight_trend_summary_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -157,6 +158,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             ),
           ),
         const WeeklyExpenditureCard(),
+        const WeightTrendSummaryCard(),
         const SizedBox(height: 48.0),
       ],
     );

@@ -391,6 +391,16 @@
   "gramUnit": "g",
   "heightLabel": "Height",
   "homeLabel": "Home",
+  "homeWeightTrendLabel": "Trend Weight",
+  "homeWeightTrendStable": "Stable",
+  "homeWeightTrendRate": "{rate}/week",
+  "@homeWeightTrendRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
   "homeExpenditureCardTitle": "Last 7 Days",
   "homeExpenditureLabel": "Expenditure",
   "homeEnergyBalanceLabel": "Energy Balance",

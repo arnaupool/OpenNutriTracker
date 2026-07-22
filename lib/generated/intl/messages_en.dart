@@ -101,6 +101,8 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String mQuickAddAdded(mealType) => "Added to ${mealType}";
 
+  static String mWeightTrendRate(rate) => "${rate}/week";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "nutrientPanelLimitLabel": MessageLookupByLibrary.simpleMessage("limit"),
@@ -389,6 +391,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "homeExpenditureLabel":
             MessageLookupByLibrary.simpleMessage("Expenditure"),
         "homeLabel": MessageLookupByLibrary.simpleMessage("Home"),
+        "homeWeightTrendLabel":
+            MessageLookupByLibrary.simpleMessage("Trend Weight"),
+        "homeWeightTrendRate": mWeightTrendRate,
+        "homeWeightTrendStable": MessageLookupByLibrary.simpleMessage(
+          "Stable",
+        ),
         "importAction": MessageLookupByLibrary.simpleMessage("Import"),
         "importActivityConfirmContent": MessageLookupByLibrary.simpleMessage(
             "These activities will be added to today."),

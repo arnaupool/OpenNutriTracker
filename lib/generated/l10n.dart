@@ -149,6 +149,36 @@ class S {
     return Intl.message('Home', name: 'homeLabel', desc: '', args: []);
   }
 
+  /// `Trend Weight`
+  String get homeWeightTrendLabel {
+    return Intl.message(
+      'Trend Weight',
+      name: 'homeWeightTrendLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stable`
+  String get homeWeightTrendStable {
+    return Intl.message(
+      'Stable',
+      name: 'homeWeightTrendStable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{rate}/week`
+  String homeWeightTrendRate(String rate) {
+    return Intl.message(
+      '$rate/week',
+      name: 'homeWeightTrendRate',
+      desc: '',
+      args: [rate],
+    );
+  }
+
   /// `Last 7 Days`
   String get homeExpenditureCardTitle {
     return Intl.message(
