@@ -390,6 +390,13 @@ class MessageLookup extends MessageLookupByLibrary {
             "Log at least a week of weigh-ins and meals to see your weekly expenditure."),
         "homeExpenditureLabel":
             MessageLookupByLibrary.simpleMessage("Expenditure"),
+        "homeGoalProgressCardTitle": MessageLookupByLibrary.simpleMessage(
+          "Goal Progress",
+        ),
+        "homeGoalProgressInsufficientData":
+            MessageLookupByLibrary.simpleMessage(
+              "Log at least a week of weigh-ins to see your goal progress.",
+            ),
         "homeLabel": MessageLookupByLibrary.simpleMessage("Home"),
         "homeWeightTrendLabel":
             MessageLookupByLibrary.simpleMessage("Trend Weight"),

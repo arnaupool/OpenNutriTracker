@@ -220,6 +220,26 @@ class S {
     );
   }
 
+  /// `Goal Progress`
+  String get homeGoalProgressCardTitle {
+    return Intl.message(
+      'Goal Progress',
+      name: 'homeGoalProgressCardTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log at least a week of weigh-ins to see your goal progress.`
+  String get homeGoalProgressInsufficientData {
+    return Intl.message(
+      'Log at least a week of weigh-ins to see your goal progress.',
+      name: 'homeGoalProgressInsufficientData',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Diary`
   String get diaryLabel {
     return Intl.message('Diary', name: 'diaryLabel', desc: '', args: []);

@@ -405,6 +405,8 @@
   "homeExpenditureLabel": "Expenditure",
   "homeEnergyBalanceLabel": "Energy Balance",
   "homeExpenditureInsufficientData": "Log at least a week of weigh-ins and meals to see your weekly expenditure.",
+  "homeGoalProgressCardTitle": "Goal Progress",
+  "homeGoalProgressInsufficientData": "Log at least a week of weigh-ins to see your goal progress.",
   "importAction": "Import",
   "importActivityConfirmContent": "These activities will be added to today.",
   "importActivityConfirmTitle": "Import {count} activities?",
