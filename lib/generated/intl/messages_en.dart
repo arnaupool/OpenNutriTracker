@@ -182,13 +182,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "codeCopiedLabel": MessageLookupByLibrary.simpleMessage("Code copied"),
         "copyActionLabel": MessageLookupByLibrary.simpleMessage("Copy"),
         "copyCodeLabel": MessageLookupByLibrary.simpleMessage("Copy code"),
-        "copyDialogDateLabel": MessageLookupByLibrary.simpleMessage("Day"),
-        "copyDialogEndDateLabel": MessageLookupByLibrary.simpleMessage(
-          "End date",
-        ),
-        "copyDialogRangeToggleLabel": MessageLookupByLibrary.simpleMessage(
-          "Copy to a range of days",
-        ),
+        "copyDialogDateLabel": MessageLookupByLibrary.simpleMessage("Date"),
         "copyDialogTitle": MessageLookupByLibrary.simpleMessage(
             "Copy to which meal and day?"),
         "copyOrDeleteTimeDialogContent": MessageLookupByLibrary.simpleMessage(
@@ -454,6 +448,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Added new intake"),
         "itemDeletedSnackbar":
             MessageLookupByLibrary.simpleMessage("Item deleted"),
+        "itemMovedSnackbar": MessageLookupByLibrary.simpleMessage(
+          "Item moved",
+        ),
         "itemUpdatedSnackbar":
             MessageLookupByLibrary.simpleMessage("Item updated"),
         "kcalExceededLabel":

@@ -160,8 +160,9 @@ class _DiaryPageState extends State<DiaryPage> with WidgetsBindingObserver {
 
   void _onDeleteIntakeItem(
     IntakeEntity intakeEntity,
-    TrackedDayEntity? trackedDayEntity,
-  ) async {
+    TrackedDayEntity? trackedDayEntity, {
+    bool isMove = false,
+  }) async {
     await _calendarDayBloc.deleteIntakeItem(
       context,
       intakeEntity,
@@ -172,7 +173,13 @@ class _DiaryPageState extends State<DiaryPage> with WidgetsBindingObserver {
     _diaryBloc.updateHomePage();
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(S.of(context).itemDeletedSnackbar)),
+        SnackBar(
+          content: Text(
+            isMove
+                ? S.of(context).itemMovedSnackbar
+                : S.of(context).itemDeletedSnackbar,
+          ),
+        ),
       );
     }
   }

@@ -20,25 +20,33 @@ class FoodLoggingHabitCard extends StatefulWidget {
 }
 
 class _FoodLoggingHabitCardState extends State<FoodLoggingHabitCard> {
+  // Matches DiaryTableCalendar's own navigable range (±5 years from today)
+  // so this card's calendar isn't locked to the current month.
+  static const _navigableRange = Duration(days: 365 * 5);
+
   late final GetTrackedDayUsecase _trackedDayUsecase =
       widget.getTrackedDayUsecase ?? locator<GetTrackedDayUsecase>();
 
   bool _loading = true;
   Set<DateTime> _markedDays = const {};
-  late DateTime _now;
-  late DateTime _monthStart;
-  late DateTime _monthEnd;
+  late DateTime _focusedDay;
+  late DateTime _firstDay;
+  late DateTime _lastDay;
 
   @override
   void initState() {
     super.initState();
-    _load();
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    _focusedDay = today;
+    _firstDay = today.subtract(_navigableRange);
+    _lastDay = today.add(_navigableRange);
+    _loadMonth(today);
   }
 
-  Future<void> _load() async {
-    final now = DateTime.now();
-    final monthStart = DateTime(now.year, now.month, 1);
-    final monthEnd = DateTime(now.year, now.month + 1, 0);
+  Future<void> _loadMonth(DateTime focusedDay) async {
+    final monthStart = DateTime(focusedDay.year, focusedDay.month, 1);
+    final monthEnd = DateTime(focusedDay.year, focusedDay.month + 1, 0);
     final trackedDays = await _trackedDayUsecase.getTrackedDaysByRange(
       monthStart,
       monthEnd,
@@ -50,9 +58,7 @@ class _FoodLoggingHabitCardState extends State<FoodLoggingHabitCard> {
 
     if (!mounted) return;
     setState(() {
-      _now = now;
-      _monthStart = monthStart;
-      _monthEnd = monthEnd;
+      _focusedDay = focusedDay;
       _markedDays = markedDays;
       _loading = false;
     });
@@ -78,9 +84,10 @@ class _FoodLoggingHabitCardState extends State<FoodLoggingHabitCard> {
               identifier: 'home-logging-habit-calendar',
               child: CompactHabitCalendar(
                 markedDays: _markedDays,
-                firstDay: _monthStart,
-                lastDay: _monthEnd,
-                focusedDay: _now,
+                firstDay: _firstDay,
+                lastDay: _lastDay,
+                focusedDay: _focusedDay,
+                onMonthChanged: _loadMonth,
               ),
             ),
           ],

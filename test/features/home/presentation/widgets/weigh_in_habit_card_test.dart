@@ -29,6 +29,16 @@ class _FakeGetWeightLogUsecase extends Fake implements GetWeightLogUsecase {
 Finder get _findTableCalendar =>
     find.byWidgetPredicate((widget) => widget is TableCalendar);
 
+// Matches CompactHabitCalendar's own marker dot (a 5x5 circular Container),
+// so tests can assert on how many days rendered as "marked" without
+// reaching into the widget's private state.
+Finder get _findMarkerDots => find.byWidgetPredicate(
+  (widget) =>
+      widget is Container &&
+      widget.constraints ==
+          const BoxConstraints.tightFor(width: 5.0, height: 5.0),
+);
+
 Widget _wrap(Widget child) {
   return MaterialApp(
     localizationsDelegates: const [
@@ -44,8 +54,8 @@ Widget _wrap(Widget child) {
 
 void main() {
   group('WeighInHabitCard', () {
-    testWidgets('shows the card title and a compact non-interactive '
-        'calendar with no weigh-ins logged', (tester) async {
+    testWidgets('shows the card title and a compact calendar with no '
+        'weigh-ins logged', (tester) async {
       await tester.pumpWidget(
         _wrap(
           WeighInHabitCard(getWeightLogUsecase: _FakeGetWeightLogUsecase([])),
@@ -78,5 +88,34 @@ void main() {
       expect(_findTableCalendar, findsOneWidget);
       expect(tester.takeException(), isNull);
     });
+
+    testWidgets(
+      'navigating to next month refetches and shows that month\'s marked '
+      'days (not locked to the current month)',
+      (tester) async {
+        final today = DateTime.now();
+        final nextMonthDay = DateTime(today.year, today.month + 1, 5);
+
+        await tester.pumpWidget(
+          _wrap(
+            WeighInHabitCard(
+              getWeightLogUsecase: _FakeGetWeightLogUsecase([
+                WeightLogEntity(date: nextMonthDay, weightKg: 82.0),
+              ]),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // The seeded entry is next month, so nothing shows yet.
+        expect(_findMarkerDots, findsNothing);
+
+        await tester.tap(find.byIcon(Icons.chevron_right));
+        await tester.pumpAndSettle();
+
+        expect(_findMarkerDots, findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
   });
 }

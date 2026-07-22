@@ -30,25 +30,25 @@ class CopyDialog extends StatefulWidget {
 
 class CopyDialogState extends State<CopyDialog> {
   late AddMealType _selectedValue;
-  late DateTime _selectedDate;
-  bool _isRange = false;
-  late DateTime _endDate;
+  late DateTimeRange _selectedRange;
 
   AddMealType get selectedMealType => _selectedValue;
-  DateTime get selectedDate => _selectedDate;
+  DateTime get selectedDate => _selectedRange.start;
 
   @override
   void initState() {
     super.initState();
     _selectedValue = widget.initialValue;
-    _selectedDate = widget.initialDate;
-    _endDate = widget.initialDate;
+    _selectedRange = DateTimeRange(
+      start: widget.initialDate,
+      end: widget.initialDate,
+    );
   }
 
-  Future<void> _pickDate() async {
-    final picked = await showDatePicker(
+  Future<void> _pickDateRange() async {
+    final picked = await showDateRangePicker(
       context: context,
-      initialDate: _selectedDate,
+      initialDateRange: _selectedRange,
       firstDate: DateTime(1900),
       lastDate: DateTime(2100),
       // Fixed day-first format regardless of device locale, same as every
@@ -56,27 +56,7 @@ class CopyDialogState extends State<CopyDialog> {
       locale: const Locale('en', 'GB'),
     );
     if (picked != null) {
-      setState(() {
-        _selectedDate = picked;
-        // The end date can never precede the start date — nudge it
-        // forward rather than leaving an invalid range silently.
-        if (_endDate.isBefore(_selectedDate)) {
-          _endDate = _selectedDate;
-        }
-      });
-    }
-  }
-
-  Future<void> _pickEndDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _endDate,
-      firstDate: _selectedDate,
-      lastDate: DateTime(2100),
-      locale: const Locale('en', 'GB'),
-    );
-    if (picked != null) {
-      setState(() => _endDate = picked);
+      setState(() => _selectedRange = picked);
     }
   }
 
@@ -84,6 +64,14 @@ class CopyDialogState extends State<CopyDialog> {
     final day = date.day.toString().padLeft(2, '0');
     final month = date.month.toString().padLeft(2, '0');
     return '$day/$month/${date.year}';
+  }
+
+  String _formatRange() {
+    final start = _formatDdMmYyyy(_selectedRange.start);
+    if (DateUtils.isSameDay(_selectedRange.start, _selectedRange.end)) {
+      return start;
+    }
+    return '$start - ${_formatDdMmYyyy(_selectedRange.end)}';
   }
 
   @override
@@ -114,43 +102,18 @@ class CopyDialogState extends State<CopyDialog> {
           Semantics(
             identifier: 'copy-dialog-date',
             child: InkWell(
-              onTap: _pickDate,
+              onTap: _pickDateRange,
               child: Row(
                 children: [
                   const Icon(Icons.calendar_today_outlined, size: 18),
                   const SizedBox(width: 8),
                   Text(S.of(context).copyDialogDateLabel),
                   const Spacer(),
-                  Text(_formatDdMmYyyy(_selectedDate)),
+                  Text(_formatRange()),
                 ],
               ),
             ),
           ),
-          Semantics(
-            identifier: 'copy-dialog-range-toggle',
-            child: SwitchListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(S.of(context).copyDialogRangeToggleLabel),
-              value: _isRange,
-              onChanged: (value) => setState(() => _isRange = value),
-            ),
-          ),
-          if (_isRange)
-            Semantics(
-              identifier: 'copy-dialog-end-date',
-              child: InkWell(
-                onTap: _pickEndDate,
-                child: Row(
-                  children: [
-                    const Icon(Icons.event_outlined, size: 18),
-                    const SizedBox(width: 8),
-                    Text(S.of(context).copyDialogEndDateLabel),
-                    const Spacer(),
-                    Text(_formatDdMmYyyy(_endDate)),
-                  ],
-                ),
-              ),
-            ),
         ],
       ),
       actions: [
@@ -158,8 +121,8 @@ class CopyDialogState extends State<CopyDialog> {
           onPressed: () {
             Navigator.of(context).pop((
               _selectedValue,
-              _selectedDate,
-              _isRange ? _endDate : _selectedDate,
+              _selectedRange.start,
+              _selectedRange.end,
             ));
           },
           child: Text(S.of(context).dialogOKLabel),

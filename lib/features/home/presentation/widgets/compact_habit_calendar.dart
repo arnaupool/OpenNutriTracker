@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-/// A single-month, non-interactive rendition of the `table_calendar` +
+/// A single-month rendition of the `table_calendar` +
 /// `calendarBuilders.markerBuilder` pattern `DiaryTableCalendar` already
-/// uses — but shrunk (no header nav, smaller row height) and dumbed down
-/// to plain day-is-marked-or-not, for compact Home habit widgets (FD-09,
-/// FD-10) rather than Diary's full interactive month view.
+/// uses — shrunk (smaller row height) and dumbed down to plain
+/// day-is-marked-or-not, for compact Home habit widgets (FD-09, FD-10)
+/// rather than Diary's full month view. Swiping/chevron navigation stays
+/// on — [onMonthChanged] fires whenever the visible month changes so the
+/// owning card can refetch marked days for it.
 class CompactHabitCalendar extends StatelessWidget {
   final Set<DateTime> markedDays;
   final DateTime firstDay;
   final DateTime lastDay;
   final DateTime focusedDay;
+  final ValueChanged<DateTime>? onMonthChanged;
 
   const CompactHabitCalendar({
     super.key,
@@ -18,6 +21,7 @@ class CompactHabitCalendar extends StatelessWidget {
     required this.firstDay,
     required this.lastDay,
     required this.focusedDay,
+    this.onMonthChanged,
   });
 
   @override
@@ -28,12 +32,10 @@ class CompactHabitCalendar extends StatelessWidget {
       firstDay: firstDay,
       lastDay: lastDay,
       startingDayOfWeek: StartingDayOfWeek.monday,
-      availableGestures: AvailableGestures.none,
+      onPageChanged: onMonthChanged,
       headerStyle: const HeaderStyle(
         titleCentered: true,
         formatButtonVisible: false,
-        leftChevronVisible: false,
-        rightChevronVisible: false,
         headerPadding: EdgeInsets.symmetric(vertical: 4.0),
       ),
       daysOfWeekHeight: 16.0,

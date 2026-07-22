@@ -14,6 +14,11 @@ import 'package:opennutritracker/generated/l10n.dart';
 /// All four come straight off [TrackedDayEntity] (already aggregated per
 /// day when intake is logged) — the same three macros the day view's own
 /// rings show, so this is their weekly trend rather than a new metric.
+///
+/// The four charts share a single weekday axis (drawn once, under the
+/// last chart) rather than repeating it under each one — same accurate
+/// per-chart alignment [BarChart] already computes, just suppressed on
+/// every chart but the last.
 class WeeklyNutrientBars extends StatefulWidget {
   final DateTime selectedDate;
   final GetTrackedDayUsecase? getTrackedDayUsecase;
@@ -111,7 +116,7 @@ class _WeeklyNutrientBarsState extends State<WeeklyNutrientBars> {
                     s.diaryWeeklyBarsTitle,
                     style: theme.textTheme.titleMedium,
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   _MiniBarChart(
                     label: s.caloriesLabel,
                     unit: s.kcalLabel,
@@ -123,8 +128,9 @@ class _WeeklyNutrientBarsState extends State<WeeklyNutrientBars> {
                     ],
                     goal: selectedTracked?.calorieGoal,
                     color: theme.colorScheme.primary,
+                    showAxis: false,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   _MiniBarChart(
                     label: s.fatLabel,
                     unit: 'g',
@@ -135,8 +141,9 @@ class _WeeklyNutrientBarsState extends State<WeeklyNutrientBars> {
                     ],
                     goal: selectedTracked?.fatGoal,
                     color: theme.colorScheme.tertiary,
+                    showAxis: false,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   _MiniBarChart(
                     label: s.proteinLabel,
                     unit: 'g',
@@ -148,8 +155,9 @@ class _WeeklyNutrientBarsState extends State<WeeklyNutrientBars> {
                     ],
                     goal: selectedTracked?.proteinGoal,
                     color: theme.colorScheme.secondary,
+                    showAxis: false,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   _MiniBarChart(
                     label: s.carbsLabel,
                     unit: 'g',
@@ -160,6 +168,7 @@ class _WeeklyNutrientBarsState extends State<WeeklyNutrientBars> {
                     ],
                     goal: selectedTracked?.carbsGoal,
                     color: theme.colorScheme.outline,
+                    showAxis: true,
                   ),
                 ],
               ),
@@ -178,7 +187,8 @@ class _WeekData {
 }
 
 class _MiniBarChart extends StatelessWidget {
-  static const double _chartHeight = 72;
+  static const double _chartHeight = 64;
+  static const double _axisHeight = 18;
 
   final String label;
   final String unit;
@@ -187,6 +197,7 @@ class _MiniBarChart extends StatelessWidget {
   final List<double> values;
   final double? goal;
   final Color color;
+  final bool showAxis;
 
   const _MiniBarChart({
     required this.label,
@@ -196,6 +207,7 @@ class _MiniBarChart extends StatelessWidget {
     required this.values,
     required this.goal,
     required this.color,
+    required this.showAxis,
   });
 
   // The shared nutrient labels (caloriesLabel, fatLabel, ...) are lowercase
@@ -221,14 +233,23 @@ class _MiniBarChart extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          '${_capitalize(label)}'
-          '${goal == null ? '' : ' (${consumed == null ? '' : '${consumed.round()} / '}${goal!.round()} $unit)'}',
-          style: theme.textTheme.labelMedium,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(_capitalize(label), style: theme.textTheme.labelLarge),
+            if (goal != null)
+              Text(
+                '${consumed == null ? '' : '${consumed.round()} / '}'
+                '${goal!.round()} $unit',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
+          ],
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: 6),
         SizedBox(
-          height: _chartHeight,
+          height: _chartHeight + (showAxis ? _axisHeight : 0),
           child: BarChart(
             BarChartData(
               maxY: safeMaxY,
@@ -260,18 +281,31 @@ class _MiniBarChart extends StatelessWidget {
                 ),
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: 16,
+                    showTitles: showAxis,
+                    reservedSize: showAxis ? _axisHeight : 0,
                     getTitlesWidget: (value, meta) {
                       final index = value.toInt();
                       if (index < 0 || index >= days.length) {
                         return const SizedBox.shrink();
                       }
+                      final isSelected = DateUtils.isSameDay(
+                        days[index],
+                        selectedDay,
+                      );
                       return Padding(
-                        padding: const EdgeInsets.only(top: 2),
+                        padding: const EdgeInsets.only(top: 4),
                         child: Text(
                           dayFormat.format(days[index]),
-                          style: theme.textTheme.labelSmall,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: isSelected
+                                ? theme.colorScheme.onSurface
+                                : theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.6,
+                                  ),
+                            fontWeight: isSelected
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                          ),
                         ),
                       );
                     },
@@ -287,10 +321,10 @@ class _MiniBarChart extends StatelessWidget {
                         toY: values[i],
                         color: DateUtils.isSameDay(days[i], selectedDay)
                             ? color
-                            : color.withValues(alpha: 0.35),
+                            : color.withValues(alpha: 0.3),
                         width: 12,
                         borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(2),
+                          top: Radius.circular(3),
                         ),
                       ),
                     ],

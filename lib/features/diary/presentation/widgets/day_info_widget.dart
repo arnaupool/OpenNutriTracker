@@ -54,8 +54,12 @@ class DayInfoWidget extends StatefulWidget {
   // [DiarySortType] enum indices. Null when the user has never picked a
   // sort, in which case every section starts on [DiarySortType.timeAdded].
   final Map<String, int>? diarySortPreferences;
-  final Function(IntakeEntity intake, TrackedDayEntity? trackedDayEntity)
-      onDeleteIntake;
+  final Function(
+    IntakeEntity intake,
+    TrackedDayEntity? trackedDayEntity, {
+    bool isMove,
+  })
+  onDeleteIntake;
   final Function(
     UserActivityEntity userActivityEntity,
     TrackedDayEntity? trackedDayEntity,
@@ -460,9 +464,14 @@ class _DayInfoWidgetState extends State<DayInfoWidget> {
       }
       // Move = the copy above, then the same delete "Delete" already
       // performs on the original — awaited so the delete never races the
-      // copy's write to the target day(s).
+      // copy's write to the target day(s). isMove swaps the confirmation
+      // snackbar's wording so it doesn't read as an accidental deletion.
       if (move) {
-        widget.onDeleteIntake(intakeEntity, widget.trackedDayEntity);
+        widget.onDeleteIntake(
+          intakeEntity,
+          widget.trackedDayEntity,
+          isMove: true,
+        );
       }
     }
   }

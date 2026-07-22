@@ -106,5 +106,38 @@ void main() {
         expect(tester.takeException(), isNull);
       },
     );
+
+    testWidgets(
+      'navigating to next month refetches and shows that month\'s marked '
+      'days (not locked to the current month)',
+      (tester) async {
+        final today = DateTime.now();
+        final nextMonthDay = DateTime(today.year, today.month + 1, 5);
+
+        await tester.pumpWidget(
+          _wrap(
+            FoodLoggingHabitCard(
+              getTrackedDayUsecase: _FakeGetTrackedDayUsecase([
+                TrackedDayEntity(
+                  day: nextMonthDay,
+                  calorieGoal: 2400,
+                  caloriesTracked: 2100,
+                ),
+              ]),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // The seeded day is next month, so nothing shows yet.
+        expect(_findMarkerDots, findsNothing);
+
+        await tester.tap(find.byIcon(Icons.chevron_right));
+        await tester.pumpAndSettle();
+
+        expect(_findMarkerDots, findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
   });
 }

@@ -4109,6 +4109,16 @@ class S {
     );
   }
 
+  /// `Item moved`
+  String get itemMovedSnackbar {
+    return Intl.message(
+      'Item moved',
+      name: 'itemMovedSnackbar',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Share meal`
   String get shareMealLabel {
     return Intl.message(
@@ -4174,31 +4184,11 @@ class S {
     );
   }
 
-  /// `Day`
+  /// `Date`
   String get copyDialogDateLabel {
     return Intl.message(
-      'Day',
+      'Date',
       name: 'copyDialogDateLabel',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Copy to a range of days`
-  String get copyDialogRangeToggleLabel {
-    return Intl.message(
-      'Copy to a range of days',
-      name: 'copyDialogRangeToggleLabel',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `End date`
-  String get copyDialogEndDateLabel {
-    return Intl.message(
-      'End date',
-      name: 'copyDialogEndDateLabel',
       desc: '',
       args: [],
     );
