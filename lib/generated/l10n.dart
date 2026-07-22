@@ -260,6 +260,26 @@ class S {
     );
   }
 
+  /// `Body Metrics`
+  String get homeBodyMetricsCardTitle {
+    return Intl.message(
+      'Body Metrics',
+      name: 'homeBodyMetricsCardTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log a body measurement in Profile to see your ratios.`
+  String get homeBodyMetricsInsufficientData {
+    return Intl.message(
+      'Log a body measurement in Profile to see your ratios.',
+      name: 'homeBodyMetricsInsufficientData',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Diary`
   String get diaryLabel {
     return Intl.message('Diary', name: 'diaryLabel', desc: '', args: []);

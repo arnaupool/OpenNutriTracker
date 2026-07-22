@@ -409,6 +409,8 @@
   "homeGoalProgressInsufficientData": "Log at least a week of weigh-ins to see your goal progress.",
   "homeWeighInHabitCardTitle": "Weigh-in Habit",
   "homeLoggingHabitCardTitle": "Logging Habit",
+  "homeBodyMetricsCardTitle": "Body Metrics",
+  "homeBodyMetricsInsufficientData": "Log a body measurement in Profile to see your ratios.",
   "importAction": "Import",
   "importActivityConfirmContent": "These activities will be added to today.",
   "importActivityConfirmTitle": "Import {count} activities?",

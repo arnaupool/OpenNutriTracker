@@ -382,6 +382,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "gramMilliliterUnit": MessageLookupByLibrary.simpleMessage("g/ml"),
         "gramUnit": MessageLookupByLibrary.simpleMessage("g"),
         "heightLabel": MessageLookupByLibrary.simpleMessage("Height"),
+        "homeBodyMetricsCardTitle": MessageLookupByLibrary.simpleMessage(
+          "Body Metrics",
+        ),
+        "homeBodyMetricsInsufficientData":
+            MessageLookupByLibrary.simpleMessage(
+              "Log a body measurement in Profile to see your ratios.",
+            ),
         "homeEnergyBalanceLabel":
             MessageLookupByLibrary.simpleMessage("Energy Balance"),
         "homeExpenditureCardTitle":
