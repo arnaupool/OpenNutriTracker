@@ -398,6 +398,9 @@ class MessageLookup extends MessageLookupByLibrary {
               "Log at least a week of weigh-ins to see your goal progress.",
             ),
         "homeLabel": MessageLookupByLibrary.simpleMessage("Home"),
+        "homeLoggingHabitCardTitle": MessageLookupByLibrary.simpleMessage(
+          "Logging Habit",
+        ),
         "homeWeighInHabitCardTitle": MessageLookupByLibrary.simpleMessage(
           "Weigh-in Habit",
         ),

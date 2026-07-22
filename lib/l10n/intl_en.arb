@@ -408,6 +408,7 @@
   "homeGoalProgressCardTitle": "Goal Progress",
   "homeGoalProgressInsufficientData": "Log at least a week of weigh-ins to see your goal progress.",
   "homeWeighInHabitCardTitle": "Weigh-in Habit",
+  "homeLoggingHabitCardTitle": "Logging Habit",
   "importAction": "Import",
   "importActivityConfirmContent": "These activities will be added to today.",
   "importActivityConfirmTitle": "Import {count} activities?",

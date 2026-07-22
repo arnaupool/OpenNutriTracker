@@ -250,6 +250,16 @@ class S {
     );
   }
 
+  /// `Logging Habit`
+  String get homeLoggingHabitCardTitle {
+    return Intl.message(
+      'Logging Habit',
+      name: 'homeLoggingHabitCardTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Diary`
   String get diaryLabel {
     return Intl.message('Diary', name: 'diaryLabel', desc: '', args: []);
