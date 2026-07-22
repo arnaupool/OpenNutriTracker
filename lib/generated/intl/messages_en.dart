@@ -380,6 +380,14 @@ class MessageLookup extends MessageLookupByLibrary {
         "gramMilliliterUnit": MessageLookupByLibrary.simpleMessage("g/ml"),
         "gramUnit": MessageLookupByLibrary.simpleMessage("g"),
         "heightLabel": MessageLookupByLibrary.simpleMessage("Height"),
+        "homeEnergyBalanceLabel":
+            MessageLookupByLibrary.simpleMessage("Energy Balance"),
+        "homeExpenditureCardTitle":
+            MessageLookupByLibrary.simpleMessage("Last 7 Days"),
+        "homeExpenditureInsufficientData": MessageLookupByLibrary.simpleMessage(
+            "Log at least a week of weigh-ins and meals to see your weekly expenditure."),
+        "homeExpenditureLabel":
+            MessageLookupByLibrary.simpleMessage("Expenditure"),
         "homeLabel": MessageLookupByLibrary.simpleMessage("Home"),
         "importAction": MessageLookupByLibrary.simpleMessage("Import"),
         "importActivityConfirmContent": MessageLookupByLibrary.simpleMessage(

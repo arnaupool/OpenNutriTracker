@@ -149,6 +149,47 @@ class S {
     return Intl.message('Home', name: 'homeLabel', desc: '', args: []);
   }
 
+  /// `Last 7 Days`
+  String get homeExpenditureCardTitle {
+    return Intl.message(
+      'Last 7 Days',
+      name: 'homeExpenditureCardTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Expenditure`
+  String get homeExpenditureLabel {
+    return Intl.message(
+      'Expenditure',
+      name: 'homeExpenditureLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Energy Balance`
+  String get homeEnergyBalanceLabel {
+    return Intl.message(
+      'Energy Balance',
+      name: 'homeEnergyBalanceLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log at least a week of weigh-ins and meals to see your weekly expenditure.`
+  String get homeExpenditureInsufficientData {
+    return Intl.message(
+      'Log at least a week of weigh-ins and meals to see your weekly '
+      'expenditure.',
+      name: 'homeExpenditureInsufficientData',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Diary`
   String get diaryLabel {
     return Intl.message('Diary', name: 'diaryLabel', desc: '', args: []);

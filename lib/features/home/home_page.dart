@@ -12,6 +12,7 @@ import 'package:opennutritracker/features/home/presentation/widgets/dashboard_wi
 import 'package:opennutritracker/features/home/presentation/widgets/fasting_home_chip.dart';
 import 'package:opennutritracker/features/home/presentation/widgets/quick_water_widget.dart';
 import 'package:opennutritracker/features/home/presentation/widgets/quick_weight_widget.dart';
+import 'package:opennutritracker/features/home/presentation/widgets/weekly_expenditure_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -155,6 +156,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               caloriesProfile: userCaloriesProfile,
             ),
           ),
+        const WeeklyExpenditureCard(),
         const SizedBox(height: 48.0),
       ],
     );
