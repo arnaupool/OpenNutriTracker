@@ -1,122 +1,1142 @@
 {
-	"nodes":[
-		{"id":"group-fasemo","type":"group","x":1320,"y":0,"width":380,"height":2020,"label":"Fase Motor"},
-		{"id":"group-fasewe","type":"group","x":3080,"y":0,"width":380,"height":1840,"label":"Fase Web"},
-		{"id":"group-fasecu","type":"group","x":3520,"y":0,"width":380,"height":1840,"label":"Fase Cuenta"},
-		{"id":"group-fasepi","type":"group","x":440,"y":0,"width":380,"height":940,"label":"Fase Piel"},
-		{"id":"group-fasere","type":"group","x":880,"y":0,"width":380,"height":940,"label":"Fase Registro"},
-		{"id":"group-faseda","type":"group","x":1760,"y":0,"width":380,"height":760,"label":"Fase Dashboards"},
-		{"id":"group-faseen","type":"group","x":0,"y":0,"width":380,"height":700,"label":"Fase Entorno"},
-		{"id":"group-fasefu","type":"group","x":2200,"y":0,"width":380,"height":700,"label":"Fase Futuro"},
-		{"id":"group-faseco","type":"group","x":2640,"y":0,"width":380,"height":700,"label":"Fase Composición"},
-		{"id":"6aa2cbda","type":"text","text":"## FM-01 Interpolación de huecos de peso\nHecho: WeightInterpolationCalc.fillGaps() en lib/core/utils/calc/weight_interpolation_calc.dart. Interpola linealmente entre entradas reales (nunca extrapola fuera del rango [primera, ultima]), dedupe por dia, funciona con input sin ordenar. 9 tests unitarios en test/unit_test/weight_interpolation_calc_test.dart, todos pasando. dart format + flutter analyze limpios. Devuelve InterpolatedWeightPoint (date, weightKg, isInterpolated) en vez de reusar WeightLogEntity, para no tocar el modelo persistido.","x":1340,"y":40,"width":280,"height":160,"color":"4"},
-		{"id":"f7622873","type":"text","text":"## FF-01 Google Health Connect\nLectura de datos de actividad/salud vía Health Connect. Backlog — fuera del alcance de la primera versión funcional.","x":2220,"y":40,"width":280,"height":160,"color":"6"},
-		{"id":"67bf819b","type":"text","text":"## FC-01 Medidas corporales con histórico\n## FC-01 Medidas corporales con historico\nHecho: nueva entidad BodyMeasurementEntity/BodyMeasurementDBO (Hive typeId 20, box BodyMeasurementBox) siguiendo el patron exacto de WeightLogBox -- una entrada por dia (clave = dia, put sobrescribe). BodyMeasurementDataSource/Repository/usecases (Add/Get/Delete) mismo patron que weight log. Alcance final: 7 metricas (cuello, hombros, pecho, cintura, cadera, biceps, muslo), todas opcionales por entrada -- reducido de las 21 de MacroFactor segun lo planteado en la propuesta.\n\nNueva pantalla BodyMeasurementsScreen en Profile (entrada 'profile-body-measurements' junto a Weight History): chips de seleccion de metrica (BodyMeasurementMetric enum) + grafico de tendencia de fl_chart de la metrica elegida (ventana dinamica de la primera a la ultima entrada con esa metrica, mismo patron 'all time' que ya se uso en Strategy), lista de entradas (resumen de campos poblados + fecha + borrar), FAB 'Add entry' -> dialogo con selector de fecha + 7 campos numericos opcionales + nota, pre-rellenado con los valores de la ultima entrada para agilizar medidas repetidas. Tarjetas de ratio cintura/altura y cintura/cadera calculadas al vuelo desde la ultima entrada (nunca persistidas), con '-' cuando no son calculables. Soporte cm/in via UnitCalc.cmToInches/inchesToCm existente.\n\nTests: 6 unitarios nuevos (body_measurement_data_source_test.dart, mismo patron que weight_log_data_source_test.dart) + 8 widget tests nuevos (body_measurements_screen_test.dart: estado vacio, empty-state del grafico con 1 entrada, grafico con 2+, cambio de metrica, calculo de ratios y guion cuando falta un dato, formulario que parsea solo los campos rellenados, borrado). 791/791 tests verdes, flutter analyze limpio.\n\nVerificado en vivo en el emulador: navegacion Profile -> Body measurements, estado vacio correcto, dialogo Add entry con los 7 campos + fecha, prefill con la entrada anterior confirmado, entrada guardada (Waist 82.5cm / Hips 97.0cm) mostrando ratios 0.43 (waist-to-height, con altura real de 190cm del usuario) y 0.85 (waist-to-hip) calculados correctamente, segunda entrada con fecha retroactiva (Jul 6) via el date picker confirmando que el grafico de tendencia renderiza correctamente una linea entre las dos fechas.","x":2660,"y":40,"width":280,"height":160,"color":"4"},
-		{"id":"5f598a36","type":"text","text":"## FW-01 Habilitar plataforma web de Flutter\n## FW-01 Habilitar plataforma web de Flutter\nEjecutar `flutter create --platforms=web .` para generar `web/` (index.html, manifest.json, icons) sin tocar `android/`/`ios/`. Verificar que `flutter run -d chrome` levanta la app sin flags especiales (Flutter 3.41.7 via FVM ya soporta web de forma estable). Base de la que dependen el resto de tareas de Fase Web -- sin `web/` no hay target al que compilar.\n\nHecho: web/ generado, .metadata actualizado (nueva plataforma web registrada). Verificado con `flutter build web --release` -- compila limpio (solo un aviso informativo de compatibilidad Wasm en meal_entity.dart, no bloqueante para el target JS normal). No se hizo click-through en navegador real todavia -- eso tiene mas sentido una vez FW-02/FW-03 esten, porque hoy mismo cualquier pantalla que toque fotos (recetas, comidas, medidas corporales) fallaria en web al no tener filesystem. Boilerplate test/widget_test.dart generado por el scaffold se elimino (no aplica, el proyecto tiene su propia suite).","x":3100,"y":40,"width":280,"height":160,"color":"4"},
-		{"id":"16698779","type":"text","text":"## FA-09 Bucket privado en Supabase Storage (RLS por auth.uid)\nBucket 'backups' en Supabase Storage con politica RLS por patron de ruta (no auth.uid, no tabla de tokens, no Edge Function). Solo permite leer/escribir objetos cuyo nombre case con el patron backups/[a-f0-9]{64}/latest.zip -- posesion del token (256 bits generado en el dispositivo al activar el backup) equivale a acceso, igual que un enlace 'cualquiera con el link'. El cliente usa solo la anon key, sin sesion ni login.","x":3560,"y":60,"width":280,"height":160,"color":"4"},
-		{"id":"c0503b72","type":"text","text":"## FA-11 Incluir perfil y ajustes en el snapshot de nube\nEl export/import local actual excluye a proposito UserBox y ConfigBox. Para el backup en la nube (pensado para ver los datos en otro dispositivo, no solo como copia de seguridad de diario) si interesa incluirlos. Extender la serializacion existente sin tocar el comportamiento del export/import local que ya usan otros flujos (Settings -> Exportar).","x":3560,"y":300,"width":280,"height":160,"color":"4"},
-		{"id":"c4b2783d","type":"text","text":"## FA-13 UI de backup en la nube en Settings\nSeccion 'Backup en la nube' en Settings: boton para activar (genera token + muestra QR via showCloudBackupTokenDialog), boton 'Sincronizar ahora' (CloudBackupUsecase.backup()), y 'Vincular este dispositivo' que abre PairCloudBackupScreen (escanear/pegar) seguido de un aviso explicito de que 'Restaurar' sobrescribe los datos locales antes de confirmar CloudRestoreUsecase.restore() -- accion destructiva, no fusion. Ya no hay login, se sustituyo por el esquema de token/QR de FA-15.","x":3560,"y":1020,"width":280,"height":160,"color":"4"},
-		{"id":"7b177fa9","type":"text","text":"## FA-15 Generar token local de emparejamiento + codigo QR\nAl activar 'Backup en la nube' en Settings, generar un token aleatorio de 256 bits (formato acorde al patron RLS de FA-09) y guardarlo local (secure storage). Mostrarlo como QR (paquete tipo qr_flutter) y como texto copiable de respaldo. El emparejamiento de un dispositivo nuevo es escanear ese QR con la camara (paquete tipo mobile_scanner) o pegar el texto -- una sola vez por dispositivo, no en cada sincronizacion; a partir de ahi el token queda guardado local y 'Sincronizar'/'Actualizar' son solo un boton. Reemplaza a FA-10 (login/signup), que ya no hace falta.","x":3560,"y":560,"width":280,"height":160,"color":"4"},
-		{"id":"5596537d","type":"text","text":"## FA-12 CloudBackupUsecase y CloudRestoreUsecase\nReutilizan casi entero el zip-building de ExportDataUsecase/ImportDataUsecase -- solo cambia el destino/origen (Supabase Storage en vez de disco local). Las fotos de recetas/comidas/progreso ya viajan dentro del zip, asi que no hace falta un camino de sync aparte para binarios (a diferencia del diseño de sync bidireccional que se descarto).","x":3560,"y":780,"width":280,"height":160,"color":"4"},
-		{"id":"d19f9f86","type":"text","text":"## FR-01 Integración OpenRouter\nCliente OpenRouter (compatible con OpenAI Chat Completions) + pantalla de ajustes: campo de API key (bring-your-own-key, guardado en ConfigDBO junto al resto de settings, ya cifrado en reposo vía AES-256 de Hive) y selector de modelo buscable sobre el catálogo completo de OpenRouter (endpoint público /models, sin necesidad de key para listarlo). Soporte de contenido imagen ya incluido como helper reutilizable (OpenRouterRepository.visionMessage) para mensajes multi-parte texto+imagen en modelos con visión (detectado vía architecture.input_modalities), listo para que FR-02/FR-04 lo consuman. Arquitectura: OpenRouterDataSource (http + withRetry + Sentry, mismo patrón que OFF/FDC) -> OpenRouterRepository -> GetOpenRouterModelsUsecase/SendOpenRouterChatCompletionUsecase. Nueva entrada 'AI provider' en Settings. Verificado en vivo contra la API real de OpenRouter en el emulador: catálogo completo cargado (cientos de modelos reales, iconos de visión correctos), búsqueda filtra por nombre/id, selección de modelo y guardado de API key persisten correctamente tras recargar la pantalla. De paso se diagnosticó y resolvió un problema de DNS del emulador (relanzado con -dns-server) que afectaba también a la búsqueda OFF preexistente, no relacionado con este código. 709/709 tests, flutter analyze limpio.","x":900,"y":40,"width":280,"height":160,"color":"4"},
-		{"id":"5b557dc2","type":"text","text":"## FE-01 Fork de OpenNutriTracker\nHecho: fork privado arnaupool/OpenNutriTracker creado via gh CLI, clonado en openfoodtracker-fork, merge con los archivos de Kanvas (CLAUDE.md fusionado con la doc original del proyecto). Commit local hecho, sin push.","x":20,"y":40,"width":280,"height":160,"color":"4"},
-		{"id":"legend","type":"text","text":"## Legend\n🔴 **Red** = To Do (ready)\n⬜ **Gray** = Blocked\n🟠 **Orange** = Doing\n🔵 **Cyan** = Ready to review\n🟢 **Green** = Done\n🟣 **Purple** = Proposed by agent","x":-540,"y":-310,"width":380,"height":230,"color":"0"},
-		{"id":"canvas-warnings","type":"text","text":"## Warnings\n- FA-14 Verificacion con dos dispositivos reales is outside all groups\n- FM-06 Enchufar TDEE dinamico + Dynamic Maintenance como objetivo real de Home is outside all groups\n- FM-08 Retirar el selector manual de ritmo semanal (FD-02) is outside all groups\n- FM-07 Enchufar macros protein-first dinamicos en el objetivo real is outside all groups","x":-540,"y":-530,"width":380,"height":200,"color":"3"},
-		{"id":"canvas-errors","type":"text","text":"## Errors\n✓ None","x":-540,"y":-750,"width":380,"height":200,"color":"1"},
-		{"id":"61fa2a0b","type":"text","text":"## FD-01 Pantalla Strategy\nStrategyPage implementada: gráfico dual scale/trend con chips de rango 1M/3M/6M, tarjeta de estado del estimador (Active/Insufficient data), grid de métricas (TDEE dinámico, target actual, trend weight, TDEE estático) y tarjeta de ritmo semanal (deseado vs observado). Solo lectura, no reemplaza el flujo de fijar objetivo diario (fuera de alcance). Verificado visualmente en emulador en las 3 escalas de tiempo tras corregir un overflow de layout en el grid de métricas (childAspectRatio 2.2 -> 1.7). 693/693 tests, flutter analyze limpio.","x":1780,"y":40,"width":280,"height":160,"color":"4"},
-		{"id":"047e69dd","type":"text","text":"## FA-16 Restaurar desde la nube durante el onboarding\nBoton '¿Ya tienes una copia en la nube?' en la primera pantalla de onboarding -- lleva directo a PairCloudBackupScreen (si el dispositivo aun no tiene token) y de ahi a la confirmacion de CloudRestoreUsecase.restore(), sin pasar por el resto de pantallas de onboarding. Al terminar con exito, navega a mainRoute en vez de continuar el onboarding normal (en vez de seguir con datos que se van a sobrescribir de todas formas). Reutiliza integramente PairCloudBackupScreen y CloudRestoreUsecase, ningun usecase nuevo.","x":3560,"y":1640,"width":280,"height":160,"color":"4"},
-		{"id":"7911deda","type":"text","text":"## FA-14 Verificacion con dos dispositivos reales\nGenerar backup desde el movil, restaurar en otro dispositivo (ordenador u otro movil), confirmar que perfil, ajustes, diario y fotos llegan integros.","x":3740,"y":1320,"width":280,"height":160,"color":"1"},
-		{"id":"c0a1809e","type":"text","text":"## FF-03 Pipeline CI macOS para build/firma iOS\nGitHub Actions con runner macOS (o Codemagic) para compilar y firmar el IPA sin Mac local. Evaluar Apple Developer Program (99 USD/año) para distribución más allá de 7 días vs. provisioning gratuito.","x":2220,"y":460,"width":280,"height":160,"color":"6"},
-		{"id":"de50f8ee","type":"text","text":"## FW-04 Aislar notificaciones locales de la build web\n## FW-04 Aislar notificaciones locales de la build web\nflutter_local_notifications no tiene target web soportado oficialmente -- NotificationService.initialize()/scheduleDailyReminder fallarian o quedarian en no-op silencioso.\n\nHecho: los 6 metodos publicos de NotificationService (initialize, requestPermission, scheduleDailyReminder, cancelDailyReminder, scheduleFastingComplete, cancelFastingComplete) ahora comprueban kIsWeb como primera linea y no tocan el plugin en absoluto -- un unico punto de guarda que protege a los 3 llamadores reales (el toggle de Settings, el aviso de fin de ayuno en fasting_screen.dart, y el arranque en main.dart) sin que ninguno tenga que saber que esta en web. Ademas, en Settings, el SwitchListTile del recordatorio diario se sustituye por un ListTile deshabilitado con texto explicando que no esta disponible en la version web -- el guard del servicio es red de seguridad, este es el arreglo real de UX (un switch que no hiciera nada habria sido confuso).\n\nflutter analyze limpio, 800/800 tests en verde (el test existente de NotificationService solo cubre computeNextOccurrence, la funcion pura, no le afecta el cambio). No hay forma de testear la rama kIsWeb=true con `flutter test` normal (corre en la VM, kIsWeb siempre false ahi) -- necesitaria `flutter test --platform chrome`, fuera de como este proyecto corre tests hoy. Verificado que arranca sin errores nuevos en consola con el build real en localhost:8080.","x":3100,"y":580,"width":280,"height":160,"color":"4"},
-		{"id":"67746049","type":"text","text":"## FW-05 Revisar CORS y exposicion de claves en llamadas desde navegador\n## FW-05 Revisar CORS y exposicion de claves en llamadas desde navegador\nConfirmar que las llamadas directas desde el cliente a OpenRouter, Supabase FDC y Open Food Facts aceptan CORS desde el origen del navegador; documentar el riesgo de exposicion de la clave de OpenRouter.\n\nHallazgo grande, no previsto: mientras verificaba esto, descubri que _searchLangs()/OffCountry.fromLocale()/getPlatformName() usaban dart:io Platform.localeName/isAndroid/isIOS en 6 sitios del pipeline de busqueda de comida (app_const.dart, products_repository.dart, sp_fdc_data_source.dart, off_data_source.dart, meal_entity.dart x2) -- todos lanzarian UnsupportedError en runtime en web, ANTES de llegar siquiera a la capa de red. Es decir: cualquier busqueda de producto habria petado en web sin importar el CORS. Arreglado sustituyendo por dart:ui PlatformDispatcher.instance.locale (funciona en todas las plataformas, mismo formato que Platform.localeName) y defaultTargetPlatform+kIsWeb para el nombre de plataforma del User-Agent.\n\nCORS verificado de verdad con curl (no solo teoria):\n- OpenRouter (openrouter.ai/api/v1): CONFIRMADO -- Access-Control-Allow-Origin: *, permite Authorization y POST.\n- Open Food Facts, endpoint de producto/codigo de barras (world.openfoodfacts.org): CONFIRMADO -- Access-Control-Allow-Origin: *.\n- Open Food Facts, busqueda de texto Search-a-licious (search.openfoodfacts.org): NO VERIFICABLE ahora mismo -- el servicio devolvio 502 en mis pruebas (el propio codigo de la app ya trata 502/503/500 como 'servicio caido' esperado para este backend concreto, asi que probablemente sea caida temporal normal de ese servicio, no un problema mio). Misma familia de infraestructura que el endpoint de producto que si funciono -- alta confianza pero sin confirmar. Recomiendo re-verificar cuando este desplegado.\n- Supabase FDC: NO TESTEABLE en este entorno -- el .env local tiene los valores placeholder de .env.example (SUPABASE_PROJECT_URL=\"PROJECT_URL\", etc.), nunca se relleno con un proyecto real. Alta confianza igualmente: el API REST de Supabase (PostgREST) viene con CORS abierto a todos los origenes por diseno -- es el patron estandar para apps que hablan con Supabase directamente desde el navegador sin backend propio.\n\nExposicion de la clave de OpenRouter -- replanteada tras revisar el codigo real: la clave NO es un secreto compartido de la app (no viene de .env/envied), la introduce cada usuario en Settings -> OpenRouter y se guarda en su propio Hive cifrado -- igual en nativo que en web. El riesgo real no es 'se filtra la clave de todos', es que en web cualquiera con acceso casual a la pestana del navegador de ESE usuario (F12) ve su propia clave mas facil que en nativo (que requeriria root/jailbreak o un proxy MITM). Mitigacion recomendada: sugerir a los usuarios poner un limite de gasto en su propia clave de OpenRouter (soportado nativamente por OpenRouter) y no dejar la pestana abierta en ordenadores compartidos. La anon key de Supabase esta pensada para exponerse (protegida por Row Level Security en el servidor), no requiere cambios.\n\nflutter analyze limpio, 800/800 tests en verde.","x":3100,"y":760,"width":280,"height":160,"color":"4"},
-		{"id":"16a27dcb","type":"text","text":"## FW-06 PWA instalable y mitigacion de purga de datos de Safari (ITP)\n## FW-06 PWA instalable y mitigacion de purga de datos de Safari (ITP)\nConfigurar web/manifest.json + iconos + apple-touch-icon en web/index.html para que 'Anadir a pantalla de inicio' en iPhone de una app standalone de verdad. Critico porque Safari purga IndexedDB/localStorage tras ~7 dias sin interaccion salvo que la app este instalada.\n\nHecho: manifest.json y index.html tenian los valores genericos del scaffold de Flutter (name \"opennutritracker\", azul por defecto #0175C2, iconos placeholder). Arreglado: name/short_name/description reales, theme_color/background_color con los colores de marca de la app (#006E2B verde primario, #1A1C19 superficie oscura, coherente con el tema oscuro por defecto), meta theme-color anadida junto a la del manifest. Los iconos web ahora se generan desde el mismo PNG que usan Android/iOS (flutter_launcher_icons con nueva seccion web: en pubspec.yaml) en vez de los cuadrados placeholder de Flutter -- verificado con flutter build web --release + servido real: manifest.json e Icon-192.png (16.8KB, antes 5.2KB del placeholder) llegan correctos.\n\nflutter analyze limpio, 800/800 tests en verde.\n\nImportante -- limitacion real, no solo detalle tecnico: en iOS no existe prompt automatico de instalacion (a diferencia de Chrome/Android con beforeinstallprompt); el usuario tiene que hacer Compartir -> Anadir a pantalla de inicio a mano. Esta tarea deja el manifest/iconos listos para que ESA instalacion salga bien, pero no anade ningun aviso dentro de la app que empuje al usuario a hacerlo -- sin ese empujon, el riesgo de purga de datos de Safari sigue ahi para quien no instale la app. Propongo una tarea de seguimiento (aviso in-app tipo banner en iOS Safari cuando no se esta en modo standalone) si se quiere cerrar el riesgo del todo, no solo la parte tecnica.","x":3100,"y":940,"width":280,"height":160,"color":"4"},
-		{"id":"ce2668fb","type":"text","text":"## FW-07 Build de produccion y despliegue en servidor propio\n## FW-07 Build de produccion y despliegue en servidor propio\nflutter build web --release genera estaticos en build/web/. Servir con HTTPS obligatorio via reverse proxy con TLS.\n\nHecho -- adaptado a Docker segun lo pedido (el servidor del usuario corre todo en contenedores):\n- Dockerfile multi-stage: ghcr.io/cirruslabs/flutter:3.41.7 compila build/web/, nginx:1.27-alpine sirve los estaticos. La imagen final no lleva el SDK, el codigo fuente ni el .env -- solo los estaticos compilados.\n- docker-compose.yml con un segundo servicio, Caddy, delante como reverse proxy -- consigue y renueva el certificado Let's Encrypt solo con declarar el dominio en el Caddyfile, sin configuracion TLS manual.\n- .dockerignore deliberadamente NO excluye .env (el Dockerfile lo copia a proposito para que envied genere env.g.dart en build time; si dockerignore lo excluyera, ese COPY fallaria).\n- docs/deploy-docker.md: tutorial completo -- por que hace falta un dominio real (Let's Encrypt no emite para una IP pelada, y HTTPS ya es obligatorio para camara/PWA por FW-05/FW-06), prerrequisitos, preparar .env en el servidor, editar el Caddyfile, build y arranque, verificacion, actualizar tras cambios, solucion de problemas.\n\nVerificado que la imagen ghcr.io/cirruslabs/flutter:3.41.7 existe de verdad y es descargable (consultado el registro directamente). No se pudo ejecutar un docker build real -- Docker no esta instalado en este entorno de desarrollo -- asi que el primer build real sera en el servidor del usuario; el tutorial incluye pasos de verificacion tempranos para detectar cualquier problema rapido.\n\nflutter analyze limpio.","x":3100,"y":1120,"width":280,"height":160,"color":"4"},
-		{"id":"efbd8609","type":"text","text":"## FW-08 Verificar escaneo de camara en iPhone y Android reales\n## FW-08 Verificar escaneo de camara en iPhone y Android reales\nmobile_scanner (usado en scanner_screen.dart y en los 3 flujos de importar-por-QR de receta/comida/actividad) tiene soporte web via getUserMedia, pero es el punto mas inestable en Safari iOS: requiere HTTPS + gesto del usuario, y el comportamiento varia entre versiones de iOS. Probar en el servidor ya desplegado tanto el escaner de codigos de barras de producto como los 3 flujos de compartir-por-QR, en Safari iOS y Chrome Android reales, no solo en el emulador.\n\nBUG REAL #1 encontrado y arreglado en iPhone real: la camara abria y mostraba video en vivo, pero nunca detectaba codigos de barras reales de producto. Causa: scanner_screen.dart:228 filtraba por `barcode.type == BarcodeType.product`, el clasificador on-device de ML Kit que a veces etiqueta un EAN/UPC valido como `BarcodeType.unknown` segun calidad de impresion/angulo de camara -- esto nunca se reproducia en el emulador Android. edit_meal_screen.dart ya habia pisado el mismo bug y lo arreglo quitando el filtro por tipo; scanner_screen.dart ahora reutiliza isValidBarcodeCheckDigit. Commit e5475207.\n\nConfirmado por el usuario en su iPhone: FUNCIONA.\n\nTras confirmar el fix, el usuario reporto 3 problemas adicionales probando en real, arreglados en commit 8f574f8e:\n\nBUG #2: el boton \"Retry\" de la pantalla \"producto no encontrado\" resubmitia el mismo codigo de barras, que falla siempre igual (un 404 real de OFF es deterministico) -- se sentia como que no hacia nada. Ahora resetea el escaner (ScannerResetEvent nuevo) y vuelve a la camara en vivo, en vez de reintentar la misma busqueda.\n\nBUG #3 (UX, no reproducido pero solicitado explicitamente): si se deniega el permiso de camara, mobile_scanner caia a una pantalla generica sin reintento ni enlace a Ajustes -- y en iOS una vez denegado no se puede repedir desde la app. Anadido un errorBuilder propio con boton \"Open Settings\" (nueva dependencia permission_handler, solo openAppSettings()) y reintento para otros errores de camara.\n\nBUG #4: no habia forma de forzar el objetivo/lente macro para codigos de barras borrosos en close-up. mobile_scanner 7.2.0 ya trae `MobileScannerController.switchCamera(ToggleLensType())` para esto -- solo faltaba exponerlo en la UI. Anadido boton de cambio de lente, visible solo si el dispositivo reporta 2+ lentes via getSupportedLenses() (para no mostrar un boton inutil en telefonos de una sola lente).\n\nflutter analyze limpio, 823/823 tests. Build Android debug verificado (compila e instala bien con la nueva dependencia). Los bugs #3 y #4 son especificos de hardware real / iOS y no se pueden reproducir en el emulador -- pendiente que el usuario confirme en su iPhone real que el escaner de lente y el flujo de permisos funcionan como se espera. Los 3 flujos de compartir-por-QR y Chrome Android real siguen sin verificar en esta pasada (no se toco ese codigo, deberia seguir funcionando).","x":3100,"y":1300,"width":280,"height":160,"color":"2"},
-		{"id":"78f3e98e","type":"text","text":"## FW-09 Checklist de verificacion manual end-to-end en iPhone y Android\nPase final de humo con dispositivos reales: instalar a pantalla de inicio en iPhone, loguear una comida con foto de camara, escanear un codigo de barras, anadir una entrada de medidas corporales con foto, hacer un export+import de zip completo, cerrar la app instalada y reabrirla para confirmar que los datos de Hive persisten, y comprobar que la seccion de notificaciones se oculta con gracia en vez de fallar. Si todo pasa, esta fase queda lista para uso diario real.","x":3100,"y":1480,"width":280,"height":160,"color":"0"},
-		{"id":"dd482a5c","type":"text","text":"## FW-10 Aviso in-app para instalar a pantalla de inicio en iOS Safari\niOS no tiene prompt automatico de instalacion (a diferencia de beforeinstallprompt en Chrome/Android) -- el usuario debe hacer Compartir -> Anadir a pantalla de inicio a mano, y sin hacerlo Safari puede purgar el Hive cifrado tras ~7 dias de inactividad (ver FW-06). Anadir un banner descartable, mostrado solo quien navega desde Safari iOS en modo navegador normal (no standalone), con instrucciones claras. Detectar via user agent + window.navigator.standalone (dart:html o package:web + js_interop, a decidir en su momento).","x":3100,"y":1660,"width":280,"height":160,"color":"1"},
-		{"id":"c66eff14","type":"text","text":"## FD-04 Reenlazar gráfico de peso de Profile a trend weight real\nHecho: weight_history_screen.dart ahora pinta 2 series: Scale (puntos crudos, gris, sin linea conectora) y Trend (linea suavizada via WeightInterpolationCalc+WeightTrendCalc de Fase Motor, color primario verde). Trend se calcula sobre el historial COMPLETO (no solo la ventana de 30 dias) para que el EWMA ya este convergido al llegar a la ventana visible, evitando un artefacto de arranque en frio en el borde izquierdo. Leyenda anadida (Semantics 'weight-history-chart-legend'). Nuevos strings weightHistoryScaleLabel/weightHistoryTrendLabel. 5 tests (4 previos + 1 nuevo verificando 2 lineas + leyenda), 690 tests totales verdes. Verificado visualmente en el emulador con datos reales: la linea trend muestra el lag de convergencia esperado del EWMA, coincide con la teoria.","x":1780,"y":580,"width":280,"height":160,"color":"4"},
-		{"id":"5276e7a6","type":"text","text":"## FM-04 Cálculo de macros\nHecho: MacroDynamicCalc en lib/core/utils/calc/macro_dynamic_calc.dart (nombre distinto del MacroCalc estatico existente para no chocar). proteinGoalG() = g/kg clamped a 1.6-2.2 + bonus 0.1 si objetivo perdida. minimumFatG() = ((altura-150)*0.5)+30, floor 30g. calculateMacros() reparte proteina primero, resto 50/50 kcal fat/carb (programa Balanced, unico con formula exacta en las fuentes), con floor de grasa que si salta absorbe carb el resto. 12 tests, incluyendo reconstruccion exacta de kcal totales y el caso donde el floor de grasa se activa. Los programas High-Carb/Low-Carb/Keto quedan sin implementar (MacroFactor solo los describe cualitativamente) - posible tarea futura si hace falta.","x":1340,"y":580,"width":280,"height":160,"color":"4"},
-		{"id":"f96c5d5a","type":"text","text":"## FM-05 Dynamic Maintenance\nHecho: DynamicMaintenanceCalc en lib/core/utils/calc/dynamic_maintenance_calc.dart. Banda +-0.7kg del objetivo -> mantenimiento puro (== TDEE). Fuera de banda -> correccion a tasa fija 0.15% del peso corporal/semana (funcion escalon, no gradiente proporcional a la distancia - asi lo especifica el plan: 'a razon de 0.15%/semana' es una tasa objetivo fija, no un termino proporcional al error). Verificado contra el ejemplo del plan (75kg objetivo, 2500kcal TDEE, peso sube -> ~2375kcal). 7 tests, incluyendo bug real de precision de punto flotante en el limite exacto (75.7-75.0 no da exactamente 0.7) corregido con epsilon 1e-6. dart format + flutter analyze limpios.","x":1340,"y":760,"width":280,"height":160,"color":"4"},
-		{"id":"b4848c15","type":"text","text":"## FM-06 Enchufar TDEE dinamico + Dynamic Maintenance como objetivo real de Home\nGetKcalGoalUsecase deja de llamar siempre a la ruta estatica. Diseno por fases (no alternativas, las dos piezas ya existentes se combinan): (1) TdeeDynamicCalc.estimateTdee sobre WeightTrendCalc.computeTrend(WeightInterpolationCalc.fillGaps(historial de peso)) + historial real de ingesta (TrackedDayBox, ~25 dias). Umbral propio de al menos 7 puntos de tendencia (mas estricto que el minimo interno de estimateTdee) para evitar saltos erraticos con 2-3 dias de datos. (2) Si hay TDEE dinamico Y targetWeightKg fijado Y goal no es maintain: dentro de banda DynamicMaintenanceCalc (+-0.7kg del objetivo) -> DynamicMaintenanceCalc.recommendedKcal (ajuste suave 0.15%/semana, fase de mantenimiento cerca del objetivo). Fuera de la banda (fase activa de persecucion del objetivo) -> TDEE dinamico menos el deficit/superavit que implica el ritmo deseado del usuario (weeklyWeightGoalKg), recalculado fresco cada vez -- esto es lo que reproduce el 'ajuste en cada check-in' de MacroFactor sin logica nueva, porque la ventana movil ya revela un TDEE mas bajo/alto segun si se pierde mas lento/rapido de lo esperado. (3) Si el goal es maintain: TDEE dinamico directo. (4) Sin targetWeightKg fijado (lose/gain): TDEE dinamico + el ajuste plano -500/+500 existente, puente hasta que fijen objetivo. (5) Sin historial suficiente: cae exactamente al camino estatico de hoy, sin cambios ahi.","x":1780,"y":960,"width":280,"height":160,"color":"4"},
-		{"id":"9d130d33","type":"text","text":"## FM-08 Retirar el selector manual de ritmo semanal (FD-02)\nRetirado el selector manual 'Desired Weekly Change' de Profile y Strategy: se elimino el ListTile de Profile, la tarjeta de ritmo semanal editable de Strategy, y el archivo set_weekly_weight_goal_dialog.dart (mas su test). weeklyWeightGoalKg se mantiene como campo (fallback estatico + bridge dinamico sin target), solo se quito la UI. Limpiadas las claves l10n huerfanas en los 9 idiomas.","x":1880,"y":1400,"width":280,"height":160,"color":"4"},
-		{"id":"72db3936","type":"text","text":"## FM-09 Reenfocar la pantalla Strategy ahora que Home ya es dinamico\nStrategyPage reenfocada: se sustituyo el grid estatico-vs-dinamico y la tarjeta de ritmo semanal por (1) tarjeta 'Today's Target' que muestra el numero real que gobierna Home (via GetKcalGoalUsecase/GetMacroGoalUsecase, no una recomputacion local) con una frase explicando el porque -- mantenimiento, banda de 0.7kg, distancia al objetivo y correccion aplicada, o el bridge de +-500kcal sin target weight -- y (2) grafico de barras de distribucion de calorias por macronutriente (altura proporcional a kcal, no a gramos), inspirado en la pestana Strategy real de MacroFactor que enseno el usuario. Se mantiene el grafico de peso y el estado del estimador. 814/814 tests, flutter analyze limpio.","x":1380,"y":1280,"width":280,"height":160,"color":"4"},
-		{"id":"b284c604","type":"text","text":"## FM-10 Tests y verificacion end-to-end del motor dinamico gobernando Home\nflutter analyze limpio, 815/815 tests. Verificacion manual en emulador (Android, flavor full debug): (1) usuario nuevo sin historial -> Home y Strategy muestran correctamente el fallback estatico IOM2005, Strategy en empty-state. (2) 2 pesadas (9 dias de trend via interpolacion) + 1 dia de intake real -> el motor dinamico se activa, Home y Strategy coinciden exactamente (3933 kcal TDEE observado); cambio de goal Maintain->Lose con target weight ya fijado activa la correccion Dynamic Maintenance (5.2kg del objetivo, corrigiendo 113kcal/dia) y el bar chart de macros se ve correcto. (3) Transicion: BUG REAL encontrado y arreglado -- anadir/borrar una entrada desde Profile > Weight History nunca refrescaba HomeBloc/DiaryBloc (solo su propio _load() local), asi que Home se quedaba mostrando el kcal goal viejo hasta reiniciar la app. Corregido en weight_history_screen.dart: _onAddEntry/_onDelete ahora llaman a ProfileBloc.updateUser tras la mutacion, igual que ya hacia AddItemBottomSheet._logWeight. Test de regresion anadido. Verificado en el emulador tras el fix: tanto anadir como borrar refrescan Home al instante, en ambas direcciones (estatico<->dinamico), sin reinicio.","x":1380,"y":1660,"width":280,"height":160,"color":"4"},
-		{"id":"311a95d4","type":"text","text":"## FR-04 Scan Product + fallback de etiqueta\n## FR-04 Scan Product + fallback de etiqueta\nEscaner de codigo de barras contra base de datos de productos (ya existia). Si no hay match (404 real, no error de red): nuevo flujo 'Photograph label' -> foto de la etiqueta -> AnalyzeLabelWithAiUsecase (usecase nuevo, prompt de TRANSCRIPCION no de estimacion: nombre, marca, serving size, kcal/carbs/fat/protein/sugars/satFat/fiber/sodio per-100g, sin campo de confianza porque una etiqueta se lee o no se lee) -> MealEntity precargado con code=barcode -> EditMealScreen (formulario manual ya existente, reutilizado tal cual) para revisar/corregir y guardar. Guardar como custom meal con ese barcode hace que un futuro escaneo del mismo producto lo encuentre localmente (#167 ya lo soportaba, prioridad 1 en SearchProductByBarcodeUseCase) sin volver a tocar Open Food Facts. Extraido PhotoPickerCard (antes _PhotoPicker duplicado en MagicScreen) a lib/core/presentation/widgets/ para reutilizarlo en ambas pantallas de foto+IA.\nDos bugs reales encontrados y arreglados de paso: (1) scanner_bloc.dart comparaba 'exception == ProductNotFoundException' (instancia contra el Type, nunca verdadero) en vez de 'is', asi que un 404 real caia siempre en el branch de error generico y jamas se distinguia un 'no encontrado' de un fallo de red -- bug pre-existente, no introducido por FR-04. (2) ScannerFailedState.props estaba vacio, asi que Equatable trataba cualquier ScannerFailedState como igual a otro sin mirar el type.\nVerificado: 767/767 tests (incluye scanner_bloc_test.dart con regresion explicita del bug de tipo, scan_label_screen_test.dart con flujo completo foto->analisis->EditMealScreen via runAsync para E/S real de archivo, scanner_not_found_fallback_test.dart cubriendo logging-flow/pick-mode/error-generico), flutter analyze limpio. En el emulador se verificado en vivo que el flujo de escaneo NORMAL (con match) sigue funcionando sin regresion tras el fix del bug -- para el camino 'not found' especifico no se encontro un barcode real que Open Food Facts no reconociera (su base de datos crowdsourced cubre incluso codigos sinteticos de prueba), asi que ese trayecto queda verificado por los tests automatizados (que fuerzan ProductNotFoundException directamente) en vez de en vivo; pendiente si se encuentra un barcode valido y no registrado.","x":900,"y":580,"width":280,"height":160,"color":"4"},
-		{"id":"70073d8f","type":"text","text":"## FR-05 Recently + Presets\n## FR-05 Recently + Presets\nRe-registro rapido de comidas recientes y presets guardados, con nombre generado automaticamente por la IA al guardar.\n\nRecently y Presets ya estaban completos desde FR-02/FR-03 (RecentMealBloc, PresetsScreen fusionando CustomMealBox+RecipeBox). Unica pieza nueva: nombre de preset auto-generado por IA.\n\n- GenerateMealNameUsecase (nuevo): usa SendOpenRouterChatCompletionUsecase con prompt dedicado, devuelve nombre 2-5 palabras title-case, limpia comillas/punto final. Lanza MealNameGenerationException tipada si falla.\n- Registrado en locator.dart como lazy singleton.\n- ReviewMealScreen: al pulsar 'Save as preset', llama a _suggestPresetName() antes de abrir el dialogo -- best-effort: si no hay API key configurada o falla la llamada, cae de vuelta al nombre del item unico (o vacio si son varios), nunca bloquea el guardado. El nombre sigue siendo editable en el dialogo (nunca se persiste ciego).\n- Tests: 7 unitarios nuevos (generate_meal_name_usecase_test.dart) + 2 widget tests nuevos en review_meal_screen_test.dart (prefill con nombre IA, fallback si falla). 14/14 tests verdes, flutter analyze limpio.\n- Verificado en vivo contra la API real de OpenRouter: Magic -> 'grilled chicken, white rice, steamed broccoli' -> Review meal (3 items) -> Save as preset -> dialogo pre-rellenado con 'Chicken And Broccoli' (nombre real generado por IA) -> Save -> snackbar 'Saved as preset' -> confirmado en la lista de Presets junto a 'Chicken rice bowl'.","x":900,"y":760,"width":280,"height":160,"color":"4"},
-		{"id":"833c6d16","type":"text","text":"## FP-05 Añadir pestaña Strategy a la bottom nav\nHecho: pestana Strategy anadida a MainScreen (Home/Diary/Recipes/Strategy/Profile, Strategy antes de Profile para minimizar disrupcion del orden existente - la referencia de XMihura la pone en otra posicion, ajustable despues si se quiere el orden exacto). StrategyPage placeholder en lib/features/strategy/presentation/ (FD-01 construira el dashboard real). Anadido strategyLabel a intl_en.arb + l10n.dart (otros locales caen a ingles por ahora). Verificado en el emulador con datos de onboarding reales (male, 1998, 190cm, 105kg->90kg, lose weight, low activity): las 5 pestanas se ven, Strategy navega y resalta correctamente. 689 tests verdes, analyze limpio. LECCION: 'flutter install' en esta version NO recompila solo, hay que 'flutter build apk' primero o usar 'flutter run' - la primera verificacion visual fallo por instalar un APK de una build vieja.","x":480,"y":580,"width":280,"height":160,"color":"4"},
-		{"id":"34f9aceb","type":"text","text":"## FM-07 Enchufar macros protein-first dinamicos en el objetivo real\nGetMacroGoalUsecase pasa a usar MacroDynamicCalc.calculateMacros (proteina primero segun peso corporal, resto 50/50 grasa/carbo con suelo de grasa) sobre el kcal goal final que salga de la tarea anterior (dinamico o estatico segun toque), en vez del split fijo 60/25/15 actual.","x":960,"y":1120,"width":280,"height":160,"color":"4"},
-		{"id":"972ba256","type":"text","text":"## FM-03 TDEE dinámico\nHecho: TdeeDynamicCalc en lib/core/utils/calc/tdee_dynamic_calc.dart. estimateTdee() = ingesta media - cambio de peso implicado en kcal sobre ventana movil (21 dias por defecto), usando WeightTrendCalc como input. weeklyChangeRateKg() = ritmo semanal sobre ventana de 20 dias. 9 tests, incluyendo reproduccion exacta del ejemplo del handbook de MacroFactor (2500kcal asumido, 2000kcal/dia real, perdida real 0.5lb/semana -> TDEE recalculado 2250kcal). dart format + flutter analyze limpios.","x":1340,"y":400,"width":280,"height":160,"color":"4"},
-		{"id":"cc60413b","type":"text","text":"## FD-03 Pantalla Diary\nTarjeta 'This week' añadida a Diary (entre el calendario y el resumen del día): 4 mini gráficos de barras por semana natural (calorías, grasa, proteína, sodio), cada uno con línea discontinua del objetivo del día seleccionado y la barra de ese día resaltada frente al resto de la semana. Calorías/grasa/proteína salen de TrackedDayEntity; sodio se suma desde la lista de ingestas del día (no existe un campo persistido, igual que hace DailyNutrientPanel para su media semanal). De paso se corrigió un bug real de límites de fecha compartido con FD-01: TrackedDayDBO.day no siempre está normalizado a medianoche, así que usar 'medianoche de hoy' como límite superior de un rango excluía silenciosamente el día de hoy en cuanto tuviera hora real; ahora el límite superior es el último instante del día. Verificado visualmente en emulador registrando una comida real (Quick add, 600kcal/40C/20F/30P) y confirmando que las 4 barras y las líneas de objetivo se corresponden exactamente con 'Today's nutrients'. 696/696 tests, flutter analyze limpio.","x":1780,"y":400,"width":280,"height":160,"color":"4"},
-		{"id":"2da24292","type":"text","text":"## FW-03 Arreglar importacion de datos para navegador (file_picker path a bytes)\n## FW-03 Arreglar importacion de datos para navegador (file_picker path a bytes)\nImportDataUsecase.importData/importDataCsv leen result.files.single.path y hacen File(path) -- en web file_picker siempre devuelve path null.\n\nHecho: los 5 sitios que usaban FilePicker.pickFiles() en todo el proyecto (import_data_usecase.dart x2, import_recipes_json_usecase.dart, import_meals_csv_usecase.dart, import_meals_json_usecase.dart, import_recipes_csv_usecase.dart) ahora pasan withData: true y leen result.files.single.bytes en vez de .path + File(path).readAsBytes()/readAsString() -- funciona igual en Android/iOS, sin necesidad de branch por plataforma. dart:io quedo sin uso en esos 5 ficheros, limpiado.\n\nflutter analyze limpio. Suite completa: 800/800 tests en verde. Verificado ademas con el build de verdad sirviendo en localhost:8080 (flutter run -d web-server): consola limpia en el arranque, con el nuevo userimagebytesbox de Hive (FW-02) creandose correctamente en IndexedDB -- confirma que el backend de fotos funciona en un build real, no solo en tests.\n\nNo se pudo hacer click-through automatizado del export+import completo -- el navegador automatizado de esta sesion no consigue pintar el canvas de Flutter (posible tema de WebGL/CanvasKit en ese entorno concreto), sin errores de consola que lo expliquen. Recomendado que el humano pruebe el ciclo export -> import de un zip real en su propio navegador en localhost:8080 antes de dar la fase de import por cerrada del todo.","x":3100,"y":400,"width":280,"height":160,"color":"4"},
-		{"id":"900e4472","type":"text","text":"## FR-03 Pantalla Review meal\n## FR-03 Pantalla Review meal\nPantalla Review meal nueva entre Magic y el diario: header con foto (si la hay) + kcal total, lista de ítems editables (cantidad en gramos con recalculo en vivo de kcal/macros vía tasa por-100g fija), badge de confianza (low/medium/high, nuevo campo pedido a la IA junto con 'grams'), botones 'Add all (N items)' (persiste cada ítem como intake independiente, mismo patron que el 'Add to diary' de FR-02, y vuelve al dashboard con popUntil(mainRoute)) y 'Save as preset'. MagicScreen ya no renderiza resultados inline: tras un analisis con items no vacios navega directamente a esta pantalla. 'Save as preset' construye un RecipeEntity multi-ingrediente (cada item -> RecipeIngredientEntity con snapshotMeal) y llama a SaveRecipeUseCase, reutilizando el modelo de datos de Recipes en lugar de CustomMealBox (que es de un solo item) -- decision validada investigando el codebase existente. Bug real encontrado y corregido: el TextEditingController del dialogo de nombre del preset se destruia antes de que acabase la animacion de cierre ('used after being disposed'); arreglado extrayendo el dialogo a su propio StatefulWidget con ciclo de vida propio. Gap real encontrado en verificacion manual: los presets guardados no aparecian en la opcion 'Presets' del menu de anadir item porque esa pantalla solo leia CustomMealBox; arreglado fusionando CustomMealsBloc + RecipeRepository.getAllRecipes() en presets_screen.dart. Verificado en vivo en el emulador contra la API real de OpenRouter: Meal breakdown con 3 items (chicken/rice/broccoli), edicion de gramos recalculando en vivo (150g->300g: 250->500 kcal), Save as preset guardado y visible en Presets con badge 'Custom Recipe', tap del preset abriendo MealDetailScreen con macros agregados correctos (125 kcal/100g, 600g), Add all persistiendo y volviendo al Home con el kcal actualizado. 746/746 tests, flutter analyze limpio.","x":900,"y":400,"width":280,"height":160,"color":"4"},
-		{"id":"4c62383a","type":"text","text":"## FE-03 Auditar código base de OpenNutriTracker\nHecho: auditoria de codigo real (no solo README) via agente Explore + hallazgo del CLAUDE.md propio del repo. Confirmado: nav de 4 tabs fija, theming via ColorScheme.fromSeed ya extensible, scan/busqueda/quick-add ya completos sobre AddIntakeUsecase, CERO suavizado de peso (grafico pinta datos crudos), motor de calculo actual = TDEECalc.getTDEEKcalIOM2005() + split fijo 60/25/15 (a reemplazar en Fase Motor). Framework de testing por ADB (Semantics identifiers) documentado para usar en verificacion de UI.","x":20,"y":400,"width":280,"height":160,"color":"4"},
-		{"id":"477fcfcc","type":"text","text":"## FP-04 Fijar tema oscuro verde por defecto\nHecho: ConfigDBO.empty() ahora usa AppThemeDBO.defaultTheme (cambiado de system a dark) + useMaterialYou:false + accentColor:0xFF2ECC71 (verde menta, Flat UI 'Emerald', igual al de referencia de XMihura). useMaterialYou en false para que el verde no lo pise el wallpaper dinamico de Android 12+. El usuario sigue pudiendo cambiarlo desde Settings (accent_colour_screen.dart), no se toco esa pantalla. Sin tests rotos, 594 verdes.","x":480,"y":300,"width":280,"height":160,"color":"4"},
-		{"id":"5853dc5c","type":"text","text":"## FF-02 Integración Apple HealthKit\nLectura de datos de salud/actividad vía HealthKit (iOS). Requiere macOS para compilar (ver tarea de pipeline CI). Backlog.","x":2220,"y":240,"width":280,"height":160,"color":"6"},
-		{"id":"1d02a992","type":"text","text":"## FM-02 Trend weight EWMA\nHecho: WeightTrendCalc.computeTrend() en lib/core/utils/calc/weight_trend_calc.dart. trend_t = trend_(t-1) + 0.1*(peso_t - trend_(t-1)) sobre la serie ya interpolada de FM-01. Primer punto sembrado a su propio valor crudo. alpha=0.1 por defecto, configurable. 7 tests: caso vacio, semilla, serie constante, step-response verificado contra la formula cerrada 90-10*(0.9)^n, amortiguacion de un pico de un dia, alpha=1.0 sin suavizado. dart format + flutter analyze limpios.","x":1340,"y":220,"width":280,"height":160,"color":"4"},
-		{"id":"8934904b","type":"text","text":"## FD-02 Modal Desired Weekly Change\nModal de ritmo semanal deseado reutilizando SetWeeklyWeightGoalDialog (ya existente en Profile, pre-fork), ahora también accesible desde la fila 'Desired' de la tarjeta Weekly Rate en Strategy (icono de lápiz, Semantics 'strategy-weekly-rate-edit'). Slider -1.0..+1.0 kg/semana con tooltip de valor en vivo (ya lo daba el widget Slider) y nuevo texto explicativo sobre cómo el ritmo alimenta el motor dinámico (Dynamic Maintenance). Persiste vía AddUserUsecase y refresca la UI al instante. Verificado visualmente: arrastre del slider a -1.00 kg/semana, OK, refleja en Strategy y en Profile (misma fuente de datos). 694/694 tests, flutter analyze limpio.","x":1780,"y":220,"width":280,"height":160,"color":"4"},
-		{"id":"4fee38a1","type":"text","text":"## FC-02 Fotos de progreso con comparacion before/after\n## FC-02 Fotos de progreso con comparacion before/after\nHecho: 3 campos de foto (frontPhotoPath/sidePhotoPath/backPhotoPath) anadidos al mismo BodyMeasurementDBO de FC-01 (HiveFields 9-11, migracion aditiva sin nuevo typeId) -- confirma la decision de que las fotos viven en la MISMA entrada que las medidas numericas, igual que MacroFactor. Nuevo UserImageKind.progressPhoto reutilizando 100% la infraestructura ya probada de UserImageStorage (WebP, compresion, subdir progress_photos/). UserImagePickerTile extendido con avatarSize configurable (evita overflow al poner 3 tiles Front/Side/Back en fila) y semanticsIdentifierOverride (para diferenciar las 3 instancias).\n\nDialogo 'Add entry' de FC-01 extendido con seccion Photos (3 pickers Front/Side/Back, cada uno con camara/galeria/quitar). Lista de entradas muestra thumbnails apilados cuando hay foto. Nueva pantalla ProgressPhotoCompareScreen (icono Compare en el AppBar, solo visible si alguna entrada tiene foto): chips de angulo, selectores Before/After (bottom sheet con las fechas que tienen foto para ese angulo), toggle de fondo White/Dark, layout apilado vertical (no lado-a-lado, coincide con MacroFactor), boton Share que captura el widget compuesto via RenderRepaintBoundary y lo comparte como PNG con Share.shareXFiles.\n\nDecision de producto validada con el usuario antes de implementar: las fotos de progreso son opt-in explicito en el export (checkbox 'Include progress photos', desmarcado por defecto) -- a diferencia de recipes/custom meals que se exportan siempre. De paso se corrigio un hueco real de FC-01: los datos numericos de medidas nunca se exportaban; ahora BodyMeasurementRepository se exporta/importa igual que weight log (incondicional, solo las fotos son opt-in). El loop de restauracion de fotos en import se genero para iterar sobre todos los UserImageKind en vez de recipe/meal hardcodeados.\n\nTests: 6 tests nuevos en body_measurements_screen_test.dart (photo pickers, thumbnails, Compare visible/oculto+navegacion) + 4 en progress_photo_compare_screen_test.dart (empty state, seleccion before/after+share visible, reset de seleccion al cambiar angulo) + 2 en user_image_storage_test.dart (progressPhoto kind). 799/799 tests verdes, flutter analyze limpio.\n\nVerificado en vivo en el emulador de principio a fin: tomada de foto real con la camara del emulador -> importada/comprimida a WebP -> mostrada en el picker -> guardada en la entrada -> thumbnail visible en la lista -> boton Compare aparecio -> comparador con 2 fechas reales -> layout apilado con las 2 fotos -> Share abrio el share-sheet nativo de Android con el PNG compuesto correctamente. Export/Import: checkbox 'Include progress photos' probado marcado y desmarcado (desaparece correctamente en modo CSV), export real ejecutado y el zip resultante inspeccionado -- confirma body_measurements.json con 4 entradas + progress_photos/2026-07-03_front.webp + progress_photos/2026-07-13_front.webp incluidos correctamente.","x":2660,"y":220,"width":280,"height":160,"color":"4"},
-		{"id":"d876bfc8","type":"text","text":"## FW-02 Backend de almacenamiento de fotos para web (IndexedDB via Hive)\n## FW-02 Backend de almacenamiento de fotos para web (IndexedDB via Hive)\nUserImageStorage (lib/core/utils/user_image_storage.dart) usa path_provider + dart:io File para guardar fotos de recetas, comidas y progreso -- no existe filesystem real en el navegador.\n\nHecho: UserImageStorage reescrito con un branch kIsWeb interno (dart:io compila en web pero lanza en runtime, asi que no hace falta import condicional en ficheros separados). Nativo sigue en disco tal cual; web guarda los mismos bytes WebP en un Box<Uint8List> nuevo de Hive (UserImageBytesBox, mismo cifrado AES que el resto). Nuevo metodo imageProvider() (FileImage nativo / MemoryImage web) sustituye los 7 sitios que hacian FutureBuilder<String>+Image.file(File(...)) a mano. importFrom() ahora recibe bytes en vez de una ruta (picked.readAsBytes()), porque XFile.path es una blob: URL en web. export/import usan el mismo readBytes/writeBytes.\n\nDe paso, confirmando los tests salieron 2 bugs reales que tambien se arreglaron: (1) el placeholder del thumbnail no tenia altura, dejando su GestureDetector con area de toque casi nula -- ahora 24x40 + hitTestBehavior opaque; (2) ProgressPhotoViewerScreen mostraba un spinner infinito en vez de un icono de error cuando la foto no existe de verdad (no solo \"aun cargando\").\n\nflutter analyze limpio. Suite completa: 800/800 tests en verde.\n\nDeliberadamente fuera de esta tarea: el bucle de restore de fotos en import_data_usecase.dart usa ya la nueva API, pero el propio file_picker.pickFiles() sigue leyendo result.files.single.path (null en web) -- eso es FW-03. Tampoco se tocaron import_recipes_json_usecase.dart / import_meals_csv_usecase.dart / import_meals_json_usecase.dart / import_recipes_csv_usecase.dart, que tienen el mismo patron de restore de fotos -- FW-03 deberia revisarlos tambien. No se hizo verificacion visual en el emulador Android real ni en `flutter run -d chrome` por presupuesto de tokens -- recomendable antes de dar la fase por cerrada del todo.","x":3100,"y":220,"width":280,"height":160,"color":"4"},
-		{"id":"f0fd4367","type":"text","text":"## FR-02 Pantalla Magic\nPantalla Magic completa + reestructuración de la entrada 'Add Item' al menú de 5 opciones de la referencia (Magic/Search/Scan Product/Recently/Presets), sustituyendo la pantalla de búsqueda directa de antes. Magic: selector de foto (cámara/galería vía image_picker), texto libre, toggle Single item/Meal breakdown, selectores Provider->Model (agrupados por vendor a partir del catálogo OpenRouter, override puntual sobre el modelo global de Settings), botón Analyze que llama a AnalyzeMealWithAiUsecase (prompt+parseo JSON con tolerancia a code-fences/valores string, nuevo) y tarjetas de resultado con 'Add to diary' que persiste directamente (mismo patrón que QuickAddBottomSheet: MealNutrimentsEntity per-100g + IntakeEntity amount=100). Search ahora son solo las pestañas Products/Food (Recently y el icono de código de barras se promovieron a entradas propias del menú); Recently y Presets son pantallas nuevas reutilizando RecentMealBloc y CustomMealsBloc respectivamente + MealItemCard para loguear con un toque. Verificado en vivo en el emulador: las 5 opciones del menú, Magic contra la API real de OpenRouter (catálogo cargado, análisis con texto libre rechazado correctamente con 401 por la API key de prueba, gestionado con mensaje de error amable), Scan Product abre el escáner existente, Recently muestra entradas reales, Presets muestra el estado vacío correcto. 734/734 tests, flutter analyze limpio.","x":900,"y":220,"width":280,"height":160,"color":"4"},
-		{"id":"924dccb0","type":"text","text":"## FE-02 Configurar Flutter + Android Studio\nHecho: Flutter 3.41.7 pinneado via FVM (coincide con .fvmrc), JDK 17, Android SDK cmdline-tools (platform-tools, platforms 34/35/36, build-tools varios, NDK 28.2), emulador Pixel 6/Android 14 creado. flutter doctor -v sin problemas. App compilada (flavor 'develop') e instalada/corriendo en el emulador, verificada visualmente por el usuario.","x":20,"y":220,"width":280,"height":160,"color":"4"},
-		{"id":"e5092995","type":"text","text":"## FM-11 FM-11 Amortiguar el TDEE dinamico y mezclarlo gradualmente\nUna simulacion de 30 dias en el emulador real (peso bajando de forma constante, intake fijo) mostro el objetivo diario subiendo ~700kcal (+27%) en el mes bajo el motor original: una lectura fresca sin suavizar de TdeeDynamicCalc.estimateTdee() cada vez, saltando de 0% a 100% de influencia dinamica en el instante en que el historial de tendencia cruzaba 7 puntos. Contrastado contra las fuentes propias de MacroFactor (algorithm-accuracy, help center) y contra investigacion de Kevin Hall (NIH) sobre adaptacion metabolica real -- decision del usuario via AskUserQuestion: anadir amortiguacion. Implementado: TdeeDynamicCalc.estimateTdeeSmoothed (EWMA sobre la secuencia de lecturas TDEE crudas, mismo alpha=0.1 que WeightTrendCalc) + mezcla lineal estatico->dinamico en GetKcalGoalUsecase de 7 a 21 puntos de tendencia (TdeeDynamicCalc.dynamicBlendWeight), con un tercer estado 'Calibrating' en Strategy compartiendo la misma fuente de verdad. flutter analyze limpio, 822/822 tests. Re-simulacion de los mismos 30 dias en el emulador real tras el fix: el salto instantaneo desaparece (0% de mezcla exacto en el punto de 7 dias, en vez de un salto de +470kcal), la subida diaria maxima baja a ~30-49kcal/dia (frente a un salto discreto), y el estado Calibrating/Active en Strategy coincide exactamente con el diseño (Active justo al cruzar 21 puntos de tendencia). El rango total del mes (2174->3166 kcal) sigue siendo grande porque el escenario es un stress-test extremo (perdida de peso sostenida con intake fijo) y la senal de TDEE subyacente es real, no ruido -- la mejora es la suavidad del camino, no el destino final.","x":1380,"y":1840,"width":280,"height":160,"color":"4"}
+	"nodes": [
+		{
+			"id": "group-fasemo",
+			"type": "group",
+			"x": 1320,
+			"y": 0,
+			"width": 380,
+			"height": 2020,
+			"label": "Fase Motor"
+		},
+		{
+			"id": "group-fasewe",
+			"type": "group",
+			"x": 3080,
+			"y": 0,
+			"width": 380,
+			"height": 1840,
+			"label": "Fase Web"
+		},
+		{
+			"id": "group-fasecu",
+			"type": "group",
+			"x": 3520,
+			"y": 0,
+			"width": 380,
+			"height": 1840,
+			"label": "Fase Cuenta"
+		},
+		{
+			"id": "group-fasepi",
+			"type": "group",
+			"x": 440,
+			"y": 0,
+			"width": 380,
+			"height": 940,
+			"label": "Fase Piel"
+		},
+		{
+			"id": "group-fasere",
+			"type": "group",
+			"x": 880,
+			"y": 0,
+			"width": 380,
+			"height": 1480,
+			"label": "Fase Registro"
+		},
+		{
+			"id": "group-faseda",
+			"type": "group",
+			"x": 1760,
+			"y": 0,
+			"width": 380,
+			"height": 2380,
+			"label": "Fase Dashboards"
+		},
+		{
+			"id": "group-faseen",
+			"type": "group",
+			"x": 0,
+			"y": 0,
+			"width": 380,
+			"height": 700,
+			"label": "Fase Entorno"
+		},
+		{
+			"id": "group-fasefu",
+			"type": "group",
+			"x": 2200,
+			"y": 0,
+			"width": 380,
+			"height": 700,
+			"label": "Fase Futuro"
+		},
+		{
+			"id": "group-faseco",
+			"type": "group",
+			"x": 2640,
+			"y": 0,
+			"width": 380,
+			"height": 700,
+			"label": "Fase Composición"
+		},
+		{
+			"id": "6aa2cbda",
+			"type": "text",
+			"text": "## FM-01 Interpolación de huecos de peso\nHecho: WeightInterpolationCalc.fillGaps() en lib/core/utils/calc/weight_interpolation_calc.dart. Interpola linealmente entre entradas reales (nunca extrapola fuera del rango [primera, ultima]), dedupe por dia, funciona con input sin ordenar. 9 tests unitarios en test/unit_test/weight_interpolation_calc_test.dart, todos pasando. dart format + flutter analyze limpios. Devuelve InterpolatedWeightPoint (date, weightKg, isInterpolated) en vez de reusar WeightLogEntity, para no tocar el modelo persistido.",
+			"x": 1340,
+			"y": 40,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "f7622873",
+			"type": "text",
+			"text": "## FF-01 Google Health Connect\nLectura de datos de actividad/salud vía Health Connect. Backlog — fuera del alcance de la primera versión funcional.",
+			"x": 2220,
+			"y": 40,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "67bf819b",
+			"type": "text",
+			"text": "## FC-01 Medidas corporales con histórico\n## FC-01 Medidas corporales con historico\nHecho: nueva entidad BodyMeasurementEntity/BodyMeasurementDBO (Hive typeId 20, box BodyMeasurementBox) siguiendo el patron exacto de WeightLogBox -- una entrada por dia (clave = dia, put sobrescribe). BodyMeasurementDataSource/Repository/usecases (Add/Get/Delete) mismo patron que weight log. Alcance final: 7 metricas (cuello, hombros, pecho, cintura, cadera, biceps, muslo), todas opcionales por entrada -- reducido de las 21 de MacroFactor segun lo planteado en la propuesta.\n\nNueva pantalla BodyMeasurementsScreen en Profile (entrada 'profile-body-measurements' junto a Weight History): chips de seleccion de metrica (BodyMeasurementMetric enum) + grafico de tendencia de fl_chart de la metrica elegida (ventana dinamica de la primera a la ultima entrada con esa metrica, mismo patron 'all time' que ya se uso en Strategy), lista de entradas (resumen de campos poblados + fecha + borrar), FAB 'Add entry' -> dialogo con selector de fecha + 7 campos numericos opcionales + nota, pre-rellenado con los valores de la ultima entrada para agilizar medidas repetidas. Tarjetas de ratio cintura/altura y cintura/cadera calculadas al vuelo desde la ultima entrada (nunca persistidas), con '-' cuando no son calculables. Soporte cm/in via UnitCalc.cmToInches/inchesToCm existente.\n\nTests: 6 unitarios nuevos (body_measurement_data_source_test.dart, mismo patron que weight_log_data_source_test.dart) + 8 widget tests nuevos (body_measurements_screen_test.dart: estado vacio, empty-state del grafico con 1 entrada, grafico con 2+, cambio de metrica, calculo de ratios y guion cuando falta un dato, formulario que parsea solo los campos rellenados, borrado). 791/791 tests verdes, flutter analyze limpio.\n\nVerificado en vivo en el emulador: navegacion Profile -> Body measurements, estado vacio correcto, dialogo Add entry con los 7 campos + fecha, prefill con la entrada anterior confirmado, entrada guardada (Waist 82.5cm / Hips 97.0cm) mostrando ratios 0.43 (waist-to-height, con altura real de 190cm del usuario) y 0.85 (waist-to-hip) calculados correctamente, segunda entrada con fecha retroactiva (Jul 6) via el date picker confirmando que el grafico de tendencia renderiza correctamente una linea entre las dos fechas.",
+			"x": 2660,
+			"y": 40,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "5f598a36",
+			"type": "text",
+			"text": "## FW-01 Habilitar plataforma web de Flutter\n## FW-01 Habilitar plataforma web de Flutter\nEjecutar `flutter create --platforms=web .` para generar `web/` (index.html, manifest.json, icons) sin tocar `android/`/`ios/`. Verificar que `flutter run -d chrome` levanta la app sin flags especiales (Flutter 3.41.7 via FVM ya soporta web de forma estable). Base de la que dependen el resto de tareas de Fase Web -- sin `web/` no hay target al que compilar.\n\nHecho: web/ generado, .metadata actualizado (nueva plataforma web registrada). Verificado con `flutter build web --release` -- compila limpio (solo un aviso informativo de compatibilidad Wasm en meal_entity.dart, no bloqueante para el target JS normal). No se hizo click-through en navegador real todavia -- eso tiene mas sentido una vez FW-02/FW-03 esten, porque hoy mismo cualquier pantalla que toque fotos (recetas, comidas, medidas corporales) fallaria en web al no tener filesystem. Boilerplate test/widget_test.dart generado por el scaffold se elimino (no aplica, el proyecto tiene su propia suite).",
+			"x": 3100,
+			"y": 40,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "16698779",
+			"type": "text",
+			"text": "## FA-09 Bucket privado en Supabase Storage (RLS por auth.uid)\nBucket 'backups' en Supabase Storage con politica RLS por patron de ruta (no auth.uid, no tabla de tokens, no Edge Function). Solo permite leer/escribir objetos cuyo nombre case con el patron backups/[a-f0-9]{64}/latest.zip -- posesion del token (256 bits generado en el dispositivo al activar el backup) equivale a acceso, igual que un enlace 'cualquiera con el link'. El cliente usa solo la anon key, sin sesion ni login.",
+			"x": 3560,
+			"y": 60,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "c0503b72",
+			"type": "text",
+			"text": "## FA-11 Incluir perfil y ajustes en el snapshot de nube\nEl export/import local actual excluye a proposito UserBox y ConfigBox. Para el backup en la nube (pensado para ver los datos en otro dispositivo, no solo como copia de seguridad de diario) si interesa incluirlos. Extender la serializacion existente sin tocar el comportamiento del export/import local que ya usan otros flujos (Settings -> Exportar).",
+			"x": 3560,
+			"y": 300,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "c4b2783d",
+			"type": "text",
+			"text": "## FA-13 UI de backup en la nube en Settings\nSeccion 'Backup en la nube' en Settings: boton para activar (genera token + muestra QR via showCloudBackupTokenDialog), boton 'Sincronizar ahora' (CloudBackupUsecase.backup()), y 'Vincular este dispositivo' que abre PairCloudBackupScreen (escanear/pegar) seguido de un aviso explicito de que 'Restaurar' sobrescribe los datos locales antes de confirmar CloudRestoreUsecase.restore() -- accion destructiva, no fusion. Ya no hay login, se sustituyo por el esquema de token/QR de FA-15.",
+			"x": 3560,
+			"y": 1020,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "7b177fa9",
+			"type": "text",
+			"text": "## FA-15 Generar token local de emparejamiento + codigo QR\nAl activar 'Backup en la nube' en Settings, generar un token aleatorio de 256 bits (formato acorde al patron RLS de FA-09) y guardarlo local (secure storage). Mostrarlo como QR (paquete tipo qr_flutter) y como texto copiable de respaldo. El emparejamiento de un dispositivo nuevo es escanear ese QR con la camara (paquete tipo mobile_scanner) o pegar el texto -- una sola vez por dispositivo, no en cada sincronizacion; a partir de ahi el token queda guardado local y 'Sincronizar'/'Actualizar' son solo un boton. Reemplaza a FA-10 (login/signup), que ya no hace falta.",
+			"x": 3560,
+			"y": 560,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "5596537d",
+			"type": "text",
+			"text": "## FA-12 CloudBackupUsecase y CloudRestoreUsecase\nReutilizan casi entero el zip-building de ExportDataUsecase/ImportDataUsecase -- solo cambia el destino/origen (Supabase Storage en vez de disco local). Las fotos de recetas/comidas/progreso ya viajan dentro del zip, asi que no hace falta un camino de sync aparte para binarios (a diferencia del diseño de sync bidireccional que se descarto).",
+			"x": 3560,
+			"y": 780,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "d19f9f86",
+			"type": "text",
+			"text": "## FR-01 Integración OpenRouter\nCliente OpenRouter (compatible con OpenAI Chat Completions) + pantalla de ajustes: campo de API key (bring-your-own-key, guardado en ConfigDBO junto al resto de settings, ya cifrado en reposo vía AES-256 de Hive) y selector de modelo buscable sobre el catálogo completo de OpenRouter (endpoint público /models, sin necesidad de key para listarlo). Soporte de contenido imagen ya incluido como helper reutilizable (OpenRouterRepository.visionMessage) para mensajes multi-parte texto+imagen en modelos con visión (detectado vía architecture.input_modalities), listo para que FR-02/FR-04 lo consuman. Arquitectura: OpenRouterDataSource (http + withRetry + Sentry, mismo patrón que OFF/FDC) -> OpenRouterRepository -> GetOpenRouterModelsUsecase/SendOpenRouterChatCompletionUsecase. Nueva entrada 'AI provider' en Settings. Verificado en vivo contra la API real de OpenRouter en el emulador: catálogo completo cargado (cientos de modelos reales, iconos de visión correctos), búsqueda filtra por nombre/id, selección de modelo y guardado de API key persisten correctamente tras recargar la pantalla. De paso se diagnosticó y resolvió un problema de DNS del emulador (relanzado con -dns-server) que afectaba también a la búsqueda OFF preexistente, no relacionado con este código. 709/709 tests, flutter analyze limpio.",
+			"x": 900,
+			"y": 40,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "5b557dc2",
+			"type": "text",
+			"text": "## FE-01 Fork de OpenNutriTracker\nHecho: fork privado arnaupool/OpenNutriTracker creado via gh CLI, clonado en openfoodtracker-fork, merge con los archivos de Kanvas (CLAUDE.md fusionado con la doc original del proyecto). Commit local hecho, sin push.",
+			"x": 20,
+			"y": 40,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "legend",
+			"type": "text",
+			"text": "## Legend\n🔴 **Red** = To Do (ready)\n⬜ **Gray** = Blocked\n🟠 **Orange** = Doing\n🔵 **Cyan** = Ready to review\n🟢 **Green** = Done\n🟣 **Purple** = Proposed by agent",
+			"x": -540,
+			"y": -310,
+			"width": 380,
+			"height": 230,
+			"color": "0"
+		},
+		{
+			"id": "canvas-warnings",
+			"type": "text",
+			"text": "## Warnings\n- FA-14 Verificacion con dos dispositivos reales is outside all groups\n- FM-06 Enchufar TDEE dinamico + Dynamic Maintenance como objetivo real de Home is outside all groups\n- FM-08 Retirar el selector manual de ritmo semanal (FD-02) is outside all groups\n- FM-07 Enchufar macros protein-first dinamicos en el objetivo real is outside all groups",
+			"x": -540,
+			"y": -530,
+			"width": 380,
+			"height": 200,
+			"color": "3"
+		},
+		{
+			"id": "canvas-errors",
+			"type": "text",
+			"text": "## Errors\n✓ None",
+			"x": -540,
+			"y": -750,
+			"width": 380,
+			"height": 200,
+			"color": "1"
+		},
+		{
+			"id": "61fa2a0b",
+			"type": "text",
+			"text": "## FD-01 Pantalla Strategy\nStrategyPage implementada: gráfico dual scale/trend con chips de rango 1M/3M/6M, tarjeta de estado del estimador (Active/Insufficient data), grid de métricas (TDEE dinámico, target actual, trend weight, TDEE estático) y tarjeta de ritmo semanal (deseado vs observado). Solo lectura, no reemplaza el flujo de fijar objetivo diario (fuera de alcance). Verificado visualmente en emulador en las 3 escalas de tiempo tras corregir un overflow de layout en el grid de métricas (childAspectRatio 2.2 -> 1.7). 693/693 tests, flutter analyze limpio.",
+			"x": 1780,
+			"y": 40,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "047e69dd",
+			"type": "text",
+			"text": "## FA-16 Restaurar desde la nube durante el onboarding\nBoton '¿Ya tienes una copia en la nube?' en la primera pantalla de onboarding -- lleva directo a PairCloudBackupScreen (si el dispositivo aun no tiene token) y de ahi a la confirmacion de CloudRestoreUsecase.restore(), sin pasar por el resto de pantallas de onboarding. Al terminar con exito, navega a mainRoute en vez de continuar el onboarding normal (en vez de seguir con datos que se van a sobrescribir de todas formas). Reutiliza integramente PairCloudBackupScreen y CloudRestoreUsecase, ningun usecase nuevo.",
+			"x": 3560,
+			"y": 1640,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "7911deda",
+			"type": "text",
+			"text": "## FA-14 Verificacion con dos dispositivos reales\nGenerar backup desde el movil, restaurar en otro dispositivo (ordenador u otro movil), confirmar que perfil, ajustes, diario y fotos llegan integros.",
+			"x": 3740,
+			"y": 1320,
+			"width": 280,
+			"height": 160,
+			"color": "1"
+		},
+		{
+			"id": "c0a1809e",
+			"type": "text",
+			"text": "## FF-03 Pipeline CI macOS para build/firma iOS\nGitHub Actions con runner macOS (o Codemagic) para compilar y firmar el IPA sin Mac local. Evaluar Apple Developer Program (99 USD/año) para distribución más allá de 7 días vs. provisioning gratuito.",
+			"x": 2220,
+			"y": 460,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "de50f8ee",
+			"type": "text",
+			"text": "## FW-04 Aislar notificaciones locales de la build web\n## FW-04 Aislar notificaciones locales de la build web\nflutter_local_notifications no tiene target web soportado oficialmente -- NotificationService.initialize()/scheduleDailyReminder fallarian o quedarian en no-op silencioso.\n\nHecho: los 6 metodos publicos de NotificationService (initialize, requestPermission, scheduleDailyReminder, cancelDailyReminder, scheduleFastingComplete, cancelFastingComplete) ahora comprueban kIsWeb como primera linea y no tocan el plugin en absoluto -- un unico punto de guarda que protege a los 3 llamadores reales (el toggle de Settings, el aviso de fin de ayuno en fasting_screen.dart, y el arranque en main.dart) sin que ninguno tenga que saber que esta en web. Ademas, en Settings, el SwitchListTile del recordatorio diario se sustituye por un ListTile deshabilitado con texto explicando que no esta disponible en la version web -- el guard del servicio es red de seguridad, este es el arreglo real de UX (un switch que no hiciera nada habria sido confuso).\n\nflutter analyze limpio, 800/800 tests en verde (el test existente de NotificationService solo cubre computeNextOccurrence, la funcion pura, no le afecta el cambio). No hay forma de testear la rama kIsWeb=true con `flutter test` normal (corre en la VM, kIsWeb siempre false ahi) -- necesitaria `flutter test --platform chrome`, fuera de como este proyecto corre tests hoy. Verificado que arranca sin errores nuevos en consola con el build real en localhost:8080.",
+			"x": 3100,
+			"y": 580,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "67746049",
+			"type": "text",
+			"text": "## FW-05 Revisar CORS y exposicion de claves en llamadas desde navegador\n## FW-05 Revisar CORS y exposicion de claves en llamadas desde navegador\nConfirmar que las llamadas directas desde el cliente a OpenRouter, Supabase FDC y Open Food Facts aceptan CORS desde el origen del navegador; documentar el riesgo de exposicion de la clave de OpenRouter.\n\nHallazgo grande, no previsto: mientras verificaba esto, descubri que _searchLangs()/OffCountry.fromLocale()/getPlatformName() usaban dart:io Platform.localeName/isAndroid/isIOS en 6 sitios del pipeline de busqueda de comida (app_const.dart, products_repository.dart, sp_fdc_data_source.dart, off_data_source.dart, meal_entity.dart x2) -- todos lanzarian UnsupportedError en runtime en web, ANTES de llegar siquiera a la capa de red. Es decir: cualquier busqueda de producto habria petado en web sin importar el CORS. Arreglado sustituyendo por dart:ui PlatformDispatcher.instance.locale (funciona en todas las plataformas, mismo formato que Platform.localeName) y defaultTargetPlatform+kIsWeb para el nombre de plataforma del User-Agent.\n\nCORS verificado de verdad con curl (no solo teoria):\n- OpenRouter (openrouter.ai/api/v1): CONFIRMADO -- Access-Control-Allow-Origin: *, permite Authorization y POST.\n- Open Food Facts, endpoint de producto/codigo de barras (world.openfoodfacts.org): CONFIRMADO -- Access-Control-Allow-Origin: *.\n- Open Food Facts, busqueda de texto Search-a-licious (search.openfoodfacts.org): NO VERIFICABLE ahora mismo -- el servicio devolvio 502 en mis pruebas (el propio codigo de la app ya trata 502/503/500 como 'servicio caido' esperado para este backend concreto, asi que probablemente sea caida temporal normal de ese servicio, no un problema mio). Misma familia de infraestructura que el endpoint de producto que si funciono -- alta confianza pero sin confirmar. Recomiendo re-verificar cuando este desplegado.\n- Supabase FDC: NO TESTEABLE en este entorno -- el .env local tiene los valores placeholder de .env.example (SUPABASE_PROJECT_URL=\"PROJECT_URL\", etc.), nunca se relleno con un proyecto real. Alta confianza igualmente: el API REST de Supabase (PostgREST) viene con CORS abierto a todos los origenes por diseno -- es el patron estandar para apps que hablan con Supabase directamente desde el navegador sin backend propio.\n\nExposicion de la clave de OpenRouter -- replanteada tras revisar el codigo real: la clave NO es un secreto compartido de la app (no viene de .env/envied), la introduce cada usuario en Settings -> OpenRouter y se guarda en su propio Hive cifrado -- igual en nativo que en web. El riesgo real no es 'se filtra la clave de todos', es que en web cualquiera con acceso casual a la pestana del navegador de ESE usuario (F12) ve su propia clave mas facil que en nativo (que requeriria root/jailbreak o un proxy MITM). Mitigacion recomendada: sugerir a los usuarios poner un limite de gasto en su propia clave de OpenRouter (soportado nativamente por OpenRouter) y no dejar la pestana abierta en ordenadores compartidos. La anon key de Supabase esta pensada para exponerse (protegida por Row Level Security en el servidor), no requiere cambios.\n\nflutter analyze limpio, 800/800 tests en verde.",
+			"x": 3100,
+			"y": 760,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "16a27dcb",
+			"type": "text",
+			"text": "## FW-06 PWA instalable y mitigacion de purga de datos de Safari (ITP)\n## FW-06 PWA instalable y mitigacion de purga de datos de Safari (ITP)\nConfigurar web/manifest.json + iconos + apple-touch-icon en web/index.html para que 'Anadir a pantalla de inicio' en iPhone de una app standalone de verdad. Critico porque Safari purga IndexedDB/localStorage tras ~7 dias sin interaccion salvo que la app este instalada.\n\nHecho: manifest.json y index.html tenian los valores genericos del scaffold de Flutter (name \"opennutritracker\", azul por defecto #0175C2, iconos placeholder). Arreglado: name/short_name/description reales, theme_color/background_color con los colores de marca de la app (#006E2B verde primario, #1A1C19 superficie oscura, coherente con el tema oscuro por defecto), meta theme-color anadida junto a la del manifest. Los iconos web ahora se generan desde el mismo PNG que usan Android/iOS (flutter_launcher_icons con nueva seccion web: en pubspec.yaml) en vez de los cuadrados placeholder de Flutter -- verificado con flutter build web --release + servido real: manifest.json e Icon-192.png (16.8KB, antes 5.2KB del placeholder) llegan correctos.\n\nflutter analyze limpio, 800/800 tests en verde.\n\nImportante -- limitacion real, no solo detalle tecnico: en iOS no existe prompt automatico de instalacion (a diferencia de Chrome/Android con beforeinstallprompt); el usuario tiene que hacer Compartir -> Anadir a pantalla de inicio a mano. Esta tarea deja el manifest/iconos listos para que ESA instalacion salga bien, pero no anade ningun aviso dentro de la app que empuje al usuario a hacerlo -- sin ese empujon, el riesgo de purga de datos de Safari sigue ahi para quien no instale la app. Propongo una tarea de seguimiento (aviso in-app tipo banner en iOS Safari cuando no se esta en modo standalone) si se quiere cerrar el riesgo del todo, no solo la parte tecnica.",
+			"x": 3100,
+			"y": 940,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "ce2668fb",
+			"type": "text",
+			"text": "## FW-07 Build de produccion y despliegue en servidor propio\n## FW-07 Build de produccion y despliegue en servidor propio\nflutter build web --release genera estaticos en build/web/. Servir con HTTPS obligatorio via reverse proxy con TLS.\n\nHecho -- adaptado a Docker segun lo pedido (el servidor del usuario corre todo en contenedores):\n- Dockerfile multi-stage: ghcr.io/cirruslabs/flutter:3.41.7 compila build/web/, nginx:1.27-alpine sirve los estaticos. La imagen final no lleva el SDK, el codigo fuente ni el .env -- solo los estaticos compilados.\n- docker-compose.yml con un segundo servicio, Caddy, delante como reverse proxy -- consigue y renueva el certificado Let's Encrypt solo con declarar el dominio en el Caddyfile, sin configuracion TLS manual.\n- .dockerignore deliberadamente NO excluye .env (el Dockerfile lo copia a proposito para que envied genere env.g.dart en build time; si dockerignore lo excluyera, ese COPY fallaria).\n- docs/deploy-docker.md: tutorial completo -- por que hace falta un dominio real (Let's Encrypt no emite para una IP pelada, y HTTPS ya es obligatorio para camara/PWA por FW-05/FW-06), prerrequisitos, preparar .env en el servidor, editar el Caddyfile, build y arranque, verificacion, actualizar tras cambios, solucion de problemas.\n\nVerificado que la imagen ghcr.io/cirruslabs/flutter:3.41.7 existe de verdad y es descargable (consultado el registro directamente). No se pudo ejecutar un docker build real -- Docker no esta instalado en este entorno de desarrollo -- asi que el primer build real sera en el servidor del usuario; el tutorial incluye pasos de verificacion tempranos para detectar cualquier problema rapido.\n\nflutter analyze limpio.",
+			"x": 3100,
+			"y": 1120,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "efbd8609",
+			"type": "text",
+			"text": "## FW-08 Verificar escaneo de camara en iPhone y Android reales\n## FW-08 Verificar escaneo de camara en iPhone y Android reales\nmobile_scanner (usado en scanner_screen.dart y en los 3 flujos de importar-por-QR de receta/comida/actividad) tiene soporte web via getUserMedia, pero es el punto mas inestable en Safari iOS: requiere HTTPS + gesto del usuario, y el comportamiento varia entre versiones de iOS. Probar en el servidor ya desplegado tanto el escaner de codigos de barras de producto como los 3 flujos de compartir-por-QR, en Safari iOS y Chrome Android reales, no solo en el emulador.\n\nBUG REAL #1 encontrado y arreglado en iPhone real: la camara abria y mostraba video en vivo, pero nunca detectaba codigos de barras reales de producto. Causa: scanner_screen.dart:228 filtraba por `barcode.type == BarcodeType.product`, el clasificador on-device de ML Kit que a veces etiqueta un EAN/UPC valido como `BarcodeType.unknown` segun calidad de impresion/angulo de camara -- esto nunca se reproducia en el emulador Android. edit_meal_screen.dart ya habia pisado el mismo bug y lo arreglo quitando el filtro por tipo; scanner_screen.dart ahora reutiliza isValidBarcodeCheckDigit. Commit e5475207.\n\nConfirmado por el usuario en su iPhone: FUNCIONA.\n\nTras confirmar el fix, el usuario reporto 3 problemas adicionales probando en real, arreglados en commit 8f574f8e:\n\nBUG #2: el boton \"Retry\" de la pantalla \"producto no encontrado\" resubmitia el mismo codigo de barras, que falla siempre igual (un 404 real de OFF es deterministico) -- se sentia como que no hacia nada. Ahora resetea el escaner (ScannerResetEvent nuevo) y vuelve a la camara en vivo, en vez de reintentar la misma busqueda.\n\nBUG #3 (UX, no reproducido pero solicitado explicitamente): si se deniega el permiso de camara, mobile_scanner caia a una pantalla generica sin reintento ni enlace a Ajustes -- y en iOS una vez denegado no se puede repedir desde la app. Anadido un errorBuilder propio con boton \"Open Settings\" (nueva dependencia permission_handler, solo openAppSettings()) y reintento para otros errores de camara.\n\nBUG #4: no habia forma de forzar el objetivo/lente macro para codigos de barras borrosos en close-up. mobile_scanner 7.2.0 ya trae `MobileScannerController.switchCamera(ToggleLensType())` para esto -- solo faltaba exponerlo en la UI. Anadido boton de cambio de lente, visible solo si el dispositivo reporta 2+ lentes via getSupportedLenses() (para no mostrar un boton inutil en telefonos de una sola lente).\n\nflutter analyze limpio, 823/823 tests. Build Android debug verificado (compila e instala bien con la nueva dependencia). Los bugs #3 y #4 son especificos de hardware real / iOS y no se pueden reproducir en el emulador -- pendiente que el usuario confirme en su iPhone real que el escaner de lente y el flujo de permisos funcionan como se espera. Los 3 flujos de compartir-por-QR y Chrome Android real siguen sin verificar en esta pasada (no se toco ese codigo, deberia seguir funcionando).",
+			"x": 3100,
+			"y": 1300,
+			"width": 280,
+			"height": 160,
+			"color": "2"
+		},
+		{
+			"id": "78f3e98e",
+			"type": "text",
+			"text": "## FW-09 Checklist de verificacion manual end-to-end en iPhone y Android\nPase final de humo con dispositivos reales: instalar a pantalla de inicio en iPhone, loguear una comida con foto de camara, escanear un codigo de barras, anadir una entrada de medidas corporales con foto, hacer un export+import de zip completo, cerrar la app instalada y reabrirla para confirmar que los datos de Hive persisten, y comprobar que la seccion de notificaciones se oculta con gracia en vez de fallar. Si todo pasa, esta fase queda lista para uso diario real.",
+			"x": 3100,
+			"y": 1480,
+			"width": 280,
+			"height": 160,
+			"color": "0"
+		},
+		{
+			"id": "dd482a5c",
+			"type": "text",
+			"text": "## FW-10 Aviso in-app para instalar a pantalla de inicio en iOS Safari\niOS no tiene prompt automatico de instalacion (a diferencia de beforeinstallprompt en Chrome/Android) -- el usuario debe hacer Compartir -> Anadir a pantalla de inicio a mano, y sin hacerlo Safari puede purgar el Hive cifrado tras ~7 dias de inactividad (ver FW-06). Anadir un banner descartable, mostrado solo quien navega desde Safari iOS en modo navegador normal (no standalone), con instrucciones claras. Detectar via user agent + window.navigator.standalone (dart:html o package:web + js_interop, a decidir en su momento).",
+			"x": 3100,
+			"y": 1660,
+			"width": 280,
+			"height": 160,
+			"color": "1"
+		},
+		{
+			"id": "c66eff14",
+			"type": "text",
+			"text": "## FD-04 Reenlazar gráfico de peso de Profile a trend weight real\nHecho: weight_history_screen.dart ahora pinta 2 series: Scale (puntos crudos, gris, sin linea conectora) y Trend (linea suavizada via WeightInterpolationCalc+WeightTrendCalc de Fase Motor, color primario verde). Trend se calcula sobre el historial COMPLETO (no solo la ventana de 30 dias) para que el EWMA ya este convergido al llegar a la ventana visible, evitando un artefacto de arranque en frio en el borde izquierdo. Leyenda anadida (Semantics 'weight-history-chart-legend'). Nuevos strings weightHistoryScaleLabel/weightHistoryTrendLabel. 5 tests (4 previos + 1 nuevo verificando 2 lineas + leyenda), 690 tests totales verdes. Verificado visualmente en el emulador con datos reales: la linea trend muestra el lag de convergencia esperado del EWMA, coincide con la teoria.",
+			"x": 1780,
+			"y": 580,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "5276e7a6",
+			"type": "text",
+			"text": "## FM-04 Cálculo de macros\nHecho: MacroDynamicCalc en lib/core/utils/calc/macro_dynamic_calc.dart (nombre distinto del MacroCalc estatico existente para no chocar). proteinGoalG() = g/kg clamped a 1.6-2.2 + bonus 0.1 si objetivo perdida. minimumFatG() = ((altura-150)*0.5)+30, floor 30g. calculateMacros() reparte proteina primero, resto 50/50 kcal fat/carb (programa Balanced, unico con formula exacta en las fuentes), con floor de grasa que si salta absorbe carb el resto. 12 tests, incluyendo reconstruccion exacta de kcal totales y el caso donde el floor de grasa se activa. Los programas High-Carb/Low-Carb/Keto quedan sin implementar (MacroFactor solo los describe cualitativamente) - posible tarea futura si hace falta.",
+			"x": 1340,
+			"y": 580,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "f96c5d5a",
+			"type": "text",
+			"text": "## FM-05 Dynamic Maintenance\nHecho: DynamicMaintenanceCalc en lib/core/utils/calc/dynamic_maintenance_calc.dart. Banda +-0.7kg del objetivo -> mantenimiento puro (== TDEE). Fuera de banda -> correccion a tasa fija 0.15% del peso corporal/semana (funcion escalon, no gradiente proporcional a la distancia - asi lo especifica el plan: 'a razon de 0.15%/semana' es una tasa objetivo fija, no un termino proporcional al error). Verificado contra el ejemplo del plan (75kg objetivo, 2500kcal TDEE, peso sube -> ~2375kcal). 7 tests, incluyendo bug real de precision de punto flotante en el limite exacto (75.7-75.0 no da exactamente 0.7) corregido con epsilon 1e-6. dart format + flutter analyze limpios.",
+			"x": 1340,
+			"y": 760,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "b4848c15",
+			"type": "text",
+			"text": "## FM-06 Enchufar TDEE dinamico + Dynamic Maintenance como objetivo real de Home\nGetKcalGoalUsecase deja de llamar siempre a la ruta estatica. Diseno por fases (no alternativas, las dos piezas ya existentes se combinan): (1) TdeeDynamicCalc.estimateTdee sobre WeightTrendCalc.computeTrend(WeightInterpolationCalc.fillGaps(historial de peso)) + historial real de ingesta (TrackedDayBox, ~25 dias). Umbral propio de al menos 7 puntos de tendencia (mas estricto que el minimo interno de estimateTdee) para evitar saltos erraticos con 2-3 dias de datos. (2) Si hay TDEE dinamico Y targetWeightKg fijado Y goal no es maintain: dentro de banda DynamicMaintenanceCalc (+-0.7kg del objetivo) -> DynamicMaintenanceCalc.recommendedKcal (ajuste suave 0.15%/semana, fase de mantenimiento cerca del objetivo). Fuera de la banda (fase activa de persecucion del objetivo) -> TDEE dinamico menos el deficit/superavit que implica el ritmo deseado del usuario (weeklyWeightGoalKg), recalculado fresco cada vez -- esto es lo que reproduce el 'ajuste en cada check-in' de MacroFactor sin logica nueva, porque la ventana movil ya revela un TDEE mas bajo/alto segun si se pierde mas lento/rapido de lo esperado. (3) Si el goal es maintain: TDEE dinamico directo. (4) Sin targetWeightKg fijado (lose/gain): TDEE dinamico + el ajuste plano -500/+500 existente, puente hasta que fijen objetivo. (5) Sin historial suficiente: cae exactamente al camino estatico de hoy, sin cambios ahi.",
+			"x": 1780,
+			"y": 960,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "9d130d33",
+			"type": "text",
+			"text": "## FM-08 Retirar el selector manual de ritmo semanal (FD-02)\nRetirado el selector manual 'Desired Weekly Change' de Profile y Strategy: se elimino el ListTile de Profile, la tarjeta de ritmo semanal editable de Strategy, y el archivo set_weekly_weight_goal_dialog.dart (mas su test). weeklyWeightGoalKg se mantiene como campo (fallback estatico + bridge dinamico sin target), solo se quito la UI. Limpiadas las claves l10n huerfanas en los 9 idiomas.",
+			"x": 1880,
+			"y": 1400,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "72db3936",
+			"type": "text",
+			"text": "## FM-09 Reenfocar la pantalla Strategy ahora que Home ya es dinamico\nStrategyPage reenfocada: se sustituyo el grid estatico-vs-dinamico y la tarjeta de ritmo semanal por (1) tarjeta 'Today's Target' que muestra el numero real que gobierna Home (via GetKcalGoalUsecase/GetMacroGoalUsecase, no una recomputacion local) con una frase explicando el porque -- mantenimiento, banda de 0.7kg, distancia al objetivo y correccion aplicada, o el bridge de +-500kcal sin target weight -- y (2) grafico de barras de distribucion de calorias por macronutriente (altura proporcional a kcal, no a gramos), inspirado en la pestana Strategy real de MacroFactor que enseno el usuario. Se mantiene el grafico de peso y el estado del estimador. 814/814 tests, flutter analyze limpio.",
+			"x": 1380,
+			"y": 1280,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "b284c604",
+			"type": "text",
+			"text": "## FM-10 Tests y verificacion end-to-end del motor dinamico gobernando Home\nflutter analyze limpio, 815/815 tests. Verificacion manual en emulador (Android, flavor full debug): (1) usuario nuevo sin historial -> Home y Strategy muestran correctamente el fallback estatico IOM2005, Strategy en empty-state. (2) 2 pesadas (9 dias de trend via interpolacion) + 1 dia de intake real -> el motor dinamico se activa, Home y Strategy coinciden exactamente (3933 kcal TDEE observado); cambio de goal Maintain->Lose con target weight ya fijado activa la correccion Dynamic Maintenance (5.2kg del objetivo, corrigiendo 113kcal/dia) y el bar chart de macros se ve correcto. (3) Transicion: BUG REAL encontrado y arreglado -- anadir/borrar una entrada desde Profile > Weight History nunca refrescaba HomeBloc/DiaryBloc (solo su propio _load() local), asi que Home se quedaba mostrando el kcal goal viejo hasta reiniciar la app. Corregido en weight_history_screen.dart: _onAddEntry/_onDelete ahora llaman a ProfileBloc.updateUser tras la mutacion, igual que ya hacia AddItemBottomSheet._logWeight. Test de regresion anadido. Verificado en el emulador tras el fix: tanto anadir como borrar refrescan Home al instante, en ambas direcciones (estatico<->dinamico), sin reinicio.",
+			"x": 1380,
+			"y": 1660,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "311a95d4",
+			"type": "text",
+			"text": "## FR-04 Scan Product + fallback de etiqueta\n## FR-04 Scan Product + fallback de etiqueta\nEscaner de codigo de barras contra base de datos de productos (ya existia). Si no hay match (404 real, no error de red): nuevo flujo 'Photograph label' -> foto de la etiqueta -> AnalyzeLabelWithAiUsecase (usecase nuevo, prompt de TRANSCRIPCION no de estimacion: nombre, marca, serving size, kcal/carbs/fat/protein/sugars/satFat/fiber/sodio per-100g, sin campo de confianza porque una etiqueta se lee o no se lee) -> MealEntity precargado con code=barcode -> EditMealScreen (formulario manual ya existente, reutilizado tal cual) para revisar/corregir y guardar. Guardar como custom meal con ese barcode hace que un futuro escaneo del mismo producto lo encuentre localmente (#167 ya lo soportaba, prioridad 1 en SearchProductByBarcodeUseCase) sin volver a tocar Open Food Facts. Extraido PhotoPickerCard (antes _PhotoPicker duplicado en MagicScreen) a lib/core/presentation/widgets/ para reutilizarlo en ambas pantallas de foto+IA.\nDos bugs reales encontrados y arreglados de paso: (1) scanner_bloc.dart comparaba 'exception == ProductNotFoundException' (instancia contra el Type, nunca verdadero) en vez de 'is', asi que un 404 real caia siempre en el branch de error generico y jamas se distinguia un 'no encontrado' de un fallo de red -- bug pre-existente, no introducido por FR-04. (2) ScannerFailedState.props estaba vacio, asi que Equatable trataba cualquier ScannerFailedState como igual a otro sin mirar el type.\nVerificado: 767/767 tests (incluye scanner_bloc_test.dart con regresion explicita del bug de tipo, scan_label_screen_test.dart con flujo completo foto->analisis->EditMealScreen via runAsync para E/S real de archivo, scanner_not_found_fallback_test.dart cubriendo logging-flow/pick-mode/error-generico), flutter analyze limpio. En el emulador se verificado en vivo que el flujo de escaneo NORMAL (con match) sigue funcionando sin regresion tras el fix del bug -- para el camino 'not found' especifico no se encontro un barcode real que Open Food Facts no reconociera (su base de datos crowdsourced cubre incluso codigos sinteticos de prueba), asi que ese trayecto queda verificado por los tests automatizados (que fuerzan ProductNotFoundException directamente) en vez de en vivo; pendiente si se encuentra un barcode valido y no registrado.",
+			"x": 900,
+			"y": 580,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "70073d8f",
+			"type": "text",
+			"text": "## FR-05 Recently + Presets\n## FR-05 Recently + Presets\nRe-registro rapido de comidas recientes y presets guardados, con nombre generado automaticamente por la IA al guardar.\n\nRecently y Presets ya estaban completos desde FR-02/FR-03 (RecentMealBloc, PresetsScreen fusionando CustomMealBox+RecipeBox). Unica pieza nueva: nombre de preset auto-generado por IA.\n\n- GenerateMealNameUsecase (nuevo): usa SendOpenRouterChatCompletionUsecase con prompt dedicado, devuelve nombre 2-5 palabras title-case, limpia comillas/punto final. Lanza MealNameGenerationException tipada si falla.\n- Registrado en locator.dart como lazy singleton.\n- ReviewMealScreen: al pulsar 'Save as preset', llama a _suggestPresetName() antes de abrir el dialogo -- best-effort: si no hay API key configurada o falla la llamada, cae de vuelta al nombre del item unico (o vacio si son varios), nunca bloquea el guardado. El nombre sigue siendo editable en el dialogo (nunca se persiste ciego).\n- Tests: 7 unitarios nuevos (generate_meal_name_usecase_test.dart) + 2 widget tests nuevos en review_meal_screen_test.dart (prefill con nombre IA, fallback si falla). 14/14 tests verdes, flutter analyze limpio.\n- Verificado en vivo contra la API real de OpenRouter: Magic -> 'grilled chicken, white rice, steamed broccoli' -> Review meal (3 items) -> Save as preset -> dialogo pre-rellenado con 'Chicken And Broccoli' (nombre real generado por IA) -> Save -> snackbar 'Saved as preset' -> confirmado en la lista de Presets junto a 'Chicken rice bowl'.",
+			"x": 900,
+			"y": 760,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "833c6d16",
+			"type": "text",
+			"text": "## FP-05 Añadir pestaña Strategy a la bottom nav\nHecho: pestana Strategy anadida a MainScreen (Home/Diary/Recipes/Strategy/Profile, Strategy antes de Profile para minimizar disrupcion del orden existente - la referencia de XMihura la pone en otra posicion, ajustable despues si se quiere el orden exacto). StrategyPage placeholder en lib/features/strategy/presentation/ (FD-01 construira el dashboard real). Anadido strategyLabel a intl_en.arb + l10n.dart (otros locales caen a ingles por ahora). Verificado en el emulador con datos de onboarding reales (male, 1998, 190cm, 105kg->90kg, lose weight, low activity): las 5 pestanas se ven, Strategy navega y resalta correctamente. 689 tests verdes, analyze limpio. LECCION: 'flutter install' en esta version NO recompila solo, hay que 'flutter build apk' primero o usar 'flutter run' - la primera verificacion visual fallo por instalar un APK de una build vieja.",
+			"x": 480,
+			"y": 580,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "34f9aceb",
+			"type": "text",
+			"text": "## FM-07 Enchufar macros protein-first dinamicos en el objetivo real\nGetMacroGoalUsecase pasa a usar MacroDynamicCalc.calculateMacros (proteina primero segun peso corporal, resto 50/50 grasa/carbo con suelo de grasa) sobre el kcal goal final que salga de la tarea anterior (dinamico o estatico segun toque), en vez del split fijo 60/25/15 actual.",
+			"x": 960,
+			"y": 1120,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "972ba256",
+			"type": "text",
+			"text": "## FM-03 TDEE dinámico\nHecho: TdeeDynamicCalc en lib/core/utils/calc/tdee_dynamic_calc.dart. estimateTdee() = ingesta media - cambio de peso implicado en kcal sobre ventana movil (21 dias por defecto), usando WeightTrendCalc como input. weeklyChangeRateKg() = ritmo semanal sobre ventana de 20 dias. 9 tests, incluyendo reproduccion exacta del ejemplo del handbook de MacroFactor (2500kcal asumido, 2000kcal/dia real, perdida real 0.5lb/semana -> TDEE recalculado 2250kcal). dart format + flutter analyze limpios.",
+			"x": 1340,
+			"y": 400,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "cc60413b",
+			"type": "text",
+			"text": "## FD-03 Pantalla Diary\nTarjeta 'This week' añadida a Diary (entre el calendario y el resumen del día): 4 mini gráficos de barras por semana natural (calorías, grasa, proteína, sodio), cada uno con línea discontinua del objetivo del día seleccionado y la barra de ese día resaltada frente al resto de la semana. Calorías/grasa/proteína salen de TrackedDayEntity; sodio se suma desde la lista de ingestas del día (no existe un campo persistido, igual que hace DailyNutrientPanel para su media semanal). De paso se corrigió un bug real de límites de fecha compartido con FD-01: TrackedDayDBO.day no siempre está normalizado a medianoche, así que usar 'medianoche de hoy' como límite superior de un rango excluía silenciosamente el día de hoy en cuanto tuviera hora real; ahora el límite superior es el último instante del día. Verificado visualmente en emulador registrando una comida real (Quick add, 600kcal/40C/20F/30P) y confirmando que las 4 barras y las líneas de objetivo se corresponden exactamente con 'Today's nutrients'. 696/696 tests, flutter analyze limpio.",
+			"x": 1780,
+			"y": 400,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "2da24292",
+			"type": "text",
+			"text": "## FW-03 Arreglar importacion de datos para navegador (file_picker path a bytes)\n## FW-03 Arreglar importacion de datos para navegador (file_picker path a bytes)\nImportDataUsecase.importData/importDataCsv leen result.files.single.path y hacen File(path) -- en web file_picker siempre devuelve path null.\n\nHecho: los 5 sitios que usaban FilePicker.pickFiles() en todo el proyecto (import_data_usecase.dart x2, import_recipes_json_usecase.dart, import_meals_csv_usecase.dart, import_meals_json_usecase.dart, import_recipes_csv_usecase.dart) ahora pasan withData: true y leen result.files.single.bytes en vez de .path + File(path).readAsBytes()/readAsString() -- funciona igual en Android/iOS, sin necesidad de branch por plataforma. dart:io quedo sin uso en esos 5 ficheros, limpiado.\n\nflutter analyze limpio. Suite completa: 800/800 tests en verde. Verificado ademas con el build de verdad sirviendo en localhost:8080 (flutter run -d web-server): consola limpia en el arranque, con el nuevo userimagebytesbox de Hive (FW-02) creandose correctamente en IndexedDB -- confirma que el backend de fotos funciona en un build real, no solo en tests.\n\nNo se pudo hacer click-through automatizado del export+import completo -- el navegador automatizado de esta sesion no consigue pintar el canvas de Flutter (posible tema de WebGL/CanvasKit en ese entorno concreto), sin errores de consola que lo expliquen. Recomendado que el humano pruebe el ciclo export -> import de un zip real en su propio navegador en localhost:8080 antes de dar la fase de import por cerrada del todo.",
+			"x": 3100,
+			"y": 400,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "900e4472",
+			"type": "text",
+			"text": "## FR-03 Pantalla Review meal\n## FR-03 Pantalla Review meal\nPantalla Review meal nueva entre Magic y el diario: header con foto (si la hay) + kcal total, lista de ítems editables (cantidad en gramos con recalculo en vivo de kcal/macros vía tasa por-100g fija), badge de confianza (low/medium/high, nuevo campo pedido a la IA junto con 'grams'), botones 'Add all (N items)' (persiste cada ítem como intake independiente, mismo patron que el 'Add to diary' de FR-02, y vuelve al dashboard con popUntil(mainRoute)) y 'Save as preset'. MagicScreen ya no renderiza resultados inline: tras un analisis con items no vacios navega directamente a esta pantalla. 'Save as preset' construye un RecipeEntity multi-ingrediente (cada item -> RecipeIngredientEntity con snapshotMeal) y llama a SaveRecipeUseCase, reutilizando el modelo de datos de Recipes en lugar de CustomMealBox (que es de un solo item) -- decision validada investigando el codebase existente. Bug real encontrado y corregido: el TextEditingController del dialogo de nombre del preset se destruia antes de que acabase la animacion de cierre ('used after being disposed'); arreglado extrayendo el dialogo a su propio StatefulWidget con ciclo de vida propio. Gap real encontrado en verificacion manual: los presets guardados no aparecian en la opcion 'Presets' del menu de anadir item porque esa pantalla solo leia CustomMealBox; arreglado fusionando CustomMealsBloc + RecipeRepository.getAllRecipes() en presets_screen.dart. Verificado en vivo en el emulador contra la API real de OpenRouter: Meal breakdown con 3 items (chicken/rice/broccoli), edicion de gramos recalculando en vivo (150g->300g: 250->500 kcal), Save as preset guardado y visible en Presets con badge 'Custom Recipe', tap del preset abriendo MealDetailScreen con macros agregados correctos (125 kcal/100g, 600g), Add all persistiendo y volviendo al Home con el kcal actualizado. 746/746 tests, flutter analyze limpio.",
+			"x": 900,
+			"y": 400,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "4c62383a",
+			"type": "text",
+			"text": "## FE-03 Auditar código base de OpenNutriTracker\nHecho: auditoria de codigo real (no solo README) via agente Explore + hallazgo del CLAUDE.md propio del repo. Confirmado: nav de 4 tabs fija, theming via ColorScheme.fromSeed ya extensible, scan/busqueda/quick-add ya completos sobre AddIntakeUsecase, CERO suavizado de peso (grafico pinta datos crudos), motor de calculo actual = TDEECalc.getTDEEKcalIOM2005() + split fijo 60/25/15 (a reemplazar en Fase Motor). Framework de testing por ADB (Semantics identifiers) documentado para usar en verificacion de UI.",
+			"x": 20,
+			"y": 400,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "477fcfcc",
+			"type": "text",
+			"text": "## FP-04 Fijar tema oscuro verde por defecto\nHecho: ConfigDBO.empty() ahora usa AppThemeDBO.defaultTheme (cambiado de system a dark) + useMaterialYou:false + accentColor:0xFF2ECC71 (verde menta, Flat UI 'Emerald', igual al de referencia de XMihura). useMaterialYou en false para que el verde no lo pise el wallpaper dinamico de Android 12+. El usuario sigue pudiendo cambiarlo desde Settings (accent_colour_screen.dart), no se toco esa pantalla. Sin tests rotos, 594 verdes.",
+			"x": 480,
+			"y": 300,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "5853dc5c",
+			"type": "text",
+			"text": "## FF-02 Integración Apple HealthKit\nLectura de datos de salud/actividad vía HealthKit (iOS). Requiere macOS para compilar (ver tarea de pipeline CI). Backlog.",
+			"x": 2220,
+			"y": 240,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "1d02a992",
+			"type": "text",
+			"text": "## FM-02 Trend weight EWMA\nHecho: WeightTrendCalc.computeTrend() en lib/core/utils/calc/weight_trend_calc.dart. trend_t = trend_(t-1) + 0.1*(peso_t - trend_(t-1)) sobre la serie ya interpolada de FM-01. Primer punto sembrado a su propio valor crudo. alpha=0.1 por defecto, configurable. 7 tests: caso vacio, semilla, serie constante, step-response verificado contra la formula cerrada 90-10*(0.9)^n, amortiguacion de un pico de un dia, alpha=1.0 sin suavizado. dart format + flutter analyze limpios.",
+			"x": 1340,
+			"y": 220,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "8934904b",
+			"type": "text",
+			"text": "## FD-02 Modal Desired Weekly Change\nModal de ritmo semanal deseado reutilizando SetWeeklyWeightGoalDialog (ya existente en Profile, pre-fork), ahora también accesible desde la fila 'Desired' de la tarjeta Weekly Rate en Strategy (icono de lápiz, Semantics 'strategy-weekly-rate-edit'). Slider -1.0..+1.0 kg/semana con tooltip de valor en vivo (ya lo daba el widget Slider) y nuevo texto explicativo sobre cómo el ritmo alimenta el motor dinámico (Dynamic Maintenance). Persiste vía AddUserUsecase y refresca la UI al instante. Verificado visualmente: arrastre del slider a -1.00 kg/semana, OK, refleja en Strategy y en Profile (misma fuente de datos). 694/694 tests, flutter analyze limpio.",
+			"x": 1780,
+			"y": 220,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "4fee38a1",
+			"type": "text",
+			"text": "## FC-02 Fotos de progreso con comparacion before/after\n## FC-02 Fotos de progreso con comparacion before/after\nHecho: 3 campos de foto (frontPhotoPath/sidePhotoPath/backPhotoPath) anadidos al mismo BodyMeasurementDBO de FC-01 (HiveFields 9-11, migracion aditiva sin nuevo typeId) -- confirma la decision de que las fotos viven en la MISMA entrada que las medidas numericas, igual que MacroFactor. Nuevo UserImageKind.progressPhoto reutilizando 100% la infraestructura ya probada de UserImageStorage (WebP, compresion, subdir progress_photos/). UserImagePickerTile extendido con avatarSize configurable (evita overflow al poner 3 tiles Front/Side/Back en fila) y semanticsIdentifierOverride (para diferenciar las 3 instancias).\n\nDialogo 'Add entry' de FC-01 extendido con seccion Photos (3 pickers Front/Side/Back, cada uno con camara/galeria/quitar). Lista de entradas muestra thumbnails apilados cuando hay foto. Nueva pantalla ProgressPhotoCompareScreen (icono Compare en el AppBar, solo visible si alguna entrada tiene foto): chips de angulo, selectores Before/After (bottom sheet con las fechas que tienen foto para ese angulo), toggle de fondo White/Dark, layout apilado vertical (no lado-a-lado, coincide con MacroFactor), boton Share que captura el widget compuesto via RenderRepaintBoundary y lo comparte como PNG con Share.shareXFiles.\n\nDecision de producto validada con el usuario antes de implementar: las fotos de progreso son opt-in explicito en el export (checkbox 'Include progress photos', desmarcado por defecto) -- a diferencia de recipes/custom meals que se exportan siempre. De paso se corrigio un hueco real de FC-01: los datos numericos de medidas nunca se exportaban; ahora BodyMeasurementRepository se exporta/importa igual que weight log (incondicional, solo las fotos son opt-in). El loop de restauracion de fotos en import se genero para iterar sobre todos los UserImageKind en vez de recipe/meal hardcodeados.\n\nTests: 6 tests nuevos en body_measurements_screen_test.dart (photo pickers, thumbnails, Compare visible/oculto+navegacion) + 4 en progress_photo_compare_screen_test.dart (empty state, seleccion before/after+share visible, reset de seleccion al cambiar angulo) + 2 en user_image_storage_test.dart (progressPhoto kind). 799/799 tests verdes, flutter analyze limpio.\n\nVerificado en vivo en el emulador de principio a fin: tomada de foto real con la camara del emulador -> importada/comprimida a WebP -> mostrada en el picker -> guardada en la entrada -> thumbnail visible en la lista -> boton Compare aparecio -> comparador con 2 fechas reales -> layout apilado con las 2 fotos -> Share abrio el share-sheet nativo de Android con el PNG compuesto correctamente. Export/Import: checkbox 'Include progress photos' probado marcado y desmarcado (desaparece correctamente en modo CSV), export real ejecutado y el zip resultante inspeccionado -- confirma body_measurements.json con 4 entradas + progress_photos/2026-07-03_front.webp + progress_photos/2026-07-13_front.webp incluidos correctamente.",
+			"x": 2660,
+			"y": 220,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "d876bfc8",
+			"type": "text",
+			"text": "## FW-02 Backend de almacenamiento de fotos para web (IndexedDB via Hive)\n## FW-02 Backend de almacenamiento de fotos para web (IndexedDB via Hive)\nUserImageStorage (lib/core/utils/user_image_storage.dart) usa path_provider + dart:io File para guardar fotos de recetas, comidas y progreso -- no existe filesystem real en el navegador.\n\nHecho: UserImageStorage reescrito con un branch kIsWeb interno (dart:io compila en web pero lanza en runtime, asi que no hace falta import condicional en ficheros separados). Nativo sigue en disco tal cual; web guarda los mismos bytes WebP en un Box<Uint8List> nuevo de Hive (UserImageBytesBox, mismo cifrado AES que el resto). Nuevo metodo imageProvider() (FileImage nativo / MemoryImage web) sustituye los 7 sitios que hacian FutureBuilder<String>+Image.file(File(...)) a mano. importFrom() ahora recibe bytes en vez de una ruta (picked.readAsBytes()), porque XFile.path es una blob: URL en web. export/import usan el mismo readBytes/writeBytes.\n\nDe paso, confirmando los tests salieron 2 bugs reales que tambien se arreglaron: (1) el placeholder del thumbnail no tenia altura, dejando su GestureDetector con area de toque casi nula -- ahora 24x40 + hitTestBehavior opaque; (2) ProgressPhotoViewerScreen mostraba un spinner infinito en vez de un icono de error cuando la foto no existe de verdad (no solo \"aun cargando\").\n\nflutter analyze limpio. Suite completa: 800/800 tests en verde.\n\nDeliberadamente fuera de esta tarea: el bucle de restore de fotos en import_data_usecase.dart usa ya la nueva API, pero el propio file_picker.pickFiles() sigue leyendo result.files.single.path (null en web) -- eso es FW-03. Tampoco se tocaron import_recipes_json_usecase.dart / import_meals_csv_usecase.dart / import_meals_json_usecase.dart / import_recipes_csv_usecase.dart, que tienen el mismo patron de restore de fotos -- FW-03 deberia revisarlos tambien. No se hizo verificacion visual en el emulador Android real ni en `flutter run -d chrome` por presupuesto de tokens -- recomendable antes de dar la fase por cerrada del todo.",
+			"x": 3100,
+			"y": 220,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "f0fd4367",
+			"type": "text",
+			"text": "## FR-02 Pantalla Magic\nPantalla Magic completa + reestructuración de la entrada 'Add Item' al menú de 5 opciones de la referencia (Magic/Search/Scan Product/Recently/Presets), sustituyendo la pantalla de búsqueda directa de antes. Magic: selector de foto (cámara/galería vía image_picker), texto libre, toggle Single item/Meal breakdown, selectores Provider->Model (agrupados por vendor a partir del catálogo OpenRouter, override puntual sobre el modelo global de Settings), botón Analyze que llama a AnalyzeMealWithAiUsecase (prompt+parseo JSON con tolerancia a code-fences/valores string, nuevo) y tarjetas de resultado con 'Add to diary' que persiste directamente (mismo patrón que QuickAddBottomSheet: MealNutrimentsEntity per-100g + IntakeEntity amount=100). Search ahora son solo las pestañas Products/Food (Recently y el icono de código de barras se promovieron a entradas propias del menú); Recently y Presets son pantallas nuevas reutilizando RecentMealBloc y CustomMealsBloc respectivamente + MealItemCard para loguear con un toque. Verificado en vivo en el emulador: las 5 opciones del menú, Magic contra la API real de OpenRouter (catálogo cargado, análisis con texto libre rechazado correctamente con 401 por la API key de prueba, gestionado con mensaje de error amable), Scan Product abre el escáner existente, Recently muestra entradas reales, Presets muestra el estado vacío correcto. 734/734 tests, flutter analyze limpio.",
+			"x": 900,
+			"y": 220,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "924dccb0",
+			"type": "text",
+			"text": "## FE-02 Configurar Flutter + Android Studio\nHecho: Flutter 3.41.7 pinneado via FVM (coincide con .fvmrc), JDK 17, Android SDK cmdline-tools (platform-tools, platforms 34/35/36, build-tools varios, NDK 28.2), emulador Pixel 6/Android 14 creado. flutter doctor -v sin problemas. App compilada (flavor 'develop') e instalada/corriendo en el emulador, verificada visualmente por el usuario.",
+			"x": 20,
+			"y": 220,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "e5092995",
+			"type": "text",
+			"text": "## FM-11 FM-11 Amortiguar el TDEE dinamico y mezclarlo gradualmente\nUna simulacion de 30 dias en el emulador real (peso bajando de forma constante, intake fijo) mostro el objetivo diario subiendo ~700kcal (+27%) en el mes bajo el motor original: una lectura fresca sin suavizar de TdeeDynamicCalc.estimateTdee() cada vez, saltando de 0% a 100% de influencia dinamica en el instante en que el historial de tendencia cruzaba 7 puntos. Contrastado contra las fuentes propias de MacroFactor (algorithm-accuracy, help center) y contra investigacion de Kevin Hall (NIH) sobre adaptacion metabolica real -- decision del usuario via AskUserQuestion: anadir amortiguacion. Implementado: TdeeDynamicCalc.estimateTdeeSmoothed (EWMA sobre la secuencia de lecturas TDEE crudas, mismo alpha=0.1 que WeightTrendCalc) + mezcla lineal estatico->dinamico en GetKcalGoalUsecase de 7 a 21 puntos de tendencia (TdeeDynamicCalc.dynamicBlendWeight), con un tercer estado 'Calibrating' en Strategy compartiendo la misma fuente de verdad. flutter analyze limpio, 822/822 tests. Re-simulacion de los mismos 30 dias en el emulador real tras el fix: el salto instantaneo desaparece (0% de mezcla exacto en el punto de 7 dias, en vez de un salto de +470kcal), la subida diaria maxima baja a ~30-49kcal/dia (frente a un salto discreto), y el estado Calibrating/Active en Strategy coincide exactamente con el diseño (Active justo al cruzar 21 puntos de tendencia). El rango total del mes (2174->3166 kcal) sigue siendo grande porque el escenario es un stress-test extremo (perdida de peso sostenida con intake fijo) y la senal de TDEE subyacente es real, no ruido -- la mejora es la suavidad del camino, no el destino final.",
+			"x": 1380,
+			"y": 1840,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "594aee89",
+			"type": "text",
+			"text": "## FD-05 FD-05 Quitar duplicacion de Home (Activity + comidas)\nHome renderiza ActivityVerticalList (lib/core/presentation/widgets/activity_vertial_list.dart) y 4x IntakeVerticalList (breakfast/lunch/dinner/snack, lib/features/home/presentation/widgets/intake_vertical_list.dart) -- los mismos widgets que ya se instancian en Diary via day_info_widget.dart. Quitar ambas secciones de home_page.dart, dejando solo: chips de agua/peso, fasting chip, DashboardWidget (anillo kcal+macros), LowKcalWarningCard y el boton de anadir comida. Es la base fisica sobre la que se montaran las tarjetas nuevas de FD-06 a FD-11.",
+			"x": 1780,
+			"y": 760,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "60eb59a8",
+			"type": "text",
+			"text": "## FD-06 FD-06 Tarjeta Expenditure (7 dias) + Energy Balance\nNueva agregacion sobre TdeeDynamicCalc.estimateTdeeSmoothed (lib/core/utils/calc/tdee_dynamic_calc.dart): calcular el gasto energetico medio de los ultimos 7 dias y mostrarlo en una tarjeta en Home, junto con el balance energetico (intake medio 7 dias - expenditure medio 7 dias). El calculo base ya existe; falta la agregacion de ventana de 7 dias y el widget.",
+			"x": 1780,
+			"y": 940,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "85e7b0d1",
+			"type": "text",
+			"text": "## FD-07 FD-07 Widget compacto de Weight Trend en Home\nWeightTrendCalc (lib/core/utils/calc/weight_trend_calc.dart) ya existe y se usa en Strategy/Profile. Construir una version compacta (mini-grafico o solo el numero + flecha de tendencia) para Home, reutilizando el mismo calculo -- sin logica nueva de datos, solo un widget de presentacion mas pequeno.",
+			"x": 1780,
+			"y": 1300,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "cdae2a19",
+			"type": "text",
+			"text": "## FD-08 FD-08 Tarjeta Goal Progress en Home\nStrategy ya calcula y muestra el texto 'corrigiendo por X kcal/dia hacia el objetivo' (strategy_page.dart) a partir de DynamicMaintenanceCalc. Adaptar esa misma logica a una tarjeta compacta para Home (distancia al peso objetivo + ritmo de correccion actual), sin nueva logica de calculo.",
+			"x": 1780,
+			"y": 1660,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "c082093d",
+			"type": "text",
+			"text": "## FD-09 FD-09 Calendario/heatmap de habito de peso en Home\nWeightLogDataSource.entriesInRange(from, to) (lib/core/data/data_source/weight_log_data_source.dart) ya es una consulta eficiente de que dias tienen pesaje. Falta el widget visual: un mini-calendario/heatmap de N dias (reutilizando el patron de table_calendar + calendarBuilders.markerBuilder que ya usa DiaryTableCalendar en lib/features/diary/, pero una variante mas pequena/compacta para Home, no el widget de Diary tal cual).",
+			"x": 1780,
+			"y": 1840,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "e951aa09",
+			"type": "text",
+			"text": "## FD-10 FD-10 Calendario/heatmap de habito de logueo de comida en Home\nTrackedDayDataSource.getTrackedDaysInRange / GetTrackedDayUsecase.getTrackedDaysByRange existen y son eficientes, pero TrackedDayDBO se crea con el primer registro de comida O actividad del dia (addNewTrackedDay se llama desde meal_detail_bloc.dart, activity_detail_bloc.dart, review_meal_screen.dart, quick_add_bottom_sheet.dart), asi que un dia con solo actividad registrada contaria como 'racha de comida' sin serlo. Necesita un filtro (caloriesTracked > 0) o un usecase nuevo que agrupe por dias con intake real, antes de construir el mismo tipo de widget de calendario que FD-09.",
+			"x": 1780,
+			"y": 2020,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "604e5a3e",
+			"type": "text",
+			"text": "## FD-11 FD-11 Tarjeta resumen de Body Metrics en Home\nGetBodyMeasurementUsecase (usado en body_measurements_screen.dart) ya expone todas las medidas (cuello/hombros/pecho/cintura/cadera/biceps/muslo) y los ratios cintura-altura/cintura-cadera calculados. No hay widget de 'resumen' hoy (la pantalla actual coge entries.first tras ordenar) -- construir una tarjeta compacta para Home con la ultima medida + los ratios, reutilizando el usecase existente sin tocar la capa de datos.",
+			"x": 1780,
+			"y": 2200,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "195a8b63",
+			"type": "text",
+			"text": "## FR-06 FR-06 Copiar a fecha arbitraria (no solo hoy fijo)\nEl dialogo de copiar (CopyDialog, lib/core/presentation/widgets/copy_dialog.dart) ya existe pero: (1) solo se ofrece al mantener pulsado un item viendo un dia distinto de hoy -- day_info_widget.dart:459 fuerza el dialogo de solo-borrar cuando widget.selectedDay es hoy; (2) el destino esta fijado a DateTime.now() hardcoded en diary_page.dart:216 (_onCopyIntakeItem), solo deja elegir tipo de comida (breakfast/lunch/...), no fecha. Cambios: ofrecer copiar tambien viendo hoy, y anadir un selector de fecha destino al dialogo (cualquier dia, no solo hoy). La operacion de copia en si ya actualiza bien TrackedDayDBO via el pathway normal de addIntake (meal_detail_bloc.dart._updateTrackedDay), asi que no hace falta tocar esa parte.",
+			"x": 900,
+			"y": 940,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "d1fcf49b",
+			"type": "text",
+			"text": "## FR-07 FR-07 Accion Mover (copiar a fecha elegida + borrar original)\nComponer FR-06 (copiar a fecha arbitraria) con el borrado ya existente (DeleteIntakeUsecase / CalendarDayBloc.deleteIntakeItem, que ya reconcilia bien TrackedDayDBO del dia origen). 'Mover' = ejecutar la copia a la fecha elegida y despues borrar el item original. Sin logica de datos nueva mas alla de encadenar las dos operaciones existentes.",
+			"x": 900,
+			"y": 1120,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "33786643",
+			"type": "text",
+			"text": "## FR-08 FR-08 Copiar/mover a un rango de dias\nNo existe ningun precedente de escritura por lotes en varios dias -- IntakeDataSource.addAllIntakes solo se usa para import/restore de JSON con fechas ya fijadas. Logica nueva: dado un item y un rango de N dias, clonar el IntakeEntity con nuevo id y dateTime por cada dia del rango, creando/actualizando el TrackedDayDBO de cada uno (mismo mecanismo que FR-06 aplicado N veces, no una arquitectura distinta).",
+			"x": 900,
+			"y": 1300,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		}
 	],
-	"edges":[
-		{"id":"edge-008","fromNode":"d19f9f86","fromSide":"bottom","toNode":"f0fd4367","toSide":"top"},
-		{"id":"edge-009","fromNode":"f0fd4367","fromSide":"bottom","toNode":"900e4472","toSide":"top"},
-		{"id":"edge-010","fromNode":"d19f9f86","fromSide":"bottom","toNode":"311a95d4","toSide":"top"},
-		{"id":"edge-011","fromNode":"900e4472","fromSide":"bottom","toNode":"70073d8f","toSide":"top"},
-		{"id":"edge-012","fromNode":"5b557dc2","fromSide":"right","toNode":"6aa2cbda","toSide":"left"},
-		{"id":"edge-013","fromNode":"924dccb0","fromSide":"right","toNode":"6aa2cbda","toSide":"left"},
-		{"id":"edge-014","fromNode":"4c62383a","fromSide":"right","toNode":"6aa2cbda","toSide":"left"},
-		{"id":"edge-015","fromNode":"6aa2cbda","fromSide":"bottom","toNode":"1d02a992","toSide":"top"},
-		{"id":"edge-016","fromNode":"1d02a992","fromSide":"bottom","toNode":"972ba256","toSide":"top"},
-		{"id":"edge-017","fromNode":"972ba256","fromSide":"bottom","toNode":"5276e7a6","toSide":"top"},
-		{"id":"edge-018","fromNode":"972ba256","fromSide":"bottom","toNode":"f96c5d5a","toSide":"top"},
-		{"id":"edge-019","fromNode":"972ba256","fromSide":"right","toNode":"61fa2a0b","toSide":"left"},
-		{"id":"edge-020","fromNode":"5276e7a6","fromSide":"top","toNode":"61fa2a0b","toSide":"bottom"},
-		{"id":"edge-021","fromNode":"f96c5d5a","fromSide":"top","toNode":"61fa2a0b","toSide":"bottom"},
-		{"id":"edge-022","fromNode":"61fa2a0b","fromSide":"bottom","toNode":"8934904b","toSide":"top"},
-		{"id":"edge-023","fromNode":"972ba256","fromSide":"right","toNode":"cc60413b","toSide":"left"},
-		{"id":"edge-024","fromNode":"5276e7a6","fromSide":"right","toNode":"cc60413b","toSide":"left"},
-		{"id":"edge-025","fromNode":"6aa2cbda","fromSide":"right","toNode":"f7622873","toSide":"left"},
-		{"id":"edge-027","fromNode":"5b557dc2","fromSide":"bottom","toNode":"477fcfcc","toSide":"top"},
-		{"id":"edge-028","fromNode":"924dccb0","fromSide":"bottom","toNode":"477fcfcc","toSide":"top"},
-		{"id":"edge-029","fromNode":"5b557dc2","fromSide":"bottom","toNode":"833c6d16","toSide":"top"},
-		{"id":"edge-030","fromNode":"924dccb0","fromSide":"bottom","toNode":"833c6d16","toSide":"top"},
-		{"id":"edge-031","fromNode":"1d02a992","fromSide":"bottom","toNode":"c66eff14","toSide":"top"},
-		{"id":"edge-032","fromNode":"6aa2cbda","fromSide":"bottom","toNode":"5853dc5c","toSide":"top"},
-		{"id":"edge-033","fromNode":"5b557dc2","fromSide":"bottom","toNode":"c0a1809e","toSide":"top"},
-		{"id":"edge-034","fromNode":"67bf819b","fromSide":"bottom","toNode":"4fee38a1","toSide":"top"},
-		{"id":"edge-035","fromNode":"5f598a36","fromSide":"bottom","toNode":"d876bfc8","toSide":"top"},
-		{"id":"edge-036","fromNode":"5f598a36","fromSide":"bottom","toNode":"2da24292","toSide":"top"},
-		{"id":"edge-037","fromNode":"d876bfc8","fromSide":"bottom","toNode":"2da24292","toSide":"top"},
-		{"id":"edge-038","fromNode":"5f598a36","fromSide":"bottom","toNode":"de50f8ee","toSide":"top"},
-		{"id":"edge-039","fromNode":"5f598a36","fromSide":"bottom","toNode":"67746049","toSide":"top"},
-		{"id":"edge-040","fromNode":"5f598a36","fromSide":"bottom","toNode":"16a27dcb","toSide":"top"},
-		{"id":"edge-041","fromNode":"d876bfc8","fromSide":"bottom","toNode":"ce2668fb","toSide":"top"},
-		{"id":"edge-042","fromNode":"2da24292","fromSide":"bottom","toNode":"ce2668fb","toSide":"top"},
-		{"id":"edge-043","fromNode":"de50f8ee","fromSide":"bottom","toNode":"ce2668fb","toSide":"top"},
-		{"id":"edge-044","fromNode":"16a27dcb","fromSide":"bottom","toNode":"ce2668fb","toSide":"top"},
-		{"id":"edge-045","fromNode":"ce2668fb","fromSide":"bottom","toNode":"efbd8609","toSide":"top"},
-		{"id":"edge-046","fromNode":"efbd8609","fromSide":"bottom","toNode":"78f3e98e","toSide":"top"},
-		{"id":"edge-047","fromNode":"67746049","fromSide":"bottom","toNode":"78f3e98e","toSide":"top"},
-		{"id":"edge-048","fromNode":"ce2668fb","fromSide":"bottom","toNode":"78f3e98e","toSide":"top"},
-		{"id":"edge-049","fromNode":"16a27dcb","fromSide":"bottom","toNode":"dd482a5c","toSide":"top"},
-		{"id":"edge-060","fromNode":"16698779","fromSide":"bottom","toNode":"5596537d","toSide":"top"},
-		{"id":"edge-063","fromNode":"5596537d","fromSide":"bottom","toNode":"c4b2783d","toSide":"top"},
-		{"id":"edge-064","fromNode":"c4b2783d","fromSide":"bottom","toNode":"7911deda","toSide":"top"},
-		{"id":"edge-065","fromNode":"16698779","fromSide":"bottom","toNode":"7b177fa9","toSide":"top"},
-		{"id":"edge-066","fromNode":"7b177fa9","fromSide":"top","toNode":"5596537d","toSide":"bottom"},
-		{"id":"edge-062","fromNode":"c0503b72","fromSide":"bottom","toNode":"5596537d","toSide":"top"},
-		{"id":"edge-067","fromNode":"c4b2783d","fromSide":"bottom","toNode":"047e69dd","toSide":"top"},
-		{"id":"edge-068","fromNode":"972ba256","fromSide":"bottom","toNode":"b4848c15","toSide":"top"},
-		{"id":"edge-069","fromNode":"f96c5d5a","fromSide":"bottom","toNode":"b4848c15","toSide":"top"},
-		{"id":"edge-070","fromNode":"5276e7a6","fromSide":"bottom","toNode":"34f9aceb","toSide":"top"},
-		{"id":"edge-071","fromNode":"b4848c15","fromSide":"bottom","toNode":"9d130d33","toSide":"top"},
-		{"id":"edge-072","fromNode":"b4848c15","fromSide":"bottom","toNode":"72db3936","toSide":"top"},
-		{"id":"edge-073","fromNode":"34f9aceb","fromSide":"bottom","toNode":"b284c604","toSide":"top"},
-		{"id":"edge-074","fromNode":"9d130d33","fromSide":"bottom","toNode":"b284c604","toSide":"top"},
-		{"id":"edge-075","fromNode":"72db3936","fromSide":"bottom","toNode":"b284c604","toSide":"top"},
-		{"id":"edge-076","fromNode":"b284c604","fromSide":"bottom","toNode":"e5092995","toSide":"top"}
+	"edges": [
+		{
+			"id": "edge-008",
+			"fromNode": "d19f9f86",
+			"fromSide": "bottom",
+			"toNode": "f0fd4367",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-009",
+			"fromNode": "f0fd4367",
+			"fromSide": "bottom",
+			"toNode": "900e4472",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-010",
+			"fromNode": "d19f9f86",
+			"fromSide": "bottom",
+			"toNode": "311a95d4",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-011",
+			"fromNode": "900e4472",
+			"fromSide": "bottom",
+			"toNode": "70073d8f",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-012",
+			"fromNode": "5b557dc2",
+			"fromSide": "right",
+			"toNode": "6aa2cbda",
+			"toSide": "left"
+		},
+		{
+			"id": "edge-013",
+			"fromNode": "924dccb0",
+			"fromSide": "right",
+			"toNode": "6aa2cbda",
+			"toSide": "left"
+		},
+		{
+			"id": "edge-014",
+			"fromNode": "4c62383a",
+			"fromSide": "right",
+			"toNode": "6aa2cbda",
+			"toSide": "left"
+		},
+		{
+			"id": "edge-015",
+			"fromNode": "6aa2cbda",
+			"fromSide": "bottom",
+			"toNode": "1d02a992",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-016",
+			"fromNode": "1d02a992",
+			"fromSide": "bottom",
+			"toNode": "972ba256",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-017",
+			"fromNode": "972ba256",
+			"fromSide": "bottom",
+			"toNode": "5276e7a6",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-018",
+			"fromNode": "972ba256",
+			"fromSide": "bottom",
+			"toNode": "f96c5d5a",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-019",
+			"fromNode": "972ba256",
+			"fromSide": "right",
+			"toNode": "61fa2a0b",
+			"toSide": "left"
+		},
+		{
+			"id": "edge-020",
+			"fromNode": "5276e7a6",
+			"fromSide": "top",
+			"toNode": "61fa2a0b",
+			"toSide": "bottom"
+		},
+		{
+			"id": "edge-021",
+			"fromNode": "f96c5d5a",
+			"fromSide": "top",
+			"toNode": "61fa2a0b",
+			"toSide": "bottom"
+		},
+		{
+			"id": "edge-022",
+			"fromNode": "61fa2a0b",
+			"fromSide": "bottom",
+			"toNode": "8934904b",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-023",
+			"fromNode": "972ba256",
+			"fromSide": "right",
+			"toNode": "cc60413b",
+			"toSide": "left"
+		},
+		{
+			"id": "edge-024",
+			"fromNode": "5276e7a6",
+			"fromSide": "right",
+			"toNode": "cc60413b",
+			"toSide": "left"
+		},
+		{
+			"id": "edge-025",
+			"fromNode": "6aa2cbda",
+			"fromSide": "right",
+			"toNode": "f7622873",
+			"toSide": "left"
+		},
+		{
+			"id": "edge-027",
+			"fromNode": "5b557dc2",
+			"fromSide": "bottom",
+			"toNode": "477fcfcc",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-028",
+			"fromNode": "924dccb0",
+			"fromSide": "bottom",
+			"toNode": "477fcfcc",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-029",
+			"fromNode": "5b557dc2",
+			"fromSide": "bottom",
+			"toNode": "833c6d16",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-030",
+			"fromNode": "924dccb0",
+			"fromSide": "bottom",
+			"toNode": "833c6d16",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-031",
+			"fromNode": "1d02a992",
+			"fromSide": "bottom",
+			"toNode": "c66eff14",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-032",
+			"fromNode": "6aa2cbda",
+			"fromSide": "bottom",
+			"toNode": "5853dc5c",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-033",
+			"fromNode": "5b557dc2",
+			"fromSide": "bottom",
+			"toNode": "c0a1809e",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-034",
+			"fromNode": "67bf819b",
+			"fromSide": "bottom",
+			"toNode": "4fee38a1",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-035",
+			"fromNode": "5f598a36",
+			"fromSide": "bottom",
+			"toNode": "d876bfc8",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-036",
+			"fromNode": "5f598a36",
+			"fromSide": "bottom",
+			"toNode": "2da24292",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-037",
+			"fromNode": "d876bfc8",
+			"fromSide": "bottom",
+			"toNode": "2da24292",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-038",
+			"fromNode": "5f598a36",
+			"fromSide": "bottom",
+			"toNode": "de50f8ee",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-039",
+			"fromNode": "5f598a36",
+			"fromSide": "bottom",
+			"toNode": "67746049",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-040",
+			"fromNode": "5f598a36",
+			"fromSide": "bottom",
+			"toNode": "16a27dcb",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-041",
+			"fromNode": "d876bfc8",
+			"fromSide": "bottom",
+			"toNode": "ce2668fb",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-042",
+			"fromNode": "2da24292",
+			"fromSide": "bottom",
+			"toNode": "ce2668fb",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-043",
+			"fromNode": "de50f8ee",
+			"fromSide": "bottom",
+			"toNode": "ce2668fb",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-044",
+			"fromNode": "16a27dcb",
+			"fromSide": "bottom",
+			"toNode": "ce2668fb",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-045",
+			"fromNode": "ce2668fb",
+			"fromSide": "bottom",
+			"toNode": "efbd8609",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-046",
+			"fromNode": "efbd8609",
+			"fromSide": "bottom",
+			"toNode": "78f3e98e",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-047",
+			"fromNode": "67746049",
+			"fromSide": "bottom",
+			"toNode": "78f3e98e",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-048",
+			"fromNode": "ce2668fb",
+			"fromSide": "bottom",
+			"toNode": "78f3e98e",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-049",
+			"fromNode": "16a27dcb",
+			"fromSide": "bottom",
+			"toNode": "dd482a5c",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-060",
+			"fromNode": "16698779",
+			"fromSide": "bottom",
+			"toNode": "5596537d",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-063",
+			"fromNode": "5596537d",
+			"fromSide": "bottom",
+			"toNode": "c4b2783d",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-064",
+			"fromNode": "c4b2783d",
+			"fromSide": "bottom",
+			"toNode": "7911deda",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-065",
+			"fromNode": "16698779",
+			"fromSide": "bottom",
+			"toNode": "7b177fa9",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-066",
+			"fromNode": "7b177fa9",
+			"fromSide": "top",
+			"toNode": "5596537d",
+			"toSide": "bottom"
+		},
+		{
+			"id": "edge-062",
+			"fromNode": "c0503b72",
+			"fromSide": "bottom",
+			"toNode": "5596537d",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-067",
+			"fromNode": "c4b2783d",
+			"fromSide": "bottom",
+			"toNode": "047e69dd",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-068",
+			"fromNode": "972ba256",
+			"fromSide": "bottom",
+			"toNode": "b4848c15",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-069",
+			"fromNode": "f96c5d5a",
+			"fromSide": "bottom",
+			"toNode": "b4848c15",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-070",
+			"fromNode": "5276e7a6",
+			"fromSide": "bottom",
+			"toNode": "34f9aceb",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-071",
+			"fromNode": "b4848c15",
+			"fromSide": "bottom",
+			"toNode": "9d130d33",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-072",
+			"fromNode": "b4848c15",
+			"fromSide": "bottom",
+			"toNode": "72db3936",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-073",
+			"fromNode": "34f9aceb",
+			"fromSide": "bottom",
+			"toNode": "b284c604",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-074",
+			"fromNode": "9d130d33",
+			"fromSide": "bottom",
+			"toNode": "b284c604",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-075",
+			"fromNode": "72db3936",
+			"fromSide": "bottom",
+			"toNode": "b284c604",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-076",
+			"fromNode": "b284c604",
+			"fromSide": "bottom",
+			"toNode": "e5092995",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-077",
+			"fromNode": "594aee89",
+			"fromSide": "bottom",
+			"toNode": "60eb59a8",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-078",
+			"fromNode": "594aee89",
+			"fromSide": "bottom",
+			"toNode": "85e7b0d1",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-079",
+			"fromNode": "594aee89",
+			"fromSide": "bottom",
+			"toNode": "cdae2a19",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-080",
+			"fromNode": "594aee89",
+			"fromSide": "bottom",
+			"toNode": "c082093d",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-081",
+			"fromNode": "594aee89",
+			"fromSide": "bottom",
+			"toNode": "e951aa09",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-082",
+			"fromNode": "594aee89",
+			"fromSide": "bottom",
+			"toNode": "604e5a3e",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-083",
+			"fromNode": "195a8b63",
+			"fromSide": "bottom",
+			"toNode": "d1fcf49b",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-084",
+			"fromNode": "195a8b63",
+			"fromSide": "bottom",
+			"toNode": "33786643",
+			"toSide": "top"
+		}
 	]
 }
