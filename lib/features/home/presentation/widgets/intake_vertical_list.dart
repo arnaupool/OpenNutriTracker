@@ -197,14 +197,20 @@ class _IntakeVerticalListState extends State<IntakeVerticalList> {
                         builder: (context) => copyDialog,
                       );
                       if (result != null) {
-                        final (selectedMealType, selectedDate) = result;
-                        for (IntakeEntity intake in widget.intakeList) {
-                          widget.onCopyIntakeCallback!(
-                            intake,
-                            null,
-                            selectedMealType,
-                            selectedDate,
-                          );
+                        final (selectedMealType, startDate, endDate) = result;
+                        for (
+                          var day = startDate;
+                          !day.isAfter(endDate);
+                          day = day.add(const Duration(days: 1))
+                        ) {
+                          for (IntakeEntity intake in widget.intakeList) {
+                            widget.onCopyIntakeCallback!(
+                              intake,
+                              null,
+                              selectedMealType,
+                              day,
+                            );
+                          }
                         }
                       }
                       break;

@@ -183,6 +183,12 @@ class MessageLookup extends MessageLookupByLibrary {
         "copyActionLabel": MessageLookupByLibrary.simpleMessage("Copy"),
         "copyCodeLabel": MessageLookupByLibrary.simpleMessage("Copy code"),
         "copyDialogDateLabel": MessageLookupByLibrary.simpleMessage("Day"),
+        "copyDialogEndDateLabel": MessageLookupByLibrary.simpleMessage(
+          "End date",
+        ),
+        "copyDialogRangeToggleLabel": MessageLookupByLibrary.simpleMessage(
+          "Copy to a range of days",
+        ),
         "copyDialogTitle": MessageLookupByLibrary.simpleMessage(
             "Copy to which meal and day?"),
         "copyOrDeleteTimeDialogContent": MessageLookupByLibrary.simpleMessage(

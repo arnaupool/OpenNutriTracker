@@ -255,6 +255,8 @@
   "copyCodeLabel": "Copy code",
   "copyDialogTitle": "Copy to which meal and day?",
   "copyDialogDateLabel": "Day",
+  "copyDialogRangeToggleLabel": "Copy to a range of days",
+  "copyDialogEndDateLabel": "End date",
   "copyActionLabel": "Copy",
   "moveActionLabel": "Move",
   "copyOrDeleteTimeDialogContent": "With \"Copy\" you can copy the meal elsewhere. With \"Delete\" you can delete the meal.",

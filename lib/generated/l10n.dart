@@ -4184,6 +4184,26 @@ class S {
     );
   }
 
+  /// `Copy to a range of days`
+  String get copyDialogRangeToggleLabel {
+    return Intl.message(
+      'Copy to a range of days',
+      name: 'copyDialogRangeToggleLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `End date`
+  String get copyDialogEndDateLabel {
+    return Intl.message(
+      'End date',
+      name: 'copyDialogEndDateLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Copy`
   String get copyActionLabel {
     return Intl.message(

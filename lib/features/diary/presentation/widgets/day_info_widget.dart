@@ -446,16 +446,21 @@ class _DayInfoWidgetState extends State<DayInfoWidget> {
       builder: (context) => copyDialog,
     );
     if (result != null) {
-      final (selectedMealType, selectedDate) = result;
-      // Move = the same copy the "Copy" action already performs, then the
-      // same delete "Delete" already performs on the original — awaited so
-      // the delete never races the copy's write to the target day.
-      await widget.onCopyIntake(
-        intakeEntity,
-        null,
-        selectedMealType,
-        selectedDate,
-      );
+      final (selectedMealType, startDate, endDate) = result;
+      // A date range is FR-06's single-day copy applied once per day in
+      // [startDate, endDate] — same mechanism, no new data-layer logic.
+      // Sequential awaits (not a Future.wait) so days never race each
+      // other's TrackedDayDBO update.
+      for (
+        var day = startDate;
+        !day.isAfter(endDate);
+        day = day.add(const Duration(days: 1))
+      ) {
+        await widget.onCopyIntake(intakeEntity, null, selectedMealType, day);
+      }
+      // Move = the copy above, then the same delete "Delete" already
+      // performs on the original — awaited so the delete never races the
+      // copy's write to the target day(s).
       if (move) {
         widget.onDeleteIntake(intakeEntity, widget.trackedDayEntity);
       }
