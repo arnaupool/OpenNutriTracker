@@ -196,7 +196,7 @@ class _DiaryPageState extends State<DiaryPage> with WidgetsBindingObserver {
     }
   }
 
-  void _onCopyIntakeItem(
+  Future<void> _onCopyIntakeItem(
     IntakeEntity intakeEntity,
     TrackedDayEntity? trackedDayEntity,
     AddMealType? type,
@@ -208,7 +208,7 @@ class _DiaryPageState extends State<DiaryPage> with WidgetsBindingObserver {
     } else {
       finalType = type.getIntakeType();
     }
-    _mealDetailBloc.addIntake(
+    await _mealDetailBloc.addIntake(
       context,
       intakeEntity.unit,
       intakeEntity.amount.toString(),

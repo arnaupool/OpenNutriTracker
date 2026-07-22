@@ -153,7 +153,7 @@ class MealDetailBloc extends Bloc<MealDetailEvent, MealDetailState> {
     });
   }
 
-  void addIntake(
+  Future<void> addIntake(
     BuildContext context,
     String unit,
     String amountText,

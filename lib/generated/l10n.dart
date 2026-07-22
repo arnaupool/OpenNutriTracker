@@ -4194,6 +4194,11 @@ class S {
     );
   }
 
+  /// `Move`
+  String get moveActionLabel {
+    return Intl.message('Move', name: 'moveActionLabel', desc: '', args: []);
+  }
+
   /// `What do you want to do?`
   String get copyOrDeleteTimeDialogTitle {
     return Intl.message(

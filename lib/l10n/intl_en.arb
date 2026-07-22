@@ -256,6 +256,7 @@
   "copyDialogTitle": "Copy to which meal and day?",
   "copyDialogDateLabel": "Day",
   "copyActionLabel": "Copy",
+  "moveActionLabel": "Move",
   "copyOrDeleteTimeDialogContent": "With \"Copy\" you can copy the meal elsewhere. With \"Delete\" you can delete the meal.",
   "copyOrDeleteTimeDialogTitle": "What do you want to do?",
   "createCustomDialogContent": "Do you want create a custom meal item?",

@@ -497,6 +497,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "milliliterUnit": MessageLookupByLibrary.simpleMessage("ml"),
         "missingProductInfo": MessageLookupByLibrary.simpleMessage(
             "Product missing required kcal or macronutrients information"),
+        "moveActionLabel": MessageLookupByLibrary.simpleMessage("Move"),
         "noActivityRecentlyAddedLabel":
             MessageLookupByLibrary.simpleMessage("No activity recently added"),
         "noMealsRecentlyAddedLabel":

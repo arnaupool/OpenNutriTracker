@@ -407,21 +407,29 @@ class _DayInfoWidgetState extends State<DayInfoWidget> {
     BuildContext context,
     IntakeEntity intakeEntity,
   ) async {
-    final copyOrDelete = await showDialog<bool>(
+    final action = await showDialog<CopyOrDeleteAction>(
       context: context,
-      builder: (context) =>
-          CopyOrDeleteDialog(copyLabel: S.of(context).copyActionLabel),
+      builder: (context) => CopyOrDeleteDialog(
+        copyLabel: S.of(context).copyActionLabel,
+        showMoveOption: true,
+      ),
     );
-    if (context.mounted) {
-      if (copyOrDelete != null && !copyOrDelete) {
+    if (!context.mounted || action == null) return;
+    switch (action) {
+      case CopyOrDeleteAction.delete:
         showDeleteIntakeDialog(context, intakeEntity);
-      } else if (copyOrDelete != null && copyOrDelete) {
-        showCopyDialog(context, intakeEntity);
-      }
+      case CopyOrDeleteAction.copy:
+        showCopyDialog(context, intakeEntity, move: false);
+      case CopyOrDeleteAction.move:
+        showCopyDialog(context, intakeEntity, move: true);
     }
   }
 
-  void showCopyDialog(BuildContext context, IntakeEntity intakeEntity) async {
+  void showCopyDialog(
+    BuildContext context,
+    IntakeEntity intakeEntity, {
+    required bool move,
+  }) async {
     final defaultMealType = switch (intakeEntity.type) {
       IntakeTypeEntity.breakfast => AddMealType.breakfastType,
       IntakeTypeEntity.lunch => AddMealType.lunchType,
@@ -439,7 +447,18 @@ class _DayInfoWidgetState extends State<DayInfoWidget> {
     );
     if (result != null) {
       final (selectedMealType, selectedDate) = result;
-      widget.onCopyIntake(intakeEntity, null, selectedMealType, selectedDate);
+      // Move = the same copy the "Copy" action already performs, then the
+      // same delete "Delete" already performs on the original — awaited so
+      // the delete never races the copy's write to the target day.
+      await widget.onCopyIntake(
+        intakeEntity,
+        null,
+        selectedMealType,
+        selectedDate,
+      );
+      if (move) {
+        widget.onDeleteIntake(intakeEntity, widget.trackedDayEntity);
+      }
     }
   }
 
@@ -481,14 +500,14 @@ class _DayInfoWidgetState extends State<DayInfoWidget> {
         widget.onDeleteActivity(activityEntity, widget.trackedDayEntity);
       }
     } else {
-      final copyOrDelete = await showDialog<bool>(
+      final copyOrDelete = await showDialog<CopyOrDeleteAction>(
         context: context,
         builder: (context) => const CopyOrDeleteDialog(),
       );
       if (context.mounted) {
-        if (copyOrDelete == false) {
+        if (copyOrDelete == CopyOrDeleteAction.delete) {
           widget.onDeleteActivity(activityEntity, widget.trackedDayEntity);
-        } else if (copyOrDelete == true) {
+        } else if (copyOrDelete == CopyOrDeleteAction.copy) {
           widget.onCopyActivity(activityEntity, widget.trackedDayEntity);
         }
       }
