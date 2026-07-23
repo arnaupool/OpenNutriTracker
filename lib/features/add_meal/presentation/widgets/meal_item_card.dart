@@ -60,7 +60,26 @@ class MealItemCard extends StatelessWidget {
                         fit: BoxFit.cover,
                         width: 60,
                         height: 60,
+                        // Decode at the actual display size instead of the
+                        // source image's full resolution — cheaper decode
+                        // and less memory pressure while a results list is
+                        // streaming several thumbnails in at once.
+                        memCacheWidth:
+                            (60 * MediaQuery.devicePixelRatioOf(context))
+                                .round(),
+                        memCacheHeight:
+                            (60 * MediaQuery.devicePixelRatioOf(context))
+                                .round(),
                         imageUrl: mealEntity.thumbnailImageUrl ?? "",
+                        placeholder: (context, url) => const Center(
+                          child: SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) =>
+                            const Icon(Icons.restaurant_outlined),
                       ),
                     )
                   : ClipRRect(

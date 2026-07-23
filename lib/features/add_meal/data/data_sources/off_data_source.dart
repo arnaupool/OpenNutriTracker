@@ -17,6 +17,13 @@ class OFFDataSource {
   static const _timeoutDuration = Duration(seconds: 60);
   final log = Logger('OFFDataSource');
 
+  // OFFDataSource is a registerLazySingleton (see locator.dart) — one
+  // instance for the app's lifetime — so a single underlying http.Client
+  // here lets keep-alive connections to OFF's hosts actually get reused
+  // across searches instead of paying a fresh TCP+TLS handshake on every
+  // keystroke-triggered request.
+  final http.Client _httpClient = http.Client();
+
   /// The device language as a Search-a-licious relevance context, always with
   /// English appended as a fallback so non-English locales still match the
   /// large English-only slice of the catalogue.
@@ -33,7 +40,7 @@ class OFFDataSource {
         final searchUrlString =
             OFFConst.getOffWordSearchUrl(searchString, langs: _searchLangs());
         final userAgentString = await AppConst.getUserAgentString();
-        final httpClient = ONTHttpClient(userAgentString, http.Client());
+        final httpClient = ONTHttpClient(userAgentString, _httpClient);
         final response =
             await httpClient.get(searchUrlString).timeout(_timeoutDuration);
         log.fine('Fetching OFF results from: $searchUrlString');
@@ -60,7 +67,7 @@ class OFFDataSource {
         () async {
           final searchUrl = OFFConst.getOffBarcodeSearchUri(barcode);
           final userAgentString = await AppConst.getUserAgentString();
-          final httpClient = ONTHttpClient(userAgentString, http.Client());
+          final httpClient = ONTHttpClient(userAgentString, _httpClient);
           final response =
               await httpClient.get(searchUrl).timeout(_timeoutDuration);
           log.fine('Fetching OFF result from: $searchUrl');

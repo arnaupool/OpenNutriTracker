@@ -43,9 +43,21 @@ class AppConst {
     }
   }
 
+  // Cached after the first call — none of its inputs (app version,
+  // platform) can change while the process is running, but
+  // PackageInfo.fromPlatform() is a platform-channel round-trip, and this
+  // is built fresh on every OFF request (search-as-you-type included)
+  // without caching.
+  static String? _cachedUserAgentString;
+
   static Future<String> getUserAgentString() async {
+    final cached = _cachedUserAgentString;
+    if (cached != null) return cached;
     final versionNumber = await getVersionNumber();
     final platformVersion = getPlatformName();
-    return '$userAgentAppName - $platformVersion - Version $versionNumber - $sourceCodeUrl';
+    final userAgentString =
+        '$userAgentAppName - $platformVersion - Version $versionNumber - $sourceCodeUrl';
+    _cachedUserAgentString = userAgentString;
+    return userAgentString;
   }
 }

@@ -17,6 +17,21 @@ void main() {
       expect(uri.queryParameters['langs'], 'en');
     });
 
+    test(
+      'requests exactly searchCandidatePoolSize candidates — the '
+      'repository re-ranks and trims this pool client-side, so it should '
+      'never silently drift away from the constant that controls how much '
+      'of the response is actually put to use',
+      () {
+        final uri = OFFConst.getOffWordSearchUrl('banana');
+
+        expect(
+          uri.queryParameters['page_size'],
+          '${OFFConst.searchCandidatePoolSize}',
+        );
+      },
+    );
+
     test('passes the requested locale through', () {
       final uri = OFFConst.getOffWordSearchUrl('milch', langs: 'de');
 

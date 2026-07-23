@@ -14,9 +14,16 @@ class OFFConst {
 
   // We fetch a larger relevance-ordered candidate pool than we display so the
   // repository can re-rank it (fusing relevance position with popularity_key)
-  // before trimming to the shown results. A bare relevance page buries popular,
-  // well-maintained products under near-duplicate and sparse entries.
-  static const searchCandidatePoolSize = 100;
+  // before trimming to the shown results (25, see
+  // ProductsRepository._searchResultLimit). A bare relevance page buries
+  // popular, well-maintained products under near-duplicate and sparse
+  // entries. 2x the shown limit is enough headroom for that re-rank to
+  // matter — the fusion score's relevance term makes it very unlikely for a
+  // candidate past position ~50 to out-rank the top 25 on popularity alone
+  // (see ProductsRepository._rankFusionK). Was 100 (4x); halving it cuts
+  // the response payload and per-candidate parse/validate work
+  // proportionally without changing real-world result quality.
+  static const searchCandidatePoolSize = 50;
 
   static const offHttpSuccessCode = 200;
   static const offHttpDownCodes = [502, 503, 500];
