@@ -255,6 +255,16 @@
   "copyCodeLabel": "Copy code",
   "copyDialogTitle": "Copy to which meal and day?",
   "copyDialogDateLabel": "Date",
+  "copyDayDialogTitle": "Copy this day to which date(s)?",
+  "repeatDayActionLabel": "Repeat day",
+  "dayCopiedSnackbar": "{count} items copied",
+  "@dayCopiedSnackbar": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "copyActionLabel": "Copy",
   "moveActionLabel": "Move",
   "copyOrDeleteTimeDialogContent": "With \"Copy\" you can copy the meal elsewhere. With \"Delete\" you can delete the meal.",

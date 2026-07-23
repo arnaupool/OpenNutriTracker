@@ -4194,6 +4194,36 @@ class S {
     );
   }
 
+  /// `Copy this day to which date(s)?`
+  String get copyDayDialogTitle {
+    return Intl.message(
+      'Copy this day to which date(s)?',
+      name: 'copyDayDialogTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Repeat day`
+  String get repeatDayActionLabel {
+    return Intl.message(
+      'Repeat day',
+      name: 'repeatDayActionLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} items copied`
+  String dayCopiedSnackbar(int count) {
+    return Intl.message(
+      '$count items copied',
+      name: 'dayCopiedSnackbar',
+      desc: '',
+      args: [count],
+    );
+  }
+
   /// `Copy`
   String get copyActionLabel {
     return Intl.message(

@@ -7,6 +7,7 @@ import 'package:opennutritracker/core/domain/entity/user_activity_entity.dart';
 import 'package:opennutritracker/core/presentation/widgets/activity_vertial_list.dart';
 import 'package:opennutritracker/core/presentation/widgets/copy_or_delete_dialog.dart';
 import 'package:opennutritracker/core/presentation/widgets/macro_nutriments_widget.dart';
+import 'package:opennutritracker/core/presentation/widgets/copy_day_dialog.dart';
 import 'package:opennutritracker/core/presentation/widgets/copy_dialog.dart';
 import 'package:opennutritracker/core/presentation/widgets/delete_dialog.dart';
 import 'package:opennutritracker/core/utils/calc/unit_calc.dart';
@@ -183,10 +184,25 @@ class _DayInfoWidgetState extends State<DayInfoWidget> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Text(
-            DateFormat.yMMMMEEEEd().format(widget.selectedDay),
-            style: Theme.of(context).textTheme.headlineSmall,
+          padding: const EdgeInsets.only(left: 16.0, right: 4.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  DateFormat.yMMMMEEEEd().format(widget.selectedDay),
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+              ),
+              if (_allIntakes.isNotEmpty)
+                Semantics(
+                  identifier: 'diary-repeat-day',
+                  child: IconButton(
+                    icon: const Icon(Icons.content_copy_outlined),
+                    tooltip: S.of(context).repeatDayActionLabel,
+                    onPressed: () => showCopyDayDialog(context),
+                  ),
+                ),
+            ],
           ),
         ),
         const SizedBox(height: 8.0),
@@ -405,6 +421,51 @@ class _DayInfoWidgetState extends State<DayInfoWidget> {
         : trackedDay.calorieGoal.toInt();
     final unit = usesKilojoules ? S.of(context).kjLabel : S.of(context).kcalLabel;
     return '$displayActual/$displayGoal $unit';
+  }
+
+  /// FR-09: copy every intake item logged this day (breakfast through
+  /// snack) to another day or range of days in one action, instead of
+  /// per-item or per-meal-section. Each item keeps its own original meal
+  /// type at the target date(s) — same single-item copy FR-06/FR-08
+  /// already do, just looped over every item and every day in the chosen
+  /// range. Copy only (no move): moving a whole day would empty today,
+  /// a much rarer thing to want than duplicating it forward.
+  void showCopyDayDialog(BuildContext context) async {
+    final intakes = _allIntakes;
+    if (intakes.isEmpty) return;
+
+    final result = await showDialog<DateTimeRange>(
+      context: context,
+      builder: (context) => CopyDayDialog(
+        // Defaults one day past whatever day is being viewed, not
+        // DateTime.now() — the natural reading of "repeat this day" is
+        // forward, and defaulting onto the source day itself would make
+        // a reflexive OK tap duplicate every item back onto the day the
+        // user is already looking at.
+        initialDate: widget.selectedDay.add(const Duration(days: 1)),
+      ),
+    );
+    if (result == null || !context.mounted) return;
+
+    for (
+      var day = DateTime(result.start.year, result.start.month, result.start.day);
+      !day.isAfter(result.end);
+      day = day.add(const Duration(days: 1))
+    ) {
+      for (final intake in intakes) {
+        // null type keeps each item on its own original meal — the whole
+        // point of a whole-day copy over a per-meal-section one.
+        await widget.onCopyIntake(intake, null, null, day);
+      }
+    }
+
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(S.of(context).dayCopiedSnackbar(intakes.length)),
+        ),
+      );
+    }
   }
 
   void showCopyOrDeleteIntakeDialog(

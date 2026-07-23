@@ -103,6 +103,8 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String mWeightTrendRate(rate) => "${rate}/week";
 
+  static String mDayCopiedSnackbar(count) => "${count} items copied";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "nutrientPanelLimitLabel": MessageLookupByLibrary.simpleMessage("limit"),
@@ -182,6 +184,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "codeCopiedLabel": MessageLookupByLibrary.simpleMessage("Code copied"),
         "copyActionLabel": MessageLookupByLibrary.simpleMessage("Copy"),
         "copyCodeLabel": MessageLookupByLibrary.simpleMessage("Copy code"),
+        "copyDayDialogTitle": MessageLookupByLibrary.simpleMessage(
+          "Copy this day to which date(s)?",
+        ),
         "copyDialogDateLabel": MessageLookupByLibrary.simpleMessage("Date"),
         "copyDialogTitle": MessageLookupByLibrary.simpleMessage(
             "Copy to which meal and day?"),
@@ -199,6 +204,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Daily kJ adjustment:"),
         "dataCollectionLabel": MessageLookupByLibrary.simpleMessage(
             "Send anonymous crash reports to help fix bugs. No food log, weight, or personal data is included."),
+        "dayCopiedSnackbar": mDayCopiedSnackbar,
         "deleteAllLabel": MessageLookupByLibrary.simpleMessage("Delete all"),
         "settingsDeleteAllDataLabel":
             MessageLookupByLibrary.simpleMessage("Delete all my data"),
@@ -974,6 +980,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "readLabel": MessageLookupByLibrary.simpleMessage(
             "I have read and accept the privacy policy."),
         "recentlyAddedLabel": MessageLookupByLibrary.simpleMessage("Recently"),
+        "repeatDayActionLabel": MessageLookupByLibrary.simpleMessage(
+          "Repeat day",
+        ),
         "recipesLabel": MessageLookupByLibrary.simpleMessage("Recipes"),
         "recipesEmptyLabel":
             MessageLookupByLibrary.simpleMessage("No recipes yet"),
