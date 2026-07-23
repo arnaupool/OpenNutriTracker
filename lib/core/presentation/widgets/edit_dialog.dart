@@ -30,23 +30,93 @@ class _EditDialogState extends State<EditDialog> {
     amountEditingController = TextEditingController(
       text: initialAmount.toStringAsFixed(2),
     );
+    amountEditingController.addListener(_onAmountChanged);
+  }
+
+  @override
+  void dispose() {
+    amountEditingController.removeListener(_onAmountChanged);
+    amountEditingController.dispose();
+    super.dispose();
+  }
+
+  void _onAmountChanged() => setState(() {});
+
+  /// The typed amount converted back to the metric base (g/ml) that
+  /// [MealNutrimentsEntity]'s `...PerUnit` getters are keyed to — same
+  /// conversion `MealDetailBloc` already applies when logging a new
+  /// intake, just run in reverse off the dialog's own text field. Null
+  /// when the field is empty or not a valid number.
+  double? get _currentMetricAmount {
+    final text = amountEditingController.text.replaceAll(',', '.');
+    final parsed = double.tryParse(text);
+    if (parsed == null) return null;
+    return _convertBackToMetricValue(parsed, widget.intakeEntity.meal.mealUnit);
   }
 
   @override
   Widget build(BuildContext context) {
+    final s = S.of(context);
+    final nutriments = widget.intakeEntity.meal.nutriments;
+    final hasNutritionData = nutriments.energyKcal100 != null;
+    final metricAmount = _currentMetricAmount;
+
     return AlertDialog(
-      title: Text(S.of(context).editItemDialogTitle),
+      title: Text(s.editItemDialogTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextFormField(
             controller: amountEditingController,
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
-              labelText: S.of(context).quantityLabel,
-              suffixText: _convertUnit(widget.intakeEntity.meal.mealUnit ?? ''),
+              labelText: s.quantityLabel,
+              suffixText: _convertUnit(
+                context,
+                widget.intakeEntity.meal.mealUnit ?? '',
+              ),
             ),
           ),
+          if (hasNutritionData) ...[
+            const SizedBox(height: 16),
+            Semantics(
+              identifier: 'edit-dialog-nutrition-summary',
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _NutrientStat(
+                    value: metricAmount == null
+                        ? null
+                        : metricAmount * (nutriments.energyPerUnit ?? 0),
+                    unit: s.kcalLabel,
+                    label: s.caloriesLabel,
+                  ),
+                  _NutrientStat(
+                    value: metricAmount == null
+                        ? null
+                        : metricAmount * (nutriments.carbohydratesPerUnit ?? 0),
+                    unit: s.gramUnit,
+                    label: s.carbsLabel,
+                  ),
+                  _NutrientStat(
+                    value: metricAmount == null
+                        ? null
+                        : metricAmount * (nutriments.fatPerUnit ?? 0),
+                    unit: s.gramUnit,
+                    label: s.fatLabel,
+                  ),
+                  _NutrientStat(
+                    value: metricAmount == null
+                        ? null
+                        : metricAmount * (nutriments.proteinsPerUnit ?? 0),
+                    unit: s.gramUnit,
+                    label: s.proteinLabel,
+                  ),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
       actions: [
@@ -60,13 +130,13 @@ class _EditDialogState extends State<EditDialog> {
               ),
             );
           },
-          child: Text(S.of(context).dialogOKLabel),
+          child: Text(s.dialogOKLabel),
         ),
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
           },
-          child: Text(S.of(context).dialogCancelLabel),
+          child: Text(s.dialogCancelLabel),
         ),
       ],
     );
@@ -94,14 +164,52 @@ class _EditDialogState extends State<EditDialog> {
     }
   }
 
-  String _convertUnit(String unit) {
+  /// `'gml'` is `MealEntity.empty()`'s own placeholder for "no real unit
+  /// was ever set" (custom/manually-created meals that skipped the
+  /// dropdown) — shown the same way `MealDetailBottomSheet` labels that
+  /// same fallback case, rather than leaking the raw internal string.
+  String _convertUnit(BuildContext context, String unit) {
     switch (unit) {
       case 'g':
         return widget.usesImperialUnits ? 'oz' : 'g';
       case 'ml':
         return widget.usesImperialUnits ? 'fl.oz' : 'ml';
+      case 'gml':
+        return S.of(context).gramMilliliterUnit;
       default:
         return unit;
     }
+  }
+}
+
+class _NutrientStat extends StatelessWidget {
+  final double? value;
+  final String unit;
+  final String label;
+
+  const _NutrientStat({
+    required this.value,
+    required this.unit,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          value == null ? '—' : '${value!.round()} $unit',
+          style: theme.textTheme.titleSmall,
+        ),
+        Text(
+          label,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+      ],
+    );
   }
 }
