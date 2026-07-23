@@ -680,6 +680,16 @@
 			"width": 280,
 			"height": 160,
 			"color": "4"
+		},
+		{
+			"id": "694eab52",
+			"type": "text",
+			"text": "## FR-09 FR-09 Repetir/copiar dia completo\nCopiar todos los items de comida del dia (breakfast+lunch+dinner+snack) a otro dia o rango de dias de una vez, sin tener que hacerlo item por item ni seccion por seccion. Cada item mantiene su tipo de comida original en el destino. Reutiliza el mismo mecanismo de FR-06/FR-08 (bucle de copia individual por item y por dia del rango) — sin logica de datos nueva. Solo Copy, no Move (mover un dia entero vaciaria hoy, caso de uso raro).",
+			"x": 920,
+			"y": 1840,
+			"width": 280,
+			"height": 160,
+			"color": "6"
 		}
 	],
 	"edges": [
@@ -1136,6 +1146,13 @@
 			"fromNode": "195a8b63",
 			"fromSide": "bottom",
 			"toNode": "33786643",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-085",
+			"fromNode": "33786643",
+			"fromSide": "bottom",
+			"toNode": "694eab52",
 			"toSide": "top"
 		}
 	]
