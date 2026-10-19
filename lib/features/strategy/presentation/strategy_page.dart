@@ -1,17 +1,15 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:opennutritracker/core/presentation/goal_explanation.dart';
 import 'package:opennutritracker/core/data/repository/config_repository.dart';
 import 'package:opennutritracker/core/domain/entity/user_entity.dart';
-import 'package:opennutritracker/core/domain/entity/user_weight_goal_entity.dart';
 import 'package:opennutritracker/core/domain/entity/weight_log_entity.dart';
 import 'package:opennutritracker/core/domain/usecase/get_kcal_goal_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_macro_goal_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_tracked_day_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_user_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_weight_log_usecase.dart';
-import 'package:opennutritracker/core/utils/calc/calorie_goal_calc.dart';
-import 'package:opennutritracker/core/utils/calc/dynamic_maintenance_calc.dart';
 import 'package:opennutritracker/core/utils/calc/macro_dynamic_calc.dart';
 import 'package:opennutritracker/core/utils/calc/tdee_calc.dart';
 import 'package:opennutritracker/core/utils/calc/tdee_dynamic_calc.dart';
@@ -173,39 +171,7 @@ class _StrategyPageState extends State<StrategyPage> {
     BuildContext context,
     UserEntity user,
     double trendWeightKg,
-  ) {
-    final s = S.of(context);
-    if (user.goal == UserWeightGoalEntity.maintainWeight) {
-      return s.strategyExplanationMaintaining;
-    }
-
-    final targetWeightKg = user.targetWeightKg;
-    if (targetWeightKg == null) {
-      final baseAdjustment = CalorieGoalCalc.getKcalGoalAdjustment(
-        user.goal,
-        weeklyWeightGoalKg: user.weeklyWeightGoalKg,
-      );
-      final sign = baseAdjustment > 0 ? '+' : '';
-      return s.strategyExplanationNoTargetWeight(
-        '$sign${baseAdjustment.round()}',
-      );
-    }
-
-    final diffKg = trendWeightKg - targetWeightKg;
-    if (diffKg.abs() <= DynamicMaintenanceCalc.maintenanceBandKg) {
-      return s.strategyExplanationWithinBand;
-    }
-
-    final correctionKcalPerDay =
-        (DynamicMaintenanceCalc.correctionRatePerWeek *
-            trendWeightKg *
-            DynamicMaintenanceCalc.kcalPerKgBodyMass) /
-        7;
-    return s.strategyExplanationCorrecting(
-      diffKg.abs().toStringAsFixed(1),
-      correctionKcalPerDay.round().toString(),
-    );
-  }
+  ) => goalExplanation(S.of(context), user, trendWeightKg);
 
   @override
   Widget build(BuildContext context) {

@@ -2040,13 +2040,13 @@ class S {
     );
   }
 
-  /// `No target weight set — applying a flat {adjustment} kcal/day adjustment on top of your observed TDEE. Set a target weight in Profile for automatic correction.`
-  String strategyExplanationNoTargetWeight(String adjustment) {
+  /// `Aiming for {ratePct}% of body weight per week: {adjustmentKcal} kcal/day vs. your TDEE`
+  String strategyExplanationRate(String ratePct, String adjustmentKcal) {
     return Intl.message(
-      'No target weight set — applying a flat $adjustment kcal/day adjustment on top of your observed TDEE. Set a target weight in Profile for automatic correction.',
-      name: 'strategyExplanationNoTargetWeight',
+      'Aiming for $ratePct% of body weight per week: $adjustmentKcal kcal/day vs. your TDEE',
+      name: 'strategyExplanationRate',
       desc: '',
-      args: [adjustment],
+      args: [ratePct, adjustmentKcal],
     );
   }
 
@@ -7877,6 +7877,36 @@ class S {
       name: 'profileTargetWeightToGo',
       desc: '',
       args: [value],
+    );
+  }
+
+  /// `Weekly rate`
+  String get profileWeeklyRateLabel {
+    return Intl.message(
+      'Weekly rate',
+      name: 'profileWeeklyRateLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{ratePct}% of body weight per week`
+  String profileWeeklyRateValue(String ratePct) {
+    return Intl.message(
+      '$ratePct% of body weight per week',
+      name: 'profileWeeklyRateValue',
+      desc: '',
+      args: [ratePct],
+    );
+  }
+
+  /// `Set as a percentage of body weight per week. Until your trend weight reaches the target, your goal is your observed TDEE minus (or plus) the matching calories.`
+  String get weeklyRateDialogDescription {
+    return Intl.message(
+      'Set as a percentage of body weight per week. Until your trend weight reaches the target, your goal is your observed TDEE minus (or plus) the matching calories.',
+      name: 'weeklyRateDialogDescription',
+      desc: '',
+      args: [],
     );
   }
 

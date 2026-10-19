@@ -116,8 +116,8 @@ void main() {
     );
 
     testWidgets(
-      'shows the correcting explanation once there is enough trend and a '
-      'target weight far from the current trend',
+      'shows the weekly-rate explanation once there is enough trend and a '
+      'target weight far from the current trend (FM-14)',
       (tester) async {
         final today = DateTime.now();
         DateTime day(int daysAgo) {
@@ -154,7 +154,7 @@ void main() {
           findsNothing,
         );
         expect(
-          find.textContaining('kg from your target'),
+          find.textContaining('% of body weight per week'),
           findsOneWidget,
         );
       },

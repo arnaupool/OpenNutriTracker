@@ -120,6 +120,23 @@
       }
     }
   },
+  "@profileWeeklyRateValue": {
+    "placeholders": {
+      "ratePct": {
+        "type": "String"
+      }
+    }
+  },
+  "@strategyExplanationRate": {
+    "placeholders": {
+      "ratePct": {
+        "type": "String"
+      },
+      "adjustmentKcal": {
+        "type": "String"
+      }
+    }
+  },
   "@quickAddAddedSnack": {
     "placeholders": {
       "mealType": {
@@ -829,6 +846,9 @@
   "profileTargetWeightNotSetLabel": "Not set",
   "profileTargetWeightReached": "You've reached your target",
   "profileTargetWeightToGo": "{value} to your target",
+  "profileWeeklyRateLabel": "Weekly rate",
+  "profileWeeklyRateValue": "{ratePct}% of body weight per week",
+  "weeklyRateDialogDescription": "Set as a percentage of body weight per week. Until your trend weight reaches the target, your goal is your observed TDEE minus (or plus) the matching calories.",
   "profileWeightHistoryTitle": "Weight history",
   "profileBodyMeasurementsTitle": "Body measurements",
   "proteinLabel": "protein",
@@ -999,7 +1019,7 @@
   "strategyTrendWeightLabel": "Trend Weight",
   "strategyTodayTargetLabel": "Today's Target",
   "strategyExplanationMaintaining": "Maintaining — matches your observed TDEE",
-  "strategyExplanationNoTargetWeight": "No target weight set — applying a flat {adjustment} kcal/day adjustment on top of your observed TDEE. Set a target weight in Profile for automatic correction.",
+  "strategyExplanationRate": "Aiming for {ratePct}% of body weight per week: {adjustmentKcal} kcal/day vs. your TDEE",
   "strategyExplanationWithinBand": "Within 0.7 kg of your target — maintaining at your observed TDEE",
   "strategyExplanationCorrecting": "{distanceKg} kg from your target — correcting by {correctionKcal} kcal/day toward goal",
   "strategyMacroDistributionTitle": "Macro Distribution",

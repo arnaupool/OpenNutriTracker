@@ -23,7 +23,6 @@ import 'package:opennutritracker/core/domain/usecase/get_macro_goal_usecase.dart
 import 'package:opennutritracker/core/utils/calc/calorie_goal_calc.dart';
 import 'package:opennutritracker/core/utils/calc/dynamic_maintenance_calc.dart';
 import 'package:opennutritracker/core/utils/calc/macro_dynamic_calc.dart';
-import 'package:opennutritracker/core/utils/calc/tdee_calc.dart';
 import 'package:opennutritracker/core/utils/calc/tdee_dynamic_calc.dart';
 import 'package:opennutritracker/core/utils/calc/weight_interpolation_calc.dart';
 import 'package:opennutritracker/core/utils/calc/weight_trend_calc.dart';
@@ -237,8 +236,22 @@ void main() {
       expect(goal, closeTo(expectedStatic, 0.01));
     });
 
-    test('enough history + a target weight far outside the maintenance '
-        'band uses DynamicMaintenanceCalc, not the static formula', () async {
+    // FM-14 (AUDIT.md B3): MacroFactor sets lose/gain goals as a percentage
+    // of body weight per week and subtracts the implied deficit from the
+    // expenditure (help.macrofactorapp.com art. 222); the 0.15%/week nudge
+    // belongs to the maintenance goal (art. 125). Default rate 0.5%/week.
+    double rateKcalPerDay(double trendWeightKg, double ratePct) =>
+        ratePct / 100 * trendWeightKg * DynamicMaintenanceCalc.kcalPerKgBodyMass / 7;
+
+    Future<double> currentTrendWeight() async {
+      final entries = await weightLogRepository.getAllEntries();
+      return WeightTrendCalc.computeTrend(
+        WeightInterpolationCalc.fillGaps(entries),
+      ).last.trendWeightKg;
+    }
+
+    test('lose weight far from the target subtracts the deficit of the '
+        'chosen % of body weight per week from the dynamic TDEE', () async {
       await userDataSource.saveUserData(
         baseUser(targetWeightKg: 75.0), // >0.7kg from the ~84kg trend
       );
@@ -247,22 +260,42 @@ void main() {
       final goal = await getKcalGoalUsecase.getKcalGoal();
 
       final tdee = await expectedDynamicTdee();
-      final entries = await weightLogRepository.getAllEntries();
-      final trend = WeightTrendCalc.computeTrend(
-        WeightInterpolationCalc.fillGaps(entries),
-      );
-      final expectedDynamic = DynamicMaintenanceCalc.recommendedKcal(
-        trendWeightKg: trend.last.trendWeightKg,
+      final trendKg = await currentTrendWeight();
+      expect(goal, closeTo(tdee - rateKcalPerDay(trendKg, 0.5), 0.01));
+      // Not the maintenance nudge any more.
+      final nudge = DynamicMaintenanceCalc.recommendedKcal(
+        trendWeightKg: trendKg,
         goalWeightKg: 75.0,
         tdeeKcal: tdee,
       );
+      expect(goal, isNot(closeTo(nudge, 5)));
+    });
 
-      expect(goal, closeTo(expectedDynamic, 0.01));
-      // Sanity: not silently still the static number.
-      final staticEquivalent = TDEECalc.getTDEEKcalIOM2005(
-        await UserRepository(userDataSource).getUserData(),
+    test('lose weight already within the band of the target maintains at '
+        'the dynamic TDEE', () async {
+      await userDataSource.saveUserData(baseUser(targetWeightKg: 84.0));
+      await seedMatureHistory();
+
+      final goal = await getKcalGoalUsecase.getKcalGoal();
+      expect(goal, closeTo(await expectedDynamicTdee(), 0.01));
+    });
+
+    test('maintain with the trend outside the band of the target applies '
+        "MacroFactor's 0.15%/week dynamic maintenance nudge", () async {
+      await userDataSource.saveUserData(
+        baseUser(goal: UserWeightGoalDBO.maintainWeight, targetWeightKg: 80.0),
       );
-      expect(goal, isNot(closeTo(staticEquivalent - 500, 5)));
+      await seedMatureHistory();
+
+      final goal = await getKcalGoalUsecase.getKcalGoal();
+      final tdee = await expectedDynamicTdee();
+      final expected = DynamicMaintenanceCalc.recommendedKcal(
+        trendWeightKg: await currentTrendWeight(),
+        goalWeightKg: 80.0,
+        tdeeKcal: tdee,
+      );
+      expect(goal, closeTo(expected, 0.01));
+      expect(goal, lessThan(tdee - 50));
     });
 
     test(
@@ -279,15 +312,15 @@ void main() {
       },
     );
 
-    test('enough history but no target weight set bridges with the '
-        'existing flat adjustment on top of the dynamic TDEE', () async {
+    test('lose weight with no target weight still uses the % rate on top '
+        'of the dynamic TDEE', () async {
       await userDataSource.saveUserData(baseUser()); // no targetWeightKg
       await seedMatureHistory();
 
       final goal = await getKcalGoalUsecase.getKcalGoal();
       final tdee = await expectedDynamicTdee();
-      // loseWeight's flat adjustment (CalorieGoalCalc.loseWeightKcalAdjustment).
-      expect(goal, closeTo(tdee - 500, 0.01));
+      final trendKg = await currentTrendWeight();
+      expect(goal, closeTo(tdee - rateKcalPerDay(trendKg, 0.5), 0.01));
     });
 
     test('between the noise floor and full maturity, the goal is a linear '

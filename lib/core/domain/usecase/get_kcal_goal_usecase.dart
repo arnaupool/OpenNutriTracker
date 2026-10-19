@@ -5,7 +5,7 @@ import 'package:opennutritracker/core/data/repository/weight_log_repository.dart
 import 'package:opennutritracker/core/domain/entity/user_entity.dart';
 import 'package:opennutritracker/core/domain/entity/user_weight_goal_entity.dart';
 import 'package:opennutritracker/core/utils/calc/calorie_goal_calc.dart';
-import 'package:opennutritracker/core/utils/calc/dynamic_maintenance_calc.dart';
+import 'package:opennutritracker/core/utils/calc/goal_rate_calc.dart';
 import 'package:opennutritracker/core/utils/calc/tdee_dynamic_calc.dart';
 import 'package:opennutritracker/core/utils/calc/weight_interpolation_calc.dart';
 import 'package:opennutritracker/core/utils/calc/weight_trend_calc.dart';
@@ -77,10 +77,20 @@ class GetKcalGoalUsecase {
   }
 
   double _computeStaticCoreGoal(UserEntity user) {
-    final baseAdjustment = CalorieGoalCalc.getKcalGoalAdjustment(
-      user.goal,
-      weeklyWeightGoalKg: user.weeklyWeightGoalKg,
-    );
+    // A rate picked in Profile (FM-14) also drives the static bootstrap;
+    // without one, the original flat/kg-per-week adjustment stays.
+    final ratePct = user.weeklyRatePct;
+    final baseAdjustment =
+        ratePct == null || user.goal == UserWeightGoalEntity.maintainWeight
+        ? CalorieGoalCalc.getKcalGoalAdjustment(
+            user.goal,
+            weeklyWeightGoalKg: user.weeklyWeightGoalKg,
+          )
+        : (user.goal == UserWeightGoalEntity.loseWeight ? -1 : 1) *
+              GoalRateCalc.rateKcalPerDay(
+                ratePct: ratePct,
+                weightKg: user.weightKG,
+              );
     final adjustment = CalorieGoalCalc.applyTargetWeightTaper(
       baseAdjustment: baseAdjustment,
       currentWeightKg: user.weightKG,
@@ -122,45 +132,24 @@ class GetKcalGoalUsecase {
     );
   }
 
-  /// The Fase Motor path, layered on [dynamicTdee].
-  ///
-  /// Phased, not a single formula, because the two pieces this composes
-  /// (TdeeDynamicCalc, DynamicMaintenanceCalc) each model a different part
-  /// of what MacroFactor actually does: far from goal, a rolling-window
-  /// TDEE re-estimated fresh every call already reproduces the "tightens
-  /// if you're losing slower than intended, loosens if faster" check-in
-  /// behavior on its own — a slower-than-expected loss at a fixed deficit
-  /// necessarily means the window's true TDEE estimate comes out lower
-  /// than before, which lowers the derived goal without any extra logic
-  /// here. Near goal (inside DynamicMaintenanceCalc's band), that same
-  /// rate-driven deficit would overshoot, so the band's own gentle
-  /// 0.15%/week nudge takes over instead.
+  /// The Fase Motor path: [dynamicTdee] plus [GoalRateCalc.adjustment] —
+  /// the chosen % of body weight per week while a lose/gain goal is short
+  /// of its target, MacroFactor's dynamic maintenance band otherwise.
+  /// Recomputing the TDEE over the rolling window is what reproduces the
+  /// "tightens if you're losing slower than intended, loosens if faster"
+  /// check-in behavior: a slower-than-expected loss at a fixed deficit
+  /// means the window's TDEE estimate comes out lower than before.
   double _computeDynamicCoreGoal(
     UserEntity user,
     double dynamicTdee,
     List<WeightTrendPoint> trend,
   ) {
-    if (user.goal == UserWeightGoalEntity.maintainWeight) {
-      return dynamicTdee;
-    }
-
-    final targetWeightKg = user.targetWeightKg;
-    if (targetWeightKg != null) {
-      return DynamicMaintenanceCalc.recommendedKcal(
-        trendWeightKg: trend.last.trendWeightKg,
-        goalWeightKg: targetWeightKg,
-        tdeeKcal: dynamicTdee,
-      );
-    }
-
-    // Lose/gain with no target weight set yet — same flat adjustment the
-    // static path uses, just layered on the dynamic TDEE instead of the
-    // static one. A bridge until the user sets a real target, at which
-    // point DynamicMaintenanceCalc's band takes over above.
-    final baseAdjustment = CalorieGoalCalc.getKcalGoalAdjustment(
-      user.goal,
-      weeklyWeightGoalKg: user.weeklyWeightGoalKg,
+    final adjustment = GoalRateCalc.adjustment(
+      goal: user.goal,
+      trendWeightKg: trend.last.trendWeightKg,
+      targetWeightKg: user.targetWeightKg,
+      ratePct: GoalRateCalc.effectiveRatePct(user),
     );
-    return dynamicTdee + baseAdjustment;
+    return dynamicTdee + adjustment.adjustmentKcal;
   }
 }

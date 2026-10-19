@@ -32,6 +32,11 @@ class UserEntity {
   /// the surfacing behind that condition.
   bool caloriesTaperEnabled;
 
+  /// Lose/gain pace as a percentage of body weight per week (FM-14), the
+  /// way MacroFactor expresses goal rates. Null means "not chosen yet":
+  /// the dynamic engine then uses [GoalRateCalc.defaultRatePct].
+  double? weeklyRatePct;
+
   UserEntity({
     required this.birthday,
     required this.heightCM,
@@ -43,6 +48,7 @@ class UserEntity {
     this.caloriesProfile,
     this.targetWeightKg,
     this.caloriesTaperEnabled = false,
+    this.weeklyRatePct,
   });
 
   factory UserEntity.fromUserDBO(UserDBO userDBO) {
@@ -59,6 +65,7 @@ class UserEntity {
           : CaloriesProfileEntity.fromDBO(userDBO.caloriesProfile!),
       targetWeightKg: userDBO.targetWeightKg,
       caloriesTaperEnabled: userDBO.caloriesTaperEnabled,
+      weeklyRatePct: userDBO.weeklyRatePct,
     );
   }
 

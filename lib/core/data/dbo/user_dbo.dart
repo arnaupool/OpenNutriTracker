@@ -36,6 +36,10 @@ class UserDBO extends HiveObject {
   // personal weight-goal preference rather than an app-wide setting.
   @HiveField(9)
   bool caloriesTaperEnabled;
+  // FM-14: lose/gain pace as % of body weight per week, MacroFactor-style.
+  // Null on profiles saved before it existed.
+  @HiveField(10)
+  double? weeklyRatePct;
 
   UserDBO({
     required this.birthday,
@@ -48,6 +52,7 @@ class UserDBO extends HiveObject {
     this.caloriesProfile,
     this.targetWeightKg,
     this.caloriesTaperEnabled = false,
+    this.weeklyRatePct,
   });
 
   factory UserDBO.fromUserEntity(UserEntity entity) {
@@ -64,6 +69,7 @@ class UserDBO extends HiveObject {
           : CaloriesProfileDBO.fromEntity(entity.caloriesProfile!),
       targetWeightKg: entity.targetWeightKg,
       caloriesTaperEnabled: entity.caloriesTaperEnabled,
+      weeklyRatePct: entity.weeklyRatePct,
     );
   }
 

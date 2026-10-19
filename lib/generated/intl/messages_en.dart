@@ -77,6 +77,11 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m26(threshold) =>
       "Most adults shouldn\'t eat fewer than ${threshold} kcal a day for any length of time without medical guidance. Please consider speaking with a healthcare professional before sticking with a target this low.";
 
+  static String m27(ratePct) => "${ratePct}% of body weight per week";
+
+  static String m28(ratePct, adjustmentKcal) =>
+      "Aiming for ${ratePct}% of body weight per week: ${adjustmentKcal} kcal/day vs. your TDEE";
+
   static String mWaterChip(current, goal) => "${current} / ${goal} ml";
 
   static String mLogWaterAmount(amount) => "Add ${amount} ml";
@@ -1340,6 +1345,13 @@ class MessageLookup extends MessageLookupByLibrary {
         "settingsCaloriesTaperLabel": MessageLookupByLibrary.simpleMessage(
             "Adjust calorie goal as you approach target"),
         "profileTargetWeightToGo": m21,
+        "profileWeeklyRateLabel":
+            MessageLookupByLibrary.simpleMessage("Weekly rate"),
+        "profileWeeklyRateValue": m27,
+        "strategyExplanationRate": m28,
+        "weeklyRateDialogDescription": MessageLookupByLibrary.simpleMessage(
+          "Set as a percentage of body weight per week. Until your trend weight reaches the target, your goal is your observed TDEE minus (or plus) the matching calories.",
+        ),
         "recipeImageLabel":
             MessageLookupByLibrary.simpleMessage("Add a photo"),
         "recipeImagePickFromGallery":

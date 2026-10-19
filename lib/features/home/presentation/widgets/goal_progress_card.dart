@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:opennutritracker/core/presentation/goal_explanation.dart';
 import 'package:opennutritracker/core/domain/entity/user_entity.dart';
-import 'package:opennutritracker/core/domain/entity/user_weight_goal_entity.dart';
 import 'package:opennutritracker/core/domain/usecase/get_tracked_day_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_user_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_weight_log_usecase.dart';
@@ -96,39 +96,7 @@ class _GoalProgressCardState extends State<GoalProgressCard> {
     BuildContext context,
     UserEntity user,
     double trendWeightKg,
-  ) {
-    final s = S.of(context);
-    if (user.goal == UserWeightGoalEntity.maintainWeight) {
-      return s.strategyExplanationMaintaining;
-    }
-
-    final targetWeightKg = user.targetWeightKg;
-    if (targetWeightKg == null) {
-      final baseAdjustment = CalorieGoalCalc.getKcalGoalAdjustment(
-        user.goal,
-        weeklyWeightGoalKg: user.weeklyWeightGoalKg,
-      );
-      final sign = baseAdjustment > 0 ? '+' : '';
-      return s.strategyExplanationNoTargetWeight(
-        '$sign${baseAdjustment.round()}',
-      );
-    }
-
-    final diffKg = trendWeightKg - targetWeightKg;
-    if (diffKg.abs() <= DynamicMaintenanceCalc.maintenanceBandKg) {
-      return s.strategyExplanationWithinBand;
-    }
-
-    final correctionKcalPerDay =
-        (DynamicMaintenanceCalc.correctionRatePerWeek *
-            trendWeightKg *
-            DynamicMaintenanceCalc.kcalPerKgBodyMass) /
-        7;
-    return s.strategyExplanationCorrecting(
-      diffKg.abs().toStringAsFixed(1),
-      correctionKcalPerDay.round().toString(),
-    );
-  }
+  ) => goalExplanation(S.of(context), user, trendWeightKg);
 
   @override
   Widget build(BuildContext context) {

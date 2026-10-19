@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:opennutritracker/core/presentation/goal_explanation.dart';
+import 'package:opennutritracker/core/utils/calc/goal_rate_calc.dart';
+import 'package:opennutritracker/features/profile/presentation/widgets/set_weekly_rate_dialog.dart';
 import 'package:opennutritracker/core/domain/entity/calories_profile_entity.dart';
 import 'package:opennutritracker/core/domain/entity/user_bmi_entity.dart';
 import 'package:opennutritracker/core/domain/entity/user_entity.dart';
@@ -119,6 +122,28 @@ class _ProfilePageState extends State<ProfilePage> {
             onTap: () => _showSetGoalDialog(context, user),
           ),
         ),
+        // FM-14: the lose/gain pace, as a % of body weight per week.
+        if (user.goal != UserWeightGoalEntity.maintainWeight)
+          Semantics(
+            identifier: 'profile-weekly-rate',
+            child: ListTile(
+              title: Text(
+                S.of(context).profileWeeklyRateLabel,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              subtitle: Text(
+                S.of(context).profileWeeklyRateValue(
+                  formatRatePct(GoalRateCalc.effectiveRatePct(user)),
+                ),
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              leading: const SizedBox(
+                height: double.infinity,
+                child: Icon(Icons.speed_outlined),
+              ),
+              onTap: () => _showSetWeeklyRateDialog(context, user),
+            ),
+          ),
         Semantics(
           identifier: 'profile-weight',
           child: ListTile(
@@ -429,6 +454,21 @@ class _ProfilePageState extends State<ProfilePage> {
       }
       _profileBloc.updateUser(userEntity);
     }
+  }
+
+  Future<void> _showSetWeeklyRateDialog(
+    BuildContext context,
+    UserEntity userEntity,
+  ) async {
+    final ratePct = await showDialog<double>(
+      context: context,
+      builder: (context) => SetWeeklyRateDialog(
+        initialRatePct: GoalRateCalc.effectiveRatePct(userEntity),
+      ),
+    );
+    if (ratePct == null) return;
+    userEntity.weeklyRatePct = ratePct;
+    _profileBloc.updateUser(userEntity);
   }
 
   Future<void> _showSetTargetWeightDialog(
