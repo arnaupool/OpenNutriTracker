@@ -425,6 +425,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "homeWeightTrendLabel":
             MessageLookupByLibrary.simpleMessage("Trend Weight"),
         "homeWeightTrendRate": mWeightTrendRate,
+        "homeWeightTrendNoRecentData":
+            MessageLookupByLibrary.simpleMessage("No weigh-ins in the last 20 days"),
         "homeWeightTrendStable": MessageLookupByLibrary.simpleMessage(
           "Stable",
         ),

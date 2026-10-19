@@ -51,7 +51,7 @@ class _MacroNutrientsViewState extends State<MacroNutrientsView> {
               child: Column(
                 children: [
                   Text(
-                    '${widget.totalCarbsIntake.toInt()}/${widget.totalCarbsGoal.toInt()} g',
+                    '${widget.totalCarbsIntake.toInt()}/${widget.totalCarbsGoal.round()} g',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
@@ -88,7 +88,7 @@ class _MacroNutrientsViewState extends State<MacroNutrientsView> {
               child: Column(
                 children: [
                   Text(
-                    "${widget.totalFatsIntake.toInt()}/${widget.totalFatsGoal.toInt()} g",
+                    "${widget.totalFatsIntake.toInt()}/${widget.totalFatsGoal.round()} g",
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurface,
                         ),
@@ -125,7 +125,7 @@ class _MacroNutrientsViewState extends State<MacroNutrientsView> {
               child: Column(
                 children: [
                   Text(
-                    "${widget.totalProteinsIntake.toInt()}/${widget.totalProteinsGoal.toInt()} g",
+                    "${widget.totalProteinsIntake.toInt()}/${widget.totalProteinsGoal.round()} g",
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           color: Theme.of(context).colorScheme.onSurface,
                         ),

@@ -7,8 +7,12 @@ import 'package:opennutritracker/core/domain/usecase/add_user_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_config_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_kcal_goal_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_user_usecase.dart';
+import 'package:opennutritracker/core/domain/usecase/get_weight_log_usecase.dart';
 import 'package:opennutritracker/core/utils/calc/bmi_calc.dart';
+import 'package:opennutritracker/core/utils/calc/tdee_dynamic_calc.dart';
 import 'package:opennutritracker/core/utils/calc/unit_calc.dart';
+import 'package:opennutritracker/core/utils/calc/weight_interpolation_calc.dart';
+import 'package:opennutritracker/core/utils/calc/weight_trend_calc.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/features/diary/presentation/bloc/calendar_day_bloc.dart';
 import 'package:opennutritracker/features/diary/presentation/bloc/diary_bloc.dart';
@@ -43,6 +47,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         nutritionalStatus: BMICalc.getNutritionalStatus(userBMIValue),
       );
       final userConfig = await _getConfigUsecase.getConfig();
+      final trendWeightKg = await _trendWeightKg();
 
       emit(
         ProfileLoadedState(
@@ -53,9 +58,20 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
             user.gender,
             caloriesProfile: user.caloriesProfile,
           ),
+          trendWeightKg: trendWeightKg,
         ),
       );
     });
+  }
+
+  Future<double?> _trendWeightKg() async {
+    if (!locator.isRegistered<GetWeightLogUsecase>()) return null;
+    final entries = await locator<GetWeightLogUsecase>().getAllEntries();
+    final trend = WeightTrendCalc.computeTrend(
+      WeightInterpolationCalc.fillGaps(entries),
+    );
+    if (trend.length < TdeeDynamicCalc.minTrendPointsForDynamic) return null;
+    return trend.last.trendWeightKg;
   }
 
   Future<UserEntity> getUser() => _getUserUsecase.getUserData();

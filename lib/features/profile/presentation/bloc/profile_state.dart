@@ -25,11 +25,16 @@ class ProfileLoadedState extends ProfileState {
   // home chip is using without opening the dialog.
   final int effectiveWaterGoalMl;
 
+  /// FD-13 (AUDIT.md B7): trend weight, when there are enough weigh-ins,
+  /// so the distance to target matches Strategy and Home.
+  final double? trendWeightKg;
+
   const ProfileLoadedState({
     required this.userBMI,
     required this.userEntity,
     required this.usesImperialUnits,
     required this.effectiveWaterGoalMl,
+    this.trendWeightKg,
   });
 
   @override
@@ -38,5 +43,6 @@ class ProfileLoadedState extends ProfileState {
         userEntity,
         usesImperialUnits,
         effectiveWaterGoalMl,
+        trendWeightKg,
       ];
 }

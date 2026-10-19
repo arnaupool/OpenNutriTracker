@@ -168,5 +168,28 @@ void main() {
         expect(find.textContaining(S.current.lbsLabel), findsWidgets);
       },
     );
+
+    // FD-13 (AUDIT.md B6): MacroFactor's change rate covers the past 20
+    // days, so a rate built from weigh-ins months ago is not shown.
+    testWidgets('weigh-ins that all predate the 20-day window show no rate', (
+      tester,
+    ) async {
+      final today = DateTime.now();
+      DateTime day(int daysAgo) {
+        final d = today.subtract(Duration(days: daysAgo));
+        return DateTime(d.year, d.month, d.day);
+      }
+
+      final weightEntries = [
+        for (var i = 60; i >= 30; i--)
+          WeightLogEntity(date: day(i), weightKg: 85.0 - 0.15 * (60 - i)),
+      ];
+
+      await tester.pumpWidget(_wrap(_buildCard(weightEntries: weightEntries)));
+      await tester.pumpAndSettle();
+
+      expect(find.text(S.current.homeWeightTrendNoRecentData), findsOneWidget);
+      expect(find.textContaining('/week'), findsNothing);
+    });
   });
 }

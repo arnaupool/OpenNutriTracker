@@ -59,6 +59,7 @@ class _ProfilePageState extends State<ProfilePage> {
             state.userEntity,
             state.usesImperialUnits,
             state.effectiveWaterGoalMl,
+            state.trendWeightKg,
           );
         } else {
           return _getLoadingContent();
@@ -77,6 +78,7 @@ class _ProfilePageState extends State<ProfilePage> {
     UserEntity user,
     bool usesImperialUnits,
     int effectiveWaterGoalMl,
+    double? trendWeightKg,
   ) {
     return ListView(
       children: [
@@ -165,7 +167,12 @@ class _ProfilePageState extends State<ProfilePage> {
                 // target is above or below current (cut or gain).
                 if (user.targetWeightKg != null)
                   Text(
-                    _targetWeightSubLabel(context, user, usesImperialUnits),
+                    _targetWeightSubLabel(
+                      context,
+                      user,
+                      trendWeightKg,
+                      usesImperialUnits,
+                    ),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
               ],
@@ -598,11 +605,14 @@ class _ProfilePageState extends State<ProfilePage> {
   String _targetWeightSubLabel(
     BuildContext context,
     UserEntity user,
+    double? trendWeightKg,
     bool usesImperialUnits,
   ) {
     final target = user.targetWeightKg;
     if (target == null) return '';
-    final deltaKg = (target - user.weightKG).abs();
+    // Measured from the trend weight when there is one, like Strategy and
+    // Home, rather than from the last scale reading (FD-13).
+    final deltaKg = (target - (trendWeightKg ?? user.weightKG)).abs();
     // Treat "close enough" as reached — under 0.1 kg the noise in body
     // weight measurements outweighs the difference and a "you've reached
     // your target" message lands better than "0.0 kg to go".

@@ -169,6 +169,16 @@ class S {
     );
   }
 
+  /// `No weigh-ins in the last 20 days`
+  String get homeWeightTrendNoRecentData {
+    return Intl.message(
+      'No weigh-ins in the last 20 days',
+      name: 'homeWeightTrendNoRecentData',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `{rate}/week`
   String homeWeightTrendRate(String rate) {
     return Intl.message(

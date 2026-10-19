@@ -421,6 +421,7 @@
   "homeLabel": "Home",
   "homeWeightTrendLabel": "Trend Weight",
   "homeWeightTrendStable": "Stable",
+  "homeWeightTrendNoRecentData": "No weigh-ins in the last 20 days",
   "homeWeightTrendRate": "{rate}/week",
   "@homeWeightTrendRate": {
     "placeholders": {

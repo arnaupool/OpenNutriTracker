@@ -38,6 +38,7 @@ class _WeightTrendSummaryCardState extends State<WeightTrendSummaryCard> {
   bool _usesImperialUnits = false;
   double? _trendWeightKg;
   double? _weeklyChangeRateKg;
+  bool _hasRecentWeighIns = true;
 
   @override
   void initState() {
@@ -53,13 +54,26 @@ class _WeightTrendSummaryCardState extends State<WeightTrendSummaryCard> {
 
     final hasEnoughTrend =
         trend.length >= TdeeDynamicCalc.minTrendPointsForDynamic;
+    // FD-13 (AUDIT.md B6): MacroFactor's change rate is "based on changes
+    // in your trend weight over the past 20 days"
+    // (https://help.macrofactorapp.com/en/articles/19-change-rate), so only
+    // trend points inside that window, counted back from today, count.
+    final now = DateTime.now();
+    final windowStart = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).subtract(const Duration(days: TdeeDynamicCalc.changeRateWindowDays));
+    final recent = trend.where((p) => !p.date.isBefore(windowStart)).toList();
+    final hasRecentWeighIns = recent.length >= 2;
 
     if (!mounted) return;
     setState(() {
       _usesImperialUnits = config.usesImperialUnits;
       _trendWeightKg = hasEnoughTrend ? trend.last.trendWeightKg : null;
-      _weeklyChangeRateKg = hasEnoughTrend
-          ? TdeeDynamicCalc.weeklyChangeRateKg(trend)
+      _hasRecentWeighIns = hasRecentWeighIns;
+      _weeklyChangeRateKg = hasEnoughTrend && hasRecentWeighIns
+          ? TdeeDynamicCalc.weeklyChangeRateKg(recent)
           : null;
       _loading = false;
     });
@@ -132,7 +146,9 @@ class _WeightTrendSummaryCardState extends State<WeightTrendSummaryCard> {
               identifier: 'home-weight-trend-rate',
               child: Row(
                 children: [
-                  if (rateKg != null && rateKg.abs() >= _flatThresholdKg)
+                  if (!_hasRecentWeighIns)
+                    const SizedBox.shrink()
+                  else if (rateKg != null && rateKg.abs() >= _flatThresholdKg)
                     Icon(
                       rateKg > 0
                           ? Icons.trending_up_outlined
@@ -150,8 +166,10 @@ class _WeightTrendSummaryCardState extends State<WeightTrendSummaryCard> {
                     ),
                   const SizedBox(width: 4),
                   Text(
-                    displayRate == null ||
-                            rateKg!.abs() < _flatThresholdKg
+                    !_hasRecentWeighIns
+                        ? s.homeWeightTrendNoRecentData
+                        : displayRate == null ||
+                              rateKg!.abs() < _flatThresholdKg
                         ? s.homeWeightTrendStable
                         : s.homeWeightTrendRate(
                             '${displayRate > 0 ? '+' : ''}${displayRate.toStringAsFixed(1)} $weightUnit',
