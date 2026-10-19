@@ -233,9 +233,12 @@ class _OnboardingFirstPageBodyState extends State<OnboardingFirstPageBody> {
   void onDateInputClicked() async {
     final pickedDate = await showDatePicker(
       context: context,
-      initialDate: ValueValidator.getLastDate(),
+      initialDate: _selectedDate ?? ValueValidator.getLastDate(),
       firstDate: ValueValidator.getFirstDate(),
       lastDate: ValueValidator.getLastDate(),
+      // Open on the year grid so the birthday is actually chosen rather
+      // than the pre-selected date being accepted with a single OK.
+      initialDatePickerMode: DatePickerMode.year,
       locale: const Locale('en', 'GB'),
     );
     if (pickedDate == null || !mounted) return;

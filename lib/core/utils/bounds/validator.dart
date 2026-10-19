@@ -60,6 +60,9 @@ class ValueValidator {
 
   static DateTime getFirstDate() => DateTime.now().subtract(Ranges.maxAge);
 
-  static DateTime getLastDate() =>
-      DateTime.now().add(Ranges.maxDurationForBirthdayIntoTheFuture);
+  /// Latest selectable birthday: exactly [Ranges.minAgeYears] years ago.
+  static DateTime getLastDate() {
+    final now = DateTime.now();
+    return DateTime(now.year - Ranges.minAgeYears, now.month, now.day);
+  }
 }

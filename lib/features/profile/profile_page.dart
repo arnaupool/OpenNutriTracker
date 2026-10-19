@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opennutritracker/core/presentation/goal_explanation.dart';
+import 'package:opennutritracker/core/utils/bounds/validator.dart';
 import 'package:opennutritracker/core/utils/calc/goal_rate_calc.dart';
 import 'package:opennutritracker/features/profile/presentation/widgets/set_weekly_rate_dialog.dart';
 import 'package:opennutritracker/core/domain/entity/calories_profile_entity.dart';
@@ -523,9 +524,11 @@ class _ProfilePageState extends State<ProfilePage> {
   ) async {
     final selectedDate = await showDatePicker(
       context: context,
-      initialDate: userEntity.birthday,
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2100),
+      initialDate: userEntity.birthday.isAfter(ValueValidator.getLastDate())
+          ? ValueValidator.getLastDate()
+          : userEntity.birthday,
+      firstDate: ValueValidator.getFirstDate(),
+      lastDate: ValueValidator.getLastDate(),
       locale: const Locale('en', 'GB'),
     );
     if (selectedDate != null) {

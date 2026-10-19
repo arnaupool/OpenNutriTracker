@@ -82,5 +82,13 @@ class UserEntity {
     );
   }
 
-  int get age => DateTime.now().difference(birthday).inDays ~/ 365;
+  /// Calendar age in whole years (not days / 365, which drifts by the
+  /// leap days and could add a year up to ~9 days early at 36).
+  int get age {
+    final now = DateTime.now();
+    final hadBirthdayThisYear =
+        now.month > birthday.month ||
+        (now.month == birthday.month && now.day >= birthday.day);
+    return now.year - birthday.year - (hadBirthdayThisYear ? 0 : 1);
+  }
 }

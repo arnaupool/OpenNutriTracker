@@ -1,8 +1,12 @@
 import 'package:opennutritracker/core/utils/calc/unit_calc.dart';
 
 class Ranges {
-  static const Duration maxDurationForBirthdayIntoTheFuture = Duration(days: -1);
   static const Duration maxAge = Duration(days: 365 * 130);
+
+  /// Youngest selectable age. The energy equations in TDEECalc are the
+  /// IOM 2005 adult ones (19 years and older); the app's intended users
+  /// are adults, so birthdays less than 18 years ago are not offered.
+  static const int minAgeYears = 18;
 
   static const double maxHeight = 300;
   static const double minHeight = 30;
