@@ -40,6 +40,15 @@ class UserDBO extends HiveObject {
   // Null on profiles saved before it existed.
   @HiveField(10)
   double? weeklyRatePct;
+  // FM-15: weekly check-in state. The core goal (before the user's manual
+  // kcal adjustment) set at the last check-in, the day it happened, and
+  // the weekday check-ins fall on (DateTime.monday..DateTime.sunday).
+  @HiveField(11)
+  double? checkInCoreGoalKcal;
+  @HiveField(12)
+  DateTime? lastCheckInDay;
+  @HiveField(13)
+  int? checkInWeekday;
 
   UserDBO({
     required this.birthday,
@@ -53,6 +62,9 @@ class UserDBO extends HiveObject {
     this.targetWeightKg,
     this.caloriesTaperEnabled = false,
     this.weeklyRatePct,
+    this.checkInCoreGoalKcal,
+    this.lastCheckInDay,
+    this.checkInWeekday,
   });
 
   factory UserDBO.fromUserEntity(UserEntity entity) {
@@ -70,6 +82,9 @@ class UserDBO extends HiveObject {
       targetWeightKg: entity.targetWeightKg,
       caloriesTaperEnabled: entity.caloriesTaperEnabled,
       weeklyRatePct: entity.weeklyRatePct,
+      checkInCoreGoalKcal: entity.checkInCoreGoalKcal,
+      lastCheckInDay: entity.lastCheckInDay,
+      checkInWeekday: entity.checkInWeekday,
     );
   }
 

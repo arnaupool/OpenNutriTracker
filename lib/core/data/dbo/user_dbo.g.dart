@@ -28,13 +28,16 @@ class UserDBOAdapter extends TypeAdapter<UserDBO> {
       targetWeightKg: (fields[8] as num?)?.toDouble(),
       caloriesTaperEnabled: fields[9] == null ? false : fields[9] as bool,
       weeklyRatePct: (fields[10] as num?)?.toDouble(),
+      checkInCoreGoalKcal: (fields[11] as num?)?.toDouble(),
+      lastCheckInDay: fields[12] as DateTime?,
+      checkInWeekday: (fields[13] as num?)?.toInt(),
     );
   }
 
   @override
   void write(BinaryWriter writer, UserDBO obj) {
     writer
-      ..writeByte(11)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.birthday)
       ..writeByte(1)
@@ -56,7 +59,13 @@ class UserDBOAdapter extends TypeAdapter<UserDBO> {
       ..writeByte(9)
       ..write(obj.caloriesTaperEnabled)
       ..writeByte(10)
-      ..write(obj.weeklyRatePct);
+      ..write(obj.weeklyRatePct)
+      ..writeByte(11)
+      ..write(obj.checkInCoreGoalKcal)
+      ..writeByte(12)
+      ..write(obj.lastCheckInDay)
+      ..writeByte(13)
+      ..write(obj.checkInWeekday);
   }
 
   @override
@@ -89,6 +98,11 @@ UserDBO _$UserDBOFromJson(Map<String, dynamic> json) => UserDBO(
   targetWeightKg: (json['targetWeightKg'] as num?)?.toDouble(),
   caloriesTaperEnabled: json['caloriesTaperEnabled'] as bool? ?? false,
   weeklyRatePct: (json['weeklyRatePct'] as num?)?.toDouble(),
+  checkInCoreGoalKcal: (json['checkInCoreGoalKcal'] as num?)?.toDouble(),
+  lastCheckInDay: json['lastCheckInDay'] == null
+      ? null
+      : DateTime.parse(json['lastCheckInDay'] as String),
+  checkInWeekday: (json['checkInWeekday'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$UserDBOToJson(UserDBO instance) => <String, dynamic>{
@@ -103,6 +117,9 @@ Map<String, dynamic> _$UserDBOToJson(UserDBO instance) => <String, dynamic>{
   'targetWeightKg': instance.targetWeightKg,
   'caloriesTaperEnabled': instance.caloriesTaperEnabled,
   'weeklyRatePct': instance.weeklyRatePct,
+  'checkInCoreGoalKcal': instance.checkInCoreGoalKcal,
+  'lastCheckInDay': instance.lastCheckInDay?.toIso8601String(),
+  'checkInWeekday': instance.checkInWeekday,
 };
 
 const _$UserGenderDBOEnumMap = {

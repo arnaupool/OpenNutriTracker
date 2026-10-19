@@ -152,7 +152,8 @@ class TdeeDynamicCalc {
     final firstTrendDay = trendSeries.first.date;
     while (!day.isBefore(firstTrendDay)) {
       if (!_isPauseWindowShort(dailyIntakeKcal, day)) return day;
-      day = day.subtract(const Duration(days: 1));
+      // Calendar arithmetic, so a DST change can't move [day] off midnight.
+      day = DateTime(day.year, day.month, day.day - 1);
     }
     return null;
   }
@@ -165,8 +166,8 @@ class TdeeDynamicCalc {
   ) {
     var missing = 0;
     for (var i = 0; i < pauseWindowDays; i++) {
-      final d = windowEnd.subtract(Duration(days: i));
-      if ((dailyIntakeKcal[DateTime(d.year, d.month, d.day)] ?? 0) <= 0) {
+      final d = DateTime(windowEnd.year, windowEnd.month, windowEnd.day - i);
+      if ((dailyIntakeKcal[d] ?? 0) <= 0) {
         missing++;
       }
     }
@@ -196,8 +197,10 @@ class TdeeDynamicCalc {
     if (asOfDay == null) return null;
 
     final trend = trendSeries.where((p) => !p.date.isAfter(asOfDay)).toList();
-    final lookbackStart = asOfDay.subtract(
-      const Duration(days: intakeLookbackDays),
+    final lookbackStart = DateTime(
+      asOfDay.year,
+      asOfDay.month,
+      asOfDay.day - intakeLookbackDays,
     );
     final intake = {
       for (final e in dailyIntakeKcal.entries)

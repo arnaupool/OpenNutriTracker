@@ -358,7 +358,7 @@ void main() {
           baseUser(goal: UserWeightGoalDBO.maintainWeight),
         );
         if (mature) await seedMatureHistory();
-        final before = await getKcalGoalUsecase.getKcalGoal();
+        final before = await getKcalGoalUsecase.getRecommendedKcalGoal();
 
         await UserActivityDataSource(activityBox).addUserActivity(
           UserActivityDBO(
@@ -377,7 +377,7 @@ void main() {
           ),
         );
 
-        final after = await getKcalGoalUsecase.getKcalGoal();
+        final after = await getKcalGoalUsecase.getRecommendedKcalGoal();
         expect(after, closeTo(before, 0.01));
       });
     }
@@ -420,6 +420,82 @@ void main() {
         expect(goal, closeTo(expected, 0.01));
       });
     }
+
+    // FM-15 (AUDIT.md gap 6): MacroFactor check-ins are weekly and the
+    // recommendations are for the next week (help.macrofactorapp.com
+    // art. 247, art. 20), so new data must not move today's target until
+    // the next check-in.
+    test('new data does not move the goal before the next check-in', () async {
+      await userDataSource.saveUserData(
+        baseUser(goal: UserWeightGoalDBO.maintainWeight),
+      );
+      await seedMatureHistory();
+      final before = await getKcalGoalUsecase.getKcalGoal();
+
+      await weightLogDataSource.addEntry(
+        WeightLogDBO(date: daysAgo(0), weightKg: 82.0),
+      );
+
+      final after = await getKcalGoalUsecase.getKcalGoal();
+      expect(after, closeTo(before, 0.01));
+      expect(await expectedDynamicTdee(), isNot(closeTo(before, 1.0)));
+    });
+
+    test('completing the check-in applies the recommendation', () async {
+      await userDataSource.saveUserData(
+        baseUser(goal: UserWeightGoalDBO.maintainWeight),
+      );
+      await seedMatureHistory();
+      await getKcalGoalUsecase.getKcalGoal();
+      await weightLogDataSource.addEntry(
+        WeightLogDBO(date: daysAgo(0), weightKg: 82.0),
+      );
+
+      final recommended = await getKcalGoalUsecase.getRecommendedKcalGoal();
+      await getKcalGoalUsecase.completeCheckIn();
+
+      expect(await getKcalGoalUsecase.getKcalGoal(), closeTo(recommended, 0.01));
+      expect(recommended, closeTo(await expectedDynamicTdee(), 0.01));
+    });
+
+    test('a check-in is due on the chosen weekday a week after the last one, '
+        'and skipping it keeps the goal', () async {
+      final user = baseUser(goal: UserWeightGoalDBO.maintainWeight)
+        ..checkInCoreGoalKcal = 2500
+        ..lastCheckInDay = daysAgo(7)
+        ..checkInWeekday = daysAgo(7).weekday;
+      await userDataSource.saveUserData(user);
+      await seedMatureHistory();
+
+      final due = (await getKcalGoalUsecase.getCheckInStatus())!;
+      expect(due.isDue, isTrue);
+      expect(due.nextCheckInDay, daysAgo(0));
+      expect(await getKcalGoalUsecase.getKcalGoal(), closeTo(2500, 0.01));
+
+      await getKcalGoalUsecase.skipCheckIn();
+      final skipped = (await getKcalGoalUsecase.getCheckInStatus())!;
+      expect(skipped.isDue, isFalse);
+      final today = daysAgo(0);
+      expect(
+        skipped.nextCheckInDay,
+        DateTime(today.year, today.month, today.day + 7),
+      );
+      expect(await getKcalGoalUsecase.getKcalGoal(), closeTo(2500, 0.01));
+    });
+
+    test('nextCheckInDay lands on the chosen weekday after the last check-in',
+        () {
+      // 2026-10-19 is a Monday.
+      final monday = DateTime(2026, 10, 19);
+      expect(
+        GetKcalGoalUsecase.nextCheckInDay(monday, DateTime.monday),
+        DateTime(2026, 10, 26),
+      );
+      expect(
+        GetKcalGoalUsecase.nextCheckInDay(monday, DateTime.thursday),
+        DateTime(2026, 10, 22),
+      );
+    });
   });
 
   group('GetMacroGoalUsecase — dynamic protein-first vs. manual override', () {

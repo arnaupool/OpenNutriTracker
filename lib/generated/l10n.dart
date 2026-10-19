@@ -2010,6 +2010,66 @@ class S {
     );
   }
 
+  /// `Weekly check-in`
+  String get strategyCheckInTitle {
+    return Intl.message(
+      'Weekly check-in',
+      name: 'strategyCheckInTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Update target`
+  String get strategyCheckInApply {
+    return Intl.message(
+      'Update target',
+      name: 'strategyCheckInApply',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Keep current`
+  String get strategyCheckInKeep {
+    return Intl.message(
+      'Keep current',
+      name: 'strategyCheckInKeep',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Check-in day`
+  String get strategyCheckInDayLabel {
+    return Intl.message(
+      'Check-in day',
+      name: 'strategyCheckInDayLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your weekly check-in is ready. New target: {newKcal} kcal (now {currentKcal} kcal).`
+  String strategyCheckInDue(String newKcal, String currentKcal) {
+    return Intl.message(
+      'Your weekly check-in is ready. New target: $newKcal kcal (now $currentKcal kcal).',
+      name: 'strategyCheckInDue',
+      desc: '',
+      args: [newKcal, currentKcal],
+    );
+  }
+
+  /// `Next check-in: {date}`
+  String strategyCheckInNext(String date) {
+    return Intl.message(
+      'Next check-in: $date',
+      name: 'strategyCheckInNext',
+      desc: '',
+      args: [date],
+    );
+  }
+
   /// `Estimated TDEE`
   String get strategyEstimatedTdeeLabel {
     return Intl.message(
@@ -7910,10 +7970,10 @@ class S {
     );
   }
 
-  /// `Set as a percentage of body weight per week. Until your trend weight reaches the target, your goal is your observed TDEE minus (or plus) the matching calories.`
+  /// `Set as a percentage of body weight per week. Until your trend weight reaches the target, your goal is your observed TDEE minus (or plus) the matching calories. A new rate takes effect at your next weekly check-in.`
   String get weeklyRateDialogDescription {
     return Intl.message(
-      'Set as a percentage of body weight per week. Until your trend weight reaches the target, your goal is your observed TDEE minus (or plus) the matching calories.',
+      'Set as a percentage of body weight per week. Until your trend weight reaches the target, your goal is your observed TDEE minus (or plus) the matching calories. A new rate takes effect at your next weekly check-in.',
       name: 'weeklyRateDialogDescription',
       desc: '',
       args: [],

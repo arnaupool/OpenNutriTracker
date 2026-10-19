@@ -86,8 +86,25 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   }
 
   Future<void> updateUser(UserEntity userEntity) async {
+    // FM-15: the weekly check-in state lives on the user record but is
+    // owned by GetKcalGoalUsecase; keep the stored copy so an entity loaded
+    // before a check-in can't roll it back.
+    final stored = await _getUserUsecase.getUserData();
+    userEntity
+      ..checkInCoreGoalKcal = stored.checkInCoreGoalKcal
+      ..lastCheckInDay = stored.lastCheckInDay
+      ..checkInWeekday = stored.checkInWeekday;
+
     // Update user in DB
     await _addUserUsecase.addUser(userEntity);
+
+    // A new goal or target weight is a new MacroFactor program, set from
+    // the current expenditure right away (help.macrofactorapp.com art.
+    // 205). A rate change waits for the next check-in (art. 222).
+    if (stored.goal != userEntity.goal ||
+        stored.targetWeightKg != userEntity.targetWeightKg) {
+      await _getKcalGoalUsecase.restartProgram();
+    }
 
     // Update Tracked Day
     await _updateTrackedDayCalorieGoal(userEntity, DateTime.now());

@@ -59,13 +59,28 @@ class _FakeConfigRepository extends Fake implements ConfigRepository {
 
 class _FakeGetKcalGoalUsecase extends Fake implements GetKcalGoalUsecase {
   final double _kcalGoal;
-  _FakeGetKcalGoalUsecase(this._kcalGoal);
+  final ({bool isDue, DateTime nextCheckInDay, int weekday})? _checkIn;
+  final double? _recommended;
+  _FakeGetKcalGoalUsecase(
+    this._kcalGoal, {
+    ({bool isDue, DateTime nextCheckInDay, int weekday})? checkIn,
+    double? recommended,
+  }) : _checkIn = checkIn,
+       _recommended = recommended;
 
   @override
   Future<double> getKcalGoal({
     UserEntity? userEntity,
     double? kcalUserAdjustment,
   }) async => _kcalGoal;
+
+  @override
+  Future<({bool isDue, DateTime nextCheckInDay, int weekday})?>
+  getCheckInStatus() async => _checkIn;
+
+  @override
+  Future<double> getRecommendedKcalGoal({UserEntity? userEntity}) async =>
+      _recommended ?? _kcalGoal;
 }
 
 class _FakeGetMacroGoalUsecase extends Fake implements GetMacroGoalUsecase {
@@ -119,13 +134,19 @@ Widget _buildScreen({
   List<TrackedDayEntity> trackedDays = const [],
   UserEntity? user,
   double kcalGoal = 2400,
+  ({bool isDue, DateTime nextCheckInDay, int weekday})? checkIn,
+  double? recommendedKcal,
 }) {
   return StrategyPage(
     getWeightLogUsecase: _FakeGetWeightLogUsecase(weightEntries),
     getUserUsecase: _FakeGetUserUsecase(user ?? _buildUser()),
     getTrackedDayUsecase: _FakeGetTrackedDayUsecase(trackedDays),
     configRepository: _FakeConfigRepository(),
-    getKcalGoalUsecase: _FakeGetKcalGoalUsecase(kcalGoal),
+    getKcalGoalUsecase: _FakeGetKcalGoalUsecase(
+      kcalGoal,
+      checkIn: checkIn,
+      recommended: recommendedKcal,
+    ),
     getMacroGoalUsecase: _FakeGetMacroGoalUsecase(),
   );
 }
@@ -319,5 +340,60 @@ void main() {
         expect(find.byType(LineChart), findsOneWidget);
       },
     );
+
+    // FM-15: weekly check-in card.
+    List<WeightLogEntity> twoWeighIns() {
+      final today = DateTime.now();
+      final d = DateTime(today.year, today.month, today.day);
+      return [
+        WeightLogEntity(date: d.subtract(const Duration(days: 1)), weightKg: 84.2),
+        WeightLogEntity(date: d, weightKg: 84.0),
+      ];
+    }
+
+    testWidgets('a due check-in offers the new target and both choices', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          _buildScreen(
+            weightEntries: twoWeighIns(),
+            kcalGoal: 2400,
+            recommendedKcal: 2250,
+            checkIn: (
+              isDue: true,
+              nextCheckInDay: DateTime(2026, 10, 19),
+              weekday: DateTime.monday,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text(S.current.strategyCheckInDue('2250', '2400')), findsOneWidget);
+      expect(find.text(S.current.strategyCheckInApply), findsOneWidget);
+      expect(find.text(S.current.strategyCheckInKeep), findsOneWidget);
+    });
+
+    testWidgets('between check-ins the card shows the next check-in date', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _wrap(
+          _buildScreen(
+            weightEntries: twoWeighIns(),
+            checkIn: (
+              isDue: false,
+              nextCheckInDay: DateTime(2026, 10, 26),
+              weekday: DateTime.monday,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Next check-in:'), findsOneWidget);
+      expect(find.text(S.current.strategyCheckInApply), findsNothing);
+    });
   });
 }

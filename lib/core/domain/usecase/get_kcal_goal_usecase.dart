@@ -28,15 +28,104 @@ class GetKcalGoalUsecase {
   /// wearable data (https://macrofactor.com/wearables/), so exercise is
   /// already inside the observed TDEE; the static path covers it through
   /// the activity level chosen at onboarding.
+  ///
+  /// The goal is the one fixed at the last weekly check-in (FM-15):
+  /// MacroFactor's check-ins are weekly and its calorie recommendations are
+  /// for the next week
+  /// (https://help.macrofactorapp.com/en/articles/247-introduction-to-check-ins-and-coaching-modules,
+  /// https://help.macrofactorapp.com/en/articles/20-expenditure). New
+  /// weigh-ins and intake only reach it through [completeCheckIn]; the
+  /// first call with no check-in yet starts the program, as creating a
+  /// MacroFactor program sets targets from the current expenditure
+  /// (https://help.macrofactorapp.com/en/articles/205-why-does-my-new-program-have-slightly-different-calorie-and-macronutrient-targets-than-my-old-program-even-though-i-didnt-change-my-goal).
   Future<double> getKcalGoal({
     UserEntity? userEntity,
     double? kcalUserAdjustment,
   }) async {
+    final config = await _configRepository.getConfig();
+    final stored = await _userRepository.getUserData();
+    final coreGoal =
+        stored.checkInCoreGoalKcal ?? await restartProgram(userEntity: userEntity);
+    return coreGoal + (config.userKcalAdjustment ?? 0);
+  }
+
+  /// What a check-in today would set: the live engine output, plus the
+  /// user's manual kcal adjustment.
+  Future<double> getRecommendedKcalGoal({UserEntity? userEntity}) async {
     final user = userEntity ?? await _userRepository.getUserData();
     final config = await _configRepository.getConfig();
+    return await _computeCoreGoal(user) + (config.userKcalAdjustment ?? 0);
+  }
 
-    final coreGoal = await _computeCoreGoal(user);
-    return coreGoal + (config.userKcalAdjustment ?? 0);
+  /// Weekly check-in status: the next check-in is the first day after the
+  /// last one that falls on the chosen weekday, and it is due from then on.
+  Future<({bool isDue, DateTime nextCheckInDay, int weekday})?>
+  getCheckInStatus() async {
+    final user = await _userRepository.getUserData();
+    final last = user.lastCheckInDay;
+    if (last == null) return null;
+    final weekday = user.checkInWeekday ?? last.weekday;
+    final next = nextCheckInDay(last, weekday);
+    return (
+      isDue: !_today().isBefore(next),
+      nextCheckInDay: next,
+      weekday: weekday,
+    );
+  }
+
+  /// The first day after [lastCheckInDay] that falls on [weekday].
+  /// Calendar arithmetic, not Duration, so a DST change in between can't
+  /// shift the result off midnight.
+  static DateTime nextCheckInDay(DateTime lastCheckInDay, int weekday) {
+    for (var i = 1; ; i++) {
+      final day = DateTime(
+        lastCheckInDay.year,
+        lastCheckInDay.month,
+        lastCheckInDay.day + i,
+      );
+      if (day.weekday == weekday) return day;
+    }
+  }
+
+  /// Applies the check-in: today's recommendation becomes the goal.
+  Future<void> completeCheckIn() async {
+    await restartProgram();
+  }
+
+  /// Declines the check-in: MacroFactor applies no recommendation then
+  /// (art. 247), so the goal stays and the next one is a week away.
+  Future<void> skipCheckIn() async {
+    final user = await _userRepository.getUserData();
+    user.lastCheckInDay = _today();
+    user.checkInWeekday ??= user.lastCheckInDay!.weekday;
+    await _userRepository.updateUserData(user);
+  }
+
+  Future<void> setCheckInWeekday(int weekday) async {
+    final user = await _userRepository.getUserData();
+    user.checkInWeekday = weekday;
+    await _userRepository.updateUserData(user);
+  }
+
+  /// Sets the goal from the live engine now and records today as the
+  /// check-in day. Used for the first goal, for completed check-ins, and
+  /// when the goal or target weight changes (a new MacroFactor program is
+  /// computed from the current expenditure, art. 205). Returns the new
+  /// core goal (before the manual kcal adjustment).
+  Future<double> restartProgram({UserEntity? userEntity}) async {
+    final stored = await _userRepository.getUserData();
+    final core = await _computeCoreGoal(userEntity ?? stored);
+    stored
+      ..checkInCoreGoalKcal = core
+      ..lastCheckInDay = _today();
+    stored.checkInWeekday ??= stored.lastCheckInDay!.weekday;
+    await _userRepository.updateUserData(stored);
+    return core;
+  }
+
+  static DateTime _today() {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day);
   }
 
   /// TDEE (static or dynamic) plus whatever goal-direction adjustment

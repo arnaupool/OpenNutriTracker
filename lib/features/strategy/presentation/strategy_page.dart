@@ -17,6 +17,7 @@ import 'package:opennutritracker/core/utils/calc/unit_calc.dart';
 import 'package:opennutritracker/core/utils/calc/weight_interpolation_calc.dart';
 import 'package:opennutritracker/core/utils/calc/weight_trend_calc.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
+import 'package:opennutritracker/features/home/presentation/bloc/home_bloc.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 enum _ChartRange {
@@ -94,6 +95,8 @@ class _StrategyPageState extends State<StrategyPage> {
   _ChartRange _range = _ChartRange.oneMonth;
 
   double? _todayTargetKcal;
+  ({bool isDue, DateTime nextCheckInDay, int weekday})? _checkInStatus;
+  double? _recommendedKcal;
   double? _proteinG;
   double? _fatG;
   double? _carbG;
@@ -147,9 +150,15 @@ class _StrategyPageState extends State<StrategyPage> {
     final proteinG = await _macroGoalUsecase.getProteinsGoal(todayTargetKcal);
     final fatG = await _macroGoalUsecase.getFatsGoal(todayTargetKcal);
     final carbG = await _macroGoalUsecase.getCarbsGoal(todayTargetKcal);
+    final checkInStatus = await _kcalGoalUsecase.getCheckInStatus();
+    final recommendedKcal = checkInStatus != null && checkInStatus.isDue
+        ? await _kcalGoalUsecase.getRecommendedKcalGoal(userEntity: user)
+        : null;
 
     if (!mounted) return;
     setState(() {
+      _checkInStatus = checkInStatus;
+      _recommendedKcal = recommendedKcal;
       _usesImperialUnits = config.usesImperialUnits;
       _weightEntries = entries;
       _user = user;
@@ -160,6 +169,62 @@ class _StrategyPageState extends State<StrategyPage> {
       _carbG = carbG;
       _loading = false;
     });
+  }
+
+  Future<void> _onCheckIn({required bool apply}) async {
+    if (apply) {
+      await _kcalGoalUsecase.completeCheckIn();
+    } else {
+      await _kcalGoalUsecase.skipCheckIn();
+    }
+    _refreshGoalConsumers();
+    await _load();
+  }
+
+  Future<void> _onPickCheckInWeekday() async {
+    final current = _checkInStatus?.weekday;
+    final locale = Localizations.localeOf(context).toString();
+    // 2024-01-01 is a Monday, so day i lands on weekday i.
+    final names = {
+      for (var i = DateTime.monday; i <= DateTime.sunday; i++)
+        i: DateFormat.EEEE(locale).format(DateTime(2024, 1, i)),
+    };
+    final picked = await showDialog<int>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: Text(S.of(context).strategyCheckInDayLabel),
+        children: [
+          for (final e in names.entries)
+            Semantics(
+              identifier: 'strategy-check-in-weekday-${e.key}',
+              child: SimpleDialogOption(
+                onPressed: () => Navigator.of(context).pop(e.key),
+                child: Row(
+                  children: [
+                    Icon(
+                      e.key == current
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_unchecked,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(e.value),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+    if (picked == null || picked == current) return;
+    await _kcalGoalUsecase.setCheckInWeekday(picked);
+    await _load();
+  }
+
+  /// Home and Diary read the checked-in goal; nudge them after it changes.
+  void _refreshGoalConsumers() {
+    if (locator.isRegistered<HomeBloc>()) {
+      locator<HomeBloc>().add(const LoadItemsEvent());
+    }
   }
 
   /// Mirrors the branches [GetKcalGoalUsecase._computeDynamicCoreGoal]
@@ -246,6 +311,17 @@ class _StrategyPageState extends State<StrategyPage> {
         const SizedBox(height: 20),
         _EstimatorStatusCard(state: estimatorState),
         const SizedBox(height: 16),
+        if (_checkInStatus != null) ...[
+          _CheckInCard(
+            status: _checkInStatus!,
+            currentKcal: _todayTargetKcal,
+            recommendedKcal: _recommendedKcal,
+            onApply: () => _onCheckIn(apply: true),
+            onKeep: () => _onCheckIn(apply: false),
+            onPickWeekday: _onPickCheckInWeekday,
+          ),
+          const SizedBox(height: 16),
+        ],
         _TodayGoalCard(
           targetKcal: _todayTargetKcal,
           estimatedTdeeKcal: displayTdee,
@@ -457,6 +533,97 @@ class _WeightChart extends StatelessWidget {
                 color: trendColor,
                 barWidth: 2.5,
                 dotData: const FlDotData(show: false),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Weekly check-in (FM-15): when one is due, offers MacroFactor's choice of
+/// applying the new recommendation or keeping the current target; otherwise
+/// shows the next check-in date and lets the user move the weekday.
+class _CheckInCard extends StatelessWidget {
+  final ({bool isDue, DateTime nextCheckInDay, int weekday}) status;
+  final double? currentKcal;
+  final double? recommendedKcal;
+  final VoidCallback onApply;
+  final VoidCallback onKeep;
+  final VoidCallback onPickWeekday;
+
+  const _CheckInCard({
+    required this.status,
+    required this.currentKcal,
+    required this.recommendedKcal,
+    required this.onApply,
+    required this.onKeep,
+    required this.onPickWeekday,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final s = S.of(context);
+    final locale = Localizations.localeOf(context).toString();
+
+    return Semantics(
+      identifier: 'strategy-check-in',
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(s.strategyCheckInTitle, style: theme.textTheme.titleMedium),
+              const SizedBox(height: 8),
+              if (status.isDue && recommendedKcal != null && currentKcal != null)
+                Text(
+                  s.strategyCheckInDue(
+                    recommendedKcal!.round().toString(),
+                    currentKcal!.round().toString(),
+                  ),
+                  style: theme.textTheme.bodyMedium,
+                )
+              else
+                Text(
+                  s.strategyCheckInNext(
+                    DateFormat.MMMEd(locale).format(status.nextCheckInDay),
+                  ),
+                  style: theme.textTheme.bodyMedium,
+                ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children: [
+                  if (status.isDue) ...[
+                    Semantics(
+                      identifier: 'strategy-check-in-apply',
+                      child: FilledButton(
+                        onPressed: onApply,
+                        child: Text(s.strategyCheckInApply),
+                      ),
+                    ),
+                    Semantics(
+                      identifier: 'strategy-check-in-keep',
+                      child: TextButton(
+                        onPressed: onKeep,
+                        child: Text(s.strategyCheckInKeep),
+                      ),
+                    ),
+                  ] else
+                    Semantics(
+                      identifier: 'strategy-check-in-day',
+                      child: TextButton(
+                        onPressed: onPickWeekday,
+                        child: Text(
+                          '${s.strategyCheckInDayLabel}: '
+                          '${DateFormat.EEEE(locale).format(DateTime(2024, 1, status.weekday))}',
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ],
           ),

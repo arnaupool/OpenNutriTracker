@@ -37,6 +37,13 @@ class UserEntity {
   /// the dynamic engine then uses [GoalRateCalc.defaultRatePct].
   double? weeklyRatePct;
 
+  /// Weekly check-in state (FM-15), see [GetKcalGoalUsecase]: the core
+  /// goal fixed at the last check-in, the day of that check-in, and the
+  /// weekday check-ins fall on. All null until the first goal is set.
+  double? checkInCoreGoalKcal;
+  DateTime? lastCheckInDay;
+  int? checkInWeekday;
+
   UserEntity({
     required this.birthday,
     required this.heightCM,
@@ -49,6 +56,9 @@ class UserEntity {
     this.targetWeightKg,
     this.caloriesTaperEnabled = false,
     this.weeklyRatePct,
+    this.checkInCoreGoalKcal,
+    this.lastCheckInDay,
+    this.checkInWeekday,
   });
 
   factory UserEntity.fromUserDBO(UserDBO userDBO) {
@@ -66,6 +76,9 @@ class UserEntity {
       targetWeightKg: userDBO.targetWeightKg,
       caloriesTaperEnabled: userDBO.caloriesTaperEnabled,
       weeklyRatePct: userDBO.weeklyRatePct,
+      checkInCoreGoalKcal: userDBO.checkInCoreGoalKcal,
+      lastCheckInDay: userDBO.lastCheckInDay,
+      checkInWeekday: userDBO.checkInWeekday,
     );
   }
 

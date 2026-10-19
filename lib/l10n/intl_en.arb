@@ -127,6 +127,23 @@
       }
     }
   },
+  "@strategyCheckInDue": {
+    "placeholders": {
+      "newKcal": {
+        "type": "String"
+      },
+      "currentKcal": {
+        "type": "String"
+      }
+    }
+  },
+  "@strategyCheckInNext": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "@strategyExplanationRate": {
     "placeholders": {
       "ratePct": {
@@ -849,7 +866,7 @@
   "profileTargetWeightToGo": "{value} to your target",
   "profileWeeklyRateLabel": "Weekly rate",
   "profileWeeklyRateValue": "{ratePct}% of body weight per week",
-  "weeklyRateDialogDescription": "Set as a percentage of body weight per week. Until your trend weight reaches the target, your goal is your observed TDEE minus (or plus) the matching calories.",
+  "weeklyRateDialogDescription": "Set as a percentage of body weight per week. Until your trend weight reaches the target, your goal is your observed TDEE minus (or plus) the matching calories. A new rate takes effect at your next weekly check-in.",
   "profileWeightHistoryTitle": "Weight history",
   "profileBodyMeasurementsTitle": "Body measurements",
   "proteinLabel": "protein",
@@ -1016,6 +1033,12 @@
   "strategyEstimatorStatusCalibratingDescription": "Blending toward your dynamic estimate as more data comes in — usually settles within a couple of weeks",
   "strategyEstimatorStatusPausedLabel": "Paused",
   "strategyEstimatorStatusPausedDescription": "Fewer than 4 of the last 7 days have food logged, so your estimate is held at its last value",
+  "strategyCheckInTitle": "Weekly check-in",
+  "strategyCheckInApply": "Update target",
+  "strategyCheckInKeep": "Keep current",
+  "strategyCheckInDayLabel": "Check-in day",
+  "strategyCheckInDue": "Your weekly check-in is ready. New target: {newKcal} kcal (now {currentKcal} kcal).",
+  "strategyCheckInNext": "Next check-in: {date}",
   "strategyEstimatedTdeeLabel": "Estimated TDEE",
   "strategyTrendWeightLabel": "Trend Weight",
   "strategyTodayTargetLabel": "Today's Target",
