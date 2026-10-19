@@ -23,6 +23,7 @@ import 'package:opennutritracker/core/domain/usecase/get_macro_goal_usecase.dart
 import 'package:opennutritracker/core/utils/calc/calorie_goal_calc.dart';
 import 'package:opennutritracker/core/utils/calc/dynamic_maintenance_calc.dart';
 import 'package:opennutritracker/core/utils/calc/macro_dynamic_calc.dart';
+import 'package:opennutritracker/core/utils/calc/tdee_calc.dart';
 import 'package:opennutritracker/core/utils/calc/tdee_dynamic_calc.dart';
 import 'package:opennutritracker/core/utils/calc/weight_interpolation_calc.dart';
 import 'package:opennutritracker/core/utils/calc/weight_trend_calc.dart';
@@ -196,9 +197,8 @@ void main() {
 
       final goal = await getKcalGoalUsecase.getKcalGoal();
 
-      final expectedStatic = CalorieGoalCalc.getTotalKcalGoal(
+      final expectedStatic = CalorieGoalCalc.getStaticCoreGoal(
         (await UserRepository(userDataSource).getUserData()),
-        0,
       );
       expect(goal, closeTo(expectedStatic, 0.01));
     });
@@ -229,9 +229,8 @@ void main() {
       }
 
       final goal = await getKcalGoalUsecase.getKcalGoal();
-      final expectedStatic = CalorieGoalCalc.getTotalKcalGoal(
+      final expectedStatic = CalorieGoalCalc.getStaticCoreGoal(
         await UserRepository(userDataSource).getUserData(),
-        0,
       );
       expect(goal, closeTo(expectedStatic, 0.01));
     });
@@ -481,6 +480,19 @@ void main() {
         DateTime(today.year, today.month, today.day + 7),
       );
       expect(await getKcalGoalUsecase.getKcalGoal(), closeTo(2500, 0.01));
+    });
+
+    // QA 2026-10-19: Profile shows the effective weekly rate (0.5% by
+    // default) for every lose/gain user, so the static bootstrap goal must
+    // use that rate too instead of a flat -500 kcal.
+    test('the static goal uses the effective % rate, not a flat -500', () async {
+      await userDataSource.saveUserData(baseUser(weightKg: 50.0));
+
+      final goal = await getKcalGoalUsecase.getKcalGoal();
+      final user = await UserRepository(userDataSource).getUserData();
+      final expected =
+          TDEECalc.getTDEEKcalIOM2005(user) - rateKcalPerDay(50.0, 0.5);
+      expect(goal, closeTo(expected, 0.01));
     });
 
     test('nextCheckInDay lands on the chosen weekday after the last check-in',

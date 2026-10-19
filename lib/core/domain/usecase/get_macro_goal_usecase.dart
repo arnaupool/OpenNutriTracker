@@ -9,13 +9,6 @@ class GetMacroGoalUsecase {
   final ConfigRepository _configRepository;
   final UserRepository _userRepository;
 
-  // MacroDynamicCalc.proteinGoalG needs a g/kg target inside MacroFactor's
-  // documented 1.6-2.2 range; there's no per-user picker for it yet
-  // (MacroProgram.balanced is likewise the only implemented program — see
-  // macro_dynamic_calc.dart), so this is a fixed, reasonable general
-  // default until one exists.
-  static const double _defaultProteinGPerKg = 1.8;
-
   GetMacroGoalUsecase(this._configRepository, this._userRepository);
 
   Future<double> getCarbsGoal(double totalCalorieGoal) async {
@@ -67,7 +60,7 @@ class GetMacroGoalUsecase {
       totalKcalGoal: totalCalorieGoal,
       weightKg: user.weightKG,
       heightCm: user.heightCM,
-      proteinGPerKg: _defaultProteinGPerKg,
+      proteinGPerKg: MacroDynamicCalc.defaultProteinGPerKg,
       isWeightLossGoal: user.goal == UserWeightGoalEntity.loseWeight,
     );
   }

@@ -3,6 +3,7 @@ import 'package:opennutritracker/core/domain/entity/user_entity.dart';
 import 'package:opennutritracker/core/domain/entity/user_gender_entity.dart';
 import 'package:opennutritracker/core/domain/entity/user_weight_goal_entity.dart';
 import 'package:opennutritracker/core/utils/bounds/ranges_const.dart';
+import 'package:opennutritracker/core/utils/calc/goal_rate_calc.dart';
 import 'package:opennutritracker/core/utils/calc/tdee_calc.dart';
 
 class CalorieGoalCalc {
@@ -51,6 +52,30 @@ class CalorieGoalCalc {
         adjustment +
         (kcalUserAdjustment ?? 0) +
         totalKcalActivities;
+  }
+
+  /// The static (formula-based) goal before the user's manual kcal
+  /// adjustment: IOM 2005 TDEE plus the deficit or surplus of the
+  /// effective weekly rate ([GoalRateCalc.effectiveRatePct], the same
+  /// value Profile shows), with the optional target-weight taper. Shared
+  /// by GetKcalGoalUsecase and the onboarding overview so both show the
+  /// same number.
+  static double getStaticCoreGoal(UserEntity user) {
+    final baseAdjustment = user.goal == UserWeightGoalEntity.maintainWeight
+        ? maintainWeightKcalAdjustment
+        : (user.goal == UserWeightGoalEntity.loseWeight ? -1 : 1) *
+              GoalRateCalc.rateKcalPerDay(
+                ratePct: GoalRateCalc.effectiveRatePct(user),
+                weightKg: user.weightKG,
+              );
+    final adjustment = applyTargetWeightTaper(
+      baseAdjustment: baseAdjustment,
+      currentWeightKg: user.weightKG,
+      targetWeightKg: user.targetWeightKg,
+      goal: user.goal,
+      taperEnabled: user.caloriesTaperEnabled,
+    );
+    return getTdee(user) + adjustment;
   }
 
   static double getKcalGoalAdjustment(UserWeightGoalEntity goal,

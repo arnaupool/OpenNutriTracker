@@ -1,11 +1,12 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opennutritracker/core/domain/entity/user_entity.dart';
+import 'package:opennutritracker/core/domain/entity/user_weight_goal_entity.dart';
 import 'package:opennutritracker/core/domain/usecase/add_config_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/add_user_usecase.dart';
 import 'package:opennutritracker/core/utils/bounds/ranges_const.dart';
 import 'package:opennutritracker/core/utils/calc/calorie_goal_calc.dart';
-import 'package:opennutritracker/core/utils/calc/macro_calc.dart';
+import 'package:opennutritracker/core/utils/calc/macro_dynamic_calc.dart';
 import 'package:opennutritracker/features/onboarding/domain/entity/user_data_mask_entity.dart';
 
 part 'onboarding_event.dart';
@@ -38,44 +39,33 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     await _addConfigUsecase.setConfigUsesImperialUnits(usesImperialUnits);
   }
 
+  /// The goal the app will actually use right after onboarding: the same
+  /// static core goal GetKcalGoalUsecase starts the program with.
   double? getOverviewCalorieGoal() {
     final userEntity = userSelection.toUserEntity();
-    double? calorieGoal;
-    if (userEntity != null) {
-      calorieGoal = CalorieGoalCalc.getTotalKcalGoal(userEntity, 0);
-    }
-    return calorieGoal;
+    if (userEntity == null) return null;
+    return CalorieGoalCalc.getStaticCoreGoal(userEntity);
   }
 
-  double? getOverviewCarbsGoal() {
+  /// The protein-first split GetMacroGoalUsecase applies to that goal.
+  MacroBreakdown? _overviewMacros() {
     final userEntity = userSelection.toUserEntity();
     final calorieGoal = getOverviewCalorieGoal();
-    double? carbsGoal;
-    if (userEntity != null && calorieGoal != null) {
-      carbsGoal = MacroCalc.getTotalCarbsGoal(calorieGoal);
-    }
-    return carbsGoal;
+    if (userEntity == null || calorieGoal == null) return null;
+    return MacroDynamicCalc.calculateMacros(
+      totalKcalGoal: calorieGoal,
+      weightKg: userEntity.weightKG,
+      heightCm: userEntity.heightCM,
+      proteinGPerKg: MacroDynamicCalc.defaultProteinGPerKg,
+      isWeightLossGoal: userEntity.goal == UserWeightGoalEntity.loseWeight,
+    );
   }
 
-  double? getOverviewFatGoal() {
-    final userEntity = userSelection.toUserEntity();
-    final calorieGoal = getOverviewCalorieGoal();
-    double? fatGoal;
-    if (userEntity != null && calorieGoal != null) {
-      fatGoal = MacroCalc.getTotalFatsGoal(calorieGoal);
-    }
-    return fatGoal;
-  }
+  double? getOverviewCarbsGoal() => _overviewMacros()?.carbG;
 
-  double? getOverviewProteinGoal() {
-    final userEntity = userSelection.toUserEntity();
-    final calorieGoal = getOverviewCalorieGoal();
-    double? proteinGoal;
-    if (userEntity != null && calorieGoal != null) {
-      proteinGoal = MacroCalc.getTotalProteinsGoal(calorieGoal);
-    }
-    return proteinGoal;
-  }
+  double? getOverviewFatGoal() => _overviewMacros()?.fatG;
+
+  double? getOverviewProteinGoal() => _overviewMacros()?.proteinG;
 
   /// Whether the calorie goal computed for the current onboarding
   /// selection has dropped below the research-backed floor for the user's

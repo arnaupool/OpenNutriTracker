@@ -17,6 +17,11 @@ class MacroDynamicCalc {
   static const double proteinLowGPerKg = 1.6;
   static const double proteinHighGPerKg = 2.2;
 
+  /// g/kg target used until there is a per-user picker (inside the
+  /// documented 1.6-2.2 range). Shared by GetMacroGoalUsecase and the
+  /// onboarding overview.
+  static const double defaultProteinGPerKg = 1.8;
+
   /// Extra protein MacroFactor adds as "muscle-loss insurance" when the
   /// goal is weight loss.
   static const double proteinWeightLossBonusGPerKg = 0.1;

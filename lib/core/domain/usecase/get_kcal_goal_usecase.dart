@@ -3,7 +3,6 @@ import 'package:opennutritracker/core/data/repository/tracked_day_repository.dar
 import 'package:opennutritracker/core/data/repository/user_repository.dart';
 import 'package:opennutritracker/core/data/repository/weight_log_repository.dart';
 import 'package:opennutritracker/core/domain/entity/user_entity.dart';
-import 'package:opennutritracker/core/domain/entity/user_weight_goal_entity.dart';
 import 'package:opennutritracker/core/utils/calc/calorie_goal_calc.dart';
 import 'package:opennutritracker/core/utils/calc/goal_rate_calc.dart';
 import 'package:opennutritracker/core/utils/calc/tdee_dynamic_calc.dart';
@@ -166,30 +165,9 @@ class GetKcalGoalUsecase {
     return staticGoal + blendWeight * (dynamicGoal - staticGoal);
   }
 
-  double _computeStaticCoreGoal(UserEntity user) {
-    // A rate picked in Profile (FM-14) also drives the static bootstrap;
-    // without one, the original flat/kg-per-week adjustment stays.
-    final ratePct = user.weeklyRatePct;
-    final baseAdjustment =
-        ratePct == null || user.goal == UserWeightGoalEntity.maintainWeight
-        ? CalorieGoalCalc.getKcalGoalAdjustment(
-            user.goal,
-            weeklyWeightGoalKg: user.weeklyWeightGoalKg,
-          )
-        : (user.goal == UserWeightGoalEntity.loseWeight ? -1 : 1) *
-              GoalRateCalc.rateKcalPerDay(
-                ratePct: ratePct,
-                weightKg: user.weightKG,
-              );
-    final adjustment = CalorieGoalCalc.applyTargetWeightTaper(
-      baseAdjustment: baseAdjustment,
-      currentWeightKg: user.weightKG,
-      targetWeightKg: user.targetWeightKg,
-      goal: user.goal,
-      taperEnabled: user.caloriesTaperEnabled,
-    );
-    return CalorieGoalCalc.getTdee(user) + adjustment;
-  }
+  double _computeStaticCoreGoal(UserEntity user) =>
+      CalorieGoalCalc.getStaticCoreGoal(user);
+
 
   /// The dynamic TDEE as of the last day with enough logged intake (FM-13,
   /// see [TdeeDynamicCalc.estimateTdeeCarriedForward]). Intake is read
