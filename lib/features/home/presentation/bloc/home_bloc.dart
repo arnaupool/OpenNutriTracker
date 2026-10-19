@@ -179,6 +179,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         totalKcalIntake,
       );
 
+      await _syncTodayTrackedGoals(
+        currentDay,
+        kcal: totalKcalGoal,
+        carbs: totalCarbsGoal,
+        fat: totalFatsGoal,
+        protein: totalProteinsGoal,
+      );
+
       // #150: derive recommended per-meal kcal targets from the saved share.
       final breakfastKcalTarget = configData.targetKcalForMeal(
         ConfigEntity.mealKeyBreakfast,
@@ -388,6 +396,28 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   /// each call so the most recent setting wins without needing the
   /// bloc to cache it explicitly. The follow-up to #139 reads the
   /// total-minutes value so the minute component (0-59) is honoured.
+  /// FD-12 (AUDIT.md B5): today's tracked day stores the goal it had when
+  /// it was created, and the Diary reads that copy. The dynamic goal moves
+  /// with new weigh-ins and intake, so rewrite today's copy with the live
+  /// numbers Home just computed; past days keep their historical goal.
+  Future<void> _syncTodayTrackedGoals(
+    DateTime day, {
+    required double kcal,
+    required double carbs,
+    required double fat,
+    required double protein,
+  }) async {
+    if (!await _addTrackedDayUseCase.hasTrackedDay(day)) return;
+    await _addTrackedDayUseCase.updateDayCalorieGoal(day, kcal);
+    await _addTrackedDayUseCase.updateDayMacroGoals(
+      day,
+      carbsGoal: carbs,
+      fatGoal: fat,
+      proteinGoal: protein,
+    );
+    _updateDiaryPage(day);
+  }
+
   Future<DateTime> _currentLogicalDay() async {
     final config = await _getConfigUsecase.getConfig();
     return DayBoundaryCalc.currentLogicalDayMinutes(
