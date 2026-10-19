@@ -64,6 +64,8 @@ Fuente en `lib/l10n/intl_en.arb` (+ de/cs/it/pl/sk/tr/uk/zh). Los generados en `
 
 Planificación y backlog en `Project.canvas` (Obsidian Canvas), gestionado solo vía `python canvas-tool.py "Project.canvas" <comando>` — nunca editado a mano. Flujo: propuesta (morado) → el usuario aprueba a rojo → agente empieza (naranja) → termina (cian) → el usuario revisa y marca verde.
 
+Desde el 2026-10-19 el tablero no es una puerta de aprobación: el agente trabaja de forma autónoma (implementa, verifica, commitea y pushea) sin esperar a que las tarjetas pasen a rojo o verde.
+
 ## Comandos
 
 ```sh

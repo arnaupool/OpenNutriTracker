@@ -344,6 +344,8 @@ Settings screen exports to a `.zip` that bundles intakes, activities, tracked da
 
 ## Kanvas Workflow — Agent Instructions
 
+> **Override (2026-10-19, owner decision):** agents work fully autonomously. The board is not an approval gate: do not wait for a card to turn red or green, and do not stop for per-task sign-off. Implement, verify on the emulator, commit and push. The rest of this section describes the board itself and stays valid as optional record-keeping.
+
 This project is planned and tracked on an Obsidian Canvas board (`Project.canvas` in this directory), managed by the `canvas-tool.py` CLI (Kanvas — see `RULES.md` for the full protocol). This section governs how to interact with **that board**; everything above governs the **codebase**.
 
 ### CRITICAL RULE
