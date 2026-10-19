@@ -1,0 +1,47 @@
+// Clean-data reproduction of the "no logging" drift (run as a throwaway test/ file, then removed).
+// Mirrors GetKcalGoalUsecase._computeDynamicCoreGoal's data selection: all weight entries ->
+// fillGaps -> computeTrend; intake restricted to the 25 days before "today"; estimateTdeeSmoothed.
+import 'package:flutter_test/flutter_test.dart';
+import 'package:opennutritracker/core/domain/entity/weight_log_entity.dart';
+import 'package:opennutritracker/core/utils/calc/tdee_dynamic_calc.dart';
+import 'package:opennutritracker/core/utils/calc/weight_interpolation_calc.dart';
+import 'package:opennutritracker/core/utils/calc/weight_trend_calc.dart';
+
+void main() {
+  test('dynamic TDEE while the user stops logging (clean data)', () {
+    final start = DateTime(2026, 6, 29);
+    final weights = [
+      for (var i = 0; i <= 30; i++)
+        WeightLogEntity(date: start.add(Duration(days: i)), weightKg: 85.0 - 0.15 * i),
+    ];
+    final intake = {for (var i = 0; i <= 30; i++) start.add(Duration(days: i)): 2300.0};
+    final trend = WeightTrendCalc.computeTrend(WeightInterpolationCalc.fillGaps(weights));
+    final lastLog = start.add(const Duration(days: 30));
+    for (final gap in [0, 1, 3, 5, 7, 10, 14, 18, 21, 24, 25, 26]) {
+      final today = lastLog.add(Duration(days: gap));
+      final lookbackStart = today.subtract(const Duration(days: 25));
+      final visible = {
+        for (final e in intake.entries)
+          if (!e.key.isBefore(lookbackStart) && !e.key.isAfter(today)) e.key: e.value,
+      };
+      final tdee = TdeeDynamicCalc.estimateTdeeSmoothed(trendSeries: trend, dailyIntakeKcal: visible);
+      print('days_without_logging=$gap intake_days_visible=${visible.length} '
+          'smoothed_tdee=${tdee?.round() ?? 'null (falls back to static)'}');
+    }
+  });
+}
+
+// Output of `flutter test` (2026-10-19):
+// days_without_logging=0 intake_days_visible=26 smoothed_tdee=3080
+// days_without_logging=1 intake_days_visible=25 smoothed_tdee=3083
+// days_without_logging=3 intake_days_visible=23 smoothed_tdee=3089
+// days_without_logging=5 intake_days_visible=21 smoothed_tdee=3095
+// days_without_logging=7 intake_days_visible=19 smoothed_tdee=3103
+// days_without_logging=10 intake_days_visible=16 smoothed_tdee=3115
+// days_without_logging=14 intake_days_visible=12 smoothed_tdee=3133
+// days_without_logging=18 intake_days_visible=8 smoothed_tdee=3186
+// days_without_logging=21 intake_days_visible=5 smoothed_tdee=3234
+// days_without_logging=24 intake_days_visible=2 smoothed_tdee=3282
+// days_without_logging=25 intake_days_visible=1 smoothed_tdee=3298
+// days_without_logging=26 intake_days_visible=0 smoothed_tdee=null (falls back to static)
+// 00:00 +1: All tests passed!

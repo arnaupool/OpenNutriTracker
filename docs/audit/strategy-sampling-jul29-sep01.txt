@@ -1,0 +1,22 @@
+# Strategy tab read via uiautomator, full flavor debug APK (built 2026-07-23 23:39), emulator ont_test.
+# Clock set with `adb root; adb shell settings put global auto_time 0; adb shell date MMDDhhmmYYYY.ss`,
+# app force-stopped and relaunched before every read. Nothing was logged between reads.
+# Last weigh-in in the bench: 2026-07-29. Profile: Lose Weight, target 80 kg.
+0729 Active || Today's Target 4063 kcal | 1.1 kg from your target, correcting by 134 kcal/day || TDEE 4197
+0730 Active || Today's Target 4081 kcal || TDEE 4215
+0801 Active || Today's Target 4144 kcal || TDEE 4278
+0803 Active || Today's Target 4052 kcal || TDEE 4186
+0806 Active || Today's Target 4281 kcal || TDEE 4415
+0810 Active || Today's Target 4369 kcal || TDEE 4503
+0815 Active || Today's Target 5361 kcal || TDEE 5495
+0820 Active || Today's Target 8954 kcal || TDEE 9088
+0823 Active || Today's Target 12429 kcal || TDEE 12563
+0824 Insufficient data || Today's Target 2114 kcal || TDEE 2614 (static IOM 2005)
+0825 Insufficient data || Today's Target 2114 kcal || TDEE 2614
+0901 Insufficient data || Today's Target 2114 kcal || TDEE 2614
+1019 (real clock) Insufficient data || Today's Target 2114 kcal || TDEE 2614   (see 02-strategy-today-after-gap.png)
+
+# Logged kcal per day in the bench (Diary, "logged/goal"):
+# Jun 29..Jul 7: 2300/day | Jul 8: 4600 | Jul 9..11: 2300 | Jul 12: unlogged | Jul 13..14: 2300 | Jul 15: 4600
+# Jul 16..22: 2300 | Jul 23: 9200 | Jul 24..26: 6900 | Jul 27..28: 13800 | Jul 29: 11500 | Jul 30: 9200
+# The multiples of 2300 are copies left over from FR-07/FR-08/FR-09 copy/move testing.
