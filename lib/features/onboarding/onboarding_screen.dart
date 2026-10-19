@@ -192,14 +192,14 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         image: _defaultImageWidget,
         bodyWidget: OnboardingOverviewPageBody(
           calorieGoalDayString:
-              _onboardingBloc.getOverviewCalorieGoal()?.toInt().toString() ??
+              _onboardingBloc.getOverviewCalorieGoal()?.round().toString() ??
               "?",
           carbsGoalString:
-              _onboardingBloc.getOverviewCarbsGoal()?.toInt().toString() ?? "?",
+              _onboardingBloc.getOverviewCarbsGoal()?.round().toString() ?? "?",
           fatGoalString:
-              _onboardingBloc.getOverviewFatGoal()?.toInt().toString() ?? "?",
+              _onboardingBloc.getOverviewFatGoal()?.round().toString() ?? "?",
           proteinGoalString:
-              _onboardingBloc.getOverviewProteinGoal()?.toInt().toString() ??
+              _onboardingBloc.getOverviewProteinGoal()?.round().toString() ??
               "?",
           setButtonActive: _setOverviewPageContent,
           showLowKcalWarning: _onboardingBloc

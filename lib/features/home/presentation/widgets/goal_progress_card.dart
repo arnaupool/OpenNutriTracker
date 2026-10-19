@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:opennutritracker/core/data/repository/config_repository.dart';
 import 'package:opennutritracker/core/presentation/goal_explanation.dart';
 import 'package:opennutritracker/core/domain/entity/user_entity.dart';
 import 'package:opennutritracker/core/domain/usecase/get_tracked_day_usecase.dart';
@@ -21,12 +22,14 @@ class GoalProgressCard extends StatefulWidget {
   final GetWeightLogUsecase? getWeightLogUsecase;
   final GetUserUsecase? getUserUsecase;
   final GetTrackedDayUsecase? getTrackedDayUsecase;
+  final ConfigRepository? configRepository;
 
   const GoalProgressCard({
     super.key,
     this.getWeightLogUsecase,
     this.getUserUsecase,
     this.getTrackedDayUsecase,
+    this.configRepository,
   });
 
   @override
@@ -42,7 +45,9 @@ class _GoalProgressCardState extends State<GoalProgressCard> {
       widget.getTrackedDayUsecase ?? locator<GetTrackedDayUsecase>();
 
   bool _loading = true;
-  String? _explanation;
+  bool _usesImperialUnits = false;
+  UserEntity? _user;
+  double? _trendWeightKg;
 
   @override
   void initState() {
@@ -83,29 +88,39 @@ class _GoalProgressCardState extends State<GoalProgressCard> {
         estimate != null &&
         estimate.trend.length >= TdeeDynamicCalc.minTrendPointsForDynamic;
 
+    final configRepository =
+        widget.configRepository ??
+        (locator.isRegistered<ConfigRepository>()
+            ? locator<ConfigRepository>()
+            : null);
+    final usesImperialUnits =
+        (await configRepository?.getConfig())?.usesImperialUnits ?? false;
+
     if (!mounted) return;
     setState(() {
-      _explanation = isActive
-          ? _buildExplanation(context, user, trend.last.trendWeightKg)
-          : null;
+      _usesImperialUnits = usesImperialUnits;
+      _user = isActive ? user : null;
+      _trendWeightKg = isActive ? trend.last.trendWeightKg : null;
       _loading = false;
     });
   }
-
-  /// Mirrors `StrategyPage._buildExplanation` exactly — same
-  /// [DynamicMaintenanceCalc]/[CalorieGoalCalc] calls, same l10n strings.
-  String? _buildExplanation(
-    BuildContext context,
-    UserEntity user,
-    double trendWeightKg,
-  ) => goalExplanation(S.of(context), user, trendWeightKg);
 
   @override
   Widget build(BuildContext context) {
     if (_loading) return const SizedBox.shrink();
     final s = S.of(context);
     final theme = Theme.of(context);
-    final explanation = _explanation;
+    final user = _user;
+    final trendWeightKg = _trendWeightKg;
+    // Same sentence as StrategyPage, in the user's energy and weight units.
+    final explanation = user != null && trendWeightKg != null
+        ? goalExplanation(
+            context,
+            user,
+            trendWeightKg,
+            usesImperialUnits: _usesImperialUnits,
+          )
+        : null;
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),

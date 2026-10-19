@@ -79,11 +79,17 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m27(ratePct) => "${ratePct}% of body weight per week";
 
-  static String m28(ratePct, adjustmentKcal) =>
-      "Aiming for ${ratePct}% of body weight per week: ${adjustmentKcal} kcal/day vs. your TDEE";
+  static String m28(ratePct, adjustment) =>
+      "Aiming for ${ratePct}% of body weight per week: ${adjustment}/day vs. your TDEE";
 
-  static String m29(newKcal, currentKcal) =>
-      "Your weekly check-in is ready. New target: ${newKcal} kcal (now ${currentKcal} kcal).";
+  static String m29(newTarget, currentTarget) =>
+      "Your weekly check-in is ready. New target: ${newTarget} (now ${currentTarget}).";
+
+  static String m31(band) =>
+      "Within ${band} of your target — maintaining at your observed TDEE";
+
+  static String m32(distance, correction) =>
+      "${distance} from your target — correcting by ${correction}/day toward goal";
 
   static String m30(date) => "Next check-in: ${date}";
 
@@ -1362,6 +1368,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "strategyCheckInDayLabel": MessageLookupByLibrary.simpleMessage("Check-in day"),
         "strategyCheckInDue": m29,
         "strategyCheckInNext": m30,
+        "strategyExplanationWithinBand": m31,
+        "strategyExplanationCorrecting": m32,
         "weeklyRateDialogDescription": MessageLookupByLibrary.simpleMessage(
           "Set as a percentage of body weight per week. Until your trend weight reaches the target, your goal is your observed TDEE minus (or plus) the matching calories. A new rate takes effect at your next weekly check-in.",
         ),

@@ -113,7 +113,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                       Text(
-                        '${displaySupplied.toInt()}',
+                        '${displaySupplied.round()}',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: Theme.of(context).colorScheme.onSurface,
                             ),
@@ -141,7 +141,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
                       children: [
                         AnimatedFlipCounter(
                           duration: const Duration(milliseconds: 1000),
-                          value: displayValue.toInt(),
+                          value: displayValue.round(),
                           textStyle: Theme.of(
                             context,
                           ).textTheme.headlineMedium?.copyWith(
@@ -168,7 +168,7 @@ class _DashboardWidgetState extends State<DashboardWidget> {
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                       Text(
-                        '${displayBurned.toInt()}',
+                        '${displayBurned.round()}',
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               color: Theme.of(context).colorScheme.onSurface,
                             ),

@@ -2,6 +2,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:opennutritracker/core/utils/energy_unit_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:opennutritracker/core/data/repository/config_repository.dart';
 import 'package:opennutritracker/core/domain/entity/app_theme_entity.dart';
 import 'package:opennutritracker/core/domain/entity/config_entity.dart';
@@ -117,7 +119,9 @@ UserEntity _buildUser({double? targetWeightKg}) {
 }
 
 Widget _wrap(Widget child) {
-  return MaterialApp(
+  return ChangeNotifierProvider<EnergyUnitProvider>(
+    create: (_) => EnergyUnitProvider(),
+    child: MaterialApp(
     localizationsDelegates: const [
       S.delegate,
       GlobalMaterialLocalizations.delegate,
@@ -126,6 +130,7 @@ Widget _wrap(Widget child) {
     ],
     supportedLocales: S.delegate.supportedLocales,
     home: Scaffold(body: child),
+  ),
   );
 }
 
@@ -264,7 +269,7 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(
-          find.text(S.current.strategyExplanationWithinBand),
+          find.text(S.current.strategyExplanationWithinBand('0.7 kg')),
           findsOneWidget,
         );
       },
@@ -370,7 +375,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text(S.current.strategyCheckInDue('2250', '2400')), findsOneWidget);
+      expect(find.text(S.current.strategyCheckInDue('2250 kcal', '2400 kcal')), findsOneWidget);
       expect(find.text(S.current.strategyCheckInApply), findsOneWidget);
       expect(find.text(S.current.strategyCheckInKeep), findsOneWidget);
     });

@@ -129,10 +129,27 @@
   },
   "@strategyCheckInDue": {
     "placeholders": {
-      "newKcal": {
+      "newTarget": {
         "type": "String"
       },
-      "currentKcal": {
+      "currentTarget": {
+        "type": "String"
+      }
+    }
+  },
+  "@strategyExplanationWithinBand": {
+    "placeholders": {
+      "band": {
+        "type": "String"
+      }
+    }
+  },
+  "@strategyExplanationCorrecting": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "correction": {
         "type": "String"
       }
     }
@@ -149,7 +166,7 @@
       "ratePct": {
         "type": "String"
       },
-      "adjustmentKcal": {
+      "adjustment": {
         "type": "String"
       }
     }
@@ -1037,15 +1054,15 @@
   "strategyCheckInApply": "Update target",
   "strategyCheckInKeep": "Keep current",
   "strategyCheckInDayLabel": "Check-in day",
-  "strategyCheckInDue": "Your weekly check-in is ready. New target: {newKcal} kcal (now {currentKcal} kcal).",
+  "strategyCheckInDue": "Your weekly check-in is ready. New target: {newTarget} (now {currentTarget}).",
   "strategyCheckInNext": "Next check-in: {date}",
   "strategyEstimatedTdeeLabel": "Estimated TDEE",
   "strategyTrendWeightLabel": "Trend Weight",
   "strategyTodayTargetLabel": "Today's Target",
   "strategyExplanationMaintaining": "Maintaining — matches your observed TDEE",
-  "strategyExplanationRate": "Aiming for {ratePct}% of body weight per week: {adjustmentKcal} kcal/day vs. your TDEE",
-  "strategyExplanationWithinBand": "Within 0.7 kg of your target — maintaining at your observed TDEE",
-  "strategyExplanationCorrecting": "{distanceKg} kg from your target — correcting by {correctionKcal} kcal/day toward goal",
+  "strategyExplanationRate": "Aiming for {ratePct}% of body weight per week: {adjustment}/day vs. your TDEE",
+  "strategyExplanationWithinBand": "Within {band} of your target — maintaining at your observed TDEE",
+  "strategyExplanationCorrecting": "{distance} from your target — correcting by {correction}/day toward goal",
   "strategyMacroDistributionTitle": "Macro Distribution",
   "settingsMaterialYouTitle": "Use system colours",
   "settingsMaterialYouSubtitle": "Match your wallpaper accent on Android 12 and newer.",

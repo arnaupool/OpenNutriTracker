@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:opennutritracker/core/domain/entity/app_theme_entity.dart';
+import 'package:opennutritracker/core/domain/entity/config_entity.dart';
+import 'package:opennutritracker/core/data/repository/config_repository.dart';
+import 'package:opennutritracker/core/utils/energy_unit_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:opennutritracker/core/domain/entity/tracked_day_entity.dart';
 import 'package:opennutritracker/core/domain/entity/user_entity.dart';
 import 'package:opennutritracker/core/domain/entity/user_gender_entity.dart';
@@ -60,8 +65,10 @@ UserEntity _buildUser({
   );
 }
 
-Widget _wrap(Widget child) {
-  return MaterialApp(
+Widget _wrap(Widget child, {bool usesKilojoules = false}) {
+  return ChangeNotifierProvider<EnergyUnitProvider>(
+    create: (_) => EnergyUnitProvider(usesKilojoules: usesKilojoules),
+    child: MaterialApp(
     localizationsDelegates: const [
       S.delegate,
       GlobalMaterialLocalizations.delegate,
@@ -70,6 +77,7 @@ Widget _wrap(Widget child) {
     ],
     supportedLocales: S.delegate.supportedLocales,
     home: Scaffold(body: child),
+  ),
   );
 }
 
@@ -77,11 +85,27 @@ Widget _buildCard({
   required List<WeightLogEntity> weightEntries,
   List<TrackedDayEntity> trackedDays = const [],
   UserEntity? user,
+  bool usesImperialUnits = false,
 }) {
   return GoalProgressCard(
     getWeightLogUsecase: _FakeGetWeightLogUsecase(weightEntries),
     getUserUsecase: _FakeGetUserUsecase(user ?? _buildUser()),
     getTrackedDayUsecase: _FakeGetTrackedDayUsecase(trackedDays),
+    configRepository: _FakeConfigRepository(usesImperialUnits),
+  );
+}
+
+class _FakeConfigRepository extends Fake implements ConfigRepository {
+  final bool _usesImperialUnits;
+  _FakeConfigRepository(this._usesImperialUnits);
+
+  @override
+  Future<ConfigEntity> getConfig() async => ConfigEntity(
+    false,
+    false,
+    false,
+    AppThemeEntity.dark,
+    usesImperialUnits: _usesImperialUnits,
   );
 }
 
@@ -199,5 +223,39 @@ void main() {
         );
       },
     );
+
+    // QA 2026-10-19: the explanation follows the energy and weight units
+    // (it always said kcal and kg before).
+    testWidgets('the explanation uses kJ and lbs when those are selected', (
+      tester,
+    ) async {
+      final today = DateTime.now();
+      DateTime day(int daysAgo) {
+        final d = today.subtract(Duration(days: daysAgo));
+        return DateTime(d.year, d.month, d.day);
+      }
+
+      await tester.pumpWidget(
+        _wrap(
+          _buildCard(
+            weightEntries: [
+              for (var i = 20; i >= 0; i--)
+                WeightLogEntity(date: day(i), weightKg: 84.0),
+            ],
+            trackedDays: [
+              for (var i = 0; i <= 20; i++)
+                TrackedDayEntity(day: day(i), calorieGoal: 2400, caloriesTracked: 2300),
+            ],
+            user: _buildUser(targetWeightKg: 84.5),
+            usesImperialUnits: true,
+          ),
+          usesKilojoules: true,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('lbs of your target'), findsOneWidget);
+      expect(find.textContaining('kg'), findsNothing);
+    });
   });
 }

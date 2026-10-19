@@ -2050,15 +2050,16 @@ class S {
     );
   }
 
-  /// `Your weekly check-in is ready. New target: {newKcal} kcal (now {currentKcal} kcal).`
-  String strategyCheckInDue(String newKcal, String currentKcal) {
+  /// `Your weekly check-in is ready. New target: {newTarget} (now {currentTarget}).`
+  String strategyCheckInDue(String newTarget, String currentTarget) {
     return Intl.message(
-      'Your weekly check-in is ready. New target: $newKcal kcal (now $currentKcal kcal).',
+      'Your weekly check-in is ready. New target: $newTarget (now $currentTarget).',
       name: 'strategyCheckInDue',
       desc: '',
-      args: [newKcal, currentKcal],
+      args: [newTarget, currentTarget],
     );
   }
+
 
   /// `Next check-in: {date}`
   String strategyCheckInNext(String date) {
@@ -2110,35 +2111,38 @@ class S {
     );
   }
 
-  /// `Aiming for {ratePct}% of body weight per week: {adjustmentKcal} kcal/day vs. your TDEE`
-  String strategyExplanationRate(String ratePct, String adjustmentKcal) {
+  /// `Aiming for {ratePct}% of body weight per week: {adjustment}/day vs. your TDEE`
+  String strategyExplanationRate(String ratePct, String adjustment) {
     return Intl.message(
-      'Aiming for $ratePct% of body weight per week: $adjustmentKcal kcal/day vs. your TDEE',
+      'Aiming for $ratePct% of body weight per week: $adjustment/day vs. your TDEE',
       name: 'strategyExplanationRate',
       desc: '',
-      args: [ratePct, adjustmentKcal],
+      args: [ratePct, adjustment],
     );
   }
 
-  /// `Within 0.7 kg of your target — maintaining at your observed TDEE`
-  String get strategyExplanationWithinBand {
+
+  /// `Within {band} of your target — maintaining at your observed TDEE`
+  String strategyExplanationWithinBand(String band) {
     return Intl.message(
-      'Within 0.7 kg of your target — maintaining at your observed TDEE',
+      'Within $band of your target — maintaining at your observed TDEE',
       name: 'strategyExplanationWithinBand',
       desc: '',
-      args: [],
+      args: [band],
     );
   }
 
-  /// `{distanceKg} kg from your target — correcting by {correctionKcal} kcal/day toward goal`
-  String strategyExplanationCorrecting(String distanceKg, String correctionKcal) {
+
+  /// `{distance} from your target — correcting by {correction}/day toward goal`
+  String strategyExplanationCorrecting(String distance, String correction) {
     return Intl.message(
-      '$distanceKg kg from your target — correcting by $correctionKcal kcal/day toward goal',
+      '$distance from your target — correcting by $correction/day toward goal',
       name: 'strategyExplanationCorrecting',
       desc: '',
-      args: [distanceKg, correctionKcal],
+      args: [distance, correction],
     );
   }
+
 
   /// `Macro Distribution`
   String get strategyMacroDistributionTitle {

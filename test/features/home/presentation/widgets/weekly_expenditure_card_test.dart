@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:opennutritracker/core/utils/energy_unit_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:opennutritracker/core/domain/entity/tracked_day_entity.dart';
 import 'package:opennutritracker/core/domain/entity/weight_log_entity.dart';
 import 'package:opennutritracker/core/domain/usecase/get_tracked_day_usecase.dart';
@@ -32,7 +34,9 @@ class _FakeGetTrackedDayUsecase extends Fake implements GetTrackedDayUsecase {
 }
 
 Widget _wrap(Widget child) {
-  return MaterialApp(
+  return ChangeNotifierProvider<EnergyUnitProvider>(
+    create: (_) => EnergyUnitProvider(),
+    child: MaterialApp(
     localizationsDelegates: const [
       S.delegate,
       GlobalMaterialLocalizations.delegate,
@@ -41,6 +45,7 @@ Widget _wrap(Widget child) {
     ],
     supportedLocales: S.delegate.supportedLocales,
     home: Scaffold(body: child),
+  ),
   );
 }
 

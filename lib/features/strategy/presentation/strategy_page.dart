@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:opennutritracker/core/utils/energy_display.dart';
 import 'package:opennutritracker/core/presentation/goal_explanation.dart';
 import 'package:opennutritracker/core/data/repository/config_repository.dart';
 import 'package:opennutritracker/core/domain/entity/user_entity.dart';
@@ -238,7 +239,12 @@ class _StrategyPageState extends State<StrategyPage> {
     BuildContext context,
     UserEntity user,
     double trendWeightKg,
-  ) => goalExplanation(S.of(context), user, trendWeightKg);
+  ) => goalExplanation(
+    context,
+    user,
+    trendWeightKg,
+    usesImperialUnits: _usesImperialUnits,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -583,8 +589,8 @@ class _CheckInCard extends StatelessWidget {
               if (status.isDue && recommendedKcal != null && currentKcal != null)
                 Text(
                   s.strategyCheckInDue(
-                    recommendedKcal!.round().toString(),
-                    currentKcal!.round().toString(),
+                    EnergyDisplay.formatWithUnit(context, recommendedKcal!),
+                    EnergyDisplay.formatWithUnit(context, currentKcal!),
                   ),
                   style: theme.textTheme.bodyMedium,
                 )
@@ -747,7 +753,7 @@ class _TodayGoalCard extends StatelessWidget {
               Text(
                 targetKcal == null
                     ? '—'
-                    : '${targetKcal!.round()} ${s.kcalLabel}',
+                    : EnergyDisplay.formatWithUnit(context, targetKcal!),
                 style: theme.textTheme.headlineMedium,
               ),
               if (explanation != null) ...[
@@ -768,7 +774,10 @@ class _TodayGoalCard extends StatelessWidget {
                       label: s.strategyEstimatedTdeeLabel,
                       value: estimatedTdeeKcal == null
                           ? '—'
-                          : '${estimatedTdeeKcal!.round()} ${s.kcalLabel}',
+                          : EnergyDisplay.formatWithUnit(
+                              context,
+                              estimatedTdeeKcal!,
+                            ),
                     ),
                   ),
                   const SizedBox(width: 12),

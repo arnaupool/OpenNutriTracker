@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:opennutritracker/core/utils/energy_display.dart';
 import 'package:opennutritracker/core/domain/usecase/get_tracked_day_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_weight_log_usecase.dart';
 import 'package:opennutritracker/core/utils/calc/tdee_dynamic_calc.dart';
@@ -159,7 +160,7 @@ class _WeeklyExpenditureCardState extends State<WeeklyExpenditureCard> {
                     identifier: 'home-expenditure-value',
                     child: _MetricColumn(
                       label: s.homeExpenditureLabel,
-                      value: '${expenditure.round()} ${s.kcalLabel}',
+                      value: EnergyDisplay.formatWithUnit(context, expenditure),
                     ),
                   ),
                   if (_energyBalanceKcal != null)
@@ -167,7 +168,7 @@ class _WeeklyExpenditureCardState extends State<WeeklyExpenditureCard> {
                       identifier: 'home-energy-balance-value',
                       child: _MetricColumn(
                         label: s.homeEnergyBalanceLabel,
-                        value: _formatSigned(_energyBalanceKcal!, s.kcalLabel),
+                        value: _formatSigned(context, _energyBalanceKcal!),
                       ),
                     ),
                 ],
@@ -178,9 +179,9 @@ class _WeeklyExpenditureCardState extends State<WeeklyExpenditureCard> {
     );
   }
 
-  String _formatSigned(double value, String unit) {
-    final sign = value > 0 ? '+' : '';
-    return '$sign${value.round()} $unit';
+  String _formatSigned(BuildContext context, double kcal) {
+    final sign = kcal > 0 ? '+' : (kcal < 0 ? '-' : '');
+    return '$sign${EnergyDisplay.formatWithUnit(context, kcal.abs())}';
   }
 }
 
