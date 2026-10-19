@@ -459,6 +459,12 @@ class MessageLookup extends MessageLookupByLibrary {
         ),
         "itemUpdatedSnackbar":
             MessageLookupByLibrary.simpleMessage("Item updated"),
+        "strategyEstimatorStatusPausedLabel":
+            MessageLookupByLibrary.simpleMessage("Paused"),
+        "strategyEstimatorStatusPausedDescription":
+            MessageLookupByLibrary.simpleMessage(
+          "Fewer than 4 of the last 7 days have food logged, so your estimate is held at its last value",
+        ),
         "kcalExceededLabel":
             MessageLookupByLibrary.simpleMessage("kcal exceeded"),
         "kcalLabel": MessageLookupByLibrary.simpleMessage("kcal"),

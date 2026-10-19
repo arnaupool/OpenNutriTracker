@@ -40,7 +40,9 @@ enum _ChartRange {
 /// improving" estimates over the first weeks rather than a hard
 /// static→dynamic snap), and [active] (fully mature, no more blend-in
 /// left).
-enum _EstimatorState { insufficient, calibrating, active }
+/// [paused] (FM-13): the estimate is held at its last value because
+/// fewer than 4 of the last 7 days have food logged.
+enum _EstimatorState { insufficient, calibrating, active, paused }
 
 /// Fase Motor's real dashboard (FD-01, reworked by FM-09): now that
 /// [GetKcalGoalUsecase]/[GetMacroGoalUsecase] actually govern the app's
@@ -72,9 +74,6 @@ class StrategyPage extends StatefulWidget {
 }
 
 class _StrategyPageState extends State<StrategyPage> {
-  // Buffer above TdeeDynamicCalc's default 21-day window so a full window
-  // is available even if today hasn't been tracked yet.
-  static const int _intakeLookbackDays = 25;
 
   late final GetWeightLogUsecase _weightUsecase =
       widget.getWeightLogUsecase ?? locator<GetWeightLogUsecase>();
@@ -115,9 +114,15 @@ class _StrategyPageState extends State<StrategyPage> {
 
     final today = DateTime.now();
     final todayAtMidnight = DateTime(today.year, today.month, today.day);
-    final lookbackStart = todayAtMidnight.subtract(
-      const Duration(days: _intakeLookbackDays),
-    );
+    // From the first weigh-in on, so the carried-forward estimate (FM-13)
+    // can still reach back to the last well-logged week after a long gap.
+    final lookbackStart = entries.isEmpty
+        ? todayAtMidnight
+        : DateTime(
+            entries.first.date.year,
+            entries.first.date.month,
+            entries.first.date.day,
+          );
     // TrackedDayDBO.day isn't always normalized to midnight, so bounding
     // the range at exactly today's midnight would silently drop today's
     // entry whenever it carries a real time-of-day component. Push the
@@ -224,10 +229,12 @@ class _StrategyPageState extends State<StrategyPage> {
       );
     }
 
-    final tdeeDynamic = TdeeDynamicCalc.estimateTdeeSmoothed(
+    final estimate = TdeeDynamicCalc.estimateTdeeCarriedForward(
       trendSeries: trend,
       dailyIntakeKcal: _dailyIntakeKcal,
+      today: DateTime.now(),
     );
+    final tdeeDynamic = estimate?.tdee;
     final tdeeStatic = _user != null
         ? TDEECalc.getTDEEKcalIOM2005(_user!)
         : null;
@@ -238,14 +245,16 @@ class _StrategyPageState extends State<StrategyPage> {
     // claims the estimator is live before it's actually influencing
     // today's real goal, and "calibrating" reflects the same gradual
     // blend Home is applying, not a separate approximation of it.
-    final hasEnoughTrend =
-        trend.length >= TdeeDynamicCalc.minTrendPointsForDynamic;
-    final isActive = hasEnoughTrend && tdeeDynamic != null;
+    final isActive =
+        estimate != null &&
+        estimate.trend.length >= TdeeDynamicCalc.minTrendPointsForDynamic;
     final blendWeight = isActive
-        ? TdeeDynamicCalc.dynamicBlendWeight(trend.length)
+        ? TdeeDynamicCalc.dynamicBlendWeight(estimate.trend.length)
         : 0.0;
     final estimatorState = !isActive
         ? _EstimatorState.insufficient
+        : estimate.isPaused
+        ? _EstimatorState.paused
         : blendWeight >= 1.0
         ? _EstimatorState.active
         : _EstimatorState.calibrating;
@@ -517,6 +526,10 @@ class _EstimatorStatusCard extends StatelessWidget {
         dotColor = theme.colorScheme.primary;
         label = s.strategyEstimatorStatusActiveLabel;
         description = s.strategyEstimatorStatusActiveDescription;
+      case _EstimatorState.paused:
+        dotColor = theme.colorScheme.secondary;
+        label = s.strategyEstimatorStatusPausedLabel;
+        description = s.strategyEstimatorStatusPausedDescription;
     }
 
     return Semantics(

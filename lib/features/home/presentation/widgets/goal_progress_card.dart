@@ -33,11 +33,6 @@ class GoalProgressCard extends StatefulWidget {
 }
 
 class _GoalProgressCardState extends State<GoalProgressCard> {
-  // Buffer above TdeeDynamicCalc's default 21-day window, matching
-  // StrategyPage's own reasoning: a full window is available even if
-  // today hasn't been tracked yet.
-  static const int _intakeLookbackDays = 25;
-
   late final GetWeightLogUsecase _weightUsecase =
       widget.getWeightLogUsecase ?? locator<GetWeightLogUsecase>();
   late final GetUserUsecase _userUsecase =
@@ -62,9 +57,9 @@ class _GoalProgressCardState extends State<GoalProgressCard> {
 
     final today = DateTime.now();
     final todayAtMidnight = DateTime(today.year, today.month, today.day);
-    final lookbackStart = todayAtMidnight.subtract(
-      const Duration(days: _intakeLookbackDays),
-    );
+    // From the first trend day on, matching GetKcalGoalUsecase's
+    // carried-forward estimate (FM-13).
+    final lookbackStart = trend.isEmpty ? todayAtMidnight : trend.first.date;
     final endOfToday = todayAtMidnight
         .add(const Duration(days: 1))
         .subtract(const Duration(milliseconds: 1));
@@ -77,15 +72,14 @@ class _GoalProgressCardState extends State<GoalProgressCard> {
         DateTime(d.day.year, d.day.month, d.day.day): d.caloriesTracked,
     };
 
-    final hasEnoughTrend =
-        trend.length >= TdeeDynamicCalc.minTrendPointsForDynamic;
-    final tdeeDynamic = hasEnoughTrend
-        ? TdeeDynamicCalc.estimateTdeeSmoothed(
-            trendSeries: trend,
-            dailyIntakeKcal: dailyIntakeKcal,
-          )
-        : null;
-    final isActive = hasEnoughTrend && tdeeDynamic != null;
+    final estimate = TdeeDynamicCalc.estimateTdeeCarriedForward(
+      trendSeries: trend,
+      dailyIntakeKcal: dailyIntakeKcal,
+      today: today,
+    );
+    final isActive =
+        estimate != null &&
+        estimate.trend.length >= TdeeDynamicCalc.minTrendPointsForDynamic;
 
     if (!mounted) return;
     setState(() {

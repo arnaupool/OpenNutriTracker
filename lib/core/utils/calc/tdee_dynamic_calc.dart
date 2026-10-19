@@ -1,5 +1,15 @@
 import 'package:opennutritracker/core/utils/calc/weight_trend_calc.dart';
 
+/// [TdeeDynamicCalc.estimateTdeeCarriedForward]'s result: the smoothed
+/// TDEE, the day it was computed as of, the trend cut at that day, and
+/// whether updates are currently paused for lack of logged intake.
+typedef CarriedForwardTdee = ({
+  double tdee,
+  DateTime asOfDay,
+  List<WeightTrendPoint> trend,
+  bool isPaused,
+});
+
 class TdeeDynamicCalc {
   /// Energy density used to convert a change in trend body weight into an
   /// implied daily energy surplus/deficit. MacroFactor's Fat Loss
@@ -110,6 +120,105 @@ class TdeeDynamicCalc {
       smoothed = smoothed == null ? raw : smoothed + alpha * (raw - smoothed);
     }
     return smoothed;
+  }
+
+  /// Intake history, in days before the as-of day, that
+  /// [estimateTdeeCarriedForward] feeds into [estimateTdeeSmoothed] —
+  /// enough slack above [defaultWindowDays] that a full window of real
+  /// intake is available even if the as-of day itself isn't tracked yet.
+  static const int intakeLookbackDays = 25;
+
+  /// MacroFactor's V3 expenditure algorithm only pauses updates "if you
+  /// have more than three days of missing nutrition data" in a seven-day
+  /// period (https://macrofactor.com/expenditure-v3/).
+  static const int pauseWindowDays = 7;
+  static const int maxMissingDaysInPauseWindow = 3;
+
+  /// The latest day, no later than [today] or the last [trendSeries]
+  /// point, whose [pauseWindowDays]-day window ending on it has at most
+  /// [maxMissingDaysInPauseWindow] days without logged intake. Null when
+  /// no day in the trend qualifies.
+  static DateTime? confidentAsOfDay({
+    required List<WeightTrendPoint> trendSeries,
+    required Map<DateTime, double> dailyIntakeKcal,
+    required DateTime today,
+  }) {
+    if (trendSeries.isEmpty) return null;
+    final todayAtMidnight = DateTime(today.year, today.month, today.day);
+    final lastTrendDay = trendSeries.last.date;
+    var day = lastTrendDay.isBefore(todayAtMidnight)
+        ? lastTrendDay
+        : todayAtMidnight;
+    final firstTrendDay = trendSeries.first.date;
+    while (!day.isBefore(firstTrendDay)) {
+      if (!_isPauseWindowShort(dailyIntakeKcal, day)) return day;
+      day = day.subtract(const Duration(days: 1));
+    }
+    return null;
+  }
+
+  /// Whether the [pauseWindowDays]-day window ending on [windowEnd] has
+  /// more than [maxMissingDaysInPauseWindow] days without logged intake.
+  static bool _isPauseWindowShort(
+    Map<DateTime, double> dailyIntakeKcal,
+    DateTime windowEnd,
+  ) {
+    var missing = 0;
+    for (var i = 0; i < pauseWindowDays; i++) {
+      final d = windowEnd.subtract(Duration(days: i));
+      if ((dailyIntakeKcal[DateTime(d.year, d.month, d.day)] ?? 0) <= 0) {
+        missing++;
+      }
+    }
+    return missing > maxMissingDaysInPauseWindow;
+  }
+
+  /// [estimateTdeeSmoothed] as it stood on [confidentAsOfDay]: the trend
+  /// cut at that day and intake limited to the [intakeLookbackDays] before
+  /// it. While the user isn't logging, this returns the same value every
+  /// day instead of drifting as the intake window slides, and after a gap
+  /// it carries the last confident estimate forward rather than giving up,
+  /// as MacroFactor does with its last "high confidence" expenditure
+  /// (https://macrofactor.com/macrofactors-algorithms-and-core-philosophy/).
+  /// [isPaused] is true when the last [pauseWindowDays] days up to [today]
+  /// themselves have too little logged intake, so the estimate isn't
+  /// updating right now.
+  static CarriedForwardTdee? estimateTdeeCarriedForward({
+    required List<WeightTrendPoint> trendSeries,
+    required Map<DateTime, double> dailyIntakeKcal,
+    required DateTime today,
+  }) {
+    final asOfDay = confidentAsOfDay(
+      trendSeries: trendSeries,
+      dailyIntakeKcal: dailyIntakeKcal,
+      today: today,
+    );
+    if (asOfDay == null) return null;
+
+    final trend = trendSeries.where((p) => !p.date.isAfter(asOfDay)).toList();
+    final lookbackStart = asOfDay.subtract(
+      const Duration(days: intakeLookbackDays),
+    );
+    final intake = {
+      for (final e in dailyIntakeKcal.entries)
+        if (!e.key.isBefore(lookbackStart) && !e.key.isAfter(asOfDay))
+          e.key: e.value,
+    };
+    final tdee = estimateTdeeSmoothed(
+      trendSeries: trend,
+      dailyIntakeKcal: intake,
+    );
+    if (tdee == null) return null;
+
+    return (
+      tdee: tdee,
+      asOfDay: asOfDay,
+      trend: trend,
+      isPaused: _isPauseWindowShort(
+        dailyIntakeKcal,
+        DateTime(today.year, today.month, today.day),
+      ),
+    );
   }
 
   /// Trend points below this are too noisy to blend into the live goal

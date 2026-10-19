@@ -1,0 +1,14 @@
+# FM-13 build, same bench, same procedure as strategy-sampling-jul29-sep01.txt
+0729 Active | Updating from your data || Today's Target | 4063 kcal | 1.1 kg from your target ? correcting by 134 kcal/day toward goal || 4197 kcal | Estimated TDEE
+0730 Active | Updating from your data || Today's Target | 4063 kcal | 1.1 kg from your target ? correcting by 134 kcal/day toward goal || 4197 kcal | Estimated TDEE
+0801 Active | Updating from your data || Today's Target | 4063 kcal | 1.1 kg from your target ? correcting by 134 kcal/day toward goal || 4197 kcal | Estimated TDEE
+0803 Paused | Fewer than 4 of the last 7 days have food logged, so your estimate is held at its last value || Today's Target | 4063 kcal | 1.1 kg from your target ? correcting by 134 kcal/day toward goal || 4197 kcal | Estimated TDEE
+0806 Paused | Fewer than 4 of the last 7 days have food logged, so your estimate is held at its last value || Today's Target | 4063 kcal | 1.1 kg from your target ? correcting by 134 kcal/day toward goal || 4197 kcal | Estimated TDEE
+0810 Paused | Fewer than 4 of the last 7 days have food logged, so your estimate is held at its last value || Today's Target | 4063 kcal | 1.1 kg from your target ? correcting by 134 kcal/day toward goal || 4197 kcal | Estimated TDEE
+0815 Paused | Fewer than 4 of the last 7 days have food logged, so your estimate is held at its last value || Today's Target | 4063 kcal | 1.1 kg from your target ? correcting by 134 kcal/day toward goal || 4197 kcal | Estimated TDEE
+0820 Paused | Fewer than 4 of the last 7 days have food logged, so your estimate is held at its last value || Today's Target | 4063 kcal | 1.1 kg from your target ? correcting by 134 kcal/day toward goal || 4197 kcal | Estimated TDEE
+0823 Paused | Fewer than 4 of the last 7 days have food logged, so your estimate is held at its last value || Today's Target | 4063 kcal | 1.1 kg from your target ? correcting by 134 kcal/day toward goal || 4197 kcal | Estimated TDEE
+0824 Paused | Fewer than 4 of the last 7 days have food logged, so your estimate is held at its last value || Today's Target | 4063 kcal | 1.1 kg from your target ? correcting by 134 kcal/day toward goal || 4197 kcal | Estimated TDEE
+0825 Paused | Fewer than 4 of the last 7 days have food logged, so your estimate is held at its last value || Today's Target | 4063 kcal | 1.1 kg from your target ? correcting by 134 kcal/day toward goal || 4197 kcal | Estimated TDEE
+0901 (re-read) 'Paused\nFewer than 4 of the last 7 days have food logged, so your estimate is held at its last value'  [42,527][1038,776] "Today's Target\n4063 kcal\n1.1 kg from your target ? correcting by 134 kcal/day toward goal"  [42,818][1038,1501] '4197 kcal\nEstimated 
+1019 Paused | Fewer than 4 of the last 7 days have food logged, so your estimate is held at its last value || Today's Target | 4063 kcal | 1.1 kg from your target ? correcting by 134 kcal/day toward goal || 4197 kcal | Estimated TDEE

@@ -993,6 +993,8 @@
   "strategyEstimatorStatusInsufficientDescription": "Log weight and food more consistently to get an estimate",
   "strategyEstimatorStatusCalibratingLabel": "Calibrating",
   "strategyEstimatorStatusCalibratingDescription": "Blending toward your dynamic estimate as more data comes in — usually settles within a couple of weeks",
+  "strategyEstimatorStatusPausedLabel": "Paused",
+  "strategyEstimatorStatusPausedDescription": "Fewer than 4 of the last 7 days have food logged, so your estimate is held at its last value",
   "strategyEstimatedTdeeLabel": "Estimated TDEE",
   "strategyTrendWeightLabel": "Trend Weight",
   "strategyTodayTargetLabel": "Today's Target",

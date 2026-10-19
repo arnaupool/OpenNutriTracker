@@ -129,19 +129,20 @@ void main() {
   Future<void> seedStepHistory({
     required int days,
     required double dailyIntakeKcal,
+    int endDaysAgo = 0,
   }) async {
     await weightLogDataSource.addEntry(
-      WeightLogDBO(date: daysAgo(days - 1), weightKg: 88.0),
+      WeightLogDBO(date: daysAgo(endDaysAgo + days - 1), weightKg: 88.0),
     );
     for (var daysBack = days - 2; daysBack >= 0; daysBack--) {
       await weightLogDataSource.addEntry(
-        WeightLogDBO(date: daysAgo(daysBack), weightKg: 84.0),
+        WeightLogDBO(date: daysAgo(endDaysAgo + daysBack), weightKg: 84.0),
       );
     }
     for (var daysBack = days - 1; daysBack >= 0; daysBack--) {
       await trackedDayDataSource.saveTrackedDay(
         TrackedDayDBO(
-          day: daysAgo(daysBack),
+          day: daysAgo(endDaysAgo + daysBack),
           calorieGoal: dailyIntakeKcal,
           caloriesTracked: dailyIntakeKcal,
         ),
@@ -345,6 +346,45 @@ void main() {
 
         final after = await getKcalGoalUsecase.getKcalGoal();
         expect(after, closeTo(before, 0.01));
+      });
+    }
+
+    // FM-13 (AUDIT.md B2): MacroFactor V3 pauses expenditure updates when
+    // more than 3 of the last 7 days lack nutrition data, and after a gap
+    // carries the last high-confidence value forward. The goal must stay
+    // what it was on the last logged day instead of drifting while the
+    // intake lookback slides, and must not snap back to the static formula.
+    for (final gapDays in [5, 30]) {
+      test('$gapDays days without logging keeps the goal as it stood on the '
+          'last logged day', () async {
+        await userDataSource.saveUserData(
+          baseUser(goal: UserWeightGoalDBO.maintainWeight),
+        );
+        await seedStepHistory(
+          days: 25,
+          dailyIntakeKcal: 2600,
+          endDaysAgo: gapDays,
+        );
+
+        final lastLogged = daysAgo(gapDays);
+        final trend = WeightTrendCalc.computeTrend(
+          WeightInterpolationCalc.fillGaps(
+            await weightLogRepository.getAllEntries(),
+          ),
+        );
+        final trackedDays = await trackedDayDataSource.getAllTrackedDays();
+        final intakeAsOfLastLogged = {
+          for (final d in trackedDays)
+            if (!d.day.isBefore(lastLogged.subtract(const Duration(days: 25))))
+              DateTime(d.day.year, d.day.month, d.day.day): d.caloriesTracked,
+        };
+        final expected = TdeeDynamicCalc.estimateTdeeSmoothed(
+          trendSeries: trend,
+          dailyIntakeKcal: intakeAsOfLastLogged,
+        )!;
+
+        final goal = await getKcalGoalUsecase.getKcalGoal();
+        expect(goal, closeTo(expected, 0.01));
       });
     }
   });

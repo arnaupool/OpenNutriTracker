@@ -235,4 +235,115 @@ void main() {
       expect(result, closeTo(0.7, 0.001));
     });
   });
+
+  // FM-13 (AUDIT.md B2): MacroFactor V3 pauses when more than 3 of the last
+  // 7 days lack nutrition data (https://macrofactor.com/expenditure-v3/).
+  group('confidentAsOfDay / estimateTdeeCarriedForward', () {
+    final series = List.generate(
+      30,
+      (i) => trendPoint(DateTime(2026, 6, 1 + i), 80.0 - 0.1 * i),
+    );
+    final lastDay = DateTime(2026, 6, 30);
+
+    Map<DateTime, double> loggedExcept(Set<int> missingDaysBeforeLast) => {
+      for (var i = 0; i < 30; i++)
+        if (!missingDaysBeforeLast.contains(29 - i))
+          DateTime(2026, 6, 1 + i): 2300.0,
+    };
+
+    test('3 missing days in the last 7 still updates up to the last day', () {
+      final day = TdeeDynamicCalc.confidentAsOfDay(
+        trendSeries: series,
+        dailyIntakeKcal: loggedExcept({0, 1, 2}),
+        today: lastDay,
+      );
+      expect(day, lastDay);
+    });
+
+    test('4 missing days in the last 7 pauses at the latest qualifying day',
+        () {
+      final day = TdeeDynamicCalc.confidentAsOfDay(
+        trendSeries: series,
+        dailyIntakeKcal: loggedExcept({0, 1, 2, 3}),
+        today: lastDay,
+      );
+      // Window ending Jun 29 has 3 missing (Jun 27-29), so it qualifies.
+      expect(day, DateTime(2026, 6, 29));
+    });
+
+    test('a zero-kcal tracked day counts as missing', () {
+      final intake = loggedExcept({})
+        ..addAll({
+          for (var i = 0; i < 4; i++) lastDay.subtract(Duration(days: i)): 0.0,
+        });
+      final day = TdeeDynamicCalc.confidentAsOfDay(
+        trendSeries: series,
+        dailyIntakeKcal: intake,
+        today: lastDay,
+      );
+      expect(day, DateTime(2026, 6, 29));
+    });
+
+    test('never later than the last trend point', () {
+      final day = TdeeDynamicCalc.confidentAsOfDay(
+        trendSeries: series,
+        dailyIntakeKcal: loggedExcept({}),
+        today: DateTime(2026, 8, 15),
+      );
+      expect(day, lastDay);
+    });
+
+    test('the carried-forward value does not move while nothing is logged',
+        () {
+      final intake = loggedExcept({});
+      final values = [
+        for (final gap in [0, 5, 20, 40, 90])
+          TdeeDynamicCalc.estimateTdeeCarriedForward(
+            trendSeries: series,
+            dailyIntakeKcal: intake,
+            today: lastDay.add(Duration(days: gap)),
+          )!.tdee,
+      ];
+      for (final v in values) {
+        expect(v, closeTo(values.first, 1e-9));
+      }
+    });
+
+    test('isPaused is set while recent days have too little logged intake',
+        () {
+      final live = TdeeDynamicCalc.estimateTdeeCarriedForward(
+        trendSeries: series,
+        dailyIntakeKcal: loggedExcept({}),
+        today: lastDay,
+      )!;
+      final paused = TdeeDynamicCalc.estimateTdeeCarriedForward(
+        trendSeries: series,
+        dailyIntakeKcal: loggedExcept({0, 1, 2, 3}),
+        today: lastDay,
+      )!;
+      expect(live.isPaused, isFalse);
+      expect(paused.isPaused, isTrue);
+      expect(paused.asOfDay, DateTime(2026, 6, 29));
+      expect(paused.trend.last.date, DateTime(2026, 6, 29));
+    });
+
+    test('stopping both weigh-ins and food logging reads as paused', () {
+      final result = TdeeDynamicCalc.estimateTdeeCarriedForward(
+        trendSeries: series,
+        dailyIntakeKcal: loggedExcept({}),
+        today: lastDay.add(const Duration(days: 10)),
+      )!;
+      expect(result.asOfDay, lastDay);
+      expect(result.isPaused, isTrue);
+    });
+
+    test('no qualifying week anywhere returns null', () {
+      final result = TdeeDynamicCalc.estimateTdeeCarriedForward(
+        trendSeries: series,
+        dailyIntakeKcal: {DateTime(2026, 6, 10): 2300.0},
+        today: lastDay,
+      );
+      expect(result, isNull);
+    });
+  });
 }

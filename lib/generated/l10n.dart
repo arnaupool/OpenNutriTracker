@@ -1980,6 +1980,26 @@ class S {
     );
   }
 
+  /// `Paused`
+  String get strategyEstimatorStatusPausedLabel {
+    return Intl.message(
+      'Paused',
+      name: 'strategyEstimatorStatusPausedLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fewer than 4 of the last 7 days have food logged, so your estimate is held at its last value`
+  String get strategyEstimatorStatusPausedDescription {
+    return Intl.message(
+      'Fewer than 4 of the last 7 days have food logged, so your estimate is held at its last value',
+      name: 'strategyEstimatorStatusPausedDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Estimated TDEE`
   String get strategyEstimatedTdeeLabel {
     return Intl.message(

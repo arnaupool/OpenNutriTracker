@@ -16,11 +16,6 @@ class GetKcalGoalUsecase {
   final WeightLogRepository _weightLogRepository;
   final TrackedDayRepository _trackedDayRepository;
 
-  // Matches StrategyPage's lookback — enough slack above
-  // TdeeDynamicCalc.defaultWindowDays (21) that a full window of real
-  // intake is available even if today hasn't been tracked yet.
-  static const int _intakeLookbackDays = 25;
-
   GetKcalGoalUsecase(
     this._userRepository,
     this._configRepository,
@@ -68,10 +63,16 @@ class GetKcalGoalUsecase {
       return staticGoal;
     }
 
-    final dynamicGoal = await _computeDynamicCoreGoal(user, trend);
-    if (dynamicGoal == null) return staticGoal;
+    final estimate = await _carriedForwardTdee(trend);
+    if (estimate == null ||
+        estimate.trend.length < TdeeDynamicCalc.minTrendPointsForDynamic) {
+      return staticGoal;
+    }
 
-    final blendWeight = TdeeDynamicCalc.dynamicBlendWeight(trend.length);
+    final dynamicGoal = _computeDynamicCoreGoal(user, estimate.tdee, trend);
+    final blendWeight = TdeeDynamicCalc.dynamicBlendWeight(
+      estimate.trend.length,
+    );
     return staticGoal + blendWeight * (dynamicGoal - staticGoal);
   }
 
@@ -90,9 +91,38 @@ class GetKcalGoalUsecase {
     return CalorieGoalCalc.getTdee(user) + adjustment;
   }
 
-  /// The Fase Motor path — null whenever there isn't enough overlapping
-  /// intake data to trust it, in which case [_computeCoreGoal] falls back
-  /// to (or blends toward) static.
+  /// The dynamic TDEE as of the last day with enough logged intake (FM-13,
+  /// see [TdeeDynamicCalc.estimateTdeeCarriedForward]). Intake is read
+  /// from the first trend day on, so a long gap can still carry the last
+  /// confident estimate forward.
+  Future<CarriedForwardTdee?> _carriedForwardTdee(
+    List<WeightTrendPoint> trend,
+  ) async {
+    final today = DateTime.now();
+    final todayAtMidnight = DateTime(today.year, today.month, today.day);
+    // TrackedDayDBO.day isn't always normalized to midnight (see
+    // StrategyPage._load) — push the upper bound to the last instant of
+    // today so a real time-of-day component on today's entry isn't
+    // silently dropped.
+    final endOfToday = todayAtMidnight
+        .add(const Duration(days: 1))
+        .subtract(const Duration(milliseconds: 1));
+    final trackedDays = await _trackedDayRepository.getTrackedDayByRange(
+      trend.first.date,
+      endOfToday,
+    );
+    final dailyIntakeKcal = {
+      for (final d in trackedDays)
+        DateTime(d.day.year, d.day.month, d.day.day): d.caloriesTracked,
+    };
+    return TdeeDynamicCalc.estimateTdeeCarriedForward(
+      trendSeries: trend,
+      dailyIntakeKcal: dailyIntakeKcal,
+      today: today,
+    );
+  }
+
+  /// The Fase Motor path, layered on [dynamicTdee].
   ///
   /// Phased, not a single formula, because the two pieces this composes
   /// (TdeeDynamicCalc, DynamicMaintenanceCalc) each model a different part
@@ -105,37 +135,11 @@ class GetKcalGoalUsecase {
   /// here. Near goal (inside DynamicMaintenanceCalc's band), that same
   /// rate-driven deficit would overshoot, so the band's own gentle
   /// 0.15%/week nudge takes over instead.
-  Future<double?> _computeDynamicCoreGoal(
+  double _computeDynamicCoreGoal(
     UserEntity user,
+    double dynamicTdee,
     List<WeightTrendPoint> trend,
-  ) async {
-    final today = DateTime.now();
-    final todayAtMidnight = DateTime(today.year, today.month, today.day);
-    final lookbackStart = todayAtMidnight.subtract(
-      const Duration(days: _intakeLookbackDays),
-    );
-    // TrackedDayDBO.day isn't always normalized to midnight (see
-    // StrategyPage._load) — push the upper bound to the last instant of
-    // today so a real time-of-day component on today's entry isn't
-    // silently dropped.
-    final endOfToday = todayAtMidnight
-        .add(const Duration(days: 1))
-        .subtract(const Duration(milliseconds: 1));
-    final trackedDays = await _trackedDayRepository.getTrackedDayByRange(
-      lookbackStart,
-      endOfToday,
-    );
-    final dailyIntakeKcal = {
-      for (final d in trackedDays)
-        DateTime(d.day.year, d.day.month, d.day.day): d.caloriesTracked,
-    };
-
-    final dynamicTdee = TdeeDynamicCalc.estimateTdeeSmoothed(
-      trendSeries: trend,
-      dailyIntakeKcal: dailyIntakeKcal,
-    );
-    if (dynamicTdee == null) return null;
-
+  ) {
     if (user.goal == UserWeightGoalEntity.maintainWeight) {
       return dynamicTdee;
     }
