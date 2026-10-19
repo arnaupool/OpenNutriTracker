@@ -41,7 +41,7 @@ Todos están en `main`, con test que falla antes y pasa después, y verificados 
 | 7 | Baja | Unas pantallas truncaban y otras redondeaban: el mismo objetivo salía 2465 en Diary y 2466 en Strategy; 52.5 g salían 52 en Home y 53 en el diálogo. | test `DashboardWidget rounds` | `b94423a2` |
 | 8 | Media | Las fechas interpoladas se desplazaban una hora al cruzar el cambio de hora. Lo arregló la sesión aparte. | test de cambio de hora | `9b060d7b` |
 
-| 9 | Media | Con un ritmo alto el objetivo podía bajar del mínimo recomendado (866 kcal para una mujer de 50 kg al 1.5 %/semana); solo se mostraba un aviso. Por decisión tuya, ahora el ritmo se limita para que el objetivo nunca baje de 1200 kcal (mujer) ni de 1500 kcal (hombre), y Strategy lo indica. | `qa22`, `qa23` | ver abajo |
+| 9 | Media | Con un ritmo alto el objetivo podía bajar del mínimo recomendado (866 kcal para una mujer de 50 kg al 1.5 %/semana); solo se mostraba un aviso. Por decisión tuya, ahora el ritmo se limita para que el objetivo nunca baje de 1200 kcal (mujer) ni de 1500 kcal (hombre), y Strategy lo indica. | `qa22`, `qa23` | `7653d027` |
 
 `flutter analyze`: sin incidencias. `flutter test`: 909 tests en verde.
 
