@@ -1,6 +1,6 @@
 # Auditoría: motor dinámico frente a MacroFactor
 
-Fecha: 2026-10-19. Estado: **Fase 1, pendiente de aprobación. No se ha tocado código de `lib/`.**
+Fecha: 2026-10-19. Estado: **Fase 2 implementada** (ver sección 5). Las decisiones de producto siguen la documentación de MacroFactor.
 
 Reglas aplicadas:
 
@@ -151,3 +151,18 @@ Afirmaciones que el código atribuye a MF y para las que **no encontré fuente p
 5. **#6 (check-in semanal):** ¿reabrir la decisión de FM-11 o mantener el recálculo diario?
 
 Nada de esto se ha implementado. Espero tu aprobación del documento.
+
+## 5. Estado de implementación (Fase 2)
+
+Todo verificado en el emulador con el banco de pruebas; evidencia `fm12-*`, `fm13-*`, `fm14-*`, `fd12-*`, `fd13-*` y `fm15-*` en [`docs/audit/`](docs/audit/). `flutter analyze` sin incidencias y `flutter test` en verde (895 tests) en el último commit.
+
+| Item | Kanvas | Commit | Resultado verificado |
+| --- | --- | --- | --- |
+| B1 ejercicio | FM-12 | `c81992e5` | 60 min de bici ya no cambian el objetivo (4081 antes y después). |
+| B2 pausa | FM-13 | `ce06d384` | Sin registrar, 4063 kcal fijos del 29 jul al 19 oct, con estado "Paused". |
+| B3+B4 ritmo y banda | FM-14 | `77d84b0f` | Lose al 0.5 %: -447 kcal; al 1 %: -894 kcal; Maintain: nudge de -134 kcal. |
+| B5 Diary | FD-12 | `bceb1202` | Home, Strategy y Diary con 3750 kcal y las mismas macros. |
+| B8, B7, B6 | FD-13 | `1c6a4034` | Macros iguales en Home y Strategy; 1.1 kg en Profile y Strategy; "No weigh-ins in the last 20 days". |
+| Gap 6 check-in semanal | FM-15 | `2cd5be9f` | Objetivo fijo entre check-ins; el 5 ago se ofrecen 4207 frente a 3750 y se aplica en Strategy y Home. |
+
+Fuera de esta ronda: gap 7 (proteína sobre masa magra, requiere el % de grasa) y gap 11 (programas low-fat/keto sin cifras públicas).
