@@ -6,6 +6,7 @@ import 'package:opennutritracker/core/data/data_source/user_activity_data_source
 import 'package:opennutritracker/core/data/data_source/user_data_source.dart';
 import 'package:opennutritracker/core/data/data_source/weight_log_data_source.dart';
 import 'package:opennutritracker/core/data/dbo/config_dbo.dart';
+import 'package:opennutritracker/core/data/dbo/physical_activity_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/tracked_day_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/user_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/user_gender_dbo.dart';
@@ -15,7 +16,6 @@ import 'package:opennutritracker/core/data/dbo/weight_log_dbo.dart';
 import 'package:opennutritracker/core/data/data_source/user_activity_dbo.dart';
 import 'package:opennutritracker/core/data/repository/config_repository.dart';
 import 'package:opennutritracker/core/data/repository/tracked_day_repository.dart';
-import 'package:opennutritracker/core/data/repository/user_activity_repository.dart';
 import 'package:opennutritracker/core/data/repository/user_repository.dart';
 import 'package:opennutritracker/core/data/repository/weight_log_repository.dart';
 import 'package:opennutritracker/core/domain/usecase/get_kcal_goal_usecase.dart';
@@ -81,7 +81,6 @@ void main() {
     getKcalGoalUsecase = GetKcalGoalUsecase(
       UserRepository(userDataSource),
       ConfigRepository(configDataSource),
-      UserActivityRepository(UserActivityDataSource(activityBox)),
       weightLogRepository,
       TrackedDayRepository(trackedDayDataSource),
     );
@@ -195,9 +194,7 @@ void main() {
         'formula', () async {
       await userDataSource.saveUserData(baseUser());
 
-      final goal = await getKcalGoalUsecase.getKcalGoal(
-        totalKcalActivitiesParam: 0,
-      );
+      final goal = await getKcalGoalUsecase.getKcalGoal();
 
       final expectedStatic = CalorieGoalCalc.getTotalKcalGoal(
         (await UserRepository(userDataSource).getUserData()),
@@ -231,9 +228,7 @@ void main() {
         );
       }
 
-      final goal = await getKcalGoalUsecase.getKcalGoal(
-        totalKcalActivitiesParam: 0,
-      );
+      final goal = await getKcalGoalUsecase.getKcalGoal();
       final expectedStatic = CalorieGoalCalc.getTotalKcalGoal(
         await UserRepository(userDataSource).getUserData(),
         0,
@@ -248,9 +243,7 @@ void main() {
       );
       await seedMatureHistory();
 
-      final goal = await getKcalGoalUsecase.getKcalGoal(
-        totalKcalActivitiesParam: 0,
-      );
+      final goal = await getKcalGoalUsecase.getKcalGoal();
 
       final tdee = await expectedDynamicTdee();
       final entries = await weightLogRepository.getAllEntries();
@@ -279,9 +272,7 @@ void main() {
         );
         await seedMatureHistory();
 
-        final goal = await getKcalGoalUsecase.getKcalGoal(
-          totalKcalActivitiesParam: 0,
-        );
+        final goal = await getKcalGoalUsecase.getKcalGoal();
         final tdee = await expectedDynamicTdee();
         expect(goal, closeTo(tdee, 0.01));
       },
@@ -292,9 +283,7 @@ void main() {
       await userDataSource.saveUserData(baseUser()); // no targetWeightKg
       await seedMatureHistory();
 
-      final goal = await getKcalGoalUsecase.getKcalGoal(
-        totalKcalActivitiesParam: 0,
-      );
+      final goal = await getKcalGoalUsecase.getKcalGoal();
       final tdee = await expectedDynamicTdee();
       // loseWeight's flat adjustment (CalorieGoalCalc.loseWeightKcalAdjustment).
       expect(goal, closeTo(tdee - 500, 0.01));
@@ -306,9 +295,7 @@ void main() {
       await userDataSource.saveUserData(user);
       await seedTenDayHistory(); // 10 trend points: floor=7, mature=21
 
-      final goal = await getKcalGoalUsecase.getKcalGoal(
-        totalKcalActivitiesParam: 0,
-      );
+      final goal = await getKcalGoalUsecase.getKcalGoal();
 
       final staticGoal = CalorieGoalCalc.getTotalKcalGoal(
         await UserRepository(userDataSource).getUserData(),
@@ -326,6 +313,40 @@ void main() {
       expect(goal, isNot(closeTo(staticGoal, 1.0)));
       expect(goal, isNot(closeTo(dynamicTdee, 1.0)));
     });
+
+    // FM-12 (AUDIT.md B1): MacroFactor estimates expenditure from intake and
+    // trend weight only, so exercise is already inside the observed TDEE;
+    // adding today's logged activities on top counted it twice.
+    for (final mature in [false, true]) {
+      test('a logged activity today does not raise the goal '
+          '(${mature ? 'dynamic' : 'static'} path)', () async {
+        await userDataSource.saveUserData(
+          baseUser(goal: UserWeightGoalDBO.maintainWeight),
+        );
+        if (mature) await seedMatureHistory();
+        final before = await getKcalGoalUsecase.getKcalGoal();
+
+        await UserActivityDataSource(activityBox).addUserActivity(
+          UserActivityDBO(
+            'fm12-ride',
+            60,
+            677,
+            DateTime.now(),
+            PhysicalActivityDBO(
+              'bicycling_mountain',
+              'bicycling, mountain',
+              'general',
+              8.5,
+              [],
+              PhysicalActivityTypeDBO.bicycling,
+            ),
+          ),
+        );
+
+        final after = await getKcalGoalUsecase.getKcalGoal();
+        expect(after, closeTo(before, 0.01));
+      });
+    }
   });
 
   group('GetMacroGoalUsecase — dynamic protein-first vs. manual override', () {

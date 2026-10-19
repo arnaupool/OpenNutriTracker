@@ -11,7 +11,6 @@ import 'package:opennutritracker/core/domain/usecase/get_custom_activity_templat
 import 'package:opennutritracker/core/domain/usecase/get_kcal_goal_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_macro_goal_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_user_usecase.dart';
-import 'package:opennutritracker/core/utils/calc/macro_calc.dart';
 import 'package:opennutritracker/core/utils/calc/met_calc.dart';
 import 'package:opennutritracker/core/utils/id_generator.dart';
 
@@ -124,16 +123,16 @@ class ActivityDetailBloc
     );
 
     await _addUserActivityUsecase.addUserActivity(userActivityEntity);
-    _updateTrackedDay(day, burnedKcal);
+    _updateTrackedDay(day);
   }
 
-  void _updateTrackedDay(DateTime day, double caloriesBurned) async {
+  /// Makes sure [day] has a tracked day so the Diary lists it. The
+  /// activity itself no longer raises that day's goal (FM-12): the goal
+  /// already accounts for exercise through the observed TDEE.
+  void _updateTrackedDay(DateTime day) async {
     final hasTrackedDay = await _addTrackedDayUsecase.hasTrackedDay(day);
     if (!hasTrackedDay) {
-      // If the tracked day does not exist, create a new one
-      final totalKcalGoal = await _getKcalGoalUsecase.getKcalGoal(
-        totalKcalActivitiesParam: 0,
-      ); // Exclude persisted activities
+      final totalKcalGoal = await _getKcalGoalUsecase.getKcalGoal();
       final totalCarbsGoal = await _getMacroGoalUsecase.getCarbsGoal(
         totalKcalGoal,
       );
@@ -152,17 +151,5 @@ class ActivityDetailBloc
         totalProteinGoal,
       );
     }
-
-    final carbsIncrease = MacroCalc.getTotalCarbsGoal(caloriesBurned);
-    final fatIncrease = MacroCalc.getTotalFatsGoal(caloriesBurned);
-    final proteinIncrease = MacroCalc.getTotalProteinsGoal(caloriesBurned);
-
-    _addTrackedDayUsecase.increaseDayCalorieGoal(day, caloriesBurned);
-    _addTrackedDayUsecase.increaseDayMacroGoals(
-      day,
-      carbsAmount: carbsIncrease,
-      fatAmount: fatIncrease,
-      proteinAmount: proteinIncrease,
-    );
   }
 }

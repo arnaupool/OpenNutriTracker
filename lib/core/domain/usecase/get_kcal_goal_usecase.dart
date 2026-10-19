@@ -1,7 +1,5 @@
-import 'package:collection/collection.dart';
 import 'package:opennutritracker/core/data/repository/config_repository.dart';
 import 'package:opennutritracker/core/data/repository/tracked_day_repository.dart';
-import 'package:opennutritracker/core/data/repository/user_activity_repository.dart';
 import 'package:opennutritracker/core/data/repository/user_repository.dart';
 import 'package:opennutritracker/core/data/repository/weight_log_repository.dart';
 import 'package:opennutritracker/core/domain/entity/user_entity.dart';
@@ -15,7 +13,6 @@ import 'package:opennutritracker/core/utils/calc/weight_trend_calc.dart';
 class GetKcalGoalUsecase {
   final UserRepository _userRepository;
   final ConfigRepository _configRepository;
-  final UserActivityRepository _userActivityRepository;
   final WeightLogRepository _weightLogRepository;
   final TrackedDayRepository _trackedDayRepository;
 
@@ -27,33 +24,31 @@ class GetKcalGoalUsecase {
   GetKcalGoalUsecase(
     this._userRepository,
     this._configRepository,
-    this._userActivityRepository,
     this._weightLogRepository,
     this._trackedDayRepository,
   );
 
+  /// Logged activities never raise the goal (FM-12). MacroFactor infers
+  /// expenditure from intake and trend weight alone, without exercise or
+  /// wearable data (https://macrofactor.com/wearables/), so exercise is
+  /// already inside the observed TDEE; the static path covers it through
+  /// the activity level chosen at onboarding.
   Future<double> getKcalGoal({
     UserEntity? userEntity,
-    double? totalKcalActivitiesParam,
     double? kcalUserAdjustment,
   }) async {
     final user = userEntity ?? await _userRepository.getUserData();
     final config = await _configRepository.getConfig();
-    final totalKcalActivities =
-        totalKcalActivitiesParam ??
-        (await _userActivityRepository.getAllUserActivityByDate(
-          DateTime.now(),
-        )).map((activity) => activity.burnedKcal).toList().sum;
 
     final coreGoal = await _computeCoreGoal(user);
-    return coreGoal + (config.userKcalAdjustment ?? 0) + totalKcalActivities;
+    return coreGoal + (config.userKcalAdjustment ?? 0);
   }
 
   /// TDEE (static or dynamic) plus whatever goal-direction adjustment
   /// applies — everything [CalorieGoalCalc.getTotalKcalGoal] used to
-  /// compute in one shot, minus the trailing `kcalUserAdjustment` /
-  /// activities terms, which [getKcalGoal] adds once, uniformly, on top
-  /// of whichever path ran here.
+  /// compute in one shot, minus the trailing `kcalUserAdjustment` term,
+  /// which [getKcalGoal] adds once, uniformly, on top of whichever path
+  /// ran here.
   ///
   /// Blends static and dynamic linearly between
   /// [TdeeDynamicCalc.minTrendPointsForDynamic] (0% dynamic — too little

@@ -15,7 +15,6 @@ import 'package:opennutritracker/core/domain/usecase/get_tracked_day_usecase.dar
 import 'package:opennutritracker/core/domain/usecase/get_user_activity_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/update_intake_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/update_user_activity_usecase.dart';
-import 'package:opennutritracker/core/utils/calc/macro_calc.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/features/diary/presentation/bloc/diary_bloc.dart';
 
@@ -214,20 +213,6 @@ class CalendarDayBloc extends Bloc<CalendarDayEvent, CalendarDayState> {
     DateTime day,
   ) async {
     await _deleteUserActivityUsecase.deleteUserActivity(activityEntity);
-    _addTrackedDayUsecase.reduceDayCalorieGoal(day, activityEntity.burnedKcal);
-
-    final carbsAmount = MacroCalc.getTotalCarbsGoal(activityEntity.burnedKcal);
-    final fatAmount = MacroCalc.getTotalFatsGoal(activityEntity.burnedKcal);
-    final proteinAmount = MacroCalc.getTotalProteinsGoal(
-      activityEntity.burnedKcal,
-    );
-
-    _addTrackedDayUsecase.reduceDayMacroGoals(
-      day,
-      carbsAmount: carbsAmount,
-      fatAmount: fatAmount,
-      proteinAmount: proteinAmount,
-    );
     _updateDiaryPage(day);
   }
 
@@ -241,24 +226,6 @@ class CalendarDayBloc extends Bloc<CalendarDayEvent, CalendarDayState> {
       newDuration,
     );
     assert(newActivity != null);
-    final kcalDiff = newActivity!.burnedKcal - activityEntity.burnedKcal;
-    if (kcalDiff > 0) {
-      await _addTrackedDayUsecase.increaseDayCalorieGoal(day, kcalDiff);
-      await _addTrackedDayUsecase.increaseDayMacroGoals(
-        day,
-        carbsAmount: MacroCalc.getTotalCarbsGoal(kcalDiff),
-        fatAmount: MacroCalc.getTotalFatsGoal(kcalDiff),
-        proteinAmount: MacroCalc.getTotalProteinsGoal(kcalDiff),
-      );
-    } else if (kcalDiff < 0) {
-      await _addTrackedDayUsecase.reduceDayCalorieGoal(day, kcalDiff.abs());
-      await _addTrackedDayUsecase.reduceDayMacroGoals(
-        day,
-        carbsAmount: MacroCalc.getTotalCarbsGoal(kcalDiff.abs()),
-        fatAmount: MacroCalc.getTotalFatsGoal(kcalDiff.abs()),
-        proteinAmount: MacroCalc.getTotalProteinsGoal(kcalDiff.abs()),
-      );
-    }
   }
 
   Future<void> _updateDiaryPage(DateTime day) async {

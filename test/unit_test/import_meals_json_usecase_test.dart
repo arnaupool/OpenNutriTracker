@@ -4,14 +4,12 @@ import 'package:opennutritracker/core/data/data_source/config_data_source.dart';
 import 'package:opennutritracker/core/data/data_source/custom_meal_data_source.dart';
 import 'package:opennutritracker/core/data/data_source/intake_data_source.dart';
 import 'package:opennutritracker/core/data/data_source/tracked_day_data_source.dart';
-import 'package:opennutritracker/core/data/data_source/user_activity_data_source.dart';
 import 'package:opennutritracker/core/data/data_source/user_data_source.dart';
 import 'package:opennutritracker/core/data/data_source/weight_log_data_source.dart';
 import 'package:opennutritracker/core/data/dbo/meal_dbo.dart';
 import 'package:opennutritracker/core/data/repository/config_repository.dart';
 import 'package:opennutritracker/core/data/repository/intake_repository.dart';
 import 'package:opennutritracker/core/data/repository/tracked_day_repository.dart';
-import 'package:opennutritracker/core/data/repository/user_activity_repository.dart';
 import 'package:opennutritracker/core/data/repository/user_repository.dart';
 import 'package:opennutritracker/core/data/repository/weight_log_repository.dart';
 import 'package:opennutritracker/core/domain/entity/intake_entity.dart';
@@ -72,7 +70,6 @@ class _StubGetKcalGoalUsecase extends GetKcalGoalUsecase {
   _StubGetKcalGoalUsecase(
     super.userRepo,
     super.configRepo,
-    super.activityRepo,
     super.weightLogRepo,
     super.trackedDayRepo,
   );
@@ -80,7 +77,6 @@ class _StubGetKcalGoalUsecase extends GetKcalGoalUsecase {
   @override
   Future<double> getKcalGoal({
     userEntity,
-    double? totalKcalActivitiesParam,
     double? kcalUserAdjustment,
   }) async => 2000;
 }
@@ -126,9 +122,6 @@ void main() {
       );
       final dummyUserRepo = UserRepository(UserDataSource(_FakeBox()));
       final dummyConfigRepo = ConfigRepository(ConfigDataSource(_FakeBox()));
-      final dummyActivityRepo = UserActivityRepository(
-        UserActivityDataSource(_FakeBox()),
-      );
       final dummyWeightLogRepo = WeightLogRepository(
         WeightLogDataSource(_FakeBox()),
       );
@@ -140,7 +133,6 @@ void main() {
         _StubGetKcalGoalUsecase(
           dummyUserRepo,
           dummyConfigRepo,
-          dummyActivityRepo,
           dummyWeightLogRepo,
           dummyTrackedRepo,
         ),

@@ -64,7 +64,6 @@ class _FakeGetKcalGoalUsecase extends Fake implements GetKcalGoalUsecase {
   @override
   Future<double> getKcalGoal({
     UserEntity? userEntity,
-    double? totalKcalActivitiesParam,
     double? kcalUserAdjustment,
   }) async => _kcalGoal;
 }
