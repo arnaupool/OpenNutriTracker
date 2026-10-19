@@ -163,6 +163,18 @@ class CalorieGoalCalc {
         caloriesProfile: caloriesProfile,
       );
 
+  /// [goalKcal] raised to [recommendedDailyKcalFloor] for [user] when it
+  /// is below it. The owner's rule (QA 2026-10-19): the weekly rate is
+  /// limited so the daily goal never drops under the floor, whatever the
+  /// rate, TDEE or manual adjustment.
+  static double applyRecommendedDailyKcalFloor(double goalKcal, UserEntity user) {
+    final floor = recommendedDailyKcalFloor(
+      gender: user.gender,
+      caloriesProfile: user.caloriesProfile,
+    );
+    return goalKcal < floor ? floor : goalKcal;
+  }
+
   /// Returns the floor used by [isBelowRecommendedDailyKcalFloor] for the
   /// given user, so UI surfaces can quote the actual number in the
   /// warning message.

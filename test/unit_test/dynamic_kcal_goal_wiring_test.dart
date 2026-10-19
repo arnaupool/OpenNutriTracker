@@ -495,6 +495,37 @@ void main() {
       expect(goal, closeTo(expected, 0.01));
     });
 
+    // QA 2026-10-19 (owner decision): the weekly rate is limited so the
+    // goal never drops below the recommended floor (1200 kcal, 1500 kcal
+    // with a testosterone-typical profile).
+    for (final c in [
+      (gender: UserGenderDBO.female, kg: 50.0, cm: 155.0, floor: 1200.0),
+      (gender: UserGenderDBO.male, kg: 60.0, cm: 160.0, floor: 1500.0),
+    ]) {
+      test('a 1.5%/week loss never takes the goal below ${c.floor.round()} kcal '
+          '(${c.gender.name})', () async {
+        await userDataSource.saveUserData(
+          UserDBO(
+            birthday: DateTime(1990, 1, 15),
+            heightCM: c.cm,
+            weightKG: c.kg,
+            gender: c.gender,
+            goal: UserWeightGoalDBO.loseWeight,
+            pal: UserPALDBO.sedentary,
+            weeklyRatePct: 1.5,
+          ),
+        );
+        final user = await UserRepository(userDataSource).getUserData();
+        expect(CalorieGoalCalc.getStaticCoreGoal(user), lessThan(c.floor));
+
+        expect(await getKcalGoalUsecase.getKcalGoal(), closeTo(c.floor, 0.01));
+        expect(
+          await getKcalGoalUsecase.getRecommendedKcalGoal(),
+          closeTo(c.floor, 0.01),
+        );
+      });
+    }
+
     test('nextCheckInDay lands on the chosen weekday after the last check-in',
         () {
       // 2026-10-19 is a Monday.

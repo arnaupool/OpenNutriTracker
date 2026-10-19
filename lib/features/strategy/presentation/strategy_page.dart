@@ -11,6 +11,7 @@ import 'package:opennutritracker/core/domain/usecase/get_macro_goal_usecase.dart
 import 'package:opennutritracker/core/domain/usecase/get_tracked_day_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_user_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_weight_log_usecase.dart';
+import 'package:opennutritracker/core/utils/calc/calorie_goal_calc.dart';
 import 'package:opennutritracker/core/utils/calc/macro_dynamic_calc.dart';
 import 'package:opennutritracker/core/utils/calc/tdee_calc.dart';
 import 'package:opennutritracker/core/utils/calc/tdee_dynamic_calc.dart';
@@ -336,6 +337,12 @@ class _StrategyPageState extends State<StrategyPage> {
           trendWeightKg: trendWeightKg,
           explanation: explanation,
           usesImperialUnits: _usesImperialUnits,
+          kcalFloor: _user == null
+              ? null
+              : CalorieGoalCalc.recommendedDailyKcalFloor(
+                  gender: _user!.gender,
+                  caloriesProfile: _user!.caloriesProfile,
+                ),
         ),
         const SizedBox(height: 16),
         _MacroDistributionCard(proteinG: _proteinG, fatG: _fatG, carbG: _carbG),
@@ -718,12 +725,18 @@ class _TodayGoalCard extends StatelessWidget {
   final String? explanation;
   final bool usesImperialUnits;
 
+  /// The minimum the goal is held at (CalorieGoalCalc
+  /// .applyRecommendedDailyKcalFloor); a note explains it when the target
+  /// sits on it.
+  final double? kcalFloor;
+
   const _TodayGoalCard({
     required this.targetKcal,
     required this.estimatedTdeeKcal,
     required this.trendWeightKg,
     required this.explanation,
     required this.usesImperialUnits,
+    this.kcalFloor,
   });
 
   @override
@@ -762,6 +775,22 @@ class _TodayGoalCard extends StatelessWidget {
                   explanation!,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+              if (kcalFloor != null &&
+                  targetKcal != null &&
+                  targetKcal! <= kcalFloor! + 0.5) ...[
+                const SizedBox(height: 8),
+                Semantics(
+                  identifier: 'strategy-kcal-floor-note',
+                  child: Text(
+                    s.strategyKcalFloorNote(
+                      EnergyDisplay.formatWithUnit(context, kcalFloor!),
+                    ),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.tertiary,
+                    ),
                   ),
                 ),
               ],

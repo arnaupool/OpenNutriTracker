@@ -46,7 +46,10 @@ class GetKcalGoalUsecase {
     final stored = await _userRepository.getUserData();
     final coreGoal =
         stored.checkInCoreGoalKcal ?? await restartProgram(userEntity: userEntity);
-    return coreGoal + (config.userKcalAdjustment ?? 0);
+    return CalorieGoalCalc.applyRecommendedDailyKcalFloor(
+      coreGoal + (config.userKcalAdjustment ?? 0),
+      userEntity ?? stored,
+    );
   }
 
   /// What a check-in today would set: the live engine output, plus the
@@ -54,7 +57,10 @@ class GetKcalGoalUsecase {
   Future<double> getRecommendedKcalGoal({UserEntity? userEntity}) async {
     final user = userEntity ?? await _userRepository.getUserData();
     final config = await _configRepository.getConfig();
-    return await _computeCoreGoal(user) + (config.userKcalAdjustment ?? 0);
+    return CalorieGoalCalc.applyRecommendedDailyKcalFloor(
+      await _computeCoreGoal(user) + (config.userKcalAdjustment ?? 0),
+      user,
+    );
   }
 
   /// Weekly check-in status: the next check-in is the first day after the

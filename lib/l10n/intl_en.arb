@@ -154,6 +154,13 @@
       }
     }
   },
+  "@strategyKcalFloorNote": {
+    "placeholders": {
+      "floor": {
+        "type": "String"
+      }
+    }
+  },
   "@strategyCheckInNext": {
     "placeholders": {
       "date": {
@@ -1056,6 +1063,7 @@
   "strategyCheckInDayLabel": "Check-in day",
   "strategyCheckInDue": "Your weekly check-in is ready. New target: {newTarget} (now {currentTarget}).",
   "strategyCheckInNext": "Next check-in: {date}",
+  "strategyKcalFloorNote": "Held at the {floor} minimum: your weekly rate is limited so the target never goes below it.",
   "strategyEstimatedTdeeLabel": "Estimated TDEE",
   "strategyTrendWeightLabel": "Trend Weight",
   "strategyTodayTargetLabel": "Today's Target",

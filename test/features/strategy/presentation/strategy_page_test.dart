@@ -400,5 +400,22 @@ void main() {
       expect(find.textContaining('Next check-in:'), findsOneWidget);
       expect(find.text(S.current.strategyCheckInApply), findsNothing);
     });
+
+    // QA 2026-10-19: when the goal sits on the minimum, Strategy says so.
+    for (final c in [(kcal: 1500.0, shown: true), (kcal: 2400.0, shown: false)]) {
+      testWidgets('kcal floor note ${c.shown ? 'shown' : 'hidden'} at ${c.kcal.round()} kcal', (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          _wrap(_buildScreen(weightEntries: twoWeighIns(), kcalGoal: c.kcal)),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text(S.current.strategyKcalFloorNote('1500 kcal')),
+          c.shown ? findsOneWidget : findsNothing,
+        );
+      });
+    }
   });
 }

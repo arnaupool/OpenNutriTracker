@@ -44,7 +44,10 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   double? getOverviewCalorieGoal() {
     final userEntity = userSelection.toUserEntity();
     if (userEntity == null) return null;
-    return CalorieGoalCalc.getStaticCoreGoal(userEntity);
+    return CalorieGoalCalc.applyRecommendedDailyKcalFloor(
+      CalorieGoalCalc.getStaticCoreGoal(userEntity),
+      userEntity,
+    );
   }
 
   /// The protein-first split GetMacroGoalUsecase applies to that goal.

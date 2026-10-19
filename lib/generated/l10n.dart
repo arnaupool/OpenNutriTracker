@@ -2071,6 +2071,16 @@ class S {
     );
   }
 
+  /// `Held at the {floor} minimum: your weekly rate is limited so the target never goes below it.`
+  String strategyKcalFloorNote(String floor) {
+    return Intl.message(
+      'Held at the $floor minimum: your weekly rate is limited so the target never goes below it.',
+      name: 'strategyKcalFloorNote',
+      desc: '',
+      args: [floor],
+    );
+  }
+
   /// `Estimated TDEE`
   String get strategyEstimatedTdeeLabel {
     return Intl.message(

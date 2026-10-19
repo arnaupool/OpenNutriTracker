@@ -93,6 +93,9 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m30(date) => "Next check-in: ${date}";
 
+  static String m33(floor) =>
+      "Held at the ${floor} minimum: your weekly rate is limited so the target never goes below it.";
+
   static String mWaterChip(current, goal) => "${current} / ${goal} ml";
 
   static String mLogWaterAmount(amount) => "Add ${amount} ml";
@@ -1368,6 +1371,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "strategyCheckInDayLabel": MessageLookupByLibrary.simpleMessage("Check-in day"),
         "strategyCheckInDue": m29,
         "strategyCheckInNext": m30,
+        "strategyKcalFloorNote": m33,
         "strategyExplanationWithinBand": m31,
         "strategyExplanationCorrecting": m32,
         "weeklyRateDialogDescription": MessageLookupByLibrary.simpleMessage(

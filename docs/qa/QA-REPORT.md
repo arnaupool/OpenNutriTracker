@@ -41,7 +41,9 @@ Todos están en `main`, con test que falla antes y pasa después, y verificados 
 | 7 | Baja | Unas pantallas truncaban y otras redondeaban: el mismo objetivo salía 2465 en Diary y 2466 en Strategy; 52.5 g salían 52 en Home y 53 en el diálogo. | test `DashboardWidget rounds` | `b94423a2` |
 | 8 | Media | Las fechas interpoladas se desplazaban una hora al cruzar el cambio de hora. Lo arregló la sesión aparte. | test de cambio de hora | `9b060d7b` |
 
-`flutter analyze`: sin incidencias. `flutter test`: 905 tests en verde.
+| 9 | Media | Con un ritmo alto el objetivo podía bajar del mínimo recomendado (866 kcal para una mujer de 50 kg al 1.5 %/semana); solo se mostraba un aviso. Por decisión tuya, ahora el ritmo se limita para que el objetivo nunca baje de 1200 kcal (mujer) ni de 1500 kcal (hombre), y Strategy lo indica. | `qa22`, `qa23` | ver abajo |
+
+`flutter analyze`: sin incidencias. `flutter test`: 909 tests en verde.
 
 ## Pendiente, sin arreglar en esta ronda
 
@@ -50,5 +52,4 @@ Todos están en `main`, con test que falla antes y pasa después, y verificados 
 | Con unidades imperiales, el agua sigue en ml. | Solo afecta a cómo se muestra; no toca ningún cálculo de salud. | Bajo |
 | El peso del onboarding no se añade al historial de pesadas, así que el motor dinámico empieza con la primera pesada registrada. | Es una decisión de diseño, no un error de cálculo. | Bajo |
 | Las macros usan el último peso del perfil (`user.weightKG`), no la tendencia. Importar pesadas no actualiza ese peso. | MacroFactor usa una estimación de masa magra (gap 7 del audit, aplazado). | Medio en el caso de importación |
-| Con ritmos altos el objetivo puede bajar de 1200 kcal; solo se muestra un aviso, no hay un mínimo. | MacroFactor no documenta un mínimo; la app avisa con el umbral de Harvard Health. | Medio: decisión de producto |
 | Un ritmo nuevo no se aplica hasta el siguiente check-in. | Es el comportamiento documentado de MacroFactor (art. 222). | Ninguno |
