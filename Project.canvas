@@ -6,7 +6,7 @@
 			"x": 1760,
 			"y": 0,
 			"width": 380,
-			"height": 3200,
+			"height": 3300,
 			"label": "Fase Dashboards"
 		},
 		{
@@ -24,7 +24,7 @@
 			"x": 1320,
 			"y": 0,
 			"width": 380,
-			"height": 2020,
+			"height": 2740,
 			"label": "Fase Motor"
 		},
 		{
@@ -549,7 +549,7 @@
 			"y": 2220,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "604e5a3e",
@@ -559,7 +559,7 @@
 			"y": 2940,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "e951aa09",
@@ -569,7 +569,7 @@
 			"y": 2720,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "c082093d",
@@ -579,7 +579,7 @@
 			"y": 2480,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "85e7b0d1",
@@ -589,7 +589,7 @@
 			"y": 1520,
 			"width": 280,
 			"height": 200,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "9d130d33",
@@ -629,7 +629,7 @@
 			"y": 1320,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "33786643",
@@ -639,7 +639,7 @@
 			"y": 1660,
 			"width": 280,
 			"height": 160,
-			"color": "5"
+			"color": "4"
 		},
 		{
 			"id": "60eb59a8",
@@ -687,6 +687,66 @@
 			"text": "## FR-09 FR-09 Repetir/copiar dia completo\nCopiar todos los items de comida del dia (breakfast+lunch+dinner+snack) a otro dia o rango de dias de una vez, sin tener que hacerlo item por item ni seccion por seccion. Cada item mantiene su tipo de comida original en el destino. Reutiliza el mismo mecanismo de FR-06/FR-08 (bucle de copia individual por item y por dia del rango) — sin logica de datos nueva. Solo Copy, no Move (mover un dia entero vaciaria hoy, caso de uso raro).",
 			"x": 920,
 			"y": 1840,
+			"width": 280,
+			"height": 160,
+			"color": "4"
+		},
+		{
+			"id": "d530fc7e",
+			"type": "text",
+			"text": "## FM-12 No sumar actividades registradas al objetivo (AUDIT B1)\nAUDIT.md B1. GetKcalGoalUsecase suma las kcal de las actividades de hoy encima del objetivo (60 min de bici: +678 kcal), y CalendarDayBloc/ActivityDetailBloc suben tambien TrackedDay.calorieGoal y las macros. MacroFactor estima el gasto solo con ingesta y tendencia de peso, sin datos de ejercicio ni wearables (https://macrofactor.com/wearables/, https://help.macrofactorapp.com/en/articles/20-expenditure), y desaconseja 'earning' calories (https://macrofactor.com/exercise-calorie-calculator/). Decision (paridad MF): el ejercicio registrado deja de modificar el objetivo diario en cualquier camino; sigue registrandose y mostrandose como 'burned'.",
+			"x": 1340,
+			"y": 2020,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "faa29cba",
+			"type": "text",
+			"text": "## FM-13 Pausar el TDEE dinamico y conservar el ultimo valor fiable (AUDIT B2)\nAUDIT.md B2. Si el usuario deja de registrar, la ventana de ingesta (25 dias antes de hoy) se desliza mientras la de peso se queda fija: el objetivo deriva (4063 a 12429 kcal en 25 dias en el banco; +218 kcal con datos limpios) y despues cae de golpe al estatico. MacroFactor V3 solo pausa si faltan mas de 3 dias de nutricion en 7 (https://macrofactor.com/expenditure-v3/) y tras un hueco 'carry forward' el ultimo gasto de alta confianza (https://macrofactor.com/macrofactors-algorithms-and-core-philosophy/). Plan: calcular el objetivo a fecha del ultimo dia D (<= hoy y <= ultimo peso) con al menos 4 de 7 dias registrados, sin estado persistido; compartirlo con Strategy, Goal Progress y Weekly Expenditure.",
+			"x": 1340,
+			"y": 2200,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "8101d168",
+			"type": "text",
+			"text": "## FM-14 Ritmo en % de peso/semana para perder/ganar y banda en Maintain (AUDIT B3+B4)\nAUDIT.md B3/B4. Con peso objetivo, perder/ganar solo aplica el nudge de mantenimiento de 0.15%/semana (134 kcal/dia a 1.1 kg del objetivo); la rama del ritmo elegido descrita en FM-06 (commit abfa72c7) nunca se implemento. Maintain ignora el peso objetivo. MacroFactor: perder/ganar se fija en % del peso corporal por semana (https://help.macrofactorapp.com/en/articles/222-how-does-macrofactor-make-adjustments-for-a-weight-gain-or-weight-loss-goal); dynamic maintenance (banda 1.5 lb, 0.15%/semana) es del objetivo de mantener (https://help.macrofactorapp.com/en/articles/125-how-does-dynamic-maintenance-work-in-macrofactor). Plan: recuperar un selector de ritmo en %/semana (deshace parte de FM-08), fuera de banda TDEE menos el deficit del ritmo, banda en Maintain.",
+			"x": 1340,
+			"y": 2380,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "2074a06d",
+			"type": "text",
+			"text": "## FD-12 Diary muestra el mismo objetivo de hoy que Home (AUDIT B5)\nAUDIT.md B5. Diary lee la foto TrackedDay.calorieGoal (y macros) tomada al crear el dia y no se refresca: el 30 jul Diary 3489 kcal frente a Home/Strategy 4081 kcal, 176 g frente a 151 g de proteina. Plan: al cargar Home, escribir el objetivo vivo de hoy (kcal y macros) en el TrackedDay de hoy si existe; los dias pasados conservan su objetivo historico.",
+			"x": 1780,
+			"y": 1480,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "426ada31",
+			"type": "text",
+			"text": "## FD-13 Incoherencias menores de Home/Profile (AUDIT B8, B7, B6)\nAUDIT.md. B8: Home trunca los gramos de macros (toInt) y Strategy redondea (151 frente a 152 g). B7: Profile calcula la distancia al objetivo con el peso de bascula y Strategy con la tendencia (0.3 kg frente a 1.1 kg). B6: la tarjeta Weight Trend muestra '-1.0 kg/week' con el ultimo peso de hace 82 dias mientras Goal Progress dice que faltan datos. Plan: redondear en Home, usar la tendencia en Profile cuando hay suficientes puntos, y aplicar a la tarjeta de tendencia el mismo criterio de datos recientes que Goal Progress.",
+			"x": 1780,
+			"y": 3120,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "c97e189f",
+			"type": "text",
+			"text": "## FM-15 Check-in semanal del objetivo (AUDIT gap 6)\nAUDIT.md gap 6. Hoy el objetivo se recalcula en cada lectura (una pesada a mitad de dia lo movio +424 kcal). MacroFactor: 'Check-ins are weekly' y se elige el dia (https://help.macrofactorapp.com/en/articles/247-introduction-to-check-ins-and-coaching-modules); las recomendaciones son para la semana siguiente (https://help.macrofactorapp.com/en/articles/20-expenditure). Reabre la decision de FM-06/FM-11 por paridad con MF. Plan: objetivo fijo entre check-ins, calculado a fecha del check-in; dia de check-in configurable. Detalles sin fuente primaria se preguntan antes de implementar.",
+			"x": 1340,
+			"y": 2560,
 			"width": 280,
 			"height": 160,
 			"color": "6"
@@ -1153,6 +1213,27 @@
 			"fromNode": "33786643",
 			"fromSide": "bottom",
 			"toNode": "694eab52",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-086",
+			"fromNode": "faa29cba",
+			"fromSide": "bottom",
+			"toNode": "8101d168",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-087",
+			"fromNode": "d530fc7e",
+			"fromSide": "top",
+			"toNode": "2074a06d",
+			"toSide": "bottom"
+		},
+		{
+			"id": "edge-088",
+			"fromNode": "8101d168",
+			"fromSide": "bottom",
+			"toNode": "c97e189f",
 			"toSide": "top"
 		}
 	]
