@@ -48,8 +48,8 @@ void main() {
     // 387 – (7.31 × age [y]) + PA × (10.9 × weight [kg]
     // + 660.7 × height [m])
 
-    // 387 - (7.31 * 54) + 1.27 * (10.9 * 75) + 660.7 * 1.60 = 2087
-    int expectedTdee = 2087;
+    // 387 - (7.31 * 54) + 1.27 * (10.9 * 75 + 660.7 * 1.60) = 2373
+    int expectedTdee = 2373;
 
     expect(userTdee.toInt(), expectedTdee);
   });
@@ -171,23 +171,20 @@ void main() {
 
     test('lowActive averaged uses both PA constants — '
         'numerical pin (would fail with shared female PA = 1.14)', () {
-      // Hand-computed expected for 80 kg / 180 cm / age 25 / lowActive (PAL 1.5):
-      //   male half  = 864 - 9.72*25 + 1.12*14.2*80 + 503*1.80
-      //              = 864 - 243   + 1272.32        + 905.4
-      //              = 2798.72
-      //   female half= 387 - 7.31*25 + 1.14*10.9*80 + 660.7*1.80
-      //              = 387 - 182.75 + 993.85        + 1189.26
-      //              = 2387.36 (rounded)
-      //   averaged   = (2798.72 + 2387.36) / 2 ≈ 2593.04
-      // The bug version used PA=1.14 in the male half too:
-      //   buggy male = 864 - 243 + 1.14*14.2*80 + 905.4 = 2821.45
-      //   buggy avg  = (2821.45 + 2387.36) / 2 ≈ 2604.4
-      // 11 kcal/day delta — small but always upward and systematic.
+      // Hand-computed expected for 80 kg / 180 cm / age 25 / lowActive (PAL 1.5),
+      // PA multiplying both the weight and the height term:
+      //   male half  = 864 - 9.72*25 + 1.12*(14.2*80 + 503*1.80)
+      //              = 864 - 243   + 1.12*2041.4 = 2907.37
+      //   female half= 387 - 7.31*25 + 1.14*(10.9*80 + 660.7*1.80)
+      //              = 387 - 182.75 + 1.14*2061.26 = 2554.09
+      //   averaged   = (2907.37 + 2554.09) / 2 ≈ 2730.73
+      // A shared female PA (1.14) in the male half would give
+      //   (864 - 243 + 1.14*2041.4 + 2554.09) / 2 ≈ 2751.15.
       final averaged = TDEECalc.getTDEEKcalIOM2005(buildUser(
         UserPALEntity.lowActive,
         profile: CaloriesProfileEntity.averaged,
       ));
-      expect(averaged, closeTo(2593.04, 0.5));
+      expect(averaged, closeTo(2730.73, 0.5));
     });
 
     test('estrogenTypical at lowActive uses female PA (1.14)', () {
@@ -195,8 +192,8 @@ void main() {
         UserPALEntity.lowActive,
         profile: CaloriesProfileEntity.estrogenTypical,
       ));
-      // 387 - 7.31*25 + 1.14*10.9*80 + 660.7*1.80 ≈ 2387.36
-      expect(estrogen, closeTo(2387.36, 0.5));
+      // 387 - 7.31*25 + 1.14*(10.9*80 + 660.7*1.80) ≈ 2554.09
+      expect(estrogen, closeTo(2554.09, 0.5));
     });
 
     test('testosteroneTypical at veryActive uses male PA (1.54)', () {
@@ -204,9 +201,39 @@ void main() {
         UserPALEntity.veryActive,
         profile: CaloriesProfileEntity.testosteroneTypical,
       ));
-      // 864 - 9.72*25 + 1.54*14.2*80 + 503*1.80
-      //   = 864 - 243 + 1749.44 + 905.4 = 3275.84
-      expect(testosterone, closeTo(3275.84, 0.5));
+      // 864 - 9.72*25 + 1.54*(14.2*80 + 503*1.80)
+      //   = 864 - 243 + 1.54*2041.4 = 3764.76
+      expect(testosterone, closeTo(3764.76, 0.5));
+    });
+  });
+
+  // QA 2026-10-19: in the IOM 2005 adult equations the PA coefficient
+  // multiplies the weight AND the height term: men
+  // TEE = 864 - 9.72*age + PA*(14.2*kg + 503*m), women
+  // TEE = 387 - 7.31*age + PA*(10.9*kg + 660.7*m)
+  // (https://www.cdc.gov/PCD/issues/2006/oct/06_0034.htm). Applying PA to
+  // the weight term only understated every non-sedentary TDEE, by up to
+  // ~490 kcal/day for a very active 180 cm man.
+  group('IOM 2005: PA multiplies weight and height', () {
+    UserEntity user(UserGenderEntity g, UserPALEntity pal, double kg, double cm) => UserEntity(
+      birthday: DateTime(DateTime.now().year - 30, 1, 1),
+      heightCM: cm,
+      weightKG: kg,
+      gender: g,
+      goal: UserWeightGoalEntity.maintainWeight,
+      pal: pal,
+    );
+
+    test('active man, 30 y, 80 kg, 180 cm', () {
+      final u = user(UserGenderEntity.male, UserPALEntity.active, 80, 180);
+      final expected = 864 - 9.72 * u.age + 1.27 * (14.2 * 80 + 503 * 1.80);
+      expect(TDEECalc.getTDEEKcalIOM2005(u), closeTo(expected, 0.01));
+    });
+
+    test('low-active woman, 30 y, 60 kg, 165 cm', () {
+      final u = user(UserGenderEntity.female, UserPALEntity.lowActive, 60, 165);
+      final expected = 387 - 7.31 * u.age + 1.14 * (10.9 * 60 + 660.7 * 1.65);
+      expect(TDEECalc.getTDEEKcalIOM2005(u), closeTo(expected, 0.01));
     });
   });
 

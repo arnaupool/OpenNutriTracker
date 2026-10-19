@@ -66,10 +66,13 @@ class TDEECalc {
       palValue: palValue,
       isMaleFormula: true,
     );
+    // PA multiplies both the weight and the height term:
+    // TEE = 864 - 9.72*age + PA*(14.2*kg + 503*m)
+    // (https://www.cdc.gov/PCD/issues/2006/oct/06_0034.htm).
     return 864 -
         9.72 * userEntity.age +
-        paValue * 14.2 * userEntity.weightKG +
-        503 * (userEntity.heightCM / 100);
+        paValue *
+            (14.2 * userEntity.weightKG + 503 * (userEntity.heightCM / 100));
   }
 
   static double _iom2005FemaleKcal(UserEntity userEntity, double palValue) {
@@ -77,9 +80,10 @@ class TDEECalc {
       palValue: palValue,
       isMaleFormula: false,
     );
+    // TEE = 387 - 7.31*age + PA*(10.9*kg + 660.7*m), same source.
     return 387 -
         7.31 * userEntity.age +
-        paValue * 10.9 * userEntity.weightKG +
-        660.7 * (userEntity.heightCM / 100);
+        paValue *
+            (10.9 * userEntity.weightKG + 660.7 * (userEntity.heightCM / 100));
   }
 }
