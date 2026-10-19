@@ -6,6 +6,7 @@ import 'package:opennutritracker/core/utils/calc/weight_interpolation_calc.dart'
 import 'package:opennutritracker/core/utils/calc/weight_trend_calc.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/generated/l10n.dart';
+import 'package:opennutritracker/core/utils/calc/calendar_day_calc.dart';
 
 /// A MacroFactor-style "last 7 days" summary: the dynamic expenditure
 /// estimate over a short window, and the resulting energy balance against
@@ -63,16 +64,18 @@ class _WeeklyExpenditureCardState extends State<WeeklyExpenditureCard> {
 
     final today = DateTime.now();
     final todayAtMidnight = DateTime(today.year, today.month, today.day);
-    final lookbackStart = todayAtMidnight.subtract(
-      const Duration(days: _lookbackDays),
+    final lookbackStart = CalendarDayCalc.addDays(
+      todayAtMidnight,
+      -_lookbackDays,
     );
     // TrackedDayDBO.day isn't always normalized to midnight (see
     // StrategyPage._load) — push the upper bound to the last instant of
     // today so a real time-of-day component on today's entry isn't
     // silently dropped.
-    final endOfToday = todayAtMidnight
-        .add(const Duration(days: 1))
-        .subtract(const Duration(milliseconds: 1));
+    final endOfToday = CalendarDayCalc.addDays(
+      todayAtMidnight,
+      1,
+    ).subtract(const Duration(milliseconds: 1));
     final trackedDays = await _trackedDayUsecase.getTrackedDaysByRange(
       lookbackStart,
       endOfToday,
@@ -98,8 +101,9 @@ class _WeeklyExpenditureCardState extends State<WeeklyExpenditureCard> {
 
     double? energyBalance;
     if (expenditure != null) {
-      final windowStart = todayAtMidnight.subtract(
-        const Duration(days: _windowDays - 1),
+      final windowStart = CalendarDayCalc.addDays(
+        todayAtMidnight,
+        -(_windowDays - 1),
       );
       final recentIntakes = dailyIntakeKcal.entries
           .where(

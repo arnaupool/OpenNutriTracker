@@ -21,6 +21,7 @@ import 'package:opennutritracker/features/diary/presentation/widgets/diary_sort_
 import 'package:opennutritracker/features/home/presentation/widgets/intake_vertical_list.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 import 'package:provider/provider.dart';
+import 'package:opennutritracker/core/utils/calc/calendar_day_calc.dart';
 
 class DayInfoWidget extends StatefulWidget {
   final DateTime selectedDay;
@@ -442,7 +443,7 @@ class _DayInfoWidgetState extends State<DayInfoWidget> {
         // forward, and defaulting onto the source day itself would make
         // a reflexive OK tap duplicate every item back onto the day the
         // user is already looking at.
-        initialDate: widget.selectedDay.add(const Duration(days: 1)),
+        initialDate: CalendarDayCalc.addDays(widget.selectedDay, 1),
       ),
     );
     if (result == null || !context.mounted) return;
@@ -450,7 +451,7 @@ class _DayInfoWidgetState extends State<DayInfoWidget> {
     for (
       var day = DateTime(result.start.year, result.start.month, result.start.day);
       !day.isAfter(result.end);
-      day = day.add(const Duration(days: 1))
+      day = CalendarDayCalc.addDays(day, 1)
     ) {
       for (final intake in intakes) {
         // null type keeps each item on its own original meal — the whole
@@ -519,7 +520,7 @@ class _DayInfoWidgetState extends State<DayInfoWidget> {
       for (
         var day = startDate;
         !day.isAfter(endDate);
-        day = day.add(const Duration(days: 1))
+        day = CalendarDayCalc.addDays(day, 1)
       ) {
         await widget.onCopyIntake(intakeEntity, null, selectedMealType, day);
       }

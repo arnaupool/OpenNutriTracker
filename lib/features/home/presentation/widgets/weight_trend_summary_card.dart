@@ -7,6 +7,7 @@ import 'package:opennutritracker/core/utils/calc/weight_interpolation_calc.dart'
 import 'package:opennutritracker/core/utils/calc/weight_trend_calc.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/generated/l10n.dart';
+import 'package:opennutritracker/core/utils/calc/calendar_day_calc.dart';
 
 class WeightTrendSummaryCard extends StatefulWidget {
   final GetWeightLogUsecase? getWeightLogUsecase;
@@ -59,11 +60,10 @@ class _WeightTrendSummaryCardState extends State<WeightTrendSummaryCard> {
     // (https://help.macrofactorapp.com/en/articles/19-change-rate), so only
     // trend points inside that window, counted back from today, count.
     final now = DateTime.now();
-    final windowStart = DateTime(
-      now.year,
-      now.month,
-      now.day,
-    ).subtract(const Duration(days: TdeeDynamicCalc.changeRateWindowDays));
+    final windowStart = CalendarDayCalc.addDays(
+      now,
+      -TdeeDynamicCalc.changeRateWindowDays,
+    );
     final recent = trend.where((p) => !p.date.isBefore(windowStart)).toList();
     final hasRecentWeighIns = recent.length >= 2;
 

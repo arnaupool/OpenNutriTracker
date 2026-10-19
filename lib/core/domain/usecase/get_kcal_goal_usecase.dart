@@ -9,6 +9,7 @@ import 'package:opennutritracker/core/utils/calc/goal_rate_calc.dart';
 import 'package:opennutritracker/core/utils/calc/tdee_dynamic_calc.dart';
 import 'package:opennutritracker/core/utils/calc/weight_interpolation_calc.dart';
 import 'package:opennutritracker/core/utils/calc/weight_trend_calc.dart';
+import 'package:opennutritracker/core/utils/calc/calendar_day_calc.dart';
 
 class GetKcalGoalUsecase {
   final UserRepository _userRepository;
@@ -203,9 +204,10 @@ class GetKcalGoalUsecase {
     // StrategyPage._load) — push the upper bound to the last instant of
     // today so a real time-of-day component on today's entry isn't
     // silently dropped.
-    final endOfToday = todayAtMidnight
-        .add(const Duration(days: 1))
-        .subtract(const Duration(milliseconds: 1));
+    final endOfToday = CalendarDayCalc.addDays(
+      todayAtMidnight,
+      1,
+    ).subtract(const Duration(milliseconds: 1));
     final trackedDays = await _trackedDayRepository.getTrackedDayByRange(
       trend.first.date,
       endOfToday,

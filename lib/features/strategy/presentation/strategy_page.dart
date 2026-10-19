@@ -19,6 +19,7 @@ import 'package:opennutritracker/core/utils/calc/weight_trend_calc.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/features/home/presentation/bloc/home_bloc.dart';
 import 'package:opennutritracker/generated/l10n.dart';
+import 'package:opennutritracker/core/utils/calc/calendar_day_calc.dart';
 
 enum _ChartRange {
   oneMonth(30),
@@ -128,9 +129,10 @@ class _StrategyPageState extends State<StrategyPage> {
     // the range at exactly today's midnight would silently drop today's
     // entry whenever it carries a real time-of-day component. Push the
     // upper bound to the last instant of today instead.
-    final endOfToday = todayAtMidnight
-        .add(const Duration(days: 1))
-        .subtract(const Duration(milliseconds: 1));
+    final endOfToday = CalendarDayCalc.addDays(
+      todayAtMidnight,
+      1,
+    ).subtract(const Duration(milliseconds: 1));
     final trackedDays = await _trackedDayUsecase.getTrackedDaysByRange(
       lookbackStart,
       endOfToday,
@@ -406,7 +408,7 @@ class _WeightChart extends StatelessWidget {
     final fixedRangeDays = rangeDays;
     final DateTime windowStart;
     if (fixedRangeDays != null) {
-      windowStart = todayAtMidnight.subtract(Duration(days: fixedRangeDays));
+      windowStart = CalendarDayCalc.addDays(todayAtMidnight, -fixedRangeDays);
     } else {
       final allDates = [
         ...scaleEntries.where((p) => !p.isInterpolated).map((p) => p.date),
@@ -418,10 +420,10 @@ class _WeightChart extends StatelessWidget {
     }
     final effectiveRangeDays =
         fixedRangeDays ??
-        todayAtMidnight
-            .difference(windowStart)
-            .inDays
-            .clamp(1, 1 << 30)
+        CalendarDayCalc.daysBetween(
+          windowStart,
+          todayAtMidnight,
+        ).clamp(1, 1 << 30)
             .toInt();
 
     double displayWeight(double kg) =>
@@ -433,7 +435,7 @@ class _WeightChart extends StatelessWidget {
             !p.date.isBefore(windowStart) &&
             !p.date.isAfter(todayAtMidnight))
           FlSpot(
-            p.date.difference(windowStart).inDays.toDouble(),
+            CalendarDayCalc.daysBetween(windowStart, p.date).toDouble(),
             displayWeight(p.weightKg),
           ),
     ];
@@ -441,7 +443,7 @@ class _WeightChart extends StatelessWidget {
       for (final p in trend)
         if (!p.date.isBefore(windowStart) && !p.date.isAfter(todayAtMidnight))
           FlSpot(
-            p.date.difference(windowStart).inDays.toDouble(),
+            CalendarDayCalc.daysBetween(windowStart, p.date).toDouble(),
             displayWeight(p.trendWeightKg),
           ),
     ];
@@ -498,7 +500,7 @@ class _WeightChart extends StatelessWidget {
                   reservedSize: 28,
                   interval: labelInterval,
                   getTitlesWidget: (value, meta) {
-                    final day = windowStart.add(Duration(days: value.toInt()));
+                    final day = CalendarDayCalc.addDays(windowStart, value.toInt());
                     return Padding(
                       padding: const EdgeInsets.only(top: 6),
                       child: Text(

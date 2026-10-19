@@ -1,4 +1,5 @@
 import 'package:opennutritracker/core/domain/entity/weight_log_entity.dart';
+import 'package:opennutritracker/core/utils/calc/calendar_day_calc.dart';
 
 /// A single point in a gap-filled daily weight series: either a real
 /// logged entry or a value linearly interpolated between two real entries.
@@ -60,11 +61,11 @@ class WeightInterpolationCalc {
         isInterpolated: false,
       ));
 
-      final gapDays = endDay.difference(startDay).inDays;
+      final gapDays = CalendarDayCalc.daysBetween(startDay, endDay);
       for (var d = 1; d < gapDays; d++) {
         final t = d / gapDays;
         result.add((
-          date: startDay.add(Duration(days: d)),
+          date: CalendarDayCalc.addDays(startDay, d),
           weightKg: startWeight + (endWeight - startWeight) * t,
           isInterpolated: true,
         ));

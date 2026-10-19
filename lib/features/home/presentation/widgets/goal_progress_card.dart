@@ -11,6 +11,7 @@ import 'package:opennutritracker/core/utils/calc/weight_interpolation_calc.dart'
 import 'package:opennutritracker/core/utils/calc/weight_trend_calc.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/generated/l10n.dart';
+import 'package:opennutritracker/core/utils/calc/calendar_day_calc.dart';
 
 /// Compact Home rendition of `StrategyPage`'s own goal-correction
 /// explanation (distance to target weight + current correction rate) —
@@ -60,9 +61,10 @@ class _GoalProgressCardState extends State<GoalProgressCard> {
     // From the first trend day on, matching GetKcalGoalUsecase's
     // carried-forward estimate (FM-13).
     final lookbackStart = trend.isEmpty ? todayAtMidnight : trend.first.date;
-    final endOfToday = todayAtMidnight
-        .add(const Duration(days: 1))
-        .subtract(const Duration(milliseconds: 1));
+    final endOfToday = CalendarDayCalc.addDays(
+      todayAtMidnight,
+      1,
+    ).subtract(const Duration(milliseconds: 1));
     final trackedDays = await _trackedDayUsecase.getTrackedDaysByRange(
       lookbackStart,
       endOfToday,

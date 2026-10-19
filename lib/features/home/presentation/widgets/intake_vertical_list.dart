@@ -21,6 +21,7 @@ import 'package:opennutritracker/features/home/presentation/bloc/home_bloc.dart'
 import 'package:opennutritracker/features/home/presentation/screens/import_meal_scanner_screen.dart';
 import 'package:opennutritracker/features/meal_detail/presentation/bloc/meal_detail_bloc.dart';
 import 'package:opennutritracker/generated/l10n.dart';
+import 'package:opennutritracker/core/utils/calc/calendar_day_calc.dart';
 
 class IntakeVerticalList extends StatefulWidget {
   final DateTime day;
@@ -201,7 +202,7 @@ class _IntakeVerticalListState extends State<IntakeVerticalList> {
                         for (
                           var day = startDate;
                           !day.isAfter(endDate);
-                          day = day.add(const Duration(days: 1))
+                          day = CalendarDayCalc.addDays(day, 1)
                         ) {
                           for (IntakeEntity intake in widget.intakeList) {
                             widget.onCopyIntakeCallback!(

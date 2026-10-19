@@ -1,4 +1,5 @@
 import 'package:opennutritracker/core/utils/calc/weight_trend_calc.dart';
+import 'package:opennutritracker/core/utils/calc/calendar_day_calc.dart';
 
 /// [TdeeDynamicCalc.estimateTdeeCarriedForward]'s result: the smoothed
 /// TDEE, the day it was computed as of, the trend cut at that day, and
@@ -56,9 +57,10 @@ class TdeeDynamicCalc {
         ? trendSeries.sublist(trendSeries.length - windowDays)
         : trendSeries;
 
-    final daysSpan = windowSeries.last.date
-        .difference(windowSeries.first.date)
-        .inDays;
+    final daysSpan = CalendarDayCalc.daysBetween(
+      windowSeries.first.date,
+      windowSeries.last.date,
+    );
     if (daysSpan == 0) return null;
 
     final weightChangeKg =
@@ -269,9 +271,10 @@ class TdeeDynamicCalc {
         ? trendSeries.sublist(trendSeries.length - windowDays)
         : trendSeries;
 
-    final daysSpan = windowSeries.last.date
-        .difference(windowSeries.first.date)
-        .inDays;
+    final daysSpan = CalendarDayCalc.daysBetween(
+      windowSeries.first.date,
+      windowSeries.last.date,
+    );
     if (daysSpan == 0) return null;
 
     final weightChangeKg =

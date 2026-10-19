@@ -136,4 +136,46 @@ void main() {
     expect(result.last.date, DateTime(2026, 1, 3));
     expect(result, hasLength(3));
   });
+
+  // Both DST tests only reproduce on a machine whose local zone observes
+  // European DST (e.g. Europe/Madrid); under UTC they pass trivially.
+  void expectConsecutiveLocalMidnights(
+    List<InterpolatedWeightPoint> result,
+    DateTime first,
+    int expectedLength,
+  ) {
+    expect(result, hasLength(expectedLength));
+    for (var i = 0; i < result.length; i++) {
+      expect(
+        result[i].date,
+        DateTime(first.year, first.month, first.day + i),
+        reason: 'point $i should be local midnight of day ${i + 1}',
+      );
+    }
+  }
+
+  test('interpolated days stay on local midnight across the October DST '
+      'change', () {
+    // Europe/Madrid falls back on 2026-10-25: that day lasts 25 hours, so
+    // adding Duration(days: n) lands on 23:00 of the previous day.
+    final result = WeightInterpolationCalc.fillGaps([
+      entry(DateTime(2026, 10, 20), 80.0),
+      entry(DateTime(2026, 10, 30), 79.0),
+    ]);
+
+    expectConsecutiveLocalMidnights(result, DateTime(2026, 10, 20), 11);
+  });
+
+  test('interpolated days cover every calendar day across the March DST '
+      'change', () {
+    // Europe/Madrid springs forward on 2026-03-29: that day lasts 23
+    // hours, so Duration-based day counts come out one short.
+    final result = WeightInterpolationCalc.fillGaps([
+      entry(DateTime(2026, 3, 25), 80.0),
+      entry(DateTime(2026, 3, 31), 79.4),
+    ]);
+
+    expectConsecutiveLocalMidnights(result, DateTime(2026, 3, 25), 7);
+    expect(result[3].weightKg, closeTo(79.7, 1e-9));
+  });
 }
