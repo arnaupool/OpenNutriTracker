@@ -188,6 +188,26 @@ void main() {
       expect(result.perHundredG.energyKcal100, closeTo(222.22, 0.01));
     });
 
+    test('batch cooking: a portion of the cooked dish gets its share of '
+        'every nutrient', () {
+      // 500 g raw rice (345 kcal, 78 C, 0.6 F, 7 P per 100 g) + 1000 g raw
+      // chicken (115 kcal, 0 C, 2.6 F, 23 P) cooked down/up to 2200 g; a
+      // 350 g portion is 350/2200 of the pot.
+      final rice = _meal(code: 'rice', nutriments: _nutr(kcal: 345, carbs: 78, fat: 0.6, protein: 7));
+      final chicken = _meal(code: 'chicken', nutriments: _nutr(kcal: 115, carbs: 0, fat: 2.6, protein: 23));
+      final result = useCase.compute([
+        _ingredient(rice, 500, 'g', 500),
+        _ingredient(chicken, 1000, 'g', 1000),
+      ], totalWeightOverride: 2200);
+
+      double portion(double? per100) => per100! * 350 / 100;
+      const share = 350 / 2200;
+      expect(portion(result.perHundredG.energyKcal100), closeTo((1725 + 1150) * share, 0.01));
+      expect(portion(result.perHundredG.carbohydrates100), closeTo(390 * share, 0.01));
+      expect(portion(result.perHundredG.fat100), closeTo(29 * share, 0.01));
+      expect(portion(result.perHundredG.proteins100), closeTo(265 * share, 0.01));
+    });
+
     test('null nutrient field treated as 0 in sum, but null preserved when ALL ingredients null', () {
       // ingredient A has iron, B has null iron
       // → recipe iron = (5 mg × 50 g + 0 × 50 g) × 100 / 100 = 2.5 mg

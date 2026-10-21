@@ -1042,9 +1042,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "recipeNoIngredientsLabel":
             MessageLookupByLibrary.simpleMessage("No ingredients yet"),
         "recipeTotalWeightLabel":
-            MessageLookupByLibrary.simpleMessage("Total weight (g)"),
+            MessageLookupByLibrary.simpleMessage("Cooked weight of the whole dish (g)"),
         "recipeTotalWeightHelper": MessageLookupByLibrary.simpleMessage(
-            "Defaults to sum of ingredients. Liquids approximated as 1 ml ≈ 1 g."),
+            "Weigh the finished pot so logging part of it (say 350 g) counts the right calories. Defaults to the raw ingredients; liquids count as 1 ml ≈ 1 g."),
         "recipeNutritionPreviewLabel":
             MessageLookupByLibrary.simpleMessage("Nutrition (total)"),
         "recipeNutritionPer100Label":

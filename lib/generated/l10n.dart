@@ -455,20 +455,20 @@ class S {
     );
   }
 
-  /// `Total weight (g)`
+  /// `Cooked weight of the whole dish (g)`
   String get recipeTotalWeightLabel {
     return Intl.message(
-      'Total weight (g)',
+      'Cooked weight of the whole dish (g)',
       name: 'recipeTotalWeightLabel',
       desc: '',
       args: [],
     );
   }
 
-  /// `Defaults to sum of ingredients. Liquids approximated as 1 ml ≈ 1 g.`
+  /// `Weigh the finished pot so logging part of it (say 350 g) counts the right calories. Defaults to the raw ingredients; liquids count as 1 ml ≈ 1 g.`
   String get recipeTotalWeightHelper {
     return Intl.message(
-      'Defaults to sum of ingredients. Liquids approximated as 1 ml ≈ 1 g.',
+      'Weigh the finished pot so logging part of it (say 350 g) counts the right calories. Defaults to the raw ingredients; liquids count as 1 ml ≈ 1 g.',
       name: 'recipeTotalWeightHelper',
       desc: '',
       args: [],
