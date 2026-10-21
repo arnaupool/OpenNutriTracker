@@ -54,7 +54,7 @@ This downloads the pinned Flutter version (defined in `.fvmrc`) and creates a `.
 
 `cp .env.example .env`
 
-`.env` is gitignored. Edit it to fill in real values (or leave the placeholders for a debug build that doesn't need the live backend — see `docs/supabase-fdc-self-hosting.md` for the FDC keys).
+`.env` is gitignored. Edit it to fill in real values (or leave the placeholders for a debug build: generic-food search then returns nothing until `FDC_API_KEY` holds a real USDA key from https://fdc.nal.usda.gov/api-key-signup).
 
 5.⁠ ⁠Get Dependencies.
 

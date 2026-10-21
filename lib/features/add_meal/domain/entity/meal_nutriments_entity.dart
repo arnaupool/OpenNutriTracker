@@ -183,9 +183,8 @@ class MealNutrimentsEntity extends Equatable {
   factory MealNutrimentsEntity.fromFDCNutriments(
     List<FDCFoodNutrimentDTO> fdcNutriment,
   ) {
-    double? fdcAmount(int nutrientId) => fdcNutriment
-        .firstWhereOrNull((nutriment) => nutriment.nutrientId == nutrientId)
-        ?.amount;
+    double? fdcAmount(int code) =>
+        fdcNutriment.firstWhereOrNull((nutriment) => nutriment.matches(code))?.value;
 
     // FDC Food nutriments can have different values for Energy [Energy,
     // Energy (Atwater General Factors), Energy (Atwater Specific Factors)].
@@ -199,7 +198,9 @@ class MealNutrimentsEntity extends Equatable {
       carbohydrates100: fdcAmount(FDCConst.fdcTotalCarbsId),
       fat100: fdcAmount(FDCConst.fdcTotalFatId),
       proteins100: fdcAmount(FDCConst.fdcTotalProteinsId),
-      sugars100: fdcAmount(FDCConst.fdcTotalSugarId),
+      // Foundation foods report "Sugars, Total" (1063), SR Legacy foods
+      // "Sugars, total including NLEA" (2000).
+      sugars100: fdcAmount(FDCConst.fdcTotalSugarId) ?? fdcAmount(FDCConst.fdcTotalSugarNleaId),
       saturatedFat100: fdcAmount(FDCConst.fdcTotalSaturatedFatId),
       fiber100: fdcAmount(FDCConst.fdcTotalDietaryFiberId),
       // #237: Extended lipid profile

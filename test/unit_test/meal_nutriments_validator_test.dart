@@ -86,13 +86,13 @@ void main() {
       // Apple per 100g: ~14g carbs (of which ~10g sugars), ~0.2g fat,
       // ~0.3g protein, ~2.4g fibre, 0g saturated fat.
       final n = MealNutrimentsEntity.fromFDCNutriments([
-        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalKcalId, amount: 52),
-        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalCarbsId, amount: 13.8),
-        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalFatId, amount: 0.2),
-        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalProteinsId, amount: 0.3),
-        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalSugarId, amount: 10.4),
-        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalSaturatedFatId, amount: 0),
-        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalDietaryFiberId, amount: 2.4),
+        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalKcalId, value: 52),
+        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalCarbsId, value: 13.8),
+        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalFatId, value: 0.2),
+        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalProteinsId, value: 0.3),
+        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalSugarId, value: 10.4),
+        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalSaturatedFatId, value: 0),
+        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalDietaryFiberId, value: 2.4),
       ]);
       expect(isNutrimentsConsistent(n), isTrue);
     });
@@ -101,12 +101,12 @@ void main() {
       // Olive oil: ~100g fat, ~14g saturated fat, 0g carbs / protein / sugar.
       // Sits right at the 100g boundary on rule 3 — the tolerance keeps it in.
       final n = MealNutrimentsEntity.fromFDCNutriments([
-        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalKcalId, amount: 884),
-        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalCarbsId, amount: 0),
-        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalFatId, amount: 100),
-        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalProteinsId, amount: 0),
-        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalSugarId, amount: 0),
-        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalSaturatedFatId, amount: 13.8),
+        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalKcalId, value: 884),
+        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalCarbsId, value: 0),
+        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalFatId, value: 100),
+        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalProteinsId, value: 0),
+        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalSugarId, value: 0),
+        FDCFoodNutrimentDTO(nutrientId: FDCConst.fdcTotalSaturatedFatId, value: 13.8),
       ]);
       expect(isNutrimentsConsistent(n), isTrue);
     });

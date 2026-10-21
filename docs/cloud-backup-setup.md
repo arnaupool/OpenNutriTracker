@@ -4,7 +4,7 @@ This is the infrastructure half of the "backup en la nube" feature (Kanvas `Fase
 
 ## Why there's no login
 
-The app already talks to Supabase only through the **anon key** (see `docs/supabase-fdc-self-hosting.md` for the existing FDC read path). Adding real accounts (Supabase Auth, `auth.uid()`-scoped policies) would mean building a login/signup screen just to gate one private zip file — overkill for a feature whose entire job is "let this one person's own devices see the same data."
+The app talks to Supabase only through the **anon key**. Adding real accounts (Supabase Auth, `auth.uid()`-scoped policies) would mean building a login/signup screen just to gate one private zip file — overkill for a feature whose entire job is "let this one person's own devices see the same data."
 
 Instead, the app generates a random 256-bit token locally the first time you turn on cloud backup, and uses it as part of the object's path. The Storage policy below doesn't check *who* is asking — it only checks that the path looks like a real token (64 lowercase hex characters). Nobody can guess a 256-bit value, and Storage doesn't expose bucket listing to the `anon` role, so there's nothing to enumerate. Practically this is the same security model as a Google Drive "anyone with the link" share: possession of the token is possession of access. Pairing a second device is a one-time QR scan (or copy/paste) of that token — not a password you type on every sync.
 
@@ -12,7 +12,7 @@ This is intentionally *not* meant to scale past "you, and maybe a couple of devi
 
 ## A separate project, not the shared FDC one
 
-The app already talks to one Supabase project for USDA food search (`SUPABASE_PROJECT_URL`/`SUPABASE_PROJECT_ANON_KEY`, see `docs/supabase-fdc-self-hosting.md`) -- that project belongs to the upstream maintainer and is shared by every fork that points at it. Personal backup data has no business living there.
+Generic-food search no longer uses Supabase at all (it calls the USDA FoodData Central API directly with `FDC_API_KEY`); this backup project is the app's only Supabase project, and it must be your own.
 
 This feature uses its own, separate Supabase project instead -- free tier is plenty (a diary export zip is a few MB at most). Env vars: `BACKUP_SUPABASE_PROJECT_URL` / `BACKUP_SUPABASE_PROJECT_ANON_KEY` in `.env` (see `.env.example`), wired up in `lib/core/utils/locator.dart` as a second `SupabaseClient` registered under the GetIt instance name `'backupSupabase'` -- fetch it with `locator<SupabaseClient>(instanceName: 'backupSupabase')`, not the unnamed one (which is still the food-search client).
 

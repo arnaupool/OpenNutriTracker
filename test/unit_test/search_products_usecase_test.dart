@@ -31,7 +31,7 @@ class _FakeProductsRepository implements ProductsRepository {
   }
 
   @override
-  Future<List<MealEntity>> getSupabaseFDCFoodsByString(
+  Future<List<MealEntity>> getFDCFoodsByString(
     String searchString,
   ) async {
     if (fdcThrowOn.contains(searchString)) {

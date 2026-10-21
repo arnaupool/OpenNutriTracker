@@ -21,7 +21,11 @@ class FDCDataSource {
 
       final response =
           await http.get(searchUrlString).timeout(_timeoutDuration);
-      log.fine('Fetching FDC results from: $searchUrlString');
+      // The URL carries the API key, so log only the query.
+      log.fine('Fetching FDC results for "$searchString"');
+      if (response.statusCode != 200) {
+        throw Exception('FDC search failed: HTTP ${response.statusCode}');
+      }
 
       final wordResponse = FDCWordResponseDTO.fromJson(
         jsonDecode(response.body),

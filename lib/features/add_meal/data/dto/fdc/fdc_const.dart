@@ -185,6 +185,7 @@ class FDCConst {
   static const fdcTotalFatId = 1004;
   static const fdcTotalProteinsId = 1003;
   static const fdcTotalSugarId = 1063;
+  static const fdcTotalSugarNleaId = 2000;
   static const fdcTotalSaturatedFatId = 1258;
   static const fdcTotalDietaryFiberId = 1079;
   // #237: Extended lipid profile
@@ -201,7 +202,9 @@ class FDCConst {
   static const fdcZincId = 309;
   static const fdcPhosphorusId = 305;
   // #237: Vitamins
-  static const fdcVitaminAId = 318; // µg RAE
+  // 320 is "Vitamin A, RAE" (µg); 318 is the IU figure, which the app's
+  // µg-based vitamin A goal can't use.
+  static const fdcVitaminAId = 320; // µg RAE
   static const fdcVitaminCId = 401; // mg
   static const fdcVitaminDId = 328; // µg
   static const fdcVitaminB6Id = 415; // mg

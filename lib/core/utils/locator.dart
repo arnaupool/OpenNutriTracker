@@ -75,7 +75,6 @@ import 'package:opennutritracker/features/add_activity/presentation/bloc/activit
 import 'package:opennutritracker/features/add_activity/presentation/bloc/recent_activities_bloc.dart';
 import 'package:opennutritracker/features/add_meal/data/data_sources/fdc_data_source.dart';
 import 'package:opennutritracker/features/add_meal/data/data_sources/off_data_source.dart';
-import 'package:opennutritracker/features/add_meal/data/data_sources/sp_fdc_data_source.dart';
 import 'package:opennutritracker/features/add_meal/data/repository/products_repository.dart';
 import 'package:opennutritracker/features/add_meal/domain/usecase/analyze_meal_with_ai_usecase.dart';
 import 'package:opennutritracker/features/add_meal/domain/usecase/generate_meal_name_usecase.dart';
@@ -133,13 +132,6 @@ Future<void> initLocator() async {
   locator.registerLazySingleton<DeleteAllUserDataUsecase>(
     () => DeleteAllUserDataUsecase(locator()),
   );
-
-  // Backend (shared FDC food-search project)
-  await Supabase.initialize(
-    url: Env.supabaseProjectUrl,
-    anonKey: Env.supabaseProjectAnonKey,
-  );
-  locator.registerLazySingleton<SupabaseClient>(() => Supabase.instance.client);
 
   // Backend (separate project for the cloud-backup feature -- see
   // docs/cloud-backup-setup.md. Deliberately not the same client/project as
@@ -493,7 +485,7 @@ Future<void> initLocator() async {
     () => IntakeRepository(locator()),
   );
   locator.registerLazySingleton<ProductsRepository>(
-    () => ProductsRepository(locator(), locator(), locator()),
+    () => ProductsRepository(locator(), locator()),
   );
   locator.registerLazySingleton<UserActivityRepository>(
     () => UserActivityRepository(locator()),
@@ -544,7 +536,6 @@ Future<void> initLocator() async {
   );
   locator.registerLazySingleton<OFFDataSource>(() => OFFDataSource());
   locator.registerLazySingleton<FDCDataSource>(() => FDCDataSource());
-  locator.registerLazySingleton<SpFdcDataSource>(() => SpFdcDataSource());
   locator.registerLazySingleton<OpenRouterDataSource>(
     () => OpenRouterDataSource(),
   );

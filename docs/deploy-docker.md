@@ -8,9 +8,9 @@ cambio de código, un botón en Portainer ("Pull and redeploy").
 
 - Un dominio apuntando a tu IP pública (Let's Encrypt no emite certificado
   para una IP pelada).
-- Los 6 valores reales de tu `.env` a mano: Supabase (búsqueda de comida),
-  Sentry, FDC, y Supabase del backup en la nube (proyecto aparte, ver
-  `docs/cloud-backup-setup.md`).
+- Los 4 valores reales de tu `.env` a mano: la clave de USDA FDC
+  (búsqueda de alimentos genéricos), Sentry, y Supabase del backup en la
+  nube (ver `docs/cloud-backup-setup.md`).
 - Como tu fork es privado, un **Personal Access Token** de GitHub con
   permiso de lectura sobre el repo: GitHub → Settings → Developer settings →
   Personal access tokens → Generate new token (classic vale; scope `repo`
@@ -41,9 +41,8 @@ Stacks → Add stack → nombre `opennutritracker`:
   clonarlo).
 - **Compose path**: `docker-compose.unraid.yml` (no el `docker-compose.yml`
   por defecto — ese lleva Caddy, que no necesitas con NPM).
-- **Environment variables**: añade las 6 claves reales, una por una:
-  `SUPABASE_PROJECT_URL`, `SUPABASE_PROJECT_ANON_KEY`, `FDC_API_KEY`,
-  `SENTRY_DNS`, `BACKUP_SUPABASE_PROJECT_URL`,
+- **Environment variables**: añade las 4 claves reales, una por una:
+  `FDC_API_KEY`, `SENTRY_DNS`, `BACKUP_SUPABASE_PROJECT_URL`,
   `BACKUP_SUPABASE_PROJECT_ANON_KEY`.
 - **Deploy the stack**.
 

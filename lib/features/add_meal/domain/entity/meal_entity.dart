@@ -6,7 +6,6 @@ import 'package:opennutritracker/core/utils/id_generator.dart';
 import 'package:opennutritracker/core/utils/supported_language.dart';
 import 'package:opennutritracker/features/add_meal/data/dto/fdc/fdc_const.dart';
 import 'package:opennutritracker/features/add_meal/data/dto/fdc/fdc_food_dto.dart';
-import 'package:opennutritracker/features/add_meal/data/dto/fdc_sp/sp_fdc_food_dto.dart';
 import 'package:opennutritracker/features/add_meal/data/dto/off/off_product_dto.dart';
 import 'package:opennutritracker/features/add_meal/domain/entity/meal_nutriments_entity.dart';
 
@@ -147,32 +146,13 @@ class MealEntity extends Equatable {
       brands: fdcFood.brandName,
       url: FDCConst.getFoodDetailUrlString(fdcId),
       mealQuantity: fdcFood.packageWeight,
-      mealUnit: fdcFood.servingSizeUnit,
+      // Foundation / SR Legacy foods carry no serving; they are logged by
+      // weight, like the previous Supabase mirror did.
+      mealUnit: fdcFood.servingSizeUnit ?? FDCConst.fdcDefaultUnit,
       servingQuantity: fdcFood.servingSize,
       servingUnit: fdcFood.servingSizeUnit,
       servingSize: fdcFood.servingSizeUnit,
       nutriments: MealNutrimentsEntity.fromFDCNutriments(fdcFood.foodNutrients),
-      source: MealSourceEntity.fdc,
-    );
-  }
-
-  factory MealEntity.fromSpFDCFood(SpFdcFoodDTO foodItem) {
-    final fdcId = foodItem.fdcId?.toInt().toString();
-
-    return MealEntity(
-      code: fdcId,
-      name: foodItem.getLocaleDescription(
-        SupportedLanguage.fromCode(PlatformDispatcher.instance.locale.toString()),
-      ),
-      brands: null,
-      url: FDCConst.getFoodDetailUrlString(fdcId),
-      mealQuantity: null,
-      mealUnit: FDCConst.fdcDefaultUnit,
-      servingQuantity: foodItem.servingSize,
-      servingUnit: FDCConst.fdcDefaultUnit,
-      servingSize:
-          "${(foodItem.servingAmount ?? 1).toInt()} ${foodItem.servingSizeUnit}",
-      nutriments: MealNutrimentsEntity.fromFDCNutriments(foodItem.nutrients),
       source: MealSourceEntity.fdc,
     );
   }

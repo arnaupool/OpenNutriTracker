@@ -5,7 +5,7 @@ import 'package:opennutritracker/features/add_meal/data/dto/off/off_product_nutr
 import 'package:opennutritracker/features/add_meal/domain/entity/meal_nutriments_entity.dart';
 
 FDCFoodNutrimentDTO _fdc(int id, double amount) =>
-    FDCFoodNutrimentDTO(nutrientId: id, amount: amount);
+    FDCFoodNutrimentDTO(nutrientId: id, value: amount);
 
 void main() {
   group('MealNutrimentsEntity.fromFDCNutriments', () {

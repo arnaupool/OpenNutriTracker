@@ -4,7 +4,7 @@ Repo: https://github.com/arnaupool/OpenNutriTracker
 
 ## Qué es
 
-Fork personal de [OpenNutriTracker](https://github.com/simonoppowa/OpenNutriTracker), app Flutter (Android/iOS/Web) de seguimiento nutricional. Datos locales en Hive cifrado AES. Fuentes de alimentos: Open Food Facts (productos de marca, fuerte en Europa) y USDA FDC vía Supabase (alimentos genéricos/crudos, EE.UU.).
+Fork personal de [OpenNutriTracker](https://github.com/simonoppowa/OpenNutriTracker), app Flutter (Android/iOS/Web) de seguimiento nutricional. Datos locales en Hive cifrado AES. Fuentes de alimentos: Open Food Facts (productos de marca, fuerte en Europa) y USDA FoodData Central por su API oficial (alimentos genéricos/crudos).
 
 Despliegue propio: build web self-hosted en servidor con Docker/Portainer, no en App/Play Store.
 
@@ -34,7 +34,7 @@ Encima de eso, Home se ha rediseñado como un dashboard (gasto energético 7 dí
 
 **Datos**: Hive local (AES-256, clave en flutter_secure_storage). Cajas principales: `IntakeBox` (comidas registradas), `UserActivityBox`, `TrackedDayBox` (totales diarios cacheados), `WeightLogBox`, `CustomMealBox`, `RecipeBox`, cachés de búsqueda remota.
 
-**Búsqueda de alimentos**: `ProductsRepository` agrega OFF (Search-a-licious + re-ranking por relevancia/popularidad fusionados) y Supabase FDC (full-text search en Postgres). Caché local de resultados para repetir búsquedas sin red. Hay una tercera fuente (FDC directa vía API key de USDA) ya escrita pero sin enchufar a la UI — Europa ya está bien cubierta por OFF, así que no compensa.
+**Búsqueda de alimentos**: `ProductsRepository` agrega OFF (Search-a-licious + re-ranking por relevancia/popularidad fusionados) y la API oficial de USDA FDC (alimentos Foundation y SR Legacy, con `FDC_API_KEY`). Caché local de resultados para repetir búsquedas sin red. El antiguo espejo de FDC en el Supabase del autor original ya no se usa; el único Supabase que queda es el del backup en la nube.
 
 **IA**: integración OpenRouter para registro por foto/texto ("Magic") y escaneo de etiqueta con fallback manual.
 
@@ -77,4 +77,4 @@ flutter analyze
 flutter test test/ruta/al/archivo_test.dart
 ```
 
-Flutter 3.41.7 vía FVM. `.env` (gitignored) con claves de OFF/FDC/Supabase/Sentry, necesario para generar `env.g.dart`.
+Flutter 3.41.7 vía FVM. `.env` (gitignored) con la clave de USDA FDC, Sentry y el Supabase del backup, necesario para generar `env.g.dart`.

@@ -588,13 +588,9 @@ jobs:
         env:
           FDC_API_KEY: ${{ secrets.FDC_API_KEY }}
           SENTRY_DNS: ${{ secrets.SENTRY_DNS }}
-          SUPABASE_PROJECT_URL: ${{ secrets.SUPABASE_PROJECT_URL }}
-          SUPABASE_PROJECT_ANON_KEY: ${{ secrets.SUPABASE_PROJECT_ANON_KEY }}
         with:
           fdc_api_key: ${{ env.FDC_API_KEY }}
           sentry_dns: ${{ env.SENTRY_DNS }}
-          supabase_project_url: ${{ env.SUPABASE_PROJECT_URL }}
-          supabase_project_anon_key: ${{ env.SUPABASE_PROJECT_ANON_KEY }}
 
       - name: Install Flutter packages
         run: fvm flutter pub get
@@ -729,13 +725,9 @@ jobs:
         env:
           FDC_API_KEY: ${{ secrets.FDC_API_KEY }}
           SENTRY_DNS: ${{ secrets.SENTRY_DNS }}
-          SUPABASE_PROJECT_URL: ${{ secrets.SUPABASE_PROJECT_URL }}
-          SUPABASE_PROJECT_ANON_KEY: ${{ secrets.SUPABASE_PROJECT_ANON_KEY }}
         with:
           fdc_api_key: ${{ env.FDC_API_KEY }}
           sentry_dns: ${{ env.SENTRY_DNS }}
-          supabase_project_url: ${{ env.SUPABASE_PROJECT_URL }}
-          supabase_project_anon_key: ${{ env.SUPABASE_PROJECT_ANON_KEY }}
 
       - name: Restore Android signing material
         env:

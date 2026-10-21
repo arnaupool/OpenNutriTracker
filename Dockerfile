@@ -55,16 +55,16 @@ COPY fonts/ fonts/
 # onto compose build args. `docker compose build` also auto-populates
 # these from a local .env file if one exists next to the compose file
 # (standard Compose behaviour) — see docs/deploy-docker.md.
-ARG SUPABASE_PROJECT_URL
-ARG SUPABASE_PROJECT_ANON_KEY
+# FDC_API_KEY: USDA FoodData Central key (https://fdc.nal.usda.gov/api-key-signup),
+# used for generic-food search.
 ARG FDC_API_KEY
 ARG SENTRY_DNS
 # Fase Cuenta's cloud-backup feature (docs/cloud-backup-setup.md) uses its
-# own Supabase project, separate from the FDC one above.
+# own Supabase project.
 ARG BACKUP_SUPABASE_PROJECT_URL
 ARG BACKUP_SUPABASE_PROJECT_ANON_KEY
-RUN printf 'FDC_API_KEY="%s"\nSENTRY_DNS="%s"\nSUPABASE_PROJECT_URL="%s"\nSUPABASE_PROJECT_ANON_KEY="%s"\nBACKUP_SUPABASE_PROJECT_URL="%s"\nBACKUP_SUPABASE_PROJECT_ANON_KEY="%s"\n' \
-      "$FDC_API_KEY" "$SENTRY_DNS" "$SUPABASE_PROJECT_URL" "$SUPABASE_PROJECT_ANON_KEY" "$BACKUP_SUPABASE_PROJECT_URL" "$BACKUP_SUPABASE_PROJECT_ANON_KEY" > .env
+RUN printf 'FDC_API_KEY="%s"\nSENTRY_DNS="%s"\nBACKUP_SUPABASE_PROJECT_URL="%s"\nBACKUP_SUPABASE_PROJECT_ANON_KEY="%s"\n' \
+      "$FDC_API_KEY" "$SENTRY_DNS" "$BACKUP_SUPABASE_PROJECT_URL" "$BACKUP_SUPABASE_PROJECT_ANON_KEY" > .env
 
 RUN dart run build_runner build --delete-conflicting-outputs
 

@@ -94,7 +94,7 @@ The data export bundle (Settings → Export / Import App Data → Export) is
 documented at [`docs/export-format.md`](docs/export-format.md) — both the
 JSON schema and the CSV companion the import / export round-trip uses.
 
-Self-hosting the Supabase FDC database for local development is documented at [`docs/supabase-fdc-self-hosting.md`](docs/supabase-fdc-self-hosting.md).
+Generic (unbranded) foods come straight from the USDA FoodData Central API; set `FDC_API_KEY` in `.env` (free key: https://fdc.nal.usda.gov/api-key-signup).
 
 ## Disclaimer
 OpenNutriTracker is not a medical application. All data provided is not validated and should be used with caution. Please maintain a healthy lifestyle and consult a professional if you have any problems. Use during illness, pregnancy or lactation is not recommended.
@@ -103,7 +103,7 @@ The application is still under construction. Errors, bugs and crashes might occu
 
 ## Acknowledgments
 The OpenNutriTracker project was inspired by the need for a simple and effective nutrition tracking tool.
-The food database used in OpenNutriTracker is powered by [Open Food Facts](https://world.openfoodfacts.org/) and [Food Data Central](https://fdc.nal.usda.gov/). A curated subset of FDC is hosted in Supabase to keep search responsive on slow connections; the schema and refresh process are documented in [`docs/supabase-fdc-self-hosting.md`](docs/supabase-fdc-self-hosting.md).
+The food database used in OpenNutriTracker is powered by [Open Food Facts](https://world.openfoodfacts.org/) and [Food Data Central](https://fdc.nal.usda.gov/). FDC results are fetched from the official USDA API (Foundation and SR Legacy foods).
 
 Dietary Reference Intake values for the micronutrient panel come from the U.S. National Academies' Institute of Medicine tables. The in-app **Sources & References** screen (one tap from the home calorie ring or the profile BMI card) lists the peer-reviewed sources used for energy needs, BMI classification, macro distribution, MET activity calories, and non-binary calorie estimation.
 
