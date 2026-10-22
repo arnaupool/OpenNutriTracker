@@ -45,6 +45,14 @@ Sin ella el escritorio no tiene datos, porque hoy todo vive cifrado en el móvil
 - Lista de la compra: suma los ingredientes de las recetas y alimentos de un rango de días.
 - En el móvil, "Registrar plan" convierte las entradas del día en comidas registradas con un toque.
 
+### Después de la fase 1: perfiles (decidido 2026-10-22)
+
+- Varios perfiles en el mismo móvil o web (por ejemplo, la familia), cada uno con su diario, objetivos y token de sincronización, y un selector de perfil. Sin cuentas ni login: se mantiene el modelo de privacidad actual.
+
+### Idiomas (decidido 2026-10-22)
+
+- Añadir castellano (`es`) y valenciano (`ca`, normas AVL, etiqueta "Valencià") además del inglés, en una sesión aparte.
+
 ## Lo que necesito de ti
 
 1. **Reactivar Supabase:** el proyecto `openfoodtracker` (el del backup) está en pausa (`INACTIVE`), así que hoy el backup en la nube tampoco funciona. Hay que reactivarlo y crear la tabla `sync_records`.
