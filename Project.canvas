@@ -750,6 +750,55 @@
 			"width": 280,
 			"height": 160,
 			"color": "6"
+		},
+		{
+			"id": "group-fasees",
+			"type": "group",
+			"x": 3960,
+			"y": 0,
+			"width": 380,
+			"height": 760,
+			"label": "Fase Escritorio"
+		},
+		{
+			"id": "9743ecaf",
+			"type": "text",
+			"text": "## FAS-01 FE-D1 Sincronizacion por registros con cifrado de extremo a extremo\ndocs/desktop/PLAN.md fase 1. Tabla sync_records en el Supabase del backup (RLS por token de emparejamiento), payload cifrado en cliente con clave del QR, SyncLog local por caja, LWW por modified_at, cursor por updated_at del servidor, recalculo de TrackedDay tras descargar. Requiere reactivar el proyecto openfoodtracker (INACTIVE).",
+			"x": 3980,
+			"y": 40,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "08c90b36",
+			"type": "text",
+			"text": "## FAS-02 FE-D2 Diseno de escritorio en la web\ndocs/desktop/PLAN.md fase 2. NavigationRail a partir de ~1000 px, Home y Diary en columnas, formularios con ancho maximo. El movil no cambia.",
+			"x": 3980,
+			"y": 220,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "9a382513",
+			"type": "text",
+			"text": "## FAS-03 FE-D3 Vistas de revision y exportacion CSV\ndocs/desktop/PLAN.md fase 3. Peso (escala vs tendencia), gasto/TDEE e historial de check-ins, adherencia kcal/macros por dia/semana/mes, diario en tabla editable, CSV de cualquier vista.",
+			"x": 3980,
+			"y": 400,
+			"width": 280,
+			"height": 160,
+			"color": "6"
+		},
+		{
+			"id": "38c7b303",
+			"type": "text",
+			"text": "## FAS-04 FE-D4 Planificacion de comidas, lista de la compra y registro del plan\ndocs/desktop/PLAN.md fase 4. MealPlanEntry sincronizado, vista semanal con totales vs objetivo, lista de la compra agregando ingredientes, boton Registrar plan en el movil.",
+			"x": 3980,
+			"y": 580,
+			"width": 280,
+			"height": 160,
+			"color": "6"
 		}
 	],
 	"edges": [
@@ -1234,6 +1283,20 @@
 			"fromNode": "8101d168",
 			"fromSide": "bottom",
 			"toNode": "c97e189f",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-089",
+			"fromNode": "08c90b36",
+			"fromSide": "bottom",
+			"toNode": "9a382513",
+			"toSide": "top"
+		},
+		{
+			"id": "edge-090",
+			"fromNode": "9743ecaf",
+			"fromSide": "bottom",
+			"toNode": "38c7b303",
 			"toSide": "top"
 		}
 	]
