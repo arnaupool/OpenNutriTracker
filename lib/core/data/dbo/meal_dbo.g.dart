@@ -99,6 +99,8 @@ class MealSourceDBOAdapter extends TypeAdapter<MealSourceDBO> {
         return MealSourceDBO.fdc;
       case 4:
         return MealSourceDBO.recipe;
+      case 5:
+        return MealSourceDBO.bedca;
       default:
         return MealSourceDBO.unknown;
     }
@@ -117,6 +119,8 @@ class MealSourceDBOAdapter extends TypeAdapter<MealSourceDBO> {
         writer.writeByte(3);
       case MealSourceDBO.recipe:
         writer.writeByte(4);
+      case MealSourceDBO.bedca:
+        writer.writeByte(5);
     }
   }
 
@@ -179,4 +183,5 @@ const _$MealSourceDBOEnumMap = {
   MealSourceDBO.off: 'off',
   MealSourceDBO.fdc: 'fdc',
   MealSourceDBO.recipe: 'recipe',
+  MealSourceDBO.bedca: 'bedca',
 };

@@ -255,7 +255,9 @@ class _ImportMealScannerScreenState extends State<ImportMealScannerScreen>
     // searches hit them locally.
     for (final item in payload.items) {
       final meal = item.toMealEntity();
-      if (item.source == MealSourceEntity.fdc) {
+      if (item.source == MealSourceEntity.bedca) {
+        // Bundled with the app: nothing to store, just log it.
+      } else if (item.source == MealSourceEntity.fdc) {
         await remoteCache.cache(MealDBO.fromMealEntity(meal));
       } else {
         await customMealDataSource.saveCustomMeal(MealDBO.fromMealEntity(meal));

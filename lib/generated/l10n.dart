@@ -4803,6 +4803,226 @@ class S {
     );
   }
 
+  /// `More Information at\nBEDCA (AESAN)`
+  String get additionalInfoLabelBedca {
+    return Intl.message(
+      'More Information at\nBEDCA (AESAN)',
+      name: 'additionalInfoLabelBedca',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Source: AESAN/BEDCA Base de Datos Española de Composición de Alimentos v1.0 (2010). Values are per 100 g of edible portion. The data are provided for personal, non-commercial use; no guarantees are made for their accuracy or completeness.`
+  String get bedcaDisclaimer {
+    return Intl.message(
+      'Source: AESAN/BEDCA Base de Datos Española de Composición de Alimentos v1.0 (2010). Values are per 100 g of edible portion. The data are provided for personal, non-commercial use; no guarantees are made for their accuracy or completeness.',
+      name: 'bedcaDisclaimer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Food databases`
+  String get sourcesFoodDataTitle {
+    return Intl.message(
+      'Food databases',
+      name: 'sourcesFoodDataTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nutrition values for products and generic foods come from these databases. BEDCA data is used for personal, non-commercial purposes with the attribution its terms require.`
+  String get sourcesFoodDataDescription {
+    return Intl.message(
+      'Nutrition values for products and generic foods come from these databases. BEDCA data is used for personal, non-commercial purposes with the attribution its terms require.',
+      name: 'sourcesFoodDataDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open Food Facts account`
+  String get offAccountLabel {
+    return Intl.message(
+      'Open Food Facts account',
+      name: 'offAccountLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign in to send products you add to Open Food Facts`
+  String get offAccountSignedOutSubtitle {
+    return Intl.message(
+      'Sign in to send products you add to Open Food Facts',
+      name: 'offAccountSignedOutSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Signed in as`
+  String get offAccountSignedInAs {
+    return Intl.message(
+      'Signed in as',
+      name: 'offAccountSignedInAs',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use your Open Food Facts username (not your email) and password. They are stored encrypted on this device and only sent to Open Food Facts when you send a product.`
+  String get offAccountExplanation {
+    return Intl.message(
+      'Use your Open Food Facts username (not your email) and password. They are stored encrypted on this device and only sent to Open Food Facts when you send a product.',
+      name: 'offAccountExplanation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Username`
+  String get offAccountUsernameLabel {
+    return Intl.message(
+      'Username',
+      name: 'offAccountUsernameLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password`
+  String get offAccountPasswordLabel {
+    return Intl.message(
+      'Password',
+      name: 'offAccountPasswordLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create a free account`
+  String get offAccountCreateLink {
+    return Intl.message(
+      'Create a free account',
+      name: 'offAccountCreateLink',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign out`
+  String get offAccountSignOut {
+    return Intl.message(
+      'Sign out',
+      name: 'offAccountSignOut',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Send to Open Food Facts`
+  String get offContributeButton {
+    return Intl.message(
+      'Send to Open Food Facts',
+      name: 'offContributeButton',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Send to Open Food Facts?`
+  String get offContributeConfirmTitle {
+    return Intl.message(
+      'Send to Open Food Facts?',
+      name: 'offContributeConfirmTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This creates a new public product on Open Food Facts with this barcode, name, brand and the nutrition values per 100 g. Only send values copied from the package label. Contributions are published under the Open Database License (ODbL), so anyone can reuse them.`
+  String get offContributeConfirmContent {
+    return Intl.message(
+      'This creates a new public product on Open Food Facts with this barcode, name, brand and the nutrition values per 100 g. Only send values copied from the package label. Contributions are published under the Open Database License (ODbL), so anyone can reuse them.',
+      name: 'offContributeConfirmContent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Send`
+  String get offContributeSend {
+    return Intl.message(
+      'Send',
+      name: 'offContributeSend',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Thanks! The product is now on Open Food Facts.`
+  String get offContributeSent {
+    return Intl.message(
+      'Thanks! The product is now on Open Food Facts.',
+      name: 'offContributeSent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open Food Facts already has this product, so nothing was sent.`
+  String get offContributeAlreadyOnOff {
+    return Intl.message(
+      'Open Food Facts already has this product, so nothing was sent.',
+      name: 'offContributeAlreadyOnOff',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open Food Facts rejected your username or password.`
+  String get offContributeWrongCredentials {
+    return Intl.message(
+      'Open Food Facts rejected your username or password.',
+      name: 'offContributeWrongCredentials',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not send the product to Open Food Facts. Try again later.`
+  String get offContributeFailed {
+    return Intl.message(
+      'Could not send the product to Open Food Facts. Try again later.',
+      name: 'offContributeFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign in with your Open Food Facts account first.`
+  String get offContributeNeedsAccount {
+    return Intl.message(
+      'Sign in with your Open Food Facts account first.',
+      name: 'offContributeNeedsAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A product needs a barcode, a name and its energy to be sent.`
+  String get offContributeMissingData {
+    return Intl.message(
+      'A product needs a barcode, a name and its energy to be sent.',
+      name: 'offContributeMissingData',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `More Information at\nFoodData Central`
   String get additionalInfoLabelFDC {
     return Intl.message(

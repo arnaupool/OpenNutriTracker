@@ -20,7 +20,9 @@ import 'package:opennutritracker/features/meal_detail/presentation/widgets/meal_
 import 'package:opennutritracker/features/meal_detail/presentation/widgets/meal_info_button.dart';
 import 'package:opennutritracker/features/meal_detail/presentation/widgets/meal_placeholder.dart';
 import 'package:opennutritracker/features/meal_detail/presentation/widgets/meal_title_expanded.dart';
+import 'package:opennutritracker/features/meal_detail/presentation/widgets/bedca_disclaimer.dart';
 import 'package:opennutritracker/features/meal_detail/presentation/widgets/off_disclaimer.dart';
+import 'package:opennutritracker/features/off_contribution/presentation/off_contribute_button.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 class MealDetailScreen extends StatefulWidget {
@@ -366,11 +368,19 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                   ),
                   const SizedBox(height: 32.0),
                   MealInfoButton(url: meal.url, source: meal.source),
+                  if (OffContributeButton.appliesTo(meal)) ...[
+                    const SizedBox(height: 16),
+                    Center(child: OffContributeButton(meal: meal)),
+                  ],
                   meal.source == MealSourceEntity.off
                       ? const Column(
                           children: [SizedBox(height: 32), OffDisclaimer()],
                         )
                       : const SizedBox(),
+                  if (meal.source == MealSourceEntity.bedca)
+                    const Column(
+                      children: [SizedBox(height: 32), BedcaDisclaimer()],
+                    ),
                   const SizedBox(height: 200.0), // height added to scroll
                 ],
               ),

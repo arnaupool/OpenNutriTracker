@@ -114,7 +114,11 @@ enum MealSourceDBO {
   @HiveField(3)
   fdc,
   @HiveField(4)
-  recipe;
+  recipe,
+  // Older builds read an unknown index as `unknown`, so adding a value is
+  // backward compatible.
+  @HiveField(5)
+  bedca;
 
   factory MealSourceDBO.fromMealSourceEntity(MealSourceEntity entity) {
     MealSourceDBO mealSourceDBO;
@@ -133,6 +137,9 @@ enum MealSourceDBO {
         break;
       case MealSourceEntity.recipe:
         mealSourceDBO = MealSourceDBO.recipe;
+        break;
+      case MealSourceEntity.bedca:
+        mealSourceDBO = MealSourceDBO.bedca;
         break;
     }
     return mealSourceDBO;

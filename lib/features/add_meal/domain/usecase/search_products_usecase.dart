@@ -5,6 +5,7 @@ import 'package:opennutritracker/core/data/data_source/recipe_data_source.dart';
 import 'package:opennutritracker/core/data/dbo/meal_dbo.dart';
 import 'package:opennutritracker/core/domain/entity/recipe_entity.dart';
 import 'package:opennutritracker/core/domain/usecase/get_intake_usecase.dart';
+import 'package:opennutritracker/features/add_meal/data/data_sources/bedca_data_source.dart';
 import 'package:opennutritracker/features/add_meal/data/repository/products_repository.dart';
 import 'package:opennutritracker/features/add_meal/domain/entity/meal_entity.dart';
 
@@ -32,6 +33,7 @@ class SearchProductsUseCase {
   final CustomMealDataSource _customMealDataSource;
   final RemoteSearchCacheDataSource _cachedOffMealDataSource;
   final RecipeDataSource _recipeDataSource;
+  final BedcaDataSource _bedcaDataSource;
 
   SearchProductsUseCase(
     this._productsRepository,
@@ -39,6 +41,7 @@ class SearchProductsUseCase {
     this._customMealDataSource,
     this._cachedOffMealDataSource,
     this._recipeDataSource,
+    this._bedcaDataSource,
   );
 
   /// [skipRemote] limits the search to local matches (custom meals, recipes,
@@ -70,16 +73,25 @@ class SearchProductsUseCase {
     String searchString, {
     bool skipRemote = false,
   }) async {
+    // BEDCA (Spanish generic foods) ships with the app, so it is searched
+    // even for short as-you-type queries and when FDC is unreachable. Its
+    // matches go ahead of the USDA ones: Spanish names for Spanish foods.
+    final bedca = await _safeRemoteCall(
+      'BEDCA',
+      () async => (await _bedcaDataSource.search(searchString))
+          .map(MealEntity.fromBedcaFood)
+          .toList(),
+    );
     if (skipRemote) {
-      return _buildResult(searchString, const [],
-          remoteSkipped: true, cacheSource: MealSourceEntity.fdc);
+      return _buildResult(searchString, bedca,
+          remoteSkipped: bedca.isEmpty, cacheSource: MealSourceEntity.fdc);
     }
     final remote = await _safeRemoteCall(
       'FDC',
       () => _productsRepository.getFDCFoodsByString(searchString),
     );
     await _cacheRemoteResults(remote);
-    return _buildResult(searchString, remote,
+    return _buildResult(searchString, [...bedca, ...remote],
         cacheSource: MealSourceEntity.fdc);
   }
 

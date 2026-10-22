@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
 import 'package:opennutritracker/core/data/dbo/meal_nutriments_dbo.dart';
 import 'package:opennutritracker/core/utils/extensions.dart';
+import 'package:opennutritracker/features/add_meal/data/dto/bedca/bedca_food_dto.dart';
 import 'package:opennutritracker/features/add_meal/data/dto/fdc/fdc_const.dart';
 import 'package:opennutritracker/features/add_meal/data/dto/fdc/fdc_food_nutriment_dto.dart';
 import 'package:opennutritracker/features/add_meal/data/dto/off/off_product_nutriments_dto.dart';
@@ -179,6 +180,36 @@ class MealNutrimentsEntity extends Equatable {
       niacin100: (offNutriments.niacin_100g as Object?).asDoubleOrNull(),
     );
   }
+
+  /// BEDCA values are already per 100 g of edible portion, in kcal / g / mg
+  /// / µg as the fields below expect (see [BedcaConst]).
+  factory MealNutrimentsEntity.fromBedcaFood(BedcaFoodDTO food) =>
+      MealNutrimentsEntity(
+        energyKcal100: food[BedcaConst.kcal],
+        carbohydrates100: food[BedcaConst.carbs],
+        fat100: food[BedcaConst.fat],
+        proteins100: food[BedcaConst.protein],
+        sugars100: food[BedcaConst.sugars],
+        saturatedFat100: food[BedcaConst.saturatedFat],
+        fiber100: food[BedcaConst.fiber],
+        monounsaturatedFat100: food[BedcaConst.monounsaturatedFat],
+        polyunsaturatedFat100: food[BedcaConst.polyunsaturatedFat],
+        transFat100: food[BedcaConst.transFat],
+        cholesterol100: food[BedcaConst.cholesterol],
+        sodium100: food[BedcaConst.sodium],
+        potassium100: food[BedcaConst.potassium],
+        magnesium100: food[BedcaConst.magnesium],
+        calcium100: food[BedcaConst.calcium],
+        iron100: food[BedcaConst.iron],
+        zinc100: food[BedcaConst.zinc],
+        phosphorus100: food[BedcaConst.phosphorus],
+        vitaminA100: food[BedcaConst.vitaminA],
+        vitaminC100: food[BedcaConst.vitaminC],
+        vitaminD100: food[BedcaConst.vitaminD],
+        vitaminB6100: food[BedcaConst.vitaminB6],
+        vitaminB12100: food[BedcaConst.vitaminB12],
+        niacin100: food[BedcaConst.niacin],
+      );
 
   factory MealNutrimentsEntity.fromFDCNutriments(
     List<FDCFoodNutrimentDTO> fdcNutriment,

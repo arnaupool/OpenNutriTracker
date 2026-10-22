@@ -4,6 +4,7 @@ import 'package:equatable/equatable.dart';
 import 'package:opennutritracker/core/data/dbo/meal_dbo.dart';
 import 'package:opennutritracker/core/utils/id_generator.dart';
 import 'package:opennutritracker/core/utils/supported_language.dart';
+import 'package:opennutritracker/features/add_meal/data/dto/bedca/bedca_food_dto.dart';
 import 'package:opennutritracker/features/add_meal/data/dto/fdc/fdc_const.dart';
 import 'package:opennutritracker/features/add_meal/data/dto/fdc/fdc_food_dto.dart';
 import 'package:opennutritracker/features/add_meal/data/dto/off/off_product_dto.dart';
@@ -157,6 +158,24 @@ class MealEntity extends Equatable {
     );
   }
 
+  /// Generic Spanish food from the bundled BEDCA list. Like FDC base foods it
+  /// has no serving and is logged by weight; the whole record ships with the
+  /// app, so it is always [detailed].
+  factory MealEntity.fromBedcaFood(BedcaFoodDTO food) => MealEntity(
+        code: '${BedcaConst.codePrefix}${food.id}',
+        name: food.nameEs,
+        brands: BedcaConst.brandLabel,
+        url: BedcaConst.websiteUrl,
+        mealQuantity: null,
+        mealUnit: FDCConst.fdcDefaultUnit,
+        servingQuantity: null,
+        servingUnit: null,
+        servingSize: null,
+        nutriments: MealNutrimentsEntity.fromBedcaFood(food),
+        source: MealSourceEntity.bedca,
+        detailed: true,
+      );
+
   /// Value returned from OFF can either be String, int or double.
   /// Try casting it to a double value for calculation
   static double? _tryQuantityCast(dynamic value) {
@@ -200,7 +219,8 @@ enum MealSourceEntity {
   custom,
   off,
   fdc,
-  recipe;
+  recipe,
+  bedca;
 
   factory MealSourceEntity.fromMealSourceDBO(MealSourceDBO mealSourceDBO) {
     MealSourceEntity mealSourceEntity;
@@ -219,6 +239,9 @@ enum MealSourceEntity {
         break;
       case MealSourceDBO.recipe:
         mealSourceEntity = MealSourceEntity.recipe;
+        break;
+      case MealSourceDBO.bedca:
+        mealSourceEntity = MealSourceEntity.bedca;
         break;
     }
     return mealSourceEntity;

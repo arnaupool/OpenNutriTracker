@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:opennutritracker/core/utils/off_const.dart';
+import 'package:opennutritracker/features/add_meal/data/dto/bedca/bedca_food_dto.dart';
 import 'package:opennutritracker/features/add_meal/data/dto/fdc/fdc_const.dart';
 import 'package:opennutritracker/features/add_meal/domain/entity/meal_entity.dart';
 import 'package:opennutritracker/generated/l10n.dart';
@@ -43,6 +44,9 @@ class MealInfoButton extends StatelessWidget {
       case MealSourceEntity.recipe:
         siteUrl = "";
         break;
+      case MealSourceEntity.bedca:
+        siteUrl = url ?? BedcaConst.websiteUrl;
+        break;
     }
     return siteUrl;
   }
@@ -64,6 +68,9 @@ class MealInfoButton extends StatelessWidget {
         break;
       case MealSourceEntity.recipe:
         infoLabel = S.of(context).additionalInfoLabelRecipe;
+        break;
+      case MealSourceEntity.bedca:
+        infoLabel = S.of(context).additionalInfoLabelBedca;
         break;
     }
     return infoLabel;

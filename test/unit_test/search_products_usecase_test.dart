@@ -8,6 +8,7 @@ import 'package:opennutritracker/core/data/dbo/recipe_dbo.dart';
 import 'package:opennutritracker/core/domain/entity/intake_entity.dart';
 import 'package:opennutritracker/core/domain/entity/intake_type_entity.dart';
 import 'package:opennutritracker/core/domain/usecase/get_intake_usecase.dart';
+import 'package:opennutritracker/features/add_meal/data/data_sources/bedca_data_source.dart';
 import 'package:opennutritracker/features/add_meal/data/repository/products_repository.dart';
 import 'package:opennutritracker/features/add_meal/domain/entity/meal_entity.dart';
 import 'package:opennutritracker/features/add_meal/domain/entity/meal_nutriments_entity.dart';
@@ -191,6 +192,7 @@ void main() {
         customMealDataSource,
         cachedOffMealDataSource,
         recipeDataSource,
+        BedcaDataSource(loader: () async => '{"foods":[]}'),
       );
     });
 
@@ -667,6 +669,7 @@ void main() {
         customMealDataSource,
         cachedOffMealDataSource,
         recipeDataSource,
+        BedcaDataSource(loader: () async => '{"foods":[]}'),
       );
     });
 
@@ -713,6 +716,55 @@ void main() {
 
       // Recipe (priority 2) appears before OFF cache (priority 4).
       expect(result.meals.first.source, MealSourceEntity.recipe);
+    });
+  });
+
+  // BEDCA is bundled and searched on the device, so its Spanish generic
+  // foods sit in the Food (FDC) tab next to the USDA results, also while
+  // the user is still typing (no network) and when FDC fails.
+  group('SearchProductsUseCase BEDCA', () {
+    late _FakeProductsRepository productsRepository;
+    late SearchProductsUseCase useCase;
+
+    setUp(() {
+      productsRepository = _FakeProductsRepository();
+      useCase = SearchProductsUseCase(
+        productsRepository,
+        _FakeGetIntakeUsecase(),
+        _FakeCustomMealDataSource(),
+        _FakeRemoteSearchCacheDataSource(),
+        _FakeRecipeDataSource(),
+        BedcaDataSource(
+          loader: () async =>
+              '{"foods":[{"id":7,"es":"Lentejas, secas","en":"Lentil, dried","n":{"kcal":314}}]}',
+        ),
+      );
+    });
+
+    test('Food tab lists BEDCA matches before USDA results', () async {
+      productsRepository.fdcResults['lentejas'] = [
+        _meal(code: 'fdc-1', name: 'Lentils, raw', source: MealSourceEntity.fdc),
+      ];
+      final result = await useCase.searchFDCFoodByString('lentejas');
+      expect(result.meals.map((m) => m.code), ['bedca-7', 'fdc-1']);
+      expect(result.meals.first.source, MealSourceEntity.bedca);
+      expect(result.remoteSourceEmpty, isFalse);
+    });
+
+    test('BEDCA matches show while typing, without the network', () async {
+      final result = await useCase.searchFDCFoodByString('lent', skipRemote: true);
+      expect(result.meals.map((m) => m.code), ['bedca-7']);
+    });
+
+    test('BEDCA matches survive an FDC failure', () async {
+      productsRepository.fdcThrowOn.add('lentejas');
+      final result = await useCase.searchFDCFoodByString('lentejas');
+      expect(result.meals.map((m) => m.code), ['bedca-7']);
+    });
+
+    test('Products (OFF) tab does not list BEDCA foods', () async {
+      final result = await useCase.searchOFFProductsByString('lentejas');
+      expect(result.meals, isEmpty);
     });
   });
 }

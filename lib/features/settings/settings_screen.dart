@@ -28,6 +28,7 @@ import 'package:opennutritracker/features/settings/presentation/widgets/export_i
 import 'package:opennutritracker/features/settings/presentation/widgets/import_custom_food_data_dialog.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/nutrient_visibility_screen.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/pair_cloud_backup_screen.dart';
+import 'package:opennutritracker/features/off_contribution/presentation/off_account_dialog.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
@@ -338,6 +339,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onTap: () => _showExportImportDialog(context),
                 ),
                 ..._buildCloudBackupTiles(context),
+                const OffAccountTile(),
                 ListTile(
                   leading: const Icon(Icons.cached_outlined),
                   title: Text(S.of(context).clearOffCacheLabel),

@@ -160,6 +160,50 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Custom Meal Item"),
         "additionalInfoLabelRecipe":
             MessageLookupByLibrary.simpleMessage("Custom Recipe"),
+        "additionalInfoLabelBedca": MessageLookupByLibrary.simpleMessage(
+            "More Information at\nBEDCA (AESAN)"),
+        "bedcaDisclaimer": MessageLookupByLibrary.simpleMessage(
+            "Source: AESAN/BEDCA Base de Datos Española de Composición de Alimentos v1.0 (2010). Values are per 100 g of edible portion. The data are provided for personal, non-commercial use; no guarantees are made for their accuracy or completeness."),
+        "sourcesFoodDataTitle": MessageLookupByLibrary.simpleMessage(
+            "Food databases"),
+        "sourcesFoodDataDescription": MessageLookupByLibrary.simpleMessage(
+            "Nutrition values for products and generic foods come from these databases. BEDCA data is used for personal, non-commercial purposes with the attribution its terms require."),
+        "offAccountLabel": MessageLookupByLibrary.simpleMessage(
+            "Open Food Facts account"),
+        "offAccountSignedOutSubtitle": MessageLookupByLibrary.simpleMessage(
+            "Sign in to send products you add to Open Food Facts"),
+        "offAccountSignedInAs": MessageLookupByLibrary.simpleMessage(
+            "Signed in as"),
+        "offAccountExplanation": MessageLookupByLibrary.simpleMessage(
+            "Use your Open Food Facts username (not your email) and password. They are stored encrypted on this device and only sent to Open Food Facts when you send a product."),
+        "offAccountUsernameLabel": MessageLookupByLibrary.simpleMessage(
+            "Username"),
+        "offAccountPasswordLabel": MessageLookupByLibrary.simpleMessage(
+            "Password"),
+        "offAccountCreateLink": MessageLookupByLibrary.simpleMessage(
+            "Create a free account"),
+        "offAccountSignOut": MessageLookupByLibrary.simpleMessage(
+            "Sign out"),
+        "offContributeButton": MessageLookupByLibrary.simpleMessage(
+            "Send to Open Food Facts"),
+        "offContributeConfirmTitle": MessageLookupByLibrary.simpleMessage(
+            "Send to Open Food Facts?"),
+        "offContributeConfirmContent": MessageLookupByLibrary.simpleMessage(
+            "This creates a new public product on Open Food Facts with this barcode, name, brand and the nutrition values per 100 g. Only send values copied from the package label. Contributions are published under the Open Database License (ODbL), so anyone can reuse them."),
+        "offContributeSend": MessageLookupByLibrary.simpleMessage(
+            "Send"),
+        "offContributeSent": MessageLookupByLibrary.simpleMessage(
+            "Thanks! The product is now on Open Food Facts."),
+        "offContributeAlreadyOnOff": MessageLookupByLibrary.simpleMessage(
+            "Open Food Facts already has this product, so nothing was sent."),
+        "offContributeWrongCredentials": MessageLookupByLibrary.simpleMessage(
+            "Open Food Facts rejected your username or password."),
+        "offContributeFailed": MessageLookupByLibrary.simpleMessage(
+            "Could not send the product to Open Food Facts. Try again later."),
+        "offContributeNeedsAccount": MessageLookupByLibrary.simpleMessage(
+            "Sign in with your Open Food Facts account first."),
+        "offContributeMissingData": MessageLookupByLibrary.simpleMessage(
+            "A product needs a barcode, a name and its energy to be sent."),
         "additionalInfoLabelFDC": MessageLookupByLibrary.simpleMessage(
             "More Information at\nFoodData Central"),
         "additionalInfoLabelOFF": MessageLookupByLibrary.simpleMessage(

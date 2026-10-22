@@ -117,6 +117,7 @@ flutter:
     - assets/icon/ont_banner_top.png
     - assets/icon/ont_banner_top_light.png
     - assets/icon/nonbinary_symbol.svg
+    - assets/bedca/bedca_foods.json
 
   fonts:
     - family: CustomIcons

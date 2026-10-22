@@ -73,6 +73,10 @@ import 'package:opennutritracker/core/utils/secure_app_storage_provider.dart';
 import 'package:opennutritracker/features/activity_detail/presentation/bloc/activity_detail_bloc.dart';
 import 'package:opennutritracker/features/add_activity/presentation/bloc/activities_bloc.dart';
 import 'package:opennutritracker/features/add_activity/presentation/bloc/recent_activities_bloc.dart';
+import 'package:opennutritracker/features/add_meal/data/data_sources/bedca_data_source.dart';
+import 'package:opennutritracker/features/off_contribution/data/off_account_data_source.dart';
+import 'package:opennutritracker/features/off_contribution/data/off_contribution_data_source.dart';
+import 'package:opennutritracker/features/off_contribution/domain/contribute_to_off_usecase.dart';
 import 'package:opennutritracker/features/add_meal/data/data_sources/fdc_data_source.dart';
 import 'package:opennutritracker/features/add_meal/data/data_sources/off_data_source.dart';
 import 'package:opennutritracker/features/add_meal/data/repository/products_repository.dart';
@@ -326,7 +330,11 @@ Future<void> initLocator() async {
       locator(),
       locator(),
       locator(),
+      locator(),
     ),
+  );
+  locator.registerLazySingleton<ContributeToOffUsecase>(
+    () => ContributeToOffUsecase(locator(), locator()),
   );
   locator.registerLazySingleton<SearchProductByBarcodeUseCase>(
     () => SearchProductByBarcodeUseCase(locator(), locator(), locator()),
@@ -542,6 +550,9 @@ Future<void> initLocator() async {
   );
   locator.registerLazySingleton<OFFDataSource>(() => OFFDataSource());
   locator.registerLazySingleton<FDCDataSource>(() => FDCDataSource());
+  locator.registerLazySingleton<BedcaDataSource>(() => BedcaDataSource());
+  locator.registerLazySingleton<OffAccountDataSource>(() => OffAccountDataSource());
+  locator.registerLazySingleton<OffContributionDataSource>(() => OffContributionDataSource());
   locator.registerLazySingleton<OpenRouterDataSource>(
     () => OpenRouterDataSource(),
   );

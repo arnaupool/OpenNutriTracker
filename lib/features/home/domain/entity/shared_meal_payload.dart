@@ -114,9 +114,13 @@ class SharedMealItem {
     num? atNum(int i) => a.length > i ? a[i] as num? : null;
     String? atStr(int i) => a.length > i ? a[i] as String? : null;
     final sourceStr = atStr(13);
-    final source = sourceStr == 'fdc'
-        ? MealSourceEntity.fdc
-        : MealSourceEntity.custom;
+    // Builds without BEDCA read 'bedca' as a custom item, which still
+    // carries the macros, so sharing stays compatible both ways.
+    final source = switch (sourceStr) {
+      'fdc' => MealSourceEntity.fdc,
+      'bedca' => MealSourceEntity.bedca,
+      _ => MealSourceEntity.custom,
+    };
     return SharedMealItem(
       name: a[0] as String?,
       brands: a[1] as String?,
@@ -151,19 +155,25 @@ class SharedMealItem {
       _compact(fiber100),
       thumbnailImageUrl,
       mainImageUrl,
-      source == MealSourceEntity.fdc ? 'fdc' : 'custom',
+      switch (source) {
+        MealSourceEntity.fdc => 'fdc',
+        MealSourceEntity.bedca => 'bedca',
+        _ => 'custom',
+      },
       code,
     ];
   }
 
+  /// FDC and BEDCA items are catalogue foods: they keep their code so the
+  /// receiver dedupes them against its own searches.
+  bool get _keepsCode =>
+      source == MealSourceEntity.fdc || source == MealSourceEntity.bedca;
+
   MealEntity toMealEntity() {
     return MealEntity(
-      // FDC items keep their original code so the receiver's cache can dedupe
-      // future searches; custom items get a fresh UUID since they're a new
-      // entry in the receiver's library.
-      code: source == MealSourceEntity.fdc && code != null
-          ? code
-          : IdGenerator.getUniqueID(),
+      // Custom items get a fresh UUID since they're a new entry in the
+      // receiver's library.
+      code: _keepsCode && code != null ? code : IdGenerator.getUniqueID(),
       name: name,
       brands: brands,
       thumbnailImageUrl: thumbnailImageUrl,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:opennutritracker/core/utils/off_const.dart';
 import 'package:opennutritracker/core/utils/url_const.dart';
+import 'package:opennutritracker/features/add_meal/data/dto/bedca/bedca_food_dto.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -92,6 +94,26 @@ class SourcesScreen extends StatelessWidget {
                 'adult transgender men with distinct nutrition '
                 'considerations. Nutrition Journal, 19:74.',
             url: URLConst.sourceTransNutritionLinsenmeyer2020URL,
+          ),
+        ],
+      ),
+      _SourceEntry(
+        title: l10n.sourcesFoodDataTitle,
+        description: l10n.sourcesFoodDataDescription,
+        sources: const [
+          _SourceLink(
+            citation: 'Open Food Facts. Open Database License (ODbL).',
+            url: OFFConst.offWebsiteUrl,
+          ),
+          _SourceLink(
+            citation: 'U.S. Department of Agriculture, Agricultural Research '
+                'Service. FoodData Central (Foundation Foods, SR Legacy).',
+            url: 'https://fdc.nal.usda.gov/',
+          ),
+          _SourceLink(
+            citation: 'AESAN/BEDCA Base de Datos Española de Composición de '
+                'Alimentos v1.0 (2010).',
+            url: BedcaConst.websiteUrl,
           ),
         ],
       ),
