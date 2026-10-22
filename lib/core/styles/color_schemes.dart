@@ -67,3 +67,31 @@ const darkColorScheme = ColorScheme(
   outlineVariant: Color(0xFF424940),
   scrim: Color(0xFF000000),
 );
+
+/// Replaces the tinted surface roles of [scheme] with pure greys, so the
+/// accent colour only shows on buttons, indicators and highlights instead of
+/// washing every background. Applied to the static palette and to custom
+/// accents; Material You keeps its wallpaper-tinted surfaces.
+ColorScheme withNeutralSurfaces(ColorScheme scheme) {
+  final grey = ColorScheme.fromSeed(
+    seedColor: const Color(0xFF808080),
+    brightness: scheme.brightness,
+    dynamicSchemeVariant: DynamicSchemeVariant.monochrome,
+  );
+  return scheme.copyWith(
+    surface: grey.surface,
+    onSurface: grey.onSurface,
+    surfaceDim: grey.surfaceDim,
+    surfaceBright: grey.surfaceBright,
+    surfaceContainerLowest: grey.surfaceContainerLowest,
+    surfaceContainerLow: grey.surfaceContainerLow,
+    surfaceContainer: grey.surfaceContainer,
+    surfaceContainerHigh: grey.surfaceContainerHigh,
+    surfaceContainerHighest: grey.surfaceContainerHighest,
+    onSurfaceVariant: grey.onSurfaceVariant,
+    outline: grey.outline,
+    outlineVariant: grey.outlineVariant,
+    inverseSurface: grey.inverseSurface,
+    onInverseSurface: grey.onInverseSurface,
+  );
+}

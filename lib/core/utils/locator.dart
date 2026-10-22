@@ -90,9 +90,11 @@ import 'package:opennutritracker/features/edit_meal/presentation/bloc/edit_meal_
 import 'package:opennutritracker/features/fasting/data/data_source/fasting_data_source.dart';
 import 'package:opennutritracker/features/fasting/data/repository/fasting_repository.dart';
 import 'package:opennutritracker/features/fasting/domain/usecase/acknowledge_fasting_warning_usecase.dart';
-import 'package:opennutritracker/features/fasting/domain/usecase/cancel_fasting_usecase.dart';
-import 'package:opennutritracker/features/fasting/domain/usecase/complete_fasting_usecase.dart';
+import 'package:opennutritracker/features/fasting/domain/usecase/delete_fasting_session_usecase.dart';
+import 'package:opennutritracker/features/fasting/domain/usecase/end_fasting_usecase.dart';
 import 'package:opennutritracker/features/fasting/domain/usecase/get_active_fasting_session_usecase.dart';
+import 'package:opennutritracker/features/fasting/domain/usecase/get_fasting_history_usecase.dart';
+import 'package:opennutritracker/features/fasting/domain/usecase/save_fasting_session_usecase.dart';
 import 'package:opennutritracker/features/fasting/domain/usecase/start_fasting_usecase.dart';
 import 'package:opennutritracker/features/fasting/presentation/bloc/fasting_bloc.dart';
 import 'package:opennutritracker/features/home/presentation/bloc/home_bloc.dart';
@@ -284,6 +286,8 @@ Future<void> initLocator() async {
       locator(),
       locator(),
       locator(),
+      locator(),
+      locator(),
     ),
   );
 
@@ -461,9 +465,11 @@ Future<void> initLocator() async {
 
   // Fasting use cases (#84)
   locator.registerFactory(() => StartFastingUseCase(locator()));
-  locator.registerFactory(() => CancelFastingUseCase(locator()));
-  locator.registerFactory(() => CompleteFastingUseCase(locator()));
+  locator.registerFactory(() => EndFastingUseCase(locator()));
+  locator.registerFactory(() => SaveFastingSessionUseCase(locator()));
+  locator.registerFactory(() => DeleteFastingSessionUseCase(locator()));
   locator.registerFactory(() => GetActiveFastingSessionUseCase(locator()));
+  locator.registerFactory(() => GetFastingHistoryUseCase(locator()));
   locator.registerFactory(() => AcknowledgeFastingWarningUseCase(locator()));
 
   // Recipe use cases

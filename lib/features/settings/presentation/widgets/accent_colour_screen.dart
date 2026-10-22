@@ -11,7 +11,7 @@ import 'package:opennutritracker/generated/l10n.dart';
 /// Sixteen hand-picked accent colours that span the wheel and read well as
 /// circular swatches in a 4×4 grid. Each one drives `ColorScheme.fromSeed`
 /// to produce a coherent Material 3 palette.
-const List<Color> _presetColors = <Color>[
+const List<Color> accentPresetColors = <Color>[
   Color(0xFFE53935), // red
   Color(0xFFFF6F61), // coral
   Color(0xFFFB8C00), // orange
@@ -110,7 +110,7 @@ class _AccentColourScreenState extends State<AccentColourScreen> {
                 child: GridView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _presetColors.length,
+                  itemCount: accentPresetColors.length,
                   gridDelegate:
                       const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 4,
@@ -119,7 +119,7 @@ class _AccentColourScreenState extends State<AccentColourScreen> {
                     crossAxisSpacing: 8,
                   ),
                   itemBuilder: (context, index) {
-                    final color = _presetColors[index];
+                    final color = accentPresetColors[index];
                     final selected =
                         !materialYouActive && currentArgb == color.toARGB32();
                     return Semantics(
@@ -178,7 +178,7 @@ class _AccentColourScreenState extends State<AccentColourScreen> {
       builder: (_) => _CustomColourDialog(
         initialColor: initialArgb != null
             ? Color(initialArgb)
-            : _presetColors.first,
+            : accentPresetColors.first,
       ),
     );
     if (picked != null) {

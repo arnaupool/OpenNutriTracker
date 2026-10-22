@@ -8484,10 +8484,10 @@ class S {
     );
   }
 
-  /// `A simple timer for tracking time between meals. No streaks, no targets, just the clock.`
+  /// `A timer for the time between meals, with your own history. No streaks and no scores.`
   String get fastingSubtitle {
     return Intl.message(
-      'A simple timer for tracking time between meals. No streaks, no targets, just the clock.',
+      "A timer for the time between meals, with your own history. No streaks and no scores.",
       name: 'fastingSubtitle',
       desc: '',
       args: [],
@@ -8524,10 +8524,10 @@ class S {
     );
   }
 
-  /// `Tracking fasting time can be helpful for some people and distressing for others, especially anyone with a history of disordered eating. If that's you, please look after yourself first. Support is available from BEAT (UK) and NEDA (US).`
+  /// `Tracking fasting time can help some people and harm others, especially anyone with a history of disordered eating. If that's you, please look after yourself first. Support is available from BEAT (UK) and NEDA (US).`
   String get fastingWarningBody {
     return Intl.message(
-      "Tracking fasting time can be helpful for some people and distressing for others, especially anyone with a history of disordered eating. If that's you, please look after yourself first. Support is available from BEAT (UK) and NEDA (US).",
+      "Tracking fasting time can help some people and harm others, especially anyone with a history of disordered eating. If that's you, please look after yourself first. Support is available from BEAT (UK) and NEDA (US).",
       name: 'fastingWarningBody',
       desc: '',
       args: [],
@@ -9024,6 +9024,406 @@ class S {
     return Intl.message(
       'Set up cloud backup first',
       name: 'settingsCloudBackupNotPairedError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Talk to a doctor before fasting if you:`
+  String get fastingWarningWhoTitle {
+    return Intl.message(
+      "Talk to a doctor before fasting if you:",
+      name: 'fastingWarningWhoTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `• are under 18 • are pregnant or breastfeeding • have diabetes or take medicine that lowers blood sugar • have or have had an eating disorder • are underweight • have another medical condition or take regular medication`
+  String get fastingWarningWhoList {
+    return Intl.message(
+      "• are under 18\n• are pregnant or breastfeeding\n• have diabetes or take medicine that lowers blood sugar\n• have or have had an eating disorder\n• are underweight\n• have another medical condition or take regular medication",
+      name: 'fastingWarningWhoList',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stop and eat if you feel dizzy, faint, shaky, confused or unwell. Get medical help if it does not pass.`
+  String get fastingStopIfUnwell {
+    return Intl.message(
+      "Stop and eat if you feel dizzy, faint, shaky, confused or unwell. Get medical help if it does not pass.",
+      name: 'fastingStopIfUnwell',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This timer is not medical advice. Sources:`
+  String get fastingNotMedicalAdvice {
+    return Intl.message(
+      "This timer is not medical advice. Sources:",
+      name: 'fastingNotMedicalAdvice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `WashU Physicians: a guide to intermittent fasting`
+  String get fastingLinkWashU {
+    return Intl.message(
+      "WashU Physicians: a guide to intermittent fasting",
+      name: 'fastingLinkWashU',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Bastyr University: when to avoid intermittent fasting`
+  String get fastingLinkBastyr {
+    return Intl.message(
+      "Bastyr University: when to avoid intermittent fasting",
+      name: 'fastingLinkBastyr',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fasting safely`
+  String get fastingSafetyTitle {
+    return Intl.message(
+      "Fasting safely",
+      name: 'fastingSafetyTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fasting safety`
+  String get fastingSafetyTooltip {
+    return Intl.message(
+      "Fasting safety",
+      name: 'fastingSafetyTooltip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fasts over 24 hours`
+  String get fastingExtendedTitle {
+    return Intl.message(
+      "Fasts over 24 hours",
+      name: 'fastingExtendedTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fasts longer than 24 hours carry more risk: low blood sugar, dehydration, salt imbalances, and problems when you start eating again. Only do them under a doctor's supervision.`
+  String get fastingExtendedBody {
+    return Intl.message(
+      "Fasts longer than 24 hours carry more risk: low blood sugar, dehydration, salt imbalances, and problems when you start eating again. Only do them under a doctor's supervision.",
+      name: 'fastingExtendedBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A doctor is supervising me`
+  String get fastingExtendedAccept {
+    return Intl.message(
+      "A doctor is supervising me",
+      name: 'fastingExtendedAccept',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter between 1 and {max} hours.`
+  String fastingErrorTarget(String max) {
+    return Intl.message(
+      "Enter between 1 and $max hours.",
+      name: 'fastingErrorTarget',
+      desc: '',
+      args: [max],
+    );
+  }
+
+  /// `Target reached`
+  String get fastingTargetReached {
+    return Intl.message(
+      "Target reached",
+      name: 'fastingTargetReached',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{value} past target`
+  String fastingPastTarget(String value) {
+    return Intl.message(
+      "$value past target",
+      name: 'fastingPastTarget',
+      desc: '',
+      args: [value],
+    );
+  }
+
+  /// `You have been fasting for more than 24 hours. Fasts this long should be supervised by a doctor. Drink water, and end the fast if you feel unwell.`
+  String get fastingOver24Notice {
+    return Intl.message(
+      "You have been fasting for more than 24 hours. Fasts this long should be supervised by a doctor. Drink water, and end the fast if you feel unwell.",
+      name: 'fastingOver24Notice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This session has been open for more than 3 days. If you have already eaten, end it and set the time you ate.`
+  String get fastingOver72Notice {
+    return Intl.message(
+      "This session has been open for more than 3 days. If you have already eaten, end it and set the time you ate.",
+      name: 'fastingOver72Notice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Started {value}`
+  String fastingStartedAt(String value) {
+    return Intl.message(
+      "Started $value",
+      name: 'fastingStartedAt',
+      desc: '',
+      args: [value],
+    );
+  }
+
+  /// `Edit start time`
+  String get fastingEditStart {
+    return Intl.message(
+      "Edit start time",
+      name: 'fastingEditStart',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `When did you eat?`
+  String get fastingEndTitle {
+    return Intl.message(
+      "When did you eat?",
+      name: 'fastingEndTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Just now`
+  String get fastingEndNow {
+    return Intl.message(
+      "Just now",
+      name: 'fastingEndNow',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pick the time`
+  String get fastingEndPick {
+    return Intl.message(
+      "Pick the time",
+      name: 'fastingEndPick',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fast ended after {value}.`
+  String fastingEndedSummary(String value) {
+    return Intl.message(
+      "Fast ended after $value.",
+      name: 'fastingEndedSummary',
+      desc: '',
+      args: [value],
+    );
+  }
+
+  /// `History`
+  String get fastingHistoryTitle {
+    return Intl.message(
+      "History",
+      name: 'fastingHistoryTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No fasts recorded yet.`
+  String get fastingHistoryEmpty {
+    return Intl.message(
+      "No fasts recorded yet.",
+      name: 'fastingHistoryEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Last 7 days: {count} recorded, average {value}`
+  String fastingHistorySummary(String count, String value) {
+    return Intl.message(
+      "Last 7 days: $count recorded, average $value",
+      name: 'fastingHistorySummary',
+      desc: '',
+      args: [count, value],
+    );
+  }
+
+  /// `Add past fast`
+  String get fastingAddPast {
+    return Intl.message(
+      "Add past fast",
+      name: 'fastingAddPast',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add fast`
+  String get fastingRecordAddTitle {
+    return Intl.message(
+      "Add fast",
+      name: 'fastingRecordAddTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Edit fast`
+  String get fastingRecordEditTitle {
+    return Intl.message(
+      "Edit fast",
+      name: 'fastingRecordEditTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start`
+  String get fastingRecordStart {
+    return Intl.message(
+      "Start",
+      name: 'fastingRecordStart',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `End`
+  String get fastingRecordEnd {
+    return Intl.message(
+      "End",
+      name: 'fastingRecordEnd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Target (hours)`
+  String get fastingRecordTarget {
+    return Intl.message(
+      "Target (hours)",
+      name: 'fastingRecordTarget',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete this fast?`
+  String get fastingDeleteTitle {
+    return Intl.message(
+      "Delete this fast?",
+      name: 'fastingDeleteTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The record will be removed from your history.`
+  String get fastingDeleteBody {
+    return Intl.message(
+      "The record will be removed from your history.",
+      name: 'fastingDeleteBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The start can't be in the future.`
+  String get fastingErrorStartInFuture {
+    return Intl.message(
+      "The start can't be in the future.",
+      name: 'fastingErrorStartInFuture',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The end can't be in the future.`
+  String get fastingErrorEndInFuture {
+    return Intl.message(
+      "The end can't be in the future.",
+      name: 'fastingErrorEndInFuture',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The end must be after the start.`
+  String get fastingErrorEndBeforeStart {
+    return Intl.message(
+      "The end must be after the start.",
+      name: 'fastingErrorEndBeforeStart',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A record can't be longer than 7 days.`
+  String get fastingErrorTooLong {
+    return Intl.message(
+      "A record can't be longer than 7 days.",
+      name: 'fastingErrorTooLong',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This overlaps another fast in your history.`
+  String get fastingErrorOverlaps {
+    return Intl.message(
+      "This overlaps another fast in your history.",
+      name: 'fastingErrorOverlaps',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fasting · {value}`
+  String fastingHomeChipReached(String value) {
+    return Intl.message(
+      "Fasting · $value",
+      name: 'fastingHomeChipReached',
+      desc: '',
+      args: [value],
+    );
+  }
+
+  /// `Appearance`
+  String get appearanceTitle {
+    return Intl.message(
+      "Appearance",
+      name: 'appearanceTitle',
       desc: '',
       args: [],
     );

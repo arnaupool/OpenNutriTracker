@@ -1202,9 +1202,9 @@
   "zincLabel": "zinc",
   "profileFastingEntry": "Fasting timer",
   "fastingTitle": "Fasting timer",
-  "fastingSubtitle": "A simple timer for tracking time between meals. No streaks, no targets, just the clock.",
+  "fastingSubtitle": "A timer for the time between meals, with your own history. No streaks and no scores.",
   "fastingWarningTitle": "Before you start",
-  "fastingWarningBody": "Tracking fasting time can be helpful for some people and distressing for others, especially anyone with a history of disordered eating. If that's you, please look after yourself first. Support is available from BEAT (UK) and NEDA (US).",
+  "fastingWarningBody": "Tracking fasting time can help some people and harm others, especially anyone with a history of disordered eating. If that's you, please look after yourself first. Support is available from BEAT (UK) and NEDA (US).",
   "fastingWarningDecline": "Not for me",
   "fastingWarningAccept": "I understand, enable timer",
   "fastingPresetCustom": "Custom",
@@ -1268,5 +1268,76 @@
   "fastingNotificationChannelName": "Fasting timer",
   "fastingNotificationChannelDescription": "One-off pings when a fasting session reaches its target.",
   "fastingNotificationCompleteTitle": "Fasting session complete",
-  "fastingNotificationCompleteBody": "Your target time has been reached."
+  "fastingNotificationCompleteBody": "Your target time has been reached.",
+  "fastingWarningWhoTitle": "Talk to a doctor before fasting if you:",
+  "fastingWarningWhoList": "• are under 18\n• are pregnant or breastfeeding\n• have diabetes or take medicine that lowers blood sugar\n• have or have had an eating disorder\n• are underweight\n• have another medical condition or take regular medication",
+  "fastingStopIfUnwell": "Stop and eat if you feel dizzy, faint, shaky, confused or unwell. Get medical help if it does not pass.",
+  "fastingNotMedicalAdvice": "This timer is not medical advice. Sources:",
+  "fastingLinkWashU": "WashU Physicians: a guide to intermittent fasting",
+  "fastingLinkBastyr": "Bastyr University: when to avoid intermittent fasting",
+  "fastingSafetyTitle": "Fasting safely",
+  "fastingSafetyTooltip": "Fasting safety",
+  "fastingExtendedTitle": "Fasts over 24 hours",
+  "fastingExtendedBody": "Fasts longer than 24 hours carry more risk: low blood sugar, dehydration, salt imbalances, and problems when you start eating again. Only do them under a doctor's supervision.",
+  "fastingExtendedAccept": "A doctor is supervising me",
+  "fastingErrorTarget": "Enter between 1 and {max} hours.",
+  "@fastingErrorTarget": {
+    "placeholders": {
+      "max": { "type": "String" }
+    }
+  },
+  "fastingTargetReached": "Target reached",
+  "fastingPastTarget": "{value} past target",
+  "@fastingPastTarget": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "fastingOver24Notice": "You have been fasting for more than 24 hours. Fasts this long should be supervised by a doctor. Drink water, and end the fast if you feel unwell.",
+  "fastingOver72Notice": "This session has been open for more than 3 days. If you have already eaten, end it and set the time you ate.",
+  "fastingStartedAt": "Started {value}",
+  "@fastingStartedAt": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "fastingEditStart": "Edit start time",
+  "fastingEndTitle": "When did you eat?",
+  "fastingEndNow": "Just now",
+  "fastingEndPick": "Pick the time",
+  "fastingEndedSummary": "Fast ended after {value}.",
+  "@fastingEndedSummary": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "fastingHistoryTitle": "History",
+  "fastingHistoryEmpty": "No fasts recorded yet.",
+  "fastingHistorySummary": "Last 7 days: {count} recorded, average {value}",
+  "@fastingHistorySummary": {
+    "placeholders": {
+      "count": { "type": "String" },
+      "value": { "type": "String" }
+    }
+  },
+  "fastingAddPast": "Add past fast",
+  "fastingRecordAddTitle": "Add fast",
+  "fastingRecordEditTitle": "Edit fast",
+  "fastingRecordStart": "Start",
+  "fastingRecordEnd": "End",
+  "fastingRecordTarget": "Target (hours)",
+  "fastingDeleteTitle": "Delete this fast?",
+  "fastingDeleteBody": "The record will be removed from your history.",
+  "fastingErrorStartInFuture": "The start can't be in the future.",
+  "fastingErrorEndInFuture": "The end can't be in the future.",
+  "fastingErrorEndBeforeStart": "The end must be after the start.",
+  "fastingErrorTooLong": "A record can't be longer than 7 days.",
+  "fastingErrorOverlaps": "This overlaps another fast in your history.",
+  "fastingHomeChipReached": "Fasting · {value}",
+  "@fastingHomeChipReached": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "appearanceTitle": "Appearance"
 }

@@ -198,14 +198,13 @@ class OpenNutriTrackerApp extends StatelessWidget {
           darkScheme = darkDynamic.harmonized();
         } else if (accentColor != null) {
           final seed = Color(accentColor);
-          lightScheme = ColorScheme.fromSeed(seedColor: seed);
-          darkScheme = ColorScheme.fromSeed(
-            seedColor: seed,
-            brightness: Brightness.dark,
+          lightScheme = withNeutralSurfaces(ColorScheme.fromSeed(seedColor: seed));
+          darkScheme = withNeutralSurfaces(
+            ColorScheme.fromSeed(seedColor: seed, brightness: Brightness.dark),
           );
         } else {
-          lightScheme = lightColorScheme;
-          darkScheme = darkColorScheme;
+          lightScheme = withNeutralSurfaces(lightColorScheme);
+          darkScheme = withNeutralSurfaces(darkColorScheme);
         }
         return _buildMaterialApp(context, lightScheme, darkScheme);
       },

@@ -16,6 +16,7 @@ import 'package:opennutritracker/features/recipes/presentation/bloc/recipes_bloc
 import 'package:opennutritracker/features/recipes/presentation/screens/recipes_page.dart';
 import 'package:opennutritracker/features/settings/presentation/bloc/custom_meals_bloc.dart';
 import 'package:opennutritracker/features/strategy/presentation/strategy_page.dart';
+import 'package:opennutritracker/features/settings/presentation/widgets/appearance_sheet.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 class MainScreen extends StatefulWidget {
@@ -84,6 +85,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
             ],
           ),
+          const AppearanceButton(),
           IconButton(
             tooltip: S.of(context).settingsLabel,
             onPressed: () => Navigator.of(

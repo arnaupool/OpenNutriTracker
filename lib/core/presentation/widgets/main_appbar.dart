@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:opennutritracker/core/utils/navigation_options.dart';
+import 'package:opennutritracker/features/settings/presentation/widgets/appearance_sheet.dart';
 
 class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -13,6 +14,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
       leading: Icon(iconData),
       title: Text(title),
       actions: [
+        const AppearanceButton(),
         IconButton(
           onPressed: () {
             Navigator.of(context).pushNamed(NavigationOptions.settingsRoute);

@@ -20,6 +20,24 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
+  static String mFastingHomeChipReached(value) =>
+      "Fasting · ${value}";
+
+  static String mFastingHistorySummary(count, value) =>
+      "Last 7 days: ${count} recorded, average ${value}";
+
+  static String mFastingEndedSummary(value) =>
+      "Fast ended after ${value}.";
+
+  static String mFastingStartedAt(value) =>
+      "Started ${value}";
+
+  static String mFastingPastTarget(value) =>
+      "${value} past target";
+
+  static String mFastingErrorTarget(max) =>
+      "Enter between 1 and ${max} hours.";
+
   static String m0(versionNumber) => "Version ${versionNumber}";
 
   static String m1(pctCarbs, pctFats, pctProteins) =>
@@ -1448,9 +1466,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "waterChipLabel": mWaterChip,
         "profileFastingEntry": MessageLookupByLibrary.simpleMessage('Fasting timer'),
         "fastingTitle": MessageLookupByLibrary.simpleMessage('Fasting timer'),
-        "fastingSubtitle": MessageLookupByLibrary.simpleMessage('A simple timer for tracking time between meals. No streaks, no targets, just the clock.'),
+        "fastingSubtitle": MessageLookupByLibrary.simpleMessage("A timer for the time between meals, with your own history. No streaks and no scores."),
         "fastingWarningTitle": MessageLookupByLibrary.simpleMessage('Before you start'),
-        "fastingWarningBody": MessageLookupByLibrary.simpleMessage('Tracking fasting time can be helpful for some people and distressing for others, especially anyone with a history of disordered eating. If that\'s you, please look after yourself first. Support is available from BEAT (UK) and NEDA (US).'),
+        "fastingWarningBody": MessageLookupByLibrary.simpleMessage("Tracking fasting time can help some people and harm others, especially anyone with a history of disordered eating. If that's you, please look after yourself first. Support is available from BEAT (UK) and NEDA (US)."),
         "fastingWarningDecline": MessageLookupByLibrary.simpleMessage('Not for me'),
         "fastingWarningAccept": MessageLookupByLibrary.simpleMessage('I understand, enable timer'),
         "fastingPresetCustom": MessageLookupByLibrary.simpleMessage('Custom'),
@@ -1469,5 +1487,45 @@ class MessageLookup extends MessageLookupByLibrary {
         "dialogCloseLabel": MessageLookupByLibrary.simpleMessage('Close'),
         "fastingRemainingValue": mFastingRemaining,
         "fastingTargetValue": mFastingTarget,
+        "fastingWarningWhoTitle": MessageLookupByLibrary.simpleMessage("Talk to a doctor before fasting if you:"),
+        "fastingWarningWhoList": MessageLookupByLibrary.simpleMessage("• are under 18\n• are pregnant or breastfeeding\n• have diabetes or take medicine that lowers blood sugar\n• have or have had an eating disorder\n• are underweight\n• have another medical condition or take regular medication"),
+        "fastingStopIfUnwell": MessageLookupByLibrary.simpleMessage("Stop and eat if you feel dizzy, faint, shaky, confused or unwell. Get medical help if it does not pass."),
+        "fastingNotMedicalAdvice": MessageLookupByLibrary.simpleMessage("This timer is not medical advice. Sources:"),
+        "fastingLinkWashU": MessageLookupByLibrary.simpleMessage("WashU Physicians: a guide to intermittent fasting"),
+        "fastingLinkBastyr": MessageLookupByLibrary.simpleMessage("Bastyr University: when to avoid intermittent fasting"),
+        "fastingSafetyTitle": MessageLookupByLibrary.simpleMessage("Fasting safely"),
+        "fastingSafetyTooltip": MessageLookupByLibrary.simpleMessage("Fasting safety"),
+        "fastingExtendedTitle": MessageLookupByLibrary.simpleMessage("Fasts over 24 hours"),
+        "fastingExtendedBody": MessageLookupByLibrary.simpleMessage("Fasts longer than 24 hours carry more risk: low blood sugar, dehydration, salt imbalances, and problems when you start eating again. Only do them under a doctor's supervision."),
+        "fastingExtendedAccept": MessageLookupByLibrary.simpleMessage("A doctor is supervising me"),
+        "fastingErrorTarget": mFastingErrorTarget,
+        "fastingTargetReached": MessageLookupByLibrary.simpleMessage("Target reached"),
+        "fastingPastTarget": mFastingPastTarget,
+        "fastingOver24Notice": MessageLookupByLibrary.simpleMessage("You have been fasting for more than 24 hours. Fasts this long should be supervised by a doctor. Drink water, and end the fast if you feel unwell."),
+        "fastingOver72Notice": MessageLookupByLibrary.simpleMessage("This session has been open for more than 3 days. If you have already eaten, end it and set the time you ate."),
+        "fastingStartedAt": mFastingStartedAt,
+        "fastingEditStart": MessageLookupByLibrary.simpleMessage("Edit start time"),
+        "fastingEndTitle": MessageLookupByLibrary.simpleMessage("When did you eat?"),
+        "fastingEndNow": MessageLookupByLibrary.simpleMessage("Just now"),
+        "fastingEndPick": MessageLookupByLibrary.simpleMessage("Pick the time"),
+        "fastingEndedSummary": mFastingEndedSummary,
+        "fastingHistoryTitle": MessageLookupByLibrary.simpleMessage("History"),
+        "fastingHistoryEmpty": MessageLookupByLibrary.simpleMessage("No fasts recorded yet."),
+        "fastingHistorySummary": mFastingHistorySummary,
+        "fastingAddPast": MessageLookupByLibrary.simpleMessage("Add past fast"),
+        "fastingRecordAddTitle": MessageLookupByLibrary.simpleMessage("Add fast"),
+        "fastingRecordEditTitle": MessageLookupByLibrary.simpleMessage("Edit fast"),
+        "fastingRecordStart": MessageLookupByLibrary.simpleMessage("Start"),
+        "fastingRecordEnd": MessageLookupByLibrary.simpleMessage("End"),
+        "fastingRecordTarget": MessageLookupByLibrary.simpleMessage("Target (hours)"),
+        "fastingDeleteTitle": MessageLookupByLibrary.simpleMessage("Delete this fast?"),
+        "fastingDeleteBody": MessageLookupByLibrary.simpleMessage("The record will be removed from your history."),
+        "fastingErrorStartInFuture": MessageLookupByLibrary.simpleMessage("The start can't be in the future."),
+        "fastingErrorEndInFuture": MessageLookupByLibrary.simpleMessage("The end can't be in the future."),
+        "fastingErrorEndBeforeStart": MessageLookupByLibrary.simpleMessage("The end must be after the start."),
+        "fastingErrorTooLong": MessageLookupByLibrary.simpleMessage("A record can't be longer than 7 days."),
+        "fastingErrorOverlaps": MessageLookupByLibrary.simpleMessage("This overlaps another fast in your history."),
+        "fastingHomeChipReached": mFastingHomeChipReached,
+        "appearanceTitle": MessageLookupByLibrary.simpleMessage("Appearance"),
       };
 }
