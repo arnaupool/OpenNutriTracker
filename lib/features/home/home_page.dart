@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logging/logging.dart';
+import 'package:opennutritracker/core/presentation/widgets/responsive_layout.dart';
 import 'package:opennutritracker/core/domain/entity/calories_profile_entity.dart';
 import 'package:opennutritracker/core/domain/entity/user_gender_entity.dart';
 import 'package:opennutritracker/core/presentation/widgets/low_kcal_warning_card.dart';
@@ -118,8 +119,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (showDisclaimerDialog) {
       _showDisclaimerDialog(context);
     }
-    return ListView(
-      children: [
+    final summary = <Widget>[
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
@@ -161,6 +161,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               caloriesProfile: userCaloriesProfile,
             ),
           ),
+    ];
+    final cards = <Widget>[
         const WeeklyExpenditureCard(),
         const WeightTrendSummaryCard(),
         const GoalProgressCard(),
@@ -168,8 +170,20 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         const FoodLoggingHabitCard(),
         const BodyMetricsSummaryCard(),
         const SizedBox(height: 48.0),
-      ],
-    );
+    ];
+
+    // FAS-02: on a desktop-width window today's numbers and the trend cards
+    // sit side by side instead of in one long scroll.
+    if (ResponsiveLayout.isWide(context)) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: ListView(children: summary)),
+          Expanded(child: ListView(children: cards)),
+        ],
+      );
+    }
+    return ListView(children: [...summary, ...cards]);
   }
 
   /// Show disclaimer dialog after build method

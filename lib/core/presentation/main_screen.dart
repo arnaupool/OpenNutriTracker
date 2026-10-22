@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:opennutritracker/core/domain/usecase/get_config_usecase.dart';
 import 'package:opennutritracker/core/presentation/widgets/add_item_bottom_sheet.dart';
+import 'package:opennutritracker/core/presentation/widgets/responsive_layout.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/features/diary/diary_page.dart';
@@ -101,70 +102,98 @@ class _MainScreenState extends State<MainScreen> {
     super.didChangeDependencies();
   }
 
+  /// The five main tabs. Shared by the phone bottom bar and the desktop
+  /// side rail so both keep the same order, icons and test ids.
+  List<({String id, IconData icon, IconData selectedIcon, String label})> _destinations(BuildContext context) => [
+    (id: 'nav-home', icon: Icons.home_outlined, selectedIcon: Icons.home, label: S.of(context).homeLabel),
+    (id: 'nav-diary', icon: Icons.book_outlined, selectedIcon: Icons.book, label: S.of(context).diaryLabel),
+    (
+      id: 'nav-recipes',
+      icon: Icons.menu_book_outlined,
+      selectedIcon: Icons.menu_book,
+      label: S.of(context).recipesLabel,
+    ),
+    (
+      id: 'nav-strategy',
+      icon: Icons.bar_chart_outlined,
+      selectedIcon: Icons.bar_chart,
+      label: S.of(context).strategyLabel,
+    ),
+    (
+      id: 'nav-profile',
+      icon: Icons.account_circle_outlined,
+      selectedIcon: Icons.account_circle,
+      label: S.of(context).profileLabel,
+    ),
+  ];
+
+  Widget? _fab(BuildContext context) => _selectedPageIndex == 0
+      ? Semantics(
+          identifier: 'fab-add-item',
+          child: FloatingActionButton(
+            onPressed: () => _onFabPressed(context),
+            tooltip: S.of(context).addLabel,
+            child: const Icon(Icons.add),
+          ),
+        )
+      : null;
+
   @override
   Widget build(BuildContext context) {
+    final destinations = _destinations(context);
+    final width = MediaQuery.sizeOf(context).width;
+
+    // FAS-02: on a desktop-width window the bottom bar becomes a side rail
+    // and the page is centered at a readable maximum width.
+    if (width >= ResponsiveLayout.wide) {
+      final extended = width >= ResponsiveLayout.extendedRail;
+      return Scaffold(
+        appBar: _appbarPages[_selectedPageIndex],
+        floatingActionButton: _fab(context),
+        body: Row(
+          children: [
+            NavigationRail(
+              selectedIndex: _selectedPageIndex,
+              onDestinationSelected: _setPage,
+              extended: extended,
+              labelType: extended ? NavigationRailLabelType.none : NavigationRailLabelType.all,
+              destinations: [
+                for (var i = 0; i < destinations.length; i++)
+                  NavigationRailDestination(
+                    icon: Semantics(identifier: destinations[i].id, child: Icon(destinations[i].icon)),
+                    selectedIcon: Semantics(identifier: destinations[i].id, child: Icon(destinations[i].selectedIcon)),
+                    label: Text(destinations[i].label),
+                  ),
+              ],
+            ),
+            const VerticalDivider(width: 1),
+            Expanded(
+              child: MaxWidthBox(
+                maxWidth: ResponsiveLayout.maxContentWidth,
+                child: _bodyPages[_selectedPageIndex],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: _appbarPages[_selectedPageIndex],
       body: _bodyPages[_selectedPageIndex],
-      floatingActionButton: _selectedPageIndex == 0
-          ? Semantics(
-              identifier: 'fab-add-item',
-              child: FloatingActionButton(
-                onPressed: () => _onFabPressed(context),
-                tooltip: S.of(context).addLabel,
-                child: const Icon(Icons.add),
-              ),
-            )
-          : null,
+      floatingActionButton: _fab(context),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedPageIndex,
         onDestinationSelected: _setPage,
         destinations: [
-          NavigationDestination(
-            icon: Semantics(
-              identifier: 'nav-home',
-              child: _selectedPageIndex == 0
-                  ? const Icon(Icons.home)
-                  : const Icon(Icons.home_outlined),
+          for (var i = 0; i < destinations.length; i++)
+            NavigationDestination(
+              icon: Semantics(
+                identifier: destinations[i].id,
+                child: Icon(_selectedPageIndex == i ? destinations[i].selectedIcon : destinations[i].icon),
+              ),
+              label: destinations[i].label,
             ),
-            label: S.of(context).homeLabel,
-          ),
-          NavigationDestination(
-            icon: Semantics(
-              identifier: 'nav-diary',
-              child: _selectedPageIndex == 1
-                  ? const Icon(Icons.book)
-                  : const Icon((Icons.book_outlined)),
-            ),
-            label: S.of(context).diaryLabel,
-          ),
-          NavigationDestination(
-            icon: Semantics(
-              identifier: 'nav-recipes',
-              child: _selectedPageIndex == 2
-                  ? const Icon(Icons.menu_book)
-                  : const Icon(Icons.menu_book_outlined),
-            ),
-            label: S.of(context).recipesLabel,
-          ),
-          NavigationDestination(
-            icon: Semantics(
-              identifier: 'nav-strategy',
-              child: _selectedPageIndex == 3
-                  ? const Icon(Icons.bar_chart)
-                  : const Icon(Icons.bar_chart_outlined),
-            ),
-            label: S.of(context).strategyLabel,
-          ),
-          NavigationDestination(
-            icon: Semantics(
-              identifier: 'nav-profile',
-              child: _selectedPageIndex == 4
-                  ? const Icon(Icons.account_circle)
-                  : const Icon(Icons.account_circle_outlined),
-            ),
-            label: S.of(context).profileLabel,
-          ),
         ],
       ),
     );

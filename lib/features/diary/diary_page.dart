@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logging/logging.dart';
+import 'package:opennutritracker/core/presentation/widgets/responsive_layout.dart';
 import 'package:opennutritracker/core/domain/entity/intake_entity.dart';
 import 'package:opennutritracker/core/domain/entity/intake_type_entity.dart';
 import 'package:opennutritracker/core/domain/entity/tracked_day_entity.dart';
@@ -99,8 +100,7 @@ class _DiaryPageState extends State<DiaryPage> with WidgetsBindingObserver {
     bool showMealMacros,
     bool showActivityTracking,
   ) {
-    return ListView(
-      children: [
+    final overview = <Widget>[
         DiaryTableCalendar(
           trackedDaysMap: trackedDaysMap,
           onDateSelected: _onDateSelected,
@@ -115,7 +115,8 @@ class _DiaryPageState extends State<DiaryPage> with WidgetsBindingObserver {
           child: WeeklyNutrientBars(selectedDate: _selectedDate),
         ),
         const SizedBox(height: 16.0),
-        BlocBuilder<CalendarDayBloc, CalendarDayState>(
+    ];
+    final day = BlocBuilder<CalendarDayBloc, CalendarDayState>(
           bloc: _calendarDayBloc,
           builder: (context, state) {
             if (state is CalendarDayInitial) {
@@ -153,9 +154,21 @@ class _DiaryPageState extends State<DiaryPage> with WidgetsBindingObserver {
             }
             return const SizedBox();
           },
-        ),
-      ],
-    );
+        );
+
+    // FAS-02: on a desktop-width window the calendar and weekly bars stay
+    // on the left while the selected day's log fills the right column.
+    if (ResponsiveLayout.isWide(context)) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(width: 480, child: ListView(children: overview)),
+          const VerticalDivider(width: 1),
+          Expanded(child: ListView(children: [day])),
+        ],
+      );
+    }
+    return ListView(children: [...overview, day]);
   }
 
   void _onDeleteIntakeItem(

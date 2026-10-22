@@ -10,6 +10,7 @@ import 'package:opennutritracker/core/data/data_source/user_data_source.dart';
 import 'package:opennutritracker/core/data/repository/config_repository.dart';
 import 'package:opennutritracker/core/domain/entity/app_theme_entity.dart';
 import 'package:opennutritracker/core/presentation/main_screen.dart';
+import 'package:opennutritracker/core/presentation/widgets/responsive_layout.dart';
 import 'package:opennutritracker/core/presentation/widgets/image_full_screen.dart';
 import 'package:opennutritracker/core/styles/color_schemes.dart';
 import 'package:opennutritracker/core/styles/fonts.dart';
@@ -244,47 +245,57 @@ class OpenNutriTrackerApp extends StatelessWidget {
       routes: {
         NavigationOptions.mainRoute: (context) => const MainScreen(),
         NavigationOptions.onboardingRoute: (context) =>
-            const OnboardingScreen(),
-        NavigationOptions.settingsRoute: (context) => const SettingsScreen(),
+            DesktopRouteFrame(child: const OnboardingScreen()),
+        NavigationOptions.settingsRoute: (context) =>
+            DesktopRouteFrame(child: const SettingsScreen()),
         NavigationOptions.accentColourRoute: (context) =>
-            const AccentColourScreen(),
+            DesktopRouteFrame(child: const AccentColourScreen()),
         NavigationOptions.openRouterSettingsRoute: (context) =>
-            const OpenRouterSettingsScreen(),
-        NavigationOptions.addMealRoute: (context) => const AddMealScreen(),
+            DesktopRouteFrame(child: const OpenRouterSettingsScreen()),
+        NavigationOptions.addMealRoute: (context) =>
+            DesktopRouteFrame(child: const AddMealScreen()),
         NavigationOptions.addItemMenuRoute: (context) =>
-            const AddItemMenuScreen(),
-        NavigationOptions.recentlyRoute: (context) => const RecentlyScreen(),
-        NavigationOptions.presetsRoute: (context) => const PresetsScreen(),
-        NavigationOptions.magicRoute: (context) => const MagicScreen(),
+            DesktopRouteFrame(child: const AddItemMenuScreen()),
+        NavigationOptions.recentlyRoute: (context) =>
+            DesktopRouteFrame(child: const RecentlyScreen()),
+        NavigationOptions.presetsRoute: (context) =>
+            DesktopRouteFrame(child: const PresetsScreen()),
+        NavigationOptions.magicRoute: (context) =>
+            DesktopRouteFrame(child: const MagicScreen()),
         NavigationOptions.reviewMealRoute: (context) =>
-            const ReviewMealScreen(),
-        NavigationOptions.scannerRoute: (context) => const ScannerScreen(),
-        NavigationOptions.scanLabelRoute: (context) => const ScanLabelScreen(),
+            DesktopRouteFrame(child: const ReviewMealScreen()),
+        NavigationOptions.scannerRoute: (context) =>
+            DesktopRouteFrame(child: const ScannerScreen()),
+        NavigationOptions.scanLabelRoute: (context) =>
+            DesktopRouteFrame(child: const ScanLabelScreen()),
         NavigationOptions.mealDetailRoute: (context) =>
-            const MealDetailScreen(),
-        NavigationOptions.editMealRoute: (context) => const EditMealScreen(),
+            DesktopRouteFrame(child: const MealDetailScreen()),
+        NavigationOptions.editMealRoute: (context) =>
+            DesktopRouteFrame(child: const EditMealScreen()),
         NavigationOptions.addActivityRoute: (context) =>
-            const AddActivityScreen(),
+            DesktopRouteFrame(child: const AddActivityScreen()),
         NavigationOptions.activityDetailRoute: (context) =>
-            const ActivityDetailScreen(),
+            DesktopRouteFrame(child: const ActivityDetailScreen()),
         NavigationOptions.imageFullScreenRoute: (context) =>
             const ImageFullScreen(),
         NavigationOptions.importMealScannerRoute: (context) =>
-            const ImportMealScannerScreen(),
+            DesktopRouteFrame(child: const ImportMealScannerScreen()),
         NavigationOptions.importActivityScannerRoute: (context) =>
-            const ImportActivityScannerScreen(),
-        NavigationOptions.recipesRoute: (context) => const RecipesPage(),
+            DesktopRouteFrame(child: const ImportActivityScannerScreen()),
+        NavigationOptions.recipesRoute: (context) =>
+            DesktopRouteFrame(child: const RecipesPage()),
         NavigationOptions.recipeBuilderRoute: (context) =>
-            const RecipeBuilderScreen(),
+            DesktopRouteFrame(child: const RecipeBuilderScreen()),
         NavigationOptions.recipeDetailRoute: (context) =>
-            const RecipeDetailScreen(),
+            DesktopRouteFrame(child: const RecipeDetailScreen()),
         NavigationOptions.importRecipeScannerRoute: (context) =>
-            const ImportRecipeScannerScreen(),
+            DesktopRouteFrame(child: const ImportRecipeScannerScreen()),
         NavigationOptions.weightHistoryRoute: (context) =>
-            const WeightHistoryScreen(),
+            DesktopRouteFrame(child: const WeightHistoryScreen()),
         NavigationOptions.bodyMeasurementsRoute: (context) =>
-            const BodyMeasurementsScreen(),
-        NavigationOptions.fastingRoute: (context) => const FastingScreen(),
+            DesktopRouteFrame(child: const BodyMeasurementsScreen()),
+        NavigationOptions.fastingRoute: (context) =>
+            DesktopRouteFrame(child: const FastingScreen()),
       },
     );
   }
