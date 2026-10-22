@@ -240,6 +240,13 @@ class ConfigDataSource {
     await config?.save();
   }
 
+  Future<void> setFastingWarningVersion(int version) async {
+    _log.fine('Updating config fastingWarningVersion to $version');
+    final config = _configBox.get(_configKey);
+    config?.fastingWarningVersion = version;
+    await config?.save();
+  }
+
   Future<void> setConfigUseMaterialYou(bool useMaterialYou) async {
     _log.fine('Updating config useMaterialYou to $useMaterialYou');
     final config = _configBox.get(_configKey);

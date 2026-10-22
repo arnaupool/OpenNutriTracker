@@ -4,17 +4,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:opennutritracker/core/domain/usecase/get_config_usecase.dart';
 import 'package:opennutritracker/features/fasting/domain/entity/fasting_session_entity.dart';
+import 'package:opennutritracker/features/fasting/domain/fasting_safety.dart';
 import 'package:opennutritracker/features/fasting/domain/usecase/acknowledge_fasting_warning_usecase.dart';
-import 'package:opennutritracker/features/fasting/domain/usecase/cancel_fasting_usecase.dart';
-import 'package:opennutritracker/features/fasting/domain/usecase/complete_fasting_usecase.dart';
+import 'package:opennutritracker/features/fasting/domain/usecase/delete_fasting_session_usecase.dart';
+import 'package:opennutritracker/features/fasting/domain/usecase/end_fasting_usecase.dart';
 import 'package:opennutritracker/features/fasting/domain/usecase/get_active_fasting_session_usecase.dart';
+import 'package:opennutritracker/features/fasting/domain/usecase/get_fasting_history_usecase.dart';
+import 'package:opennutritracker/features/fasting/domain/usecase/save_fasting_session_usecase.dart';
 import 'package:opennutritracker/features/fasting/domain/usecase/start_fasting_usecase.dart';
-
-// TODO(#84 follow-up): optional local notification when the timer reaches its
-// target. The existing `NotificationService` is wired to flutter_local_notifications;
-// a follow-up PR can schedule a one-shot at startedAt + targetDuration so the
-// user can dismiss the app without losing the chime. Skipped in v1 to keep the
-// initial surface area small and the no-streaks framing unambiguous.
 
 sealed class FastingEvent extends Equatable {
   const FastingEvent();
@@ -40,13 +37,40 @@ class FastingStartRequested extends FastingEvent {
   List<Object?> get props => [targetDurationMinutes];
 }
 
-class FastingCancelRequested extends FastingEvent {
-  const FastingCancelRequested();
+/// Closes the running session. [end] is when the user actually ate; null
+/// means now.
+class FastingEndRequested extends FastingEvent {
+  final DateTime? end;
+
+  const FastingEndRequested({this.end});
+
+  @override
+  List<Object?> get props => [end];
+}
+
+/// Adds or edits a session: a past fast typed in by hand, an edited history
+/// entry, or the running session with a corrected start time. Invalid
+/// windows are dropped here; the screen validates first to explain why.
+class FastingSessionSaved extends FastingEvent {
+  final FastingSessionEntity session;
+
+  const FastingSessionSaved(this.session);
+
+  @override
+  List<Object?> get props => [session];
+}
+
+class FastingSessionDeleted extends FastingEvent {
+  final String id;
+
+  const FastingSessionDeleted(this.id);
+
+  @override
+  List<Object?> get props => [id];
 }
 
 /// Internal tick driven by the bloc's own periodic timer. Surfaces so the UI
-/// can re-render the elapsed/remaining strings every second and so the bloc
-/// can detect when the target duration has been reached.
+/// can re-render the elapsed/remaining strings every second.
 class FastingTicked extends FastingEvent {
   final DateTime now;
 
@@ -72,14 +96,28 @@ class FastingWarningRequired extends FastingState {
 }
 
 class FastingIdle extends FastingState {
-  const FastingIdle();
+  /// Closed sessions, newest first.
+  final List<FastingSessionEntity> history;
+
+  /// The session the user just ended, for a one-line summary.
+  final FastingSessionEntity? lastEnded;
+
+  const FastingIdle({this.history = const [], this.lastEnded});
+
+  @override
+  List<Object?> get props => [history, lastEnded];
 }
 
 class FastingActive extends FastingState {
   final FastingSessionEntity session;
   final DateTime now;
+  final List<FastingSessionEntity> history;
 
-  const FastingActive({required this.session, required this.now});
+  const FastingActive({
+    required this.session,
+    required this.now,
+    this.history = const [],
+  });
 
   Duration get elapsed => session.elapsedAt(now);
   Duration get target => session.targetDuration;
@@ -90,25 +128,29 @@ class FastingActive extends FastingState {
 
   bool get hasReachedTarget => elapsed >= target;
 
+  Duration get pastTarget => hasReachedTarget ? elapsed - target : Duration.zero;
+
+  /// Past the point where fasting should be medically supervised.
+  bool get isExtended =>
+      elapsed >= const Duration(hours: FastingSafety.extendedFastHours);
+
+  /// Open longer than any target the app allows: most likely a session the
+  /// user forgot to end.
+  bool get isStale =>
+      elapsed > const Duration(hours: FastingSafety.maxTargetHours);
+
   @override
-  List<Object?> get props => [session, now];
-}
-
-class FastingCompleted extends FastingState {
-  final FastingSessionEntity session;
-
-  const FastingCompleted(this.session);
-
-  @override
-  List<Object?> get props => [session];
+  List<Object?> get props => [session, now, history];
 }
 
 class FastingBloc extends Bloc<FastingEvent, FastingState> {
   final GetConfigUsecase _getConfig;
   final GetActiveFastingSessionUseCase _getActive;
+  final GetFastingHistoryUseCase _getHistory;
   final StartFastingUseCase _start;
-  final CancelFastingUseCase _cancel;
-  final CompleteFastingUseCase _complete;
+  final EndFastingUseCase _end;
+  final SaveFastingSessionUseCase _save;
+  final DeleteFastingSessionUseCase _delete;
   final AcknowledgeFastingWarningUseCase _acknowledge;
 
   Timer? _ticker;
@@ -116,15 +158,19 @@ class FastingBloc extends Bloc<FastingEvent, FastingState> {
   FastingBloc(
     this._getConfig,
     this._getActive,
+    this._getHistory,
     this._start,
-    this._cancel,
-    this._complete,
+    this._end,
+    this._save,
+    this._delete,
     this._acknowledge,
   ) : super(const FastingInitial()) {
     on<FastingLoadRequested>(_onLoad);
     on<FastingWarningAcknowledged>(_onAcknowledged);
     on<FastingStartRequested>(_onStart);
-    on<FastingCancelRequested>(_onCancel);
+    on<FastingEndRequested>(_onEnd);
+    on<FastingSessionSaved>(_onSaved);
+    on<FastingSessionDeleted>(_onDeleted);
     on<FastingTicked>(_onTick);
   }
 
@@ -133,7 +179,7 @@ class FastingBloc extends Bloc<FastingEvent, FastingState> {
     Emitter<FastingState> emit,
   ) async {
     final config = await _getConfig.getConfig();
-    if (!config.fastingWarningAcknowledged) {
+    if (config.fastingWarningVersion < FastingSafety.warningVersion) {
       emit(const FastingWarningRequired());
       return;
     }
@@ -148,15 +194,18 @@ class FastingBloc extends Bloc<FastingEvent, FastingState> {
     await _emitFromCurrentSession(emit);
   }
 
-  Future<void> _emitFromCurrentSession(Emitter<FastingState> emit) async {
+  Future<void> _emitFromCurrentSession(
+    Emitter<FastingState> emit, {
+    FastingSessionEntity? lastEnded,
+  }) async {
     final active = await _getActive();
+    final history = await _getHistory();
     if (active == null) {
       _ticker?.cancel();
-      emit(const FastingIdle());
+      emit(FastingIdle(history: history, lastEnded: lastEnded));
       return;
     }
-    final now = DateTime.now();
-    emit(FastingActive(session: active, now: now));
+    emit(FastingActive(session: active, now: DateTime.now(), history: history));
     _startTicker();
   }
 
@@ -164,35 +213,67 @@ class FastingBloc extends Bloc<FastingEvent, FastingState> {
     FastingStartRequested event,
     Emitter<FastingState> emit,
   ) async {
+    if (state is FastingActive) return;
+    if (event.targetDurationMinutes < 0 ||
+        event.targetDurationMinutes > FastingSafety.maxTargetHours * 60) {
+      return;
+    }
+    final current = state;
     final session = await _start(
       targetDurationMinutes: event.targetDurationMinutes,
     );
-    emit(FastingActive(session: session, now: DateTime.now()));
+    emit(
+      FastingActive(
+        session: session,
+        now: DateTime.now(),
+        history: current is FastingIdle ? current.history : const [],
+      ),
+    );
     _startTicker();
   }
 
-  Future<void> _onCancel(
-    FastingCancelRequested event,
+  Future<void> _onEnd(
+    FastingEndRequested event,
     Emitter<FastingState> emit,
   ) async {
     final current = state;
     if (current is! FastingActive) return;
+    final now = DateTime.now();
+    final end = event.end;
+    if (end != null && end.isAfter(now)) return;
     _ticker?.cancel();
-    await _cancel(current.session);
-    emit(const FastingIdle());
+    final ended = await _end(current.session, end: end ?? now);
+    await _emitFromCurrentSession(emit, lastEnded: ended);
+  }
+
+  Future<void> _onSaved(
+    FastingSessionSaved event,
+    Emitter<FastingState> emit,
+  ) async {
+    await _save(event.session);
+    await _emitFromCurrentSession(emit);
+  }
+
+  Future<void> _onDeleted(
+    FastingSessionDeleted event,
+    Emitter<FastingState> emit,
+  ) async {
+    await _delete(event.id);
+    await _emitFromCurrentSession(emit);
   }
 
   Future<void> _onTick(FastingTicked event, Emitter<FastingState> emit) async {
     final current = state;
     if (current is! FastingActive) return;
-    final updated = FastingActive(session: current.session, now: event.now);
-    if (updated.hasReachedTarget) {
-      _ticker?.cancel();
-      final completed = await _complete(current.session, now: event.now);
-      emit(FastingCompleted(completed));
-    } else {
-      emit(updated);
-    }
+    // Reaching the target only changes what the screen shows; the session
+    // stays open until the user ends it, so the stored end is the real one.
+    emit(
+      FastingActive(
+        session: current.session,
+        now: event.now,
+        history: current.history,
+      ),
+    );
   }
 
   void _startTicker() {

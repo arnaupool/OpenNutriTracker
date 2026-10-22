@@ -60,6 +60,9 @@ class ConfigEntity extends Equatable {
   // warning is shown until the user explicitly taps "I understand, enable
   // timer", which flips this to true.
   final bool fastingWarningAcknowledged;
+  // Version of the fasting warning text the user accepted; 0 when none or
+  // when it predates versioning. See FastingSafety.warningVersion.
+  final int fastingWarningVersion;
   // #415: whether to harmonise the app palette with the user's system
   // wallpaper colours. Effective only on Android 12+ — every other
   // platform falls back to the static palette regardless of this value.
@@ -137,6 +140,7 @@ class ConfigEntity extends Equatable {
     this.dayStartOffsetMinutes = 0,
     this.dailyWaterGoalMl,
     this.fastingWarningAcknowledged = false,
+    this.fastingWarningVersion = 0,
     this.useMaterialYou = true,
     this.accentColor,
     this.openRouterApiKey,
@@ -221,6 +225,7 @@ class ConfigEntity extends Equatable {
     dayStartOffsetMinutes: _normaliseOffsetMinutes(dbo.dayStartOffsetMinutes),
     dailyWaterGoalMl: _normaliseWaterGoal(dbo.dailyWaterGoalMl),
     fastingWarningAcknowledged: dbo.fastingWarningAcknowledged ?? false,
+    fastingWarningVersion: dbo.fastingWarningVersion ?? 0,
     useMaterialYou: dbo.useMaterialYou ?? true,
     accentColor: _normaliseAccentColor(dbo.accentColor),
     openRouterApiKey: dbo.openRouterApiKey,
@@ -301,6 +306,7 @@ class ConfigEntity extends Equatable {
     dayStartOffsetMinutes,
     dailyWaterGoalMl,
     fastingWarningAcknowledged,
+    fastingWarningVersion,
     useMaterialYou,
     accentColor,
     openRouterApiKey,

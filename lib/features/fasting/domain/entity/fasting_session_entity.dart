@@ -26,6 +26,26 @@ class FastingSessionEntity extends Equatable {
 
   Duration elapsedAt(DateTime now) => now.difference(startedAt);
 
+  /// When the session closed, whichever way it closed.
+  DateTime? get endedAt => completedAt ?? cancelledAt;
+
+  /// Length of a closed session; null while it is still running.
+  Duration? get duration => endedAt?.difference(startedAt);
+
+  /// Closes the session at [end]. Reaching the target is stored as
+  /// `completedAt`, closing before it as `cancelledAt`; the two are facts,
+  /// not a success / failure verdict.
+  FastingSessionEntity endedAtTime(DateTime end) {
+    final reached = end.difference(startedAt) >= targetDuration;
+    return FastingSessionEntity(
+      id: id,
+      startedAt: startedAt,
+      targetDurationMinutes: targetDurationMinutes,
+      completedAt: reached ? end : null,
+      cancelledAt: reached ? null : end,
+    );
+  }
+
   factory FastingSessionEntity.fromDBO(FastingSessionDBO dbo) =>
       FastingSessionEntity(
         id: dbo.id,
@@ -44,13 +64,15 @@ class FastingSessionEntity extends Equatable {
   );
 
   FastingSessionEntity copyWith({
+    DateTime? startedAt,
+    int? targetDurationMinutes,
     DateTime? completedAt,
     DateTime? cancelledAt,
   }) {
     return FastingSessionEntity(
       id: id,
-      startedAt: startedAt,
-      targetDurationMinutes: targetDurationMinutes,
+      startedAt: startedAt ?? this.startedAt,
+      targetDurationMinutes: targetDurationMinutes ?? this.targetDurationMinutes,
       completedAt: completedAt ?? this.completedAt,
       cancelledAt: cancelledAt ?? this.cancelledAt,
     );

@@ -105,6 +105,12 @@ class ConfigDBO extends HiveObject {
   // "openai/gpt-4o"). Null means no model has been picked yet.
   @HiveField(28)
   String? openRouterModelId;
+  // Version of the fasting content warning the user last accepted. The
+  // warning is shown again whenever FastingSafety.warningVersion is higher,
+  // so new health information reaches people who accepted an older text.
+  // Null (older configs) reads as 0.
+  @HiveField(29)
+  int? fastingWarningVersion;
 
   ConfigDBO(
     this.hasAcceptedDisclaimer,
@@ -133,6 +139,7 @@ class ConfigDBO extends HiveObject {
     this.accentColor,
     this.openRouterApiKey,
     this.openRouterModelId,
+    this.fastingWarningVersion,
   });
 
   // Fase Piel: mint-green accent matching the reference UI (XMihura's

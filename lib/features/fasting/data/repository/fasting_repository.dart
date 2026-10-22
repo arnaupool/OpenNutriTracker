@@ -14,6 +14,10 @@ class FastingRepository {
     await _dataSource.updateSession(session.toDBO());
   }
 
+  Future<void> deleteSession(String id) async {
+    await _dataSource.deleteSession(id);
+  }
+
   Future<FastingSessionEntity?> getActiveSession() async {
     final dbo = await _dataSource.getActiveSession();
     if (dbo == null) return null;

@@ -21,6 +21,11 @@ class FastingDataSource {
     await _box.put(session.id, session);
   }
 
+  Future<void> deleteSession(String id) async {
+    _log.fine('Deleting fasting session $id');
+    await _box.delete(id);
+  }
+
   Future<FastingSessionDBO?> getSession(String id) async {
     return _box.get(id);
   }

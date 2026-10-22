@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/features/fasting/presentation/bloc/fasting_bloc.dart';
+import 'package:opennutritracker/features/fasting/presentation/widgets/fasting_format.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 /// Renders only while a fasting session is active. The chip is the home
@@ -33,7 +34,6 @@ class _FastingHomeChipView extends StatelessWidget {
         if (state is! FastingActive) {
           return const SizedBox.shrink();
         }
-        final remaining = _formatHoursMinutes(state.remaining);
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
           child: Semantics(
@@ -62,7 +62,15 @@ class _FastingHomeChipView extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      S.of(context).fastingHomeChipBody(remaining),
+                      // Minutes resolution on the chip; seconds would
+                      // twitch every tick.
+                      state.hasReachedTarget
+                          ? S.of(context).fastingHomeChipReached(
+                              FastingFormat.hoursMinutes(state.elapsed),
+                            )
+                          : S.of(context).fastingHomeChipBody(
+                              FastingFormat.hoursMinutes(state.remaining),
+                            ),
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],
@@ -73,13 +81,5 @@ class _FastingHomeChipView extends StatelessWidget {
         );
       },
     );
-  }
-
-  // Minutes resolution on the chip — seconds would twitch every tick.
-  String _formatHoursMinutes(Duration d) {
-    final h = d.inHours;
-    final m = d.inMinutes.remainder(60);
-    if (h == 0) return '${m}m';
-    return '${h}h ${m}m';
   }
 }

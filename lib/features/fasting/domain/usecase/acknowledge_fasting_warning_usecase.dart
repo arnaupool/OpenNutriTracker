@@ -1,8 +1,9 @@
 import 'package:opennutritracker/core/data/repository/config_repository.dart';
+import 'package:opennutritracker/features/fasting/domain/fasting_safety.dart';
 
-/// Persists the user's one-time acknowledgement of the disordered-eating
-/// sensitivity warning. Once acknowledged, the warning dialog stays
-/// suppressed on subsequent visits to the fasting screen.
+/// Persists the user's acknowledgement of the fasting content warning, at
+/// the current [FastingSafety.warningVersion]. The dialog stays suppressed
+/// until a later version adds information the user has not seen yet.
 class AcknowledgeFastingWarningUseCase {
   final ConfigRepository _configRepository;
 
@@ -10,5 +11,8 @@ class AcknowledgeFastingWarningUseCase {
 
   Future<void> call() async {
     await _configRepository.setFastingWarningAcknowledged(true);
+    await _configRepository.setFastingWarningVersion(
+      FastingSafety.warningVersion,
+    );
   }
 }

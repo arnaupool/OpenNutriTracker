@@ -43,6 +43,7 @@ class ConfigDBOAdapter extends TypeAdapter<ConfigDBO> {
         accentColor: (fields[26] as num?)?.toInt(),
         openRouterApiKey: fields[27] as String?,
         openRouterModelId: fields[28] as String?,
+        fastingWarningVersion: (fields[29] as num?)?.toInt(),
       )
       ..userCarbGoalPct = (fields[6] as num?)?.toDouble()
       ..userProteinGoalPct = (fields[7] as num?)?.toDouble()
@@ -52,7 +53,7 @@ class ConfigDBOAdapter extends TypeAdapter<ConfigDBO> {
   @override
   void write(BinaryWriter writer, ConfigDBO obj) {
     writer
-      ..writeByte(29)
+      ..writeByte(30)
       ..writeByte(0)
       ..write(obj.hasAcceptedDisclaimer)
       ..writeByte(1)
@@ -110,7 +111,9 @@ class ConfigDBOAdapter extends TypeAdapter<ConfigDBO> {
       ..writeByte(27)
       ..write(obj.openRouterApiKey)
       ..writeByte(28)
-      ..write(obj.openRouterModelId);
+      ..write(obj.openRouterModelId)
+      ..writeByte(29)
+      ..write(obj.fastingWarningVersion);
   }
 
   @override
@@ -163,6 +166,7 @@ ConfigDBO _$ConfigDBOFromJson(Map<String, dynamic> json) =>
         accentColor: (json['accentColor'] as num?)?.toInt(),
         openRouterApiKey: json['openRouterApiKey'] as String?,
         openRouterModelId: json['openRouterModelId'] as String?,
+        fastingWarningVersion: (json['fastingWarningVersion'] as num?)?.toInt(),
       )
       ..userCarbGoalPct = (json['userCarbGoalPct'] as num?)?.toDouble()
       ..userProteinGoalPct = (json['userProteinGoalPct'] as num?)?.toDouble()
@@ -198,6 +202,7 @@ Map<String, dynamic> _$ConfigDBOToJson(ConfigDBO instance) => <String, dynamic>{
   'accentColor': instance.accentColor,
   'openRouterApiKey': instance.openRouterApiKey,
   'openRouterModelId': instance.openRouterModelId,
+  'fastingWarningVersion': instance.fastingWarningVersion,
 };
 
 const _$AppThemeDBOEnumMap = {
