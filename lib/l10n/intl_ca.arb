@@ -1,0 +1,1393 @@
+{
+  "@PHYSICAL_ACTIVITIES": {},
+  "@clearOffCacheSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "@csvImportPartialLabel": {
+    "placeholders": {
+      "imported": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "@csvImportSuccessLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@deleteSelectedRecipesConfirmTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@driPanelReferenceLabel": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "@diaryMealKcalConsumedOfTarget": {
+    "placeholders": {
+      "consumed": {
+        "type": "String"
+      },
+      "target": {
+        "type": "String"
+      }
+    }
+  },
+  "@importActivityConfirmTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@importMealConfirmContent": {
+    "placeholders": {
+      "mealType": {
+        "type": "String"
+      }
+    }
+  },
+  "@importMealConfirmTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@importOffFetchFailedLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@importRecipeConfirmContent": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@mealDetailCurrentSelectionLabel": {
+    "placeholders": {
+      "kcal": {
+        "type": "String"
+      }
+    }
+  },
+  "@mealDetailDayTotalLabel": {
+    "placeholders": {
+      "consumed": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "@mealNutrientsPerQtyLabel": {
+    "placeholders": {
+      "qty": {
+        "type": "String"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "@profileTargetWeightToGo": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "@profileWeeklyRateValue": {
+    "placeholders": {
+      "ratePct": {
+        "type": "String"
+      }
+    }
+  },
+  "@strategyCheckInDue": {
+    "placeholders": {
+      "newTarget": {
+        "type": "String"
+      },
+      "currentTarget": {
+        "type": "String"
+      }
+    }
+  },
+  "@strategyExplanationWithinBand": {
+    "placeholders": {
+      "band": {
+        "type": "String"
+      }
+    }
+  },
+  "@strategyExplanationCorrecting": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      },
+      "correction": {
+        "type": "String"
+      }
+    }
+  },
+  "@strategyKcalFloorNote": {
+    "placeholders": {
+      "floor": {
+        "type": "String"
+      }
+    }
+  },
+  "@strategyCheckInNext": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@strategyExplanationRate": {
+    "placeholders": {
+      "ratePct": {
+        "type": "String"
+      },
+      "adjustment": {
+        "type": "String"
+      }
+    }
+  },
+  "@quickAddAddedSnack": {
+    "placeholders": {
+      "mealType": {
+        "type": "String"
+      }
+    }
+  },
+  "@recipeIngredientCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@selectionCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@settingsDayStartHourLabel": {
+    "placeholders": {
+      "hour": {
+        "type": "int"
+      }
+    }
+  },
+  "@settingsDayStartTimeLabel": {
+    "placeholders": {
+      "hour": {
+        "type": "int"
+      },
+      "minute": {
+        "type": "String"
+      }
+    }
+  },
+  "@logWaterAmountLabel": {
+    "placeholders": {
+      "amount": {
+        "type": "int"
+      }
+    }
+  },
+  "@settingsNotificationsTimeLabel": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@waterChipLabel": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "goal": {
+        "type": "int"
+      }
+    }
+  },
+  "activityExample": "p. ex., córrer, bici, ioga...",
+  "activityLabel": "Activitat",
+  "addItemLabel": "Afegir element:",
+  "addItemWeightExample": "p. ex., la pesada d'este matí",
+  "addItemBodyMeasurementsExample": "p. ex., cintura, pit, maluc",
+  "addItemMenuMagicLabel": "Màgia",
+  "addItemMenuMagicSubtitle": "Foto, text o tots dos",
+  "addItemMenuSearchLabel": "Buscar",
+  "addItemMenuSearchSubtitle": "Base de dades d'aliments",
+  "addItemMenuScanProductLabel": "Escanejar producte",
+  "addItemMenuScanProductSubtitle": "Codi de barres",
+  "addItemMenuRecentlyLabel": "Recents",
+  "addItemMenuRecentlySubtitle": "Tornar a registrar",
+  "addItemMenuPresetsLabel": "Plantilles",
+  "addItemMenuPresetsSubtitle": "Àpats guardats",
+  "addLabel": "Afegir",
+  "additionalInfoLabelCompendium2011": "Informació proporcionada\n pel \n'2024 Compendium\n of Physical Activities'",
+  "additionalInfoLabelCustom": "Aliment personalitzat",
+  "additionalInfoLabelFDC": "Més informació a\nFoodData Central",
+  "additionalInfoLabelBedca": "Més informació a\nBEDCA (AESAN)",
+  "bedcaDisclaimer": "Font: AESAN/BEDCA Base de Datos Española de Composición de Alimentos v1.0 (2010). Els valors són per 100 g de porció comestible. Les dades s'oferixen per a ús personal i no comercial; no es garantix que siguen exactes ni completes.",
+  "sourcesFoodDataTitle": "Bases de dades d'aliments",
+  "sourcesFoodDataDescription": "Els valors nutricionals de productes i aliments genèrics provenen d'estes bases de dades. Les dades de BEDCA s'usen amb finalitats personals i no comercials, amb l'atribució que exigixen les seues condicions.",
+  "offAccountLabel": "Compte d'Open Food Facts",
+  "offAccountSignedOutSubtitle": "Inicia la sessió per a enviar a Open Food Facts els productes que afigues",
+  "offAccountSignedInAs": "Sessió iniciada com a",
+  "offAccountExplanation": "Usa el teu nom d'usuari d'Open Food Facts (no el correu) i la contrasenya. Es guarden xifrats en este dispositiu i només s'envien a Open Food Facts quan envies un producte.",
+  "offAccountUsernameLabel": "Nom d'usuari",
+  "offAccountPasswordLabel": "Contrasenya",
+  "offAccountCreateLink": "Crear un compte gratuït",
+  "offAccountSignOut": "Tancar la sessió",
+  "offContributeButton": "Enviar a Open Food Facts",
+  "offContributeConfirmTitle": "Vols enviar-ho a Open Food Facts?",
+  "offContributeConfirmContent": "Açò crea un producte públic nou a Open Food Facts amb este codi de barres, nom, marca i els valors nutricionals per 100 g. Envia només valors copiats de l'etiqueta de l'envàs. Les contribucions es publiquen amb la llicència Open Database License (ODbL), de manera que qualsevol pot reutilitzar-les.",
+  "offContributeSend": "Enviar",
+  "offContributeSent": "Gràcies! El producte ja està a Open Food Facts.",
+  "offContributeAlreadyOnOff": "Open Food Facts ja té este producte, així que no s'ha enviat res.",
+  "offContributeWrongCredentials": "Open Food Facts ha rebutjat el teu nom d'usuari o la contrasenya.",
+  "offContributeFailed": "No s'ha pogut enviar el producte a Open Food Facts. Torna-ho a provar més tard.",
+  "offContributeNeedsAccount": "Primer inicia la sessió amb el teu compte d'Open Food Facts.",
+  "offContributeMissingData": "Per a enviar un producte cal el codi de barres, el nom i l'energia.",
+  "additionalInfoLabelOFF": "Més informació a\nOpenFoodFacts",
+  "additionalInfoLabelUnknown": "Aliment desconegut",
+  "ageLabel": "Edat",
+  "allItemsLabel": "Tots",
+  "alphaVersionName": "[Alfa]",
+  "appDescription": "OpenNutriTracker és un comptador de calories i nutrients lliure i de codi obert que respecta la teua privacitat.",
+  "appLicenseLabel": "Llicència GPL-3.0",
+  "appTitle": "OpenNutriTracker",
+  "appVersionName": "Versió {versionNumber}",
+  "barcodeInvalidEan13CheckDigit": "Pareix que este codi de 13 dígits està mal escrit: l'últim dígit no quadra amb la resta",
+  "baseQuantityLabel": "Quantitat base (g/ml)",
+  "betaVersionName": "[Beta]",
+  "bmiInfo": "L'índex de massa corporal (IMC) és un índex per a classificar el sobrepés i l'obesitat en adults. Es definix com el pes en quilograms dividit pel quadrat de l'altura en metres (kg/m²).\n\nL'IMC no distingix entre massa greixosa i massa muscular i pot ser enganyós per a algunes persones.",
+  "bmiLabel": "IMC",
+  "breakfastExample": "p. ex., cereals, llet, café...",
+  "breakfastLabel": "Esmorzar",
+  "burnedLabel": "cremades",
+  "buttonNextLabel": "SEGÜENT",
+  "buttonResetLabel": "Restablir",
+  "buttonSaveLabel": "Guardar",
+  "buttonStartLabel": "COMENÇAR",
+  "buttonYesLabel": "SÍ",
+  "calciumLabel": "calci",
+  "calculationsMacronutrientsDistributionLabel": "Distribució de macros",
+  "calculationsMacrosDistribution": "{pctCarbs}% carbohidrats, {pctFats}% greixos, {pctProteins}% proteïnes",
+  "calculationsRecommendedLabel": "(recomanat)",
+  "calculationsTDEEIOM2006Label": "Equació de l'Institute of Medicine (2005)",
+  "calculationsTDEELabel": "Equació de TDEE",
+  "caloriesLabel": "calories",
+  "caloriesProfileAveragedLabel": "Referència mitjana (predeterminada)",
+  "caloriesProfileEstrogenTypicalLabel": "Referència de perfil estrogènic",
+  "caloriesProfileInfoBody": "No hi ha cap referència calòrica publicada per a persones no binàries: les equacions de referència es basen en mostres d'hòmens i dones. Per defecte usem la mitjana de totes dues, un punt de partida neutre que no et demana revelar res més sobre el teu cos. El control de kcal de Configuració sempre està disponible per a afinar-ho; açò és un punt de partida, no una estimació precisa.",
+  "caloriesProfileInfoTitle": "Referència calòrica",
+  "caloriesProfileTestosteroneTypicalLabel": "Referència de perfil testosterònic",
+  "carbohydrateLabel": "carbohidrats",
+  "carbsLabel": "carbohidrats",
+  "carbsLabelShort": "c",
+  "cholesterolLabel": "colesterol",
+  "chooseWeightGoalLabel": "Tria el teu objectiu de pes",
+  "clearOffCacheConfirmContent": "Elimina els resultats de busca i escaneig d'Open Food Facts i FDC guardats en memòria cau al dispositiu. La memòria cau es torna a crear automàticament a mesura que busques i escaneges productes. Els teus aliments personalitzats no es veuen afectats.",
+  "clearOffCacheConfirmTitle": "Vols esborrar els elements en memòria cau?",
+  "clearOffCacheLabel": "Esborrar elements en memòria cau",
+  "clearOffCacheSubtitle": "{count} element(s) · {size}",
+  "cloudBackupPairInstructionsLabel": "Escaneja el codi QR que apareix en l'altre dispositiu o apega el codi de vinculació a mà.",
+  "cloudBackupPairInvalidTokenError": "Això no pareix un codi de vinculació vàlid",
+  "cloudBackupPairPasteHint": "Apega ací el codi de vinculació",
+  "cloudBackupPairScreenTitle": "Vincular este dispositiu",
+  "cloudBackupPairSuccessLabel": "Dispositiu vinculat",
+  "cloudBackupTokenDialogTitle": "Codi de vinculació de la còpia en el núvol",
+  "cmLabel": "cm",
+  "codeCopiedLabel": "Codi copiat",
+  "copyCodeLabel": "Copiar el codi",
+  "copyDialogTitle": "A quin àpat i dia ho copies?",
+  "copyDialogDateLabel": "Data",
+  "copyDayDialogTitle": "A quina data o dates copies este dia?",
+  "repeatDayActionLabel": "Repetir el dia",
+  "dayCopiedSnackbar": "{count} elements copiats",
+  "@dayCopiedSnackbar": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "copyActionLabel": "Copiar",
+  "moveActionLabel": "Moure",
+  "copyOrDeleteTimeDialogContent": "Amb \"Copiar\" pots copiar l'àpat a un altre lloc. Amb \"Eliminar\" pots eliminar-lo.",
+  "copyOrDeleteTimeDialogTitle": "Què vols fer?",
+  "createCustomDialogContent": "Vols crear un aliment personalitzat?",
+  "createCustomDialogTitle": "Vols crear un aliment personalitzat?",
+  "createRecipeTitle": "Crear recepta",
+  "csvImportContributeOffAndroidLink": "Android",
+  "csvImportContributeOffIosLink": "iOS",
+  "csvImportContributeOffPrefix": "Té codi de barres? Ajuda tothom aportant el producte a Open Food Facts:",
+  "csvImportErrorLabel": "No s'ha pogut llegir el fitxer CSV. Revisa el format i torna-ho a provar.",
+  "csvImportPartialLabel": "S'han importat {imported} aliment(s); s'han omés {skipped} files per dades no vàlides.",
+  "csvImportSuccessLabel": "S'han importat {count} aliment(s).",
+  "customActivityDescription": "Introduïx directament les calories cremades, per a entrenaments que no estan en la llista o lectures d'una polsera d'activitat",
+  "customActivityDescriptionKj": "Introduïx directament els quilojoules cremats, per a entrenaments que no estan en la llista o lectures d'una polsera d'activitat",
+  "customActivityKcalHint": "p. ex., 250",
+  "customActivityKcalLabel": "Calories cremades",
+  "customActivityName": "Activitat personalitzada",
+  "customActivityNameFieldHint": "p. ex., tornada en bici de la faena",
+  "customActivityNameFieldLabel": "Nom (opcional)",
+  "customActivityPickFromTemplate": "Triar de les plantilles guardades",
+  "customActivitySaveAsTemplate": "Guardar com a plantilla per a la pròxima vegada",
+  "customActivityTemplatesEmpty": "Encara no has guardat cap plantilla. Marca \"Guardar com a plantilla per a la pròxima vegada\" per a recordar una activitat personalitzada més avant.",
+  "customMealBarcodeHint": "Escaneja o escriu un codi de barres per a recuperar este aliment més avant",
+  "customMealBarcodeInvalid": "El codi de barres ha de tindre entre 8 i 14 dígits",
+  "customMealBarcodeLabel": "Codi de barres",
+  "customMealBarcodeScanButton": "Escanejar el codi de barres",
+  "customMealFormAdvanced": "Avançat",
+  "customMealFormAdvancedHelp": "Definix la quantitat base i els valors per 100 per a escalar amb precisió.",
+  "customMealFormModeLabel": "Vista del formulari",
+  "customMealFormSimple": "Senzill",
+  "customMealFormSimpleHelp": "Escriu els totals d'una ració.",
+  "customMealFormSimpleFieldHelper": "{unit} en una ració",
+  "@customMealFormSimpleFieldHelper": {
+    "placeholders": {
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "customMealsDeleteConfirmContent": "També s'eliminaran totes les entrades del diari que usen este aliment.",
+  "customMealsDeleteConfirmTitle": "Vols eliminar l'aliment personalitzat?",
+  "customMealsEmptyLabel": "Encara no has guardat aliments personalitzats.",
+  "dailyKcalAdjustmentLabel": "Ajust diari de kcal:",
+  "dailyKjAdjustmentLabel": "Ajust diari de kJ:",
+  "dataCollectionLabel": "Enviar informes d'errors anònims per a ajudar a corregir fallades. No s'inclou el registre d'àpats, el pes ni cap dada personal.",
+  "deleteAllLabel": "Eliminar-ho tot",
+  "settingsDeleteAllDataLabel": "Eliminar totes les meues dades",
+  "settingsDeleteAllDataSubtitle": "Perfil, àpats, activitats i historial de pes",
+  "settingsDeleteAllDataConfirmTitle": "Vols eliminar totes les teues dades?",
+  "settingsDeleteAllDataConfirmContent": "Açò elimina de manera permanent d'este dispositiu el teu perfil, àpats, activitats, historial de pes i receptes personalitzades. Els catàlegs d'Open Food Facts i USDA Food Data Central no es veuen afectats. Esta acció no es pot desfer.",
+  "settingsDeleteAllDataConfirmAction": "Eliminar-ho tot",
+  "lowKcalWarningTitle": "Este objectiu diari és prou baix",
+  "lowKcalWarningBody": "La majoria dels adults no haurien de menjar menys de {threshold} kcal al dia durant un temps prolongat sense supervisió mèdica. Planteja't parlar amb un professional sanitari abans de mantindre un objectiu tan baix.",
+  "@lowKcalWarningBody": {
+    "placeholders": {
+      "threshold": {
+        "type": "int"
+      }
+    }
+  },
+  "lowKcalWarningViewDisclaimer": "Vore l'avís legal",
+  "deleteSelectedRecipesConfirmTitle": "Vols eliminar {count} receptes?",
+  "deleteTimeDialogContent": "Vols eliminar l'element seleccionat?",
+  "deleteTimeDialogPluralContent": "Vols eliminar tots els elements d'este àpat?",
+  "deleteTimeDialogPluralTitle": "Vols eliminar els elements?",
+  "deleteTimeDialogTitle": "Vols eliminar l'element?",
+  "dialogCancelLabel": "CANCEL·LAR",
+  "dialogCopyLabel": "Copiar a hui",
+  "dialogDeleteLabel": "ELIMINAR",
+  "dialogOKLabel": "D'acord",
+  "diaryFutureDateWarning": "Estàs editant una data futura",
+  "diaryLabel": "Diari",
+  "diaryMealKcalConsumedOfTarget": "{consumed} / {target} kcal",
+  "diaryNutrientPanelDataDisclaimer": "Ací només se sumen els nutrients registrats en els àpats que has anotat. Un aliment sense un valor no aporta res a eixe nutrient, així que estos totals poden quedar-se curts.",
+  "diaryNutrientPanelTitle": "Nutrients de hui",
+  "diaryWeeklyBarsTitle": "Esta setmana",
+  "driPanelInfoTitle": "Ingesta de referència",
+  "driPanelInfoBody": "Estes quantitats de referència provenen de les ingestes dietètiques de referència (DRI) de l'IOM per a adults i varien segons l'edat i el sexe. Són un punt de referència, no un objectiu: les teues necessitats poden ser diferents.",
+  "driPanelInfoLinkLabel": "Font: IOM Dietary Reference Intakes",
+  "driPanelReferenceLabel": "ref. {value}",
+  "diarySortByCarbs": "Carbohidrats (de més a menys)",
+  "diarySortByFat": "Greixos (de més a menys)",
+  "diarySortByKcal": "Calories (de més a menys)",
+  "diarySortByLabel": "Ordenar per",
+  "diarySortByProtein": "Proteïnes (de més a menys)",
+  "diarySortByTime": "Hora de registre",
+  "dinnerExample": "p. ex., sopa, pollastre, vi...",
+  "dinnerLabel": "Sopar",
+  "discardChangesConfirmLabel": "Descartar",
+  "discardChangesContent": "Es perdran els canvis sense guardar.",
+  "discardChangesTitle": "Vols descartar els canvis?",
+  "disclaimerText": "OpenNutriTracker no és una aplicació mèdica. Les dades proporcionades no estan validades i s'han d'usar amb precaució. Mantín un estil de vida saludable i consulta un professional si tens qualsevol problema. No se'n recomana l'ús durant una malaltia, l'embaràs o la lactància. Per a vore les fonts revisades per experts de cada càlcul, toca la icona d'informació en la pantalla d'Inici o de Perfil.",
+  "downloadSampleCsvAction": "Aliments d'exemple (csv)",
+  "downloadSampleJsonAction": "Aliments d'exemple (json)",
+  "downloadSampleRecipesCsvAction": "Receptes d'exemple (csv)",
+  "downloadSampleRecipesJsonAction": "Receptes d'exemple (json)",
+  "duplicateMealDialogContent": "Este aliment ja s'ha afegit hui a este àpat. Vols afegir-lo una altra vegada?",
+  "duplicateRecipeLabel": "Duplicar",
+  "duplicateRecipeNameSuffix": "(còpia)",
+  "editItemDialogTitle": "Editar l'element",
+  "editMealLabel": "Editar l'aliment",
+  "editRecipeTitle": "Editar la recepta",
+  "energyLabel": "energia",
+  "energyLeftLabel": "restants",
+  "energyTooMuchLabel": "de més",
+  "energyUnitKcalLabel": "Quilocalories (kcal)",
+  "energyUnitKjLabel": "Quilojoules (kJ)",
+  "errorFetchingProductData": "Error en obtindre les dades del producte",
+  "errorLoadingActivities": "Error en carregar les activitats",
+  "errorMealSave": "Error en guardar l'aliment. Has introduït bé la informació?",
+  "errorOpeningBrowser": "Error en obrir el navegador",
+  "errorOpeningEmail": "Error en obrir l'aplicació de correu",
+  "errorProductNotFound": "No s'ha trobat el producte",
+  "exportAction": "Exportar",
+  "exportImportAppDataLabel": "Exportar / Importar dades de l'aplicació",
+  "exportImportCsvRecipesNote": "El CSV conserva les activitats, el registre d'àpats i els dies registrats. Les receptes i les fotos que hages adjuntat només van en JSON; canvia a JSON si vols incloure-les en la còpia.",
+  "exportImportDescription": "Pots exportar les dades de l'aplicació a un fitxer zip i importar-les més tard. És útil si vols fer una còpia de seguretat de les teues dades o passar-les a un altre dispositiu.\n\nL'aplicació no usa cap servici en el núvol per a guardar les teues dades.",
+  "exportImportErrorLabel": "Error en exportar / importar",
+  "exportImportSuccessLabel": "Exportació / importació correcta",
+  "fatLabel": "greixos",
+  "fatLabelShort": "g",
+  "fiberLabel": "fibra",
+  "flOzUnit": "fl.oz",
+  "ftLabel": "ft",
+  "genderFemaleLabel": "dona",
+  "genderLabel": "Sexe",
+  "genderMaleLabel": "home",
+  "genderNonBinaryLabel": "no binari",
+  "goalGainWeight": "Guanyar pes",
+  "goalLabel": "Objectiu",
+  "goalLoseWeight": "Perdre pes",
+  "goalMaintainWeight": "Mantindre el pes",
+  "gramMilliliterUnit": "g/ml",
+  "gramUnit": "g",
+  "heightLabel": "Altura",
+  "homeLabel": "Inici",
+  "homeWeightTrendLabel": "Pes de tendència",
+  "homeWeightTrendStable": "Estable",
+  "homeWeightTrendNoRecentData": "Sense pesades en els últims 20 dies",
+  "homeWeightTrendRate": "{rate}/setmana",
+  "@homeWeightTrendRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "homeExpenditureCardTitle": "Últims 7 dies",
+  "homeExpenditureLabel": "Despesa",
+  "homeEnergyBalanceLabel": "Balanç energètic",
+  "homeExpenditureInsufficientData": "Registra almenys una setmana de pesades i àpats per a vore la teua despesa setmanal.",
+  "homeGoalProgressCardTitle": "Progrés de l'objectiu",
+  "homeGoalProgressInsufficientData": "Registra almenys una setmana de pesades per a vore el progrés del teu objectiu.",
+  "homeWeighInHabitCardTitle": "Hàbit de pesada",
+  "homeLoggingHabitCardTitle": "Hàbit de registre",
+  "homeBodyMetricsCardTitle": "Mesures corporals",
+  "homeBodyMetricsInsufficientData": "Registra una mesura corporal en Perfil per a vore les teues proporcions.",
+  "importAction": "Importar",
+  "importActivityConfirmContent": "Estes activitats s'afegiran a hui.",
+  "importActivityConfirmTitle": "Vols importar {count} activitats?",
+  "importActivityLabel": "Importar un entrenament compartit",
+  "importActivitySuccessLabel": "Entrenament importat",
+  "importCustomFoodDataDescription": "Importa els teus aliments des d'un fitxer CSV o apegant JSON. Descarrega un exemple per a vore l'estructura esperada i els camps obligatoris.",
+  "importCustomFoodDataLabel": "Importar aliments personalitzats",
+  "importMealConfirmContent": "Estos elements s'afegiran a {mealType}.",
+  "importMealConfirmTitle": "Vols importar {count} elements?",
+  "importMealErrorLabel": "Codi QR no vàlid",
+  "importMealLabel": "Importar un àpat compartit",
+  "importMealSuccessLabel": "Àpat importat",
+  "importMealsCsvAction": "Importar aliments (csv)",
+  "importMealsJsonAction": "Importar aliments (json)",
+  "importOffFetchFailedLabel": "{count} element(s) no s'han pogut obtindre d'OpenFoodFacts.",
+  "importRecipeConfirmContent": "Vols importar esta recepta amb {count} ingredient(s)?",
+  "importRecipeErrorLabel": "No s'ha pogut llegir el codi de la recepta",
+  "importRecipeLabel": "Importar una recepta",
+  "importRecipeSuccessLabel": "Recepta importada",
+  "importRecipesCsvAction": "Importar receptes (csv)",
+  "importRecipesJsonAction": "Importar receptes (json)",
+  "inconsistentNutritionWarningBody": "Estos valors no acaben de quadrar: les calories que has introduït no coincidixen amb l'energia dels carbohidrats, greixos i proteïnes de baix. Vols guardar igualment o tornar-hi a mirar?",
+  "inconsistentNutritionWarningEdit": "Tornar-hi a mirar",
+  "inconsistentNutritionWarningSaveAnyway": "Guardar igualment",
+  "inconsistentNutritionWarningTitle": "Els números no acaben de quadrar",
+  "infoAddedActivityLabel": "Activitat afegida",
+  "infoAddedIntakeLabel": "Ingesta afegida",
+  "ironLabel": "ferro",
+  "itemDeletedSnackbar": "Element eliminat",
+  "itemMovedSnackbar": "Element mogut",
+  "itemUpdatedSnackbar": "Element actualitzat",
+  "kcalLabel": "kcal",
+  "kcalLeftLabel": "kcal restants",
+  "kcalTooMuchLabel": "kcal de més",
+  "kgLabel": "kg",
+  "kjLabel": "kJ",
+  "lbsLabel": "lbs",
+  "lunchExample": "p. ex., pizza, ensalada, arròs...",
+  "lunchLabel": "Dinar",
+  "macroDistributionLabel": "Distribució de macronutrients:",
+  "magnesiumLabel": "magnesi",
+  "mealBrandsLabel": "Marques",
+  "mealCarbsLabel": "Carbohidrats",
+  "mealDetailCurrentSelectionLabel": "(+{kcal} kcal amb la selecció actual)",
+  "mealDetailDayTotalLabel": "Total del dia: {consumed} / {goal}",
+  "mealEnergyLabel": "Energia",
+  "mealFatLabel": "Greixos",
+  "mealImageLabel": "Afegir una foto",
+  "mealImagePickFromGallery": "Triar de la galeria",
+  "mealImageRemove": "Llevar la foto",
+  "mealImageReplace": "Canviar la foto",
+  "mealImageTakePhoto": "Fer una foto",
+  "mealKcalLabel": "kcal",
+  "mealNameLabel": "Nom de l'aliment",
+  "mealNameValidationError": "El nom de l'aliment ha de contindre almenys una lletra",
+  "mealNutrientsPerQtyLabel": "Per {qty} {unit}",
+  "mealNutrientsTotalLabel": "Quantitat total",
+  "mealPatternFiveSmall": "Cinc menudes",
+  "mealPatternMediterranean": "Mediterrani",
+  "mealPatternOmad": "OMAD",
+  "mealPatternPresetsLabel": "Opcions ràpides",
+  "magicScreenTitle": "Màgia",
+  "magicCameraButton": "Càmera",
+  "magicGalleryButton": "Galeria",
+  "magicDescribeFoodHint": "Descriu el teu menjar (opcional si hi ha foto)...",
+  "magicSingleItemLabel": "Un sol aliment",
+  "magicMealBreakdownLabel": "Desglossament de l'àpat",
+  "magicProviderLabel": "Proveïdor",
+  "magicModelLabel": "Model",
+  "magicAnalyzeButton": "Analitzar",
+  "magicAnalyzingLabel": "S'està analitzant...",
+  "magicNoInputError": "Primer afig una foto o descriu el teu menjar",
+  "magicNoApiKeyError": "Primer configura la teua clau d'API d'OpenRouter en Configuració",
+  "magicNoModelError": "Primer tria un model",
+  "magicAnalysisFailedError": "No s'ha pogut analitzar; torna-ho a provar",
+  "magicEmptyResultError": "No s'ha identificat cap aliment",
+  "magicResultsTitle": "Resultats",
+  "magicAddToDiaryButton": "Afegir al diari",
+  "magicAddedToDiarySnackbar": "Afegit al diari",
+  "reviewMealScreenTitle": "Revisar l'àpat",
+  "reviewMealTotalKcalLabel": "{kcal} kcal en total",
+  "reviewMealConfidenceLow": "baixa",
+  "reviewMealConfidenceMedium": "mitjana",
+  "reviewMealConfidenceHigh": "alta",
+  "reviewMealGramsUnit": "g",
+  "reviewMealAddAllButton": "Afegir-ho tot ({count} elements)",
+  "reviewMealSaveAsPresetButton": "Guardar com a plantilla",
+  "reviewMealSavePresetNameHint": "Nom de la plantilla",
+  "reviewMealPresetSavedSnackbar": "Guardat com a plantilla",
+  "reviewMealPresetSaveFailedError": "No s'ha pogut guardar esta plantilla; torna-ho a provar",
+  "mealPatternStandard": "Estàndard",
+  "mealPatternTwoMeal": "Dos àpats",
+  "mealProteinLabel": "Proteïnes",
+  "mealSizeLabel": "Grandària de la ració (g/ml)",
+  "mealSizeLabelImperial": "Grandària de la ració (oz/fl oz)",
+  "mealUnitLabel": "Unitat",
+  "micronutrientsLabel": "Micronutrients",
+  "milliliterUnit": "ml",
+  "missingProductInfo": "Al producte li falten les kcal o els macronutrients obligatoris",
+  "monounsaturatedFatLabel": "greixos monoinsaturats",
+  "newCustomMealLabel": "Aliment personalitzat nou",
+  "niacinLabel": "niacina (B3)",
+  "noActivityRecentlyAddedLabel": "No hi ha activitats afegides recentment",
+  "noMealsRecentlyAddedLabel": "No hi ha aliments afegits recentment",
+  "noResultsFound": "No s'han trobat resultats",
+  "notAvailableLabel": "N/D",
+  "nothingAddedLabel": "No hi ha res afegit",
+  "notificationsDailyReminderBody": "No oblides registrar els àpats de hui!",
+  "notificationsDailyReminderChannelName": "Recordatoris diaris",
+  "notificationsDailyReminderChannelDescription": "Recordatori diari per a registrar àpats",
+  "notificationsDailyReminderTitle": "OpenNutriTracker",
+  "notificationsPermissionDeniedSnack": "Permís de notificacions denegat.",
+  "nutrientPanelAllHiddenLabel": "Tots els nutrients estan ocults: activa'n algun en Configuració → Nutrients.",
+  "nutrientPanelLimitLabel": "límit",
+  "nutrientPanelDayLabel": "Dia",
+  "nutrientPanelWeekLabel": "Setmana",
+  "nutritionInfoLabel": "Informació nutricional",
+  "nutritionalStatusNormalWeight": "Pes normal",
+  "nutritionalStatusObeseClassI": "Obesitat de classe I",
+  "nutritionalStatusObeseClassII": "Obesitat de classe II",
+  "nutritionalStatusObeseClassIII": "Obesitat de classe III",
+  "nutritionalStatusPreObesity": "Preobesitat",
+  "nutritionalStatusRiskAverage": "Mitjà",
+  "nutritionalStatusRiskIncreased": "Augmentat",
+  "nutritionalStatusRiskLabel": "Risc de comorbiditats: {riskValue}",
+  "nutritionalStatusRiskLow": "Baix \n(però amb més risc d'altres \nproblemes clínics)",
+  "nutritionalStatusRiskModerate": "Moderat",
+  "nutritionalStatusRiskSevere": "Greu",
+  "nutritionalStatusRiskVerySevere": "Molt greu",
+  "nutritionalStatusUnderweight": "Pes insuficient",
+  "offDisclaimer": "Les dades que t'oferix esta aplicació provenen de la base de dades d'Open Food Facts. No es pot garantir l'exactitud, la integritat ni la fiabilitat de la informació proporcionada. Les dades s'oferixen \"tal com estan\" i la font d'origen de les dades (Open Food Facts) no es fa responsable de cap dany derivat del seu ús.",
+  "onboardingActivityQuestionSubtitle": "Quant et mous? (sense comptar entrenaments)",
+  "onboardingBirthdayHint": "Introduïx la data",
+  "onboardingBirthdayQuestionSubtitle": "Quan és el teu aniversari?",
+  "onboardingEnterBirthdayLabel": "Data de naixement",
+  "onboardingGenderQuestionSubtitle": "Quin és el teu sexe?",
+  "onboardingGoalQuestionSubtitle": "Quin és el teu objectiu de pes actual?",
+  "onboardingHeightExampleHintCm": "p. ex., 170",
+  "onboardingHeightExampleHintFt": "p. ex., 5.8",
+  "onboardingHeightQuestionSubtitle": "Quant mesures?",
+  "onboardingIntroDescription": "Per a començar, l'aplicació necessita algunes dades sobre tu per a calcular el teu objectiu diari de calories.\nTota la teua informació es guarda de manera segura en el teu dispositiu.",
+  "onboardingIntroSourcesLinkLabel": "Consulta les nostres fonts per als càlculs mèdics",
+  "onboardingKcalPerDayLabel": "kcal al dia",
+  "onboardingKjPerDayLabel": "kJ al dia",
+  "onboardingNonBinaryDisclaimer": "No hi ha cap referència calòrica publicada per a persones no binàries, així que per defecte usem la mitjana de les fórmules masculina i femenina: un punt de partida, no una estimació precisa. Pots afinar-ho quan vulgues en Configuració → Càlculs.",
+  "onboardingOverviewLabel": "Resum",
+  "onboardingRestoreFromCloudLabel": "Ja tens una còpia en el núvol? Restaura-la",
+  "onboardingSaveUserError": "Dades incorrectes, torna-ho a provar",
+  "onboardingTargetWeightHintOptional": "Opcional",
+  "onboardingTargetWeightSubtitle": "Tens un pes objectiu? Pots deixar-ho en blanc o canviar-ho més tard en Perfil.",
+  "onboardingWeightExampleHintKg": "p. ex., 60",
+  "onboardingWeightExampleHintLbs": "p. ex., 132",
+  "onboardingWeightQuestionSubtitle": "Quant peses ara?",
+  "onboardingWelcomeLabel": "Et donem la benvinguda a",
+  "onboardingWrongHeightLabel": "Introduïx una altura correcta",
+  "onboardingWrongWeightLabel": "Introduïx un pes correcte",
+  "openRouterApiKeyLabel": "Clau d'API",
+  "openRouterApiKeyHint": "sk-or-...",
+  "openRouterApiKeySavedSnackbar": "Clau d'API guardada",
+  "openRouterModelSectionTitle": "Model",
+  "openRouterModelSearchHint": "Buscar models",
+  "openRouterModelsLoadError": "No s'ha pogut carregar el catàleg de models",
+  "openRouterModelsEmptyState": "Cap model coincidix amb la busca",
+  "openRouterVisionBadgeTooltip": "Admet imatges",
+  "openRouterSettingsTitle": "OpenRouter",
+  "onboardingYourGoalLabel": "El teu objectiu de calories:",
+  "onboardingYourMacrosGoalLabel": "Els teus objectius de macronutrients:",
+  "ozUnit": "oz",
+  "paActiveVideoGames": "videojocs actius",
+  "paActiveVideoGamesDesc": "Wii Sports, Dance Dance Revolution, general",
+  "paAmericanFootballGeneral": "futbol americà",
+  "paAmericanFootballGeneralDesc": "touch, flag, general",
+  "paArcheryGeneral": "tir amb arc",
+  "paArcheryGeneralDesc": "sense caça",
+  "paAutoRacing": "carreres de cotxes",
+  "paAutoRacingDesc": "monoplaça",
+  "paBackpackingGeneral": "senderisme amb motxilla",
+  "paBackpackingGeneralDesc": "general",
+  "paBadmintonGeneral": "bàdminton",
+  "paBadmintonGeneralDesc": "individual i dobles recreatiu, general",
+  "paBasketballGeneral": "bàsquet",
+  "paBasketballGeneralDesc": "general",
+  "paBicyclingGeneral": "ciclisme",
+  "paBicyclingGeneralDesc": "general",
+  "paBicyclingMountainGeneral": "ciclisme de muntanya",
+  "paBicyclingMountainGeneralDesc": "general",
+  "paBicyclingStationaryGeneral": "bicicleta estàtica",
+  "paBicyclingStationaryGeneralDesc": "general",
+  "paBilliardsGeneral": "billar",
+  "paBilliardsGeneralDesc": "general",
+  "paBowlingGeneral": "bitlles",
+  "paBowlingGeneralDesc": "general",
+  "paBoxingBag": "boxa",
+  "paBoxingBagDesc": "sac de boxa",
+  "paBoxingGeneral": "boxa",
+  "paBoxingGeneralDesc": "en ring, general",
+  "paBroomball": "broomball",
+  "paBroomballDesc": "general",
+  "paCalisthenicsGeneral": "calistènia",
+  "paCalisthenicsGeneralDesc": "esforç lleuger o moderat, general (p. ex., exercicis d'esquena)",
+  "paCanoeingGeneral": "piragüisme",
+  "paCanoeingGeneralDesc": "rem recreatiu, general",
+  "paCatch": "futbol americà o beisbol",
+  "paCatchDesc": "passar-se la pilota",
+  "paCheerleading": "animació esportiva",
+  "paCheerleadingDesc": "moviments gimnàstics, de competició",
+  "paChildrenGame": "jocs infantils",
+  "paChildrenGameDesc": "(p. ex., xarranca, quatre quadres, pilota presonera, gronxadors i tobogans, t-ball, tetherball, bales, màquines recreatives), esforç moderat",
+  "paClimbingHillsNoLoadGeneral": "pujar costeres, sense càrrega",
+  "paClimbingHillsNoLoadGeneralDesc": "sense càrrega",
+  "paCricket": "criquet",
+  "paCricketDesc": "batejar, llançar, defendre",
+  "paCroquet": "croquet",
+  "paCroquetDesc": "general",
+  "paCrossCountrySkiing": "esquí de fons",
+  "paCrossCountrySkiingDesc": "de fons, general",
+  "paCurling": "cúrling",
+  "paCurlingDesc": "general",
+  "paDancingAerobicGeneral": "aeròbic",
+  "paDancingAerobicGeneralDesc": "general",
+  "paDancingGeneral": "ball en general",
+  "paDancingGeneralDesc": "p. ex., disco, folklòric, claqué irlandés, ball en línia, polca, contradansa, country",
+  "paDartsWall": "dards",
+  "paDartsWallDesc": "de paret o de gespa",
+  "paDivingGeneral": "busseig",
+  "paDivingGeneralDesc": "busseig en apnea, submarinisme, general",
+  "paDivingSpringboardPlatform": "salts",
+  "paDivingSpringboardPlatformDesc": "trampolí o plataforma",
+  "paFencing": "esgrima",
+  "paFencingDesc": "general",
+  "paFrisbee": "frisbi",
+  "paFrisbeeDesc": "general",
+  "paGeneralDesc": "general",
+  "paGolfGeneral": "golf",
+  "paGolfGeneralDesc": "general",
+  "paGymnasticsGeneral": "gimnàstica",
+  "paGymnasticsGeneralDesc": "general",
+  "paHackySack": "hacky sack",
+  "paHackySackDesc": "general",
+  "paHandballGeneral": "handbol",
+  "paHandballGeneralDesc": "general",
+  "paHangGliding": "ala delta",
+  "paHangGlidingDesc": "general",
+  "paHeadingBicycling": "ciclisme",
+  "paHeadingConditionalExercise": "exercici de condicionament",
+  "paHeadingDancing": "ball",
+  "paHeadingRunning": "córrer",
+  "paHeadingSports": "esports",
+  "paHeadingWalking": "caminar",
+  "paHeadingWaterActivities": "activitats aquàtiques",
+  "paHeadingWinterActivities": "activitats d'hivern",
+  "paHighIntensityIntervalExercise": "exercici d'intervals d'alta intensitat",
+  "paHighIntensityIntervalExerciseDesc": "esforç moderat",
+  "paHighIntensityIntervalExerciseVigorous": "exercici d'intervals d'alta intensitat",
+  "paHighIntensityIntervalExerciseVigorousDesc": "burpees, escaladors, esquats amb salt, Tabata, esforç intens",
+  "paHikingCrossCountry": "senderisme",
+  "paHikingCrossCountryDesc": "camp a través",
+  "paHockeyField": "hoquei sobre herba",
+  "paHockeyFieldDesc": "general",
+  "paHorseRidingGeneral": "equitació",
+  "paHorseRidingGeneralDesc": "general",
+  "paIceHockeyGeneral": "hoquei sobre gel",
+  "paIceHockeyGeneralDesc": "general",
+  "paIceSkatingGeneral": "patinatge sobre gel",
+  "paIceSkatingGeneralDesc": "general",
+  "paJaiAlai": "pilota basca",
+  "paJaiAlaiDesc": "general",
+  "paJoggingGeneral": "córrer a ritme suau",
+  "paJoggingGeneralDesc": "general",
+  "paJuggling": "malabars",
+  "paJugglingDesc": "general",
+  "paKayakingModerate": "caiac",
+  "paKayakingModerateDesc": "esforç moderat",
+  "paKickball": "kickball",
+  "paKickballDesc": "general",
+  "paLacrosse": "lacrosse",
+  "paLacrosseDesc": "general",
+  "paLawnBowling": "bitlles sobre gespa",
+  "paLawnBowlingDesc": "petanca, a l'aire lliure",
+  "paMartialArtsModerate": "arts marcials",
+  "paMartialArtsModerateDesc": "diversos tipus, ritme moderat (p. ex., judo, jiu-jitsu, karate, kickboxing, taekwondo, tae bo, boxa tailandesa)",
+  "paMartialArtsSlower": "arts marcials",
+  "paMartialArtsSlowerDesc": "diversos tipus, ritme més lent, principiants, pràctica",
+  "paMotoCross": "motocròs",
+  "paMotoCrossDesc": "esports de motor tot terreny, quad, general",
+  "paMountainClimbing": "escalada",
+  "paMountainClimbingDesc": "escalada en roca o alpinisme",
+  "paNordicWalking": "marxa nòrdica",
+  "paOrienteering": "orientació",
+  "paOrienteeringDesc": "general",
+  "paPaddleBoarding": "pàdel surf",
+  "paPaddleBoardingDesc": "dret",
+  "paPaddleBoat": "barca de pedals",
+  "paPaddleBoatDesc": "general",
+  "paPaddleball": "paddleball",
+  "paPaddleballDesc": "informal, general",
+  "paPickleball": "pickleball",
+  "paPilates": "pilates",
+  "paPoloHorse": "polo",
+  "paPoloHorseDesc": "a cavall",
+  "paRacquetball": "raquetbol",
+  "paRacquetballDesc": "general",
+  "paResistanceTraining": "entrenament de força",
+  "paResistanceTrainingDesc": "alçament de pes, pes lliure, màquines",
+  "paResistanceTrainingVigorous": "entrenament de força (intens)",
+  "paResistanceTrainingVigorousDesc": "esforç intens, powerlifting o culturisme",
+  "paRodeoSportGeneralModerate": "esports de rodeo",
+  "paRodeoSportGeneralModerateDesc": "general, esforç moderat",
+  "paRollerbladingLight": "patins en línia",
+  "paRollerbladingLightDesc": "patinatge en línia",
+  "paRopeJumpingGeneral": "botar a corda",
+  "paRopeJumpingGeneralDesc": "ritme moderat, 100-120 bots/min, general, bot amb els dos peus, bot bàsic",
+  "paRopeSkippingGeneral": "botar a corda",
+  "paRopeSkippingGeneralDesc": "general",
+  "paRugbyCompetitive": "rugbi",
+  "paRugbyCompetitiveDesc": "union, en equip, de competició",
+  "paRugbyNonCompetitive": "rugbi",
+  "paRugbyNonCompetitiveDesc": "touch, sense competició",
+  "paRunningGeneral": "córrer",
+  "paRunningGeneralDesc": "general",
+  "paSailingGeneral": "vela",
+  "paSailingGeneralDesc": "vela en barca i taula, surf de vela, vela sobre gel, general",
+  "paShuffleboard": "shuffleboard",
+  "paShuffleboardDesc": "general",
+  "paSkateboardingGeneral": "monopatí",
+  "paSkateboardingGeneralDesc": "general, esforç moderat",
+  "paSkatingRoller": "patinatge sobre rodes",
+  "paSkatingRollerDesc": "general",
+  "paSkiingGeneral": "esquí",
+  "paSkiingGeneralDesc": "general",
+  "paSkiingWaterWakeboarding": "esquí aquàtic",
+  "paSkiingWaterWakeboardingDesc": "esquí aquàtic o wakeboard",
+  "paSkydiving": "paracaigudisme",
+  "paSkydivingDesc": "paracaigudisme, salt BASE, pònting",
+  "paSnorkeling": "busseig amb tub",
+  "paSnorkelingDesc": "general",
+  "paSnowShovingModerate": "llevar neu amb pala",
+  "paSnowShovingModerateDesc": "a mà, esforç moderat",
+  "paSnowshoeing": "raquetes de neu",
+  "paSoccerGeneral": "futbol",
+  "paSoccerGeneralDesc": "informal, general",
+  "paSoftballBaseballGeneral": "softbol / beisbol",
+  "paSoftballBaseballGeneralDesc": "llançament ràpid o lent, general",
+  "paSquashGeneral": "esquaix",
+  "paSquashGeneralDesc": "general",
+  "paStretching": "estiraments",
+  "paStretchingDesc": "suaus, general",
+  "paSurfing": "surf",
+  "paSurfingDesc": "bodyboard o taula, general",
+  "paSwimmingGeneral": "natació",
+  "paSwimmingGeneralDesc": "mantindre's a flotació, esforç moderat, general",
+  "paTableTennisGeneral": "tennis de taula",
+  "paTableTennisGeneralDesc": "tennis de taula, ping-pong",
+  "paTaiChiQiGongGeneral": "taitxí, qigong",
+  "paTaiChiQiGongGeneralDesc": "general",
+  "paTennisGeneral": "tennis",
+  "paTennisGeneralDesc": "general",
+  "paTrackField": "atletisme",
+  "paTrackField1Desc": "(p. ex., pes, disc, martell)",
+  "paTrackField2Desc": "(p. ex., salt d'altura, salt de longitud, triple salt, javelina, salt amb perxa)",
+  "paTrackField3Desc": "(p. ex., carrera d'obstacles, tanques)",
+  "paTrampolineLight": "llit elàstic",
+  "paTrampolineLightDesc": "recreatiu",
+  "paTreadmillRunning": "córrer en cinta",
+  "paTreadmillRunningDesc": "en cinta, general",
+  "paUnicyclingGeneral": "monocicle",
+  "paUnicyclingGeneralDesc": "general",
+  "paVolleyballGeneral": "voleibol",
+  "paVolleyballGeneralDesc": "sense competició, equip de 6 a 9 persones, general",
+  "paWalkingForPleasure": "caminar",
+  "paWalkingForPleasureDesc": "per plaer",
+  "paWalkingTheDog": "passejar el gos",
+  "paWalkingTheDogDesc": "general",
+  "paWallyball": "wallyball",
+  "paWallyballDesc": "general",
+  "paWaterAerobics": "exercici a l'aigua",
+  "paWaterAerobicsDesc": "aquaeròbic, calistènia aquàtica",
+  "paWaterPolo": "waterpolo",
+  "paWaterPoloDesc": "general",
+  "paWaterVolleyball": "voleibol aquàtic",
+  "paWaterVolleyballDesc": "general",
+  "paWateraerobicsCalisthenics": "aquaeròbic",
+  "paWateraerobicsCalisthenicsDesc": "aquaeròbic, calistènia aquàtica",
+  "paWrestling": "lluita lliure",
+  "paWrestlingDesc": "general",
+  "palActiveDescriptionLabel": "Passes la major part de la faena dret o caminant i el teu temps lliure és actiu",
+  "palActiveLabel": "Actiu",
+  "palLowActiveDescriptionLabel": "p. ex., faena asseguda o dreta i temps lliure amb activitat lleugera",
+  "palLowLActiveLabel": "Poc actiu",
+  "palSedentaryDescriptionLabel": "p. ex., faena d'oficina i temps lliure majoritàriament assegut",
+  "palSedentaryLabel": "Sedentari",
+  "palVeryActiveDescriptionLabel": "Passes la major part de la faena caminant, corrent o carregant pes i el teu temps lliure és actiu",
+  "palVeryActiveLabel": "Molt actiu",
+  "pasteCodeHint": "Apega ací el codi de l'àpat compartit",
+  "pasteCodeLabel": "Apegar el codi",
+  "per100gmlLabel": "Per 100 g/ml",
+  "perServingLabel": "Per ració",
+  "phosphorusLabel": "fòsfor",
+  "polyunsaturatedFatLabel": "greixos poliinsaturats",
+  "potassiumLabel": "potassi",
+  "privacyPolicyLabel": "Política de privacitat",
+  "profileLabel": "Perfil",
+  "profileTargetWeightClearAction": "Esborrar",
+  "profileTargetWeightLabel": "Pes objectiu",
+  "profileTargetWeightNotSetLabel": "Sense definir",
+  "profileTargetWeightReached": "Has arribat al teu objectiu",
+  "profileTargetWeightToGo": "{value} per al teu objectiu",
+  "profileWeeklyRateLabel": "Ritme setmanal",
+  "profileWeeklyRateValue": "{ratePct}% del pes corporal per setmana",
+  "weeklyRateDialogDescription": "Es definix com un percentatge del pes corporal per setmana. Fins que el teu pes de tendència arribe a l'objectiu, la teua meta serà el teu TDEE observat menys (o més) les calories corresponents. Un ritme nou s'aplica en la pròxima revisió setmanal.",
+  "profileWeightHistoryTitle": "Historial de pes",
+  "profileBodyMeasurementsTitle": "Mesures corporals",
+  "proteinLabel": "proteïnes",
+  "proteinLabelShort": "p",
+  "quantityLabel": "Quantitat",
+  "quickAddAddedSnack": "Afegit a {mealType}",
+  "quickAddBottomSheetTitle": "Entrada ràpida",
+  "quickAddCardLabel": "Entrada ràpida",
+  "quickAddCarbsHint": "Carbohidrats (g, opcional)",
+  "quickAddDefaultName": "Entrada ràpida",
+  "quickAddEnergyLabelKcal": "Energia (kcal)",
+  "quickAddEnergyLabelKj": "Energia (kJ)",
+  "quickAddFatHint": "Greixos (g, opcional)",
+  "quickAddProteinHint": "Proteïnes (g, opcional)",
+  "quickAddSubmitLabel": "Afegir",
+  "quickAddTitleHint": "Títol",
+  "readLabel": "He llegit i accepte la política de privacitat.",
+  "recentlyAddedLabel": "Recents",
+  "recipeAddIngredientLabel": "Afegir un ingredient",
+  "recipeDeleteConfirmContent": "Es conservaran les entrades del diari ja registrades amb esta recepta.",
+  "recipeDeleteConfirmTitle": "Vols eliminar la recepta?",
+  "recipeDescriptionLabel": "Descripció (opcional)",
+  "recipeImageLabel": "Afegir una foto",
+  "recipeImagePickFromGallery": "Triar de la galeria",
+  "recipeImageRemove": "Llevar la foto",
+  "recipeImageReplace": "Canviar la foto",
+  "recipeImageTakePhoto": "Fer una foto",
+  "progressPhotoImageLabel": "Afegir una foto",
+  "progressPhotoImagePickFromGallery": "Triar de la galeria",
+  "progressPhotoImageRemove": "Llevar la foto",
+  "progressPhotoImageReplace": "Canviar la foto",
+  "progressPhotoImageTakePhoto": "Fer una foto",
+  "bodyMeasurementsPhotosLabel": "Fotos",
+  "bodyMeasurementsPhotoFrontLabel": "Davant",
+  "bodyMeasurementsPhotoSideLabel": "Perfil",
+  "bodyMeasurementsPhotoBackLabel": "Esquena",
+  "bodyMeasurementsCompareTooltip": "Comparar fotos",
+  "bodyMeasurementsCompareTitle": "Comparar fotos",
+  "bodyMeasurementsCompareBeforeLabel": "Abans",
+  "bodyMeasurementsCompareAfterLabel": "Després",
+  "bodyMeasurementsCompareSelectDateLabel": "Seleccionar la data",
+  "bodyMeasurementsCompareEmptyLabel": "Encara no hi ha fotos de progrés amb este angle.",
+  "bodyMeasurementsCompareBackgroundLabel": "Fons",
+  "bodyMeasurementsCompareBackgroundWhiteLabel": "Blanc",
+  "bodyMeasurementsCompareBackgroundDarkLabel": "Fosc",
+  "bodyMeasurementsCompareShareTooltip": "Compartir",
+  "exportImportIncludeProgressPhotosLabel": "Incloure fotos de progrés",
+  "recipeIngredientAmountLabel": "Quantitat",
+  "recipeIngredientCountLabel": "{count} ingredient(s)",
+  "recipeIngredientUnitLabel": "Unitat",
+  "recipeIngredientsLabel": "Ingredients",
+  "recipeInvalidTotalWeightLabel": "El pes total ha de ser major que zero",
+  "recipeLogCtaLabel": "Registrar esta recepta",
+  "recipeNameLabel": "Nom de la recepta",
+  "recipeNameRequiredLabel": "La recepta necessita un nom",
+  "recipeNeedsIngredientsLabel": "Afig almenys un ingredient",
+  "recipeNoIngredientsLabel": "Encara no hi ha ingredients",
+  "recipeNutritionPer100Label": "Per 100 g",
+  "recipeNutritionPreviewLabel": "Nutrició (total)",
+  "recipeSaveErrorLabel": "No s'ha pogut guardar la recepta.",
+  "recipeSaveForLaterDescription": "Activa-ho per a conservar este àpat en la llista de guardats per a la pròxima vegada. Deixa-ho desactivat si és una cosa puntual que no tornaràs a menjar.",
+  "recipeSaveForLaterLabel": "Guardar per a la pròxima vegada",
+  "recipeSaveLabel": "Guardar la recepta",
+  "recipeServingsCountHelper": "Et permet registrar esta recepta per racions en lloc de per grams.",
+  "recipeServingsCountLabel": "Racions (opcional)",
+  "recipeTagsHelper": "Separades per comes, p. ex., \"esmorzar, vegà\"",
+  "recipeTagsLabel": "Etiquetes",
+  "recipeTotalWeightHelper": "Pesa l'olla amb el plat acabat perquè, en registrar-ne una part (per exemple, 350 g), es compten les calories correctes. Per defecte s'usa el pes dels ingredients crus; els líquids compten com 1 ml ≈ 1 g.",
+  "recipeTotalWeightLabel": "Pes del plat sencer cuinat (g)",
+  "recipesEmptyHint": "Crea un àpat amb diversos ingredients i reutilitza'l com qualsevol altre aliment.",
+  "recipesEmptyLabel": "Encara no hi ha receptes",
+  "recipesFilterAllLabel": "Totes",
+  "recipesLabel": "Receptes",
+  "recipesLoadErrorLabel": "No s'han pogut carregar les receptes. Torna-ho a provar més tard.",
+  "reportErrorDialogText": "Vols informar d'un error al desenvolupador?",
+  "retryLabel": "Tornar a provar",
+  "saturatedFatLabel": "greixos saturats",
+  "scanProductLabel": "Escanejar producte",
+  "scannerManualEntryButton": "Escriure el codi a mà",
+  "scannerManualEntryCancel": "Cancel·lar",
+  "scannerManualEntryDialogTitle": "Introduïx el codi de barres",
+  "scannerManualEntryFieldHint": "De 8 a 14 dígits",
+  "scannerManualEntryInvalid": "Eixe codi de barres no pareix vàlid. Revisa els dígits i torna-ho a provar.",
+  "scannerManualEntrySubmit": "Buscar",
+  "scannerPhotographLabelButton": "Fotografiar l'etiqueta",
+  "scannerPhotographLabelExplanation": "No trobem este producte en la base de dades. Fes una foto de l'etiqueta nutricional i la llegirem perquè la revises.",
+  "scannerScanAgainButton": "Tornar a escanejar",
+  "scannerCameraPermissionDeniedTitle": "Cal accés a la càmera",
+  "scannerCameraPermissionDeniedExplanation": "OpenNutriTracker necessita accés a la càmera per a escanejar codis de barres. Activa'l en la configuració del dispositiu, torna i prova-ho de nou.",
+  "scannerOpenSettingsButton": "Obrir la configuració",
+  "scannerSwitchLensButton": "Canviar de lent (ajuda amb codis de barres de prop)",
+  "scanLabelScreenTitle": "Escanejar l'etiqueta",
+  "scanLabelExplanation": "Fes una foto de l'etiqueta d'informació nutricional i emplenarem les dades perquè les revises.",
+  "scanLabelPhotoPlaceholder": "Foto de l'etiqueta nutricional",
+  "scanLabelAnalyzeButton": "Llegir l'etiqueta",
+  "scanLabelAnalysisFailedError": "No s'ha pogut llegir esta etiqueta; torna-ho a provar",
+  "searchDefaultLabel": "Introduïx un terme de busca",
+  "searchFoodPage": "Aliments",
+  "searchLabel": "Buscar",
+  "searchProductsPage": "Productes",
+  "searchResultsLabel": "Resultats de la busca",
+  "selectGenderDialogLabel": "Selecciona el sexe",
+  "selectHeightDialogLabel": "Selecciona l'altura",
+  "selectPalCategoryLabel": "Selecciona el nivell d'activitat",
+  "selectWeightDialogLabel": "Selecciona el pes",
+  "selectionCountLabel": "{count} seleccionats",
+  "sendAnonymousUserData": "Enviar dades d'ús anònimes",
+  "servingLabel": "Ració",
+  "servingSizeLabelImperial": "Grandària de la ració (oz/fl oz)",
+  "servingSizeLabelMetric": "Grandària de la ració (g/ml)",
+  "settingAboutLabel": "Quant a",
+  "settingFeedbackLabel": "Comentaris",
+  "settingsCalciumGoalDescription": "Objectiu diari de calci en mil·ligrams. La referència per defecte és 1000 mg.",
+  "settingsCalciumGoalLabel": "Objectiu de calci",
+  "settingsCaloriesTaperDescription": "Reduïx el dèficit diari de manera gradual perquè els últims quilos no es facen costa amunt.",
+  "settingsCaloriesTaperLabel": "Ajustar l'objectiu de calories en acostar-te a la meta",
+  "settingsCloudBackupActivateLabel": "Activar la còpia en el núvol",
+  "settingsCloudBackupActivateSubtitle": "Genera un codi de vinculació per a vore les teues dades en un altre dispositiu",
+  "settingsCloudBackupLinkDeviceLabel": "Vincular este dispositiu",
+  "settingsCloudBackupLinkDeviceSubtitle": "Escaneja o apega un codi de vinculació d'un altre dispositiu",
+  "settingsCloudBackupNotPairedError": "Primer configura la còpia en el núvol",
+  "settingsCloudBackupRestoreConfirmAction": "Restaurar",
+  "settingsCloudBackupRestoreConfirmContent": "Açò substituïx tot el que hi ha en este dispositiu (diari, perfil, configuració, receptes i més) per l'última còpia en el núvol. Esta acció no es pot desfer.",
+  "settingsCloudBackupRestoreConfirmTitle": "Vols restaurar des del núvol?",
+  "settingsCloudBackupRestoreErrorLabel": "Error en restaurar",
+  "settingsCloudBackupRestoreLabel": "Restaurar des del núvol",
+  "settingsCloudBackupRestoreSubtitle": "Descarrega la còpia del núvol i sobreescriu les dades d'este dispositiu",
+  "settingsCloudBackupRestoreSuccessLabel": "Dades restaurades. Reinicia l'aplicació per a vore tots els canvis.",
+  "settingsCloudBackupSyncErrorLabel": "Error en la còpia de seguretat",
+  "settingsCloudBackupSyncLabel": "Fer una còpia ara",
+  "settingsCloudBackupSyncSubtitle": "Puja al núvol les dades d'este dispositiu",
+  "settingsCloudBackupSyncSuccessLabel": "Còpia pujada",
+  "settingsCloudBackupViewCodeLabel": "Vore el codi de vinculació",
+  "settingsCustomMealsLabel": "Aliments personalitzats",
+  "settingsDayStartDescription": "Tria l'hora a la qual comença el teu dia. Els àpats i les activitats registrats abans d'eixa hora compten per al dia anterior; útil si treballes de nit o sopes tard.",
+  "settingsDayStartHourLabel": "{hour}:00",
+  "settingsDayStartHoursPickerLabel": "Hores",
+  "settingsDayStartLabel": "El dia comença a les",
+  "settingsDayStartMinutesPickerLabel": "Minuts",
+  "settingsDayStartTimeLabel": "{hour}:{minute}",
+  "settingsDisclaimerLabel": "Avís legal",
+  "settingsDistanceLabel": "Distància",
+  "settingsEnergyUnitLabel": "Unitat d'energia",
+  "settingsFibreGoalDescription": "Objectiu diari de fibra en grams. La referència per defecte és 30 g.",
+  "settingsFibreGoalLabel": "Objectiu de fibra",
+  "settingsImperialLabel": "Imperial (lbs, ft, oz)",
+  "settingsKcalAdjustmentLabel": "Ajust diari de kcal",
+  "settingsIronGoalDescription": "Objectiu diari de ferro en mil·ligrams. El valor per defecte depén del sexe (8 mg hòmens, 18 mg dones, 14 mg en altres casos).",
+  "settingsIronGoalLabel": "Objectiu de ferro",
+  "settingsLabel": "Configuració",
+  "settingsLanguageLabel": "Idioma",
+  "strategyLabel": "Estratègia",
+  "strategyRangeOneMonth": "1 M",
+  "strategyRangeThreeMonths": "3 M",
+  "strategyRangeSixMonths": "6 M",
+  "strategyRangeOneYear": "1 A",
+  "strategyRangeAllTime": "Tot",
+  "strategyEmptyState": "Registra almenys dues pesades per a vore el teu tauler d'estratègia.",
+  "strategyEstimatorStatusActiveLabel": "Actiu",
+  "strategyEstimatorStatusActiveDescription": "S'actualitza amb les teues dades",
+  "strategyEstimatorStatusInsufficientLabel": "Dades insuficients",
+  "strategyEstimatorStatusInsufficientDescription": "Registra el pes i els àpats amb més regularitat per a obtindre una estimació",
+  "strategyEstimatorStatusCalibratingLabel": "S'està calibrant",
+  "strategyEstimatorStatusCalibratingDescription": "S'ajusta progressivament cap a la teua estimació dinàmica a mesura que arriben més dades; sol estabilitzar-se en un parell de setmanes",
+  "strategyEstimatorStatusPausedLabel": "En pausa",
+  "strategyEstimatorStatusPausedDescription": "Menys de 4 dels últims 7 dies tenen àpats registrats, així que la teua estimació es manté en l'últim valor",
+  "strategyCheckInTitle": "Revisió setmanal",
+  "strategyCheckInApply": "Actualitzar l'objectiu",
+  "strategyCheckInKeep": "Mantindre l'actual",
+  "strategyCheckInDayLabel": "Dia de revisió",
+  "strategyCheckInDue": "La teua revisió setmanal està llesta. Objectiu nou: {newTarget} (ara {currentTarget}).",
+  "strategyCheckInNext": "Pròxima revisió: {date}",
+  "strategyKcalFloorNote": "Fixat en el mínim de {floor}: el teu ritme setmanal està limitat perquè l'objectiu no baixe mai d'ahí.",
+  "strategyEstimatedTdeeLabel": "TDEE estimat",
+  "strategyTrendWeightLabel": "Pes de tendència",
+  "strategyTodayTargetLabel": "Objectiu de hui",
+  "strategyExplanationMaintaining": "Manteniment: coincidix amb el teu TDEE observat",
+  "strategyExplanationRate": "Buscant un {ratePct}% del pes corporal per setmana: {adjustment}/dia respecte al teu TDEE",
+  "strategyExplanationWithinBand": "A menys de {band} del teu objectiu: manteniment amb el teu TDEE observat",
+  "strategyExplanationCorrecting": "A {distance} del teu objectiu: corregint {correction}/dia cap a la meta",
+  "strategyMacroDistributionTitle": "Distribució de macros",
+  "settingsMaterialYouTitle": "Usar els colors del sistema",
+  "settingsMaterialYouSubtitle": "Usa el color d'accent del fons de pantalla en Android 12 i versions posteriors.",
+  "settingsAccentColourTitle": "Color d'accent",
+  "settingsAccentSubtitleMaterialYou": "Material You",
+  "settingsAccentSubtitleCustom": "Personalitzat",
+  "settingsAccentSubtitleDefault": "Predeterminat",
+  "settingsAccentPresetsHeader": "Tria un color",
+  "settingsAccentCustomColour": "Color personalitzat…",
+  "settingsAccentCustomSubtitle": "Obri el selector de to per a triar amb precisió",
+  "settingsAccentHexLabel": "Codi hexadecimal",
+  "settingsAccentHexInvalid": "Eixe codi hexadecimal no pareix correcte: sis dígits, 0-9 i A-F.",
+  "settingsAccentHueTitle": "Color d'accent",
+  "settingsAccentHueDisabledHint": "Desactiva els colors del sistema per a triar un accent personalitzat.",
+  "settingsAccentHueReset": "Restablir",
+  "settingsMacroSplitLabel": "Repartiment de macros",
+  "settingsLicensesLabel": "Llicències",
+  "settingsMagnesiumGoalDescription": "Objectiu diari de magnesi en mil·ligrams. El valor per defecte depén del sexe (400 mg hòmens, 310 mg dones, 355 mg en altres casos).",
+  "settingsMagnesiumGoalLabel": "Objectiu de magnesi",
+  "settingsMassLabel": "Massa",
+  "settingsMetricLabel": "Mètric (kg, cm, ml)",
+  "settingsNotificationsLabel": "Recordatori diari",
+  "settingsNotificationsTimeLabel": "Hora del recordatori: {time}",
+  "settingsNotificationsUnavailableWebLabel": "No disponible en la versió web",
+  "settingsNutrientGoalsHint": "Objectius personals per a cada nutrient del tauler diari. Quan en definixes un, el diari l'usa en lloc de la referència diària per defecte.",
+  "settingsNutrientGoalsLabel": "Objectius de nutrients",
+  "settingsNutrientsHelp": "Tria quins nutrients es veuen en el tauler diari. Pots tornar a activar els ocults en qualsevol moment.",
+  "settingsNutrientsLabel": "Nutrients",
+  "settingsNutrientsSubtitle": "Tria quins nutrients apareixen en el tauler del diari",
+  "settingsOpenRouterLabel": "Proveïdor d'IA",
+  "settingsOpenRouterSubtitle": "Configura OpenRouter per a les funcions amb IA",
+  "settingsPerMealKcalShareBreakfast": "Esmorzar",
+  "settingsPerMealKcalShareDescription": "Repartix el teu objectiu diari de kcal entre esmorzar, dinar, sopar i berenars. Els percentatges han de sumar 100%.",
+  "settingsPerMealKcalShareDinner": "Sopar",
+  "settingsPerMealKcalShareLabel": "Repartiment de kcal per àpat",
+  "settingsPerMealKcalShareLunch": "Dinar",
+  "settingsPerMealKcalShareSnack": "Berenar",
+  "settingsPotassiumGoalDescription": "Objectiu diari de potassi en mil·ligrams. La referència per defecte és 3500 mg.",
+  "settingsPotassiumGoalLabel": "Objectiu de potassi",
+  "settingsPrivacySettings": "Configuració de privacitat",
+  "settingsReportErrorLabel": "Informar d'un error",
+  "settingsSaturatedFatGoalDescription": "Límit diari de greixos saturats en grams. La referència per defecte és 20 g.",
+  "settingsSaturatedFatGoalLabel": "Objectiu de greixos saturats",
+  "settingsShowActivityTracking": "Mostrar el registre d'activitat",
+  "settingsShowMealMacros": "Mostrar els macros dels àpats",
+  "settingsShowMicronutrientsLabel": "Mostrar els micronutrients",
+  "settingsSodiumGoalDescription": "Límit diari de sodi en mil·ligrams. La referència per defecte és 2300 mg.",
+  "settingsSodiumGoalLabel": "Objectiu de sodi",
+  "settingsSourceCodeLabel": "Codi font",
+  "settingsSourcesLabel": "Fonts i referències",
+  "settingsSugarsGoalDescription": "Límit diari de sucres en grams. La referència per defecte és 50 g.",
+  "settingsSugarsGoalLabel": "Objectiu de sucres",
+  "settingsSystemLabel": "Sistema",
+  "settingsThemeDarkLabel": "Fosc",
+  "settingsThemeLabel": "Tema",
+  "settingsThemeLightLabel": "Clar",
+  "settingsThemeSystemDefaultLabel": "Predeterminat del sistema",
+  "settingsUnitsLabel": "Unitats",
+  "settingsVitaminB12GoalDescription": "Objectiu diari de vitamina B12 en micrograms. La referència per defecte és 2,4 µg.",
+  "settingsVitaminB12GoalLabel": "Objectiu de vitamina B12",
+  "settingsVitaminDGoalDescription": "Objectiu diari de vitamina D en micrograms. La referència per defecte és 15 µg.",
+  "settingsVitaminDGoalLabel": "Objectiu de vitamina D",
+  "settingsVolumeLabel": "Volum",
+  "shareActivityLabel": "Compartir l'entrenament",
+  "shareCodeLabel": "Compartir el codi",
+  "shareMealLabel": "Compartir l'àpat",
+  "shareRecipeLabel": "Compartir la recepta",
+  "snackExample": "p. ex., poma, gelat, xocolate...",
+  "snackLabel": "Berenar",
+  "sodiumLabel": "sodi",
+  "sourcesActivityDescription": "Les calories cremades durant una activitat s'estimen com a MET × pes corporal (kg) × durada (hores), amb valors de l'Adult Compendium of Physical Activities.",
+  "sourcesActivityTitle": "Calories de l'activitat (valors MET)",
+  "sourcesBmiDescription": "L'IMC es calcula com el pes (kg) dividit per l'altura al quadrat (m²). Les categories de salut (pes insuficient, normal, preobesitat, obesitat de classe I–III) seguixen la classificació de l'IMC per a adults de l'Organització Mundial de la Salut.",
+  "sourcesBmiTitle": "Índex de massa corporal (IMC)",
+  "sourcesEnergyDescription": "Els objectius diaris de calories, la taxa metabòlica basal i els coeficients d'activitat física usen les equacions de l'Institute of Medicine. Font: Institute of Medicine (2005). Dietary Reference Intakes for Energy, Carbohydrate, Fiber, Fat, Fatty Acids, Cholesterol, Protein, and Amino Acids, capítol 5 i taula 5-5.",
+  "sourcesEnergyTitle": "Necessitats energètiques (TDEE, TMB i nivell d'activitat)",
+  "sourcesIconTooltip": "Vore les fonts",
+  "sourcesMacrosDescription": "El repartiment per defecte de 60% carbohidrats, 25% greixos i 15% proteïnes està dins dels intervals d'ingesta de nutrients per a la població publicats per l'OMS. Pots ajustar-ho en Configuració → Càlculs. Font: WHO Technical Report Series 916 (2003), Diet, Nutrition and the Prevention of Chronic Diseases.",
+  "sourcesMacrosTitle": "Distribució de macronutrients",
+  "sourcesNonBinaryDescription": "La investigació sobre la despesa energètica ha usat històricament categories de sexe binàries, així que no hi ha una única fórmula de TDEE validada per a persones no binàries. Per això OpenNutriTracker et permet triar en Configuració → Càlculs entre una referència mitjana, una de perfil estrogènic o una de perfil testosterònic. Si un número precís és realment important per a la teua atenció sanitària, parla amb un professional que conega la teua situació hormonal.",
+  "sourcesNutrientReferenceTitle": "Ingestes de referència de nutrients",
+  "sourcesNutrientReferenceDescription": "Les quantitats diàries de referència del tauler de nutrients del diari provenen del resum de les Dietary Reference Intakes de l'Institute of Medicine, que arreplega objectius per nutrient per a adults.",
+  "sourcesNonBinaryTitle": "Estimació calòrica per a persones no binàries",
+  "sourcesOpenSourceLabel": "Vore la font",
+  "sourcesScreenIntro": "OpenNutriTracker usa metodologies consolidades i revisades per experts per a cada càlcul que mostra. Les cites de baix enllacen amb les fonts originals perquè pugues comprovar qualsevol número tu mateix.",
+  "sugarLabel": "sucre",
+  "suppliedLabel": "aportat",
+  "transFatLabel": "greixos trans",
+  "unitLabel": "Unitat",
+  "vitaminALabel": "vitamina A",
+  "vitaminB12Label": "vitamina B12",
+  "vitaminB6Label": "vitamina B6",
+  "vitaminCLabel": "vitamina C",
+  "vitaminDLabel": "vitamina D",
+  "warningLabel": "Advertència",
+  "weightHistoryAddEntry": "Afegir un registre",
+  "weightHistoryChartEmptyState": "Registra almenys dos dies per a vore la teua tendència.",
+  "weightHistoryDateLabel": "Data",
+  "weightHistoryNoEntries": "Encara no hi ha registres de pes. Afig el primer per a començar a seguir la teua tendència.",
+  "weightHistoryNoteLabel": "Nota (opcional)",
+  "weightHistoryScaleLabel": "Bàscula",
+  "weightHistoryTrendLabel": "Tendència",
+  "weightHistoryWeightLabel": "Pes",
+  "weightLabel": "Pes",
+  "bodyMeasurementsAddEntry": "Afegir un registre",
+  "bodyMeasurementsNoEntries": "Encara no hi ha mesures. Afig la primera per a començar a fer el seguiment.",
+  "bodyMeasurementsChartEmptyState": "Registra almenys dues entrades d'esta mesura per a vore'n la tendència.",
+  "bodyMeasurementsDateLabel": "Data",
+  "bodyMeasurementsNoteLabel": "Nota (opcional)",
+  "bodyMeasurementsNeckLabel": "Coll",
+  "bodyMeasurementsShouldersLabel": "Muscles",
+  "bodyMeasurementsChestLabel": "Pit",
+  "bodyMeasurementsWaistLabel": "Cintura",
+  "bodyMeasurementsHipsLabel": "Maluc",
+  "bodyMeasurementsBicepsLabel": "Bíceps",
+  "bodyMeasurementsThighLabel": "Cuixa",
+  "bodyMeasurementsWaistToHeightRatioLabel": "Cintura-altura",
+  "bodyMeasurementsWaistToHipRatioLabel": "Cintura-maluc",
+  "inLabel": "in",
+  "yearsLabel": "{age} anys",
+  "logWaterAmountLabel": "Afegir {amount} ml",
+  "logWaterDialogTitle": "Registrar aigua",
+  "logWaterNothingToUndoLabel": "No hi ha res per desfer",
+  "logWaterUndoLabel": "Desfer l'últim",
+  "mlLabel": "ml",
+  "settingsWaterGoalDescription": "L'usa l'indicador d'aigua de la pantalla d'inici.",
+  "settingsWaterGoalLabel": "Objectiu diari d'aigua",
+  "waterChipLabel": "{current} / {goal} ml",
+  "zincLabel": "zinc",
+  "profileFastingEntry": "Temporitzador de dejuni",
+  "fastingTitle": "Temporitzador de dejuni",
+  "fastingSubtitle": "Un temporitzador per al temps entre àpats, amb el teu propi historial. Sense ratxes ni puntuacions.",
+  "fastingWarningTitle": "Abans de començar",
+  "fastingWarningBody": "Controlar el temps de dejuni pot ajudar algunes persones i perjudicar-ne d'altres, sobretot les que tenen antecedents de trastorns de la conducta alimentària. Si és el teu cas, cuida't primer. Pots trobar suport en BEAT (Regne Unit) i NEDA (EUA).",
+  "fastingWarningDecline": "No és per a mi",
+  "fastingWarningAccept": "Ho entenc, activar el temporitzador",
+  "fastingPresetCustom": "Personalitzat",
+  "fastingStart": "Iniciar el temporitzador",
+  "fastingCancel": "Acabar el dejuni",
+  "fastingCancelConfirmTitle": "Vols acabar el dejuni ara?",
+  "fastingCancelConfirmBody": "Açò tancarà la sessió actual.",
+  "fastingComplete": "Sessió completada",
+  "fastingLinkBeat": "BEAT (Regne Unit)",
+  "fastingLinkNeda": "NEDA (EUA)",
+  "fastingElapsedLabel": "Transcorregut",
+  "fastingRemainingValue": "Queden {value}",
+  "@fastingRemainingValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "fastingTargetValue": "Objectiu: {value}",
+  "@fastingTargetValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "hoursLabel": "hores",
+  "dialogCloseLabel": "Tancar",
+  "customMealsRowMoreTooltip": "Més accions",
+  "customMealsMergeAction": "Combinar amb un altre aliment personalitzat",
+  "customMealsMergePickerTitle": "Tria l'aliment personalitzat amb què combinar",
+  "customMealsMergeChooseSurvivorTitle": "Quin es queda?",
+  "customMealsMergeContinueAction": "Continuar",
+  "customMealsMergeConfirmTitle": "Vols combinar els aliments personalitzats?",
+  "customMealsMergeConfirmContent": "Totes les entrades registrades amb {loser} passaran a mostrar {winner}, i {loser} s'eliminarà dels teus aliments personalitzats. Esta acció no es pot desfer.",
+  "@customMealsMergeConfirmContent": {
+    "placeholders": {
+      "loser": {
+        "type": "String"
+      },
+      "winner": {
+        "type": "String"
+      }
+    }
+  },
+  "customMealsMergeConfirmAction": "Combinar",
+  "customMealsMergeSuccessSnackbarOne": "Combinats: {winner} té ara 1 entrada registrada.",
+  "@customMealsMergeSuccessSnackbarOne": {
+    "placeholders": {
+      "winner": {
+        "type": "String"
+      }
+    }
+  },
+  "customMealsMergeSuccessSnackbarOther": "Combinats: {winner} té ara {count} entrades registrades.",
+  "@customMealsMergeSuccessSnackbarOther": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "winner": {
+        "type": "String"
+      }
+    }
+  },
+  "fastingHomeChipBody": "Dejuni · queden {remaining}",
+  "@fastingHomeChipBody": {
+    "placeholders": {
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "fastingNotificationChannelName": "Temporitzador de dejuni",
+  "fastingNotificationChannelDescription": "Avisos puntuals quan una sessió de dejuni arriba al seu objectiu.",
+  "fastingNotificationCompleteTitle": "Sessió de dejuni completada",
+  "fastingNotificationCompleteBody": "Has arribat al temps objectiu.",
+  "fastingWarningWhoTitle": "Parla amb un metge abans de dejunar si:",
+  "fastingWarningWhoList": "• tens menys de 18 anys\n• estàs embarassada o dones el pit\n• tens diabetis o prens medicaments que abaixen el sucre en sang\n• tens o has tingut un trastorn de la conducta alimentària\n• tens un pes insuficient\n• tens una altra malaltia o prens medicació de manera habitual",
+  "fastingStopIfUnwell": "Para i menja si notes mareig, debilitat, tremolors, confusió o malestar. Busca ajuda mèdica si no se't passa.",
+  "fastingNotMedicalAdvice": "Este temporitzador no és consell mèdic. Fonts:",
+  "fastingLinkWashU": "WashU Physicians: guia sobre el dejuni intermitent",
+  "fastingLinkBastyr": "Bastyr University: quan cal evitar el dejuni intermitent",
+  "fastingSafetyTitle": "Dejunar amb seguretat",
+  "fastingSafetyTooltip": "Seguretat del dejuni",
+  "fastingExtendedTitle": "Dejunis de més de 24 hores",
+  "fastingExtendedBody": "Els dejunis de més de 24 hores comporten més riscos: baixades de sucre, deshidratació, desequilibris de sals i problemes en tornar a menjar. Fes-los només amb supervisió mèdica.",
+  "fastingExtendedAccept": "Un metge m'està supervisant",
+  "fastingErrorTarget": "Introduïx entre 1 i {max} hores.",
+  "@fastingErrorTarget": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "fastingTargetReached": "Objectiu assolit",
+  "fastingPastTarget": "{value} per damunt de l'objectiu",
+  "@fastingPastTarget": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "fastingOver24Notice": "Portes més de 24 hores en dejuni. Els dejunis tan llargs han d'estar supervisats per un metge. Beu aigua i acaba el dejuni si et trobes malament.",
+  "fastingOver72Notice": "Esta sessió porta oberta més de 3 dies. Si ja has menjat, acaba-la i indica l'hora en què vas menjar.",
+  "fastingStartedAt": "Inici: {value}",
+  "@fastingStartedAt": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "fastingEditStart": "Editar l'hora d'inici",
+  "fastingEndTitle": "Quan vas menjar?",
+  "fastingEndNow": "Ara mateix",
+  "fastingEndPick": "Triar l'hora",
+  "fastingEndedSummary": "Dejuni acabat després de {value}.",
+  "@fastingEndedSummary": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "fastingHistoryTitle": "Historial",
+  "fastingHistoryEmpty": "Encara no hi ha dejunis registrats.",
+  "fastingHistorySummary": "Últims 7 dies: {count} registrats, mitjana de {value}",
+  "@fastingHistorySummary": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "fastingAddPast": "Afegir un dejuni passat",
+  "fastingRecordAddTitle": "Afegir un dejuni",
+  "fastingRecordEditTitle": "Editar el dejuni",
+  "fastingRecordStart": "Inici",
+  "fastingRecordEnd": "Final",
+  "fastingRecordTarget": "Objectiu (hores)",
+  "fastingDeleteTitle": "Vols eliminar este dejuni?",
+  "fastingDeleteBody": "El registre s'eliminarà del teu historial.",
+  "fastingErrorStartInFuture": "L'inici no pot estar en el futur.",
+  "fastingErrorEndInFuture": "El final no pot estar en el futur.",
+  "fastingErrorEndBeforeStart": "El final ha de ser posterior a l'inici.",
+  "fastingErrorTooLong": "Un registre no pot durar més de 7 dies.",
+  "fastingErrorOverlaps": "Se solapa amb un altre dejuni del teu historial.",
+  "fastingHomeChipReached": "Dejuni · {value}",
+  "@fastingHomeChipReached": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "appearanceTitle": "Aparença"
+}
