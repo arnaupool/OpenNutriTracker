@@ -83,8 +83,8 @@ class _EditDialogState extends State<EditDialog> {
             Semantics(
               identifier: 'edit-dialog-nutrition-summary',
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  // Equal shares, so long labels (es/ca/de) can't overlap.
                   _NutrientStat(
                     value: metricAmount == null
                         ? null
@@ -196,20 +196,27 @@ class _NutrientStat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          value == null ? '—' : '${value!.round()} $unit',
-          style: theme.textTheme.titleSmall,
-        ),
-        Text(
-          label,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+    return Expanded(
+      child: Column(
+        children: [
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value == null ? '—' : '${value!.round()} $unit',
+              style: theme.textTheme.titleSmall,
+            ),
           ),
-        ),
-      ],
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

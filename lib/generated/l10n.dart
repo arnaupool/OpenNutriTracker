@@ -9908,6 +9908,406 @@ class S {
       args: [pulled, pushed],
     );
   }
+
+  /// `Review`
+  String get reviewTitle {
+    return Intl.message(
+      "Review",
+      name: 'reviewTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Weight`
+  String get reviewTabWeight {
+    return Intl.message(
+      "Weight",
+      name: 'reviewTabWeight',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Expenditure`
+  String get reviewTabExpenditure {
+    return Intl.message(
+      "Expenditure",
+      name: 'reviewTabExpenditure',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Adherence`
+  String get reviewTabAdherence {
+    return Intl.message(
+      "Adherence",
+      name: 'reviewTabAdherence',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Diary`
+  String get reviewTabDiary {
+    return Intl.message(
+      "Diary",
+      name: 'reviewTabDiary',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `7 d`
+  String get reviewRange7 {
+    return Intl.message(
+      "7 d",
+      name: 'reviewRange7',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `30 d`
+  String get reviewRange30 {
+    return Intl.message(
+      "30 d",
+      name: 'reviewRange30',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `90 d`
+  String get reviewRange90 {
+    return Intl.message(
+      "90 d",
+      name: 'reviewRange90',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `1 year`
+  String get reviewRangeYear {
+    return Intl.message(
+      "1 year",
+      name: 'reviewRangeYear',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `All`
+  String get reviewRangeAll {
+    return Intl.message(
+      "All",
+      name: 'reviewRangeAll',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Refresh`
+  String get reviewRefresh {
+    return Intl.message(
+      "Refresh",
+      name: 'reviewRefresh',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Export CSV`
+  String get reviewExportCsv {
+    return Intl.message(
+      "Export CSV",
+      name: 'reviewExportCsv',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `CSV saved`
+  String get reviewExported {
+    return Intl.message(
+      "CSV saved",
+      name: 'reviewExported',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nothing logged in this period.`
+  String get reviewEmpty {
+    return Intl.message(
+      "Nothing logged in this period.",
+      name: 'reviewEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Scale`
+  String get reviewChartScale {
+    return Intl.message(
+      "Scale",
+      name: 'reviewChartScale',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Trend`
+  String get reviewChartTrend {
+    return Intl.message(
+      "Trend",
+      name: 'reviewChartTrend',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Eaten`
+  String get reviewChartIntake {
+    return Intl.message(
+      "Eaten",
+      name: 'reviewChartIntake',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Expenditure`
+  String get reviewChartExpenditure {
+    return Intl.message(
+      "Expenditure",
+      name: 'reviewChartExpenditure',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Date`
+  String get reviewColDate {
+    return Intl.message(
+      "Date",
+      name: 'reviewColDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Scale`
+  String get reviewColScale {
+    return Intl.message(
+      "Scale",
+      name: 'reviewColScale',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Trend`
+  String get reviewColTrend {
+    return Intl.message(
+      "Trend",
+      name: 'reviewColTrend',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `7-day change`
+  String get reviewColWeekChange {
+    return Intl.message(
+      "7-day change",
+      name: 'reviewColWeekChange',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Eaten (kcal)`
+  String get reviewColIntake {
+    return Intl.message(
+      "Eaten (kcal)",
+      name: 'reviewColIntake',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Goal (kcal)`
+  String get reviewColGoal {
+    return Intl.message(
+      "Goal (kcal)",
+      name: 'reviewColGoal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Expenditure (kcal)`
+  String get reviewColExpenditure {
+    return Intl.message(
+      "Expenditure (kcal)",
+      name: 'reviewColExpenditure',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Balance (kcal)`
+  String get reviewColBalance {
+    return Intl.message(
+      "Balance (kcal)",
+      name: 'reviewColBalance',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Period`
+  String get reviewColPeriod {
+    return Intl.message(
+      "Period",
+      name: 'reviewColPeriod',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Days logged`
+  String get reviewColDays {
+    return Intl.message(
+      "Days logged",
+      name: 'reviewColDays',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Of goal`
+  String get reviewColOfGoal {
+    return Intl.message(
+      "Of goal",
+      name: 'reviewColOfGoal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Protein (g)`
+  String get reviewColProtein {
+    return Intl.message(
+      "Protein (g)",
+      name: 'reviewColProtein',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Carbs (g)`
+  String get reviewColCarbs {
+    return Intl.message(
+      "Carbs (g)",
+      name: 'reviewColCarbs',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Fat (g)`
+  String get reviewColFat {
+    return Intl.message(
+      "Fat (g)",
+      name: 'reviewColFat',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Time`
+  String get reviewColTime {
+    return Intl.message(
+      "Time",
+      name: 'reviewColTime',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Meal`
+  String get reviewColMeal {
+    return Intl.message(
+      "Meal",
+      name: 'reviewColMeal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Food`
+  String get reviewColFood {
+    return Intl.message(
+      "Food",
+      name: 'reviewColFood',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Amount`
+  String get reviewColAmount {
+    return Intl.message(
+      "Amount",
+      name: 'reviewColAmount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Day`
+  String get reviewPeriodDay {
+    return Intl.message(
+      "Day",
+      name: 'reviewPeriodDay',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Week`
+  String get reviewPeriodWeek {
+    return Intl.message(
+      "Week",
+      name: 'reviewPeriodWeek',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Month`
+  String get reviewPeriodMonth {
+    return Intl.message(
+      "Month",
+      name: 'reviewPeriodMonth',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete this entry from the diary?`
+  String get reviewDeleteIntakeBody {
+    return Intl.message(
+      "Delete this entry from the diary?",
+      name: 'reviewDeleteIntakeBody',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

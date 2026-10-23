@@ -20,6 +20,7 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ca';
 
+
   static String mSyncStatusIdle(value) =>
       "Al dia · última sincronització ${value}";
 
@@ -2240,5 +2241,85 @@ class MessageLookup extends MessageLookupByLibrary {
         "syncPasteHint": MessageLookupByLibrary.simpleMessage(
             "ontsync1:…"),
         "syncDoneSnackbar": mSyncDoneSnackbar,
+        "reviewTitle": MessageLookupByLibrary.simpleMessage(
+            "Anàlisi"),
+        "reviewTabWeight": MessageLookupByLibrary.simpleMessage(
+            "Pes"),
+        "reviewTabExpenditure": MessageLookupByLibrary.simpleMessage(
+            "Despesa"),
+        "reviewTabAdherence": MessageLookupByLibrary.simpleMessage(
+            "Adherència"),
+        "reviewTabDiary": MessageLookupByLibrary.simpleMessage(
+            "Diari"),
+        "reviewRange7": MessageLookupByLibrary.simpleMessage(
+            "7 d"),
+        "reviewRange30": MessageLookupByLibrary.simpleMessage(
+            "30 d"),
+        "reviewRange90": MessageLookupByLibrary.simpleMessage(
+            "90 d"),
+        "reviewRangeYear": MessageLookupByLibrary.simpleMessage(
+            "1 any"),
+        "reviewRangeAll": MessageLookupByLibrary.simpleMessage(
+            "Tot"),
+        "reviewRefresh": MessageLookupByLibrary.simpleMessage(
+            "Actualitzar"),
+        "reviewExportCsv": MessageLookupByLibrary.simpleMessage(
+            "Exportar CSV"),
+        "reviewExported": MessageLookupByLibrary.simpleMessage(
+            "CSV guardat"),
+        "reviewEmpty": MessageLookupByLibrary.simpleMessage(
+            "No hi ha res registrat en este període."),
+        "reviewChartScale": MessageLookupByLibrary.simpleMessage(
+            "Bàscula"),
+        "reviewChartTrend": MessageLookupByLibrary.simpleMessage(
+            "Tendència"),
+        "reviewChartIntake": MessageLookupByLibrary.simpleMessage(
+            "Consumit"),
+        "reviewChartExpenditure": MessageLookupByLibrary.simpleMessage(
+            "Despesa"),
+        "reviewColDate": MessageLookupByLibrary.simpleMessage(
+            "Data"),
+        "reviewColScale": MessageLookupByLibrary.simpleMessage(
+            "Bàscula"),
+        "reviewColTrend": MessageLookupByLibrary.simpleMessage(
+            "Tendència"),
+        "reviewColWeekChange": MessageLookupByLibrary.simpleMessage(
+            "Canvi en 7 dies"),
+        "reviewColIntake": MessageLookupByLibrary.simpleMessage(
+            "Consumit (kcal)"),
+        "reviewColGoal": MessageLookupByLibrary.simpleMessage(
+            "Objectiu (kcal)"),
+        "reviewColExpenditure": MessageLookupByLibrary.simpleMessage(
+            "Despesa (kcal)"),
+        "reviewColBalance": MessageLookupByLibrary.simpleMessage(
+            "Balanç (kcal)"),
+        "reviewColPeriod": MessageLookupByLibrary.simpleMessage(
+            "Període"),
+        "reviewColDays": MessageLookupByLibrary.simpleMessage(
+            "Dies registrats"),
+        "reviewColOfGoal": MessageLookupByLibrary.simpleMessage(
+            "De l'objectiu"),
+        "reviewColProtein": MessageLookupByLibrary.simpleMessage(
+            "Proteïna (g)"),
+        "reviewColCarbs": MessageLookupByLibrary.simpleMessage(
+            "Carbohidrats (g)"),
+        "reviewColFat": MessageLookupByLibrary.simpleMessage(
+            "Greix (g)"),
+        "reviewColTime": MessageLookupByLibrary.simpleMessage(
+            "Hora"),
+        "reviewColMeal": MessageLookupByLibrary.simpleMessage(
+            "Àpat"),
+        "reviewColFood": MessageLookupByLibrary.simpleMessage(
+            "Aliment"),
+        "reviewColAmount": MessageLookupByLibrary.simpleMessage(
+            "Quantitat"),
+        "reviewPeriodDay": MessageLookupByLibrary.simpleMessage(
+            "Dia"),
+        "reviewPeriodWeek": MessageLookupByLibrary.simpleMessage(
+            "Setmana"),
+        "reviewPeriodMonth": MessageLookupByLibrary.simpleMessage(
+            "Mes"),
+        "reviewDeleteIntakeBody": MessageLookupByLibrary.simpleMessage(
+            "Vols esborrar esta entrada del diari?"),
       };
 }

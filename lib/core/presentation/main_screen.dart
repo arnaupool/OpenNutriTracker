@@ -17,6 +17,7 @@ import 'package:opennutritracker/features/recipes/presentation/screens/recipes_p
 import 'package:opennutritracker/features/settings/presentation/bloc/custom_meals_bloc.dart';
 import 'package:opennutritracker/features/strategy/presentation/strategy_page.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/appearance_sheet.dart';
+import 'package:opennutritracker/features/review/presentation/review_page.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 class MainScreen extends StatefulWidget {
@@ -40,6 +41,9 @@ class _MainScreenState extends State<MainScreen> {
       const RecipesPage(),
       const StrategyPage(),
       const ProfilePage(),
+      // Desktop-only destinations (side rail); phones reach them from
+      // their tabs instead.
+      const ReviewPage(),
     ];
     _appbarPages = [
       const HomeAppbar(),
@@ -95,17 +99,35 @@ class _MainScreenState extends State<MainScreen> {
           ),
         ],
       ),
-      MainAppbar(title: S.of(context).strategyLabel, iconData: Icons.bar_chart),
+      MainAppbar(
+        title: S.of(context).strategyLabel,
+        iconData: Icons.bar_chart,
+        actions: [
+          Semantics(
+            identifier: 'strategy-open-review',
+            child: IconButton(
+              tooltip: S.of(context).reviewTitle,
+              icon: const Icon(Icons.insights_outlined),
+              onPressed: () => Navigator.of(context).pushNamed(NavigationOptions.reviewRoute),
+            ),
+          ),
+        ],
+      ),
       MainAppbar(
         title: S.of(context).profileLabel,
         iconData: Icons.account_circle,
       ),
+      MainAppbar(title: S.of(context).reviewTitle, iconData: Icons.insights),
     ];
     super.didChangeDependencies();
   }
 
-  /// The five main tabs. Shared by the phone bottom bar and the desktop
-  /// side rail so both keep the same order, icons and test ids.
+  /// The main tabs, shared by the phone bottom bar and the desktop side
+  /// rail so both keep the same order, icons and test ids. The first
+  /// [_phoneDestinationCount] also go in the bottom bar; the rest are
+  /// desktop-only.
+  static const int _phoneDestinationCount = 5;
+
   List<({String id, IconData icon, IconData selectedIcon, String label})> _destinations(BuildContext context) => [
     (id: 'nav-home', icon: Icons.home_outlined, selectedIcon: Icons.home, label: S.of(context).homeLabel),
     (id: 'nav-diary', icon: Icons.book_outlined, selectedIcon: Icons.book, label: S.of(context).diaryLabel),
@@ -126,6 +148,12 @@ class _MainScreenState extends State<MainScreen> {
       icon: Icons.account_circle_outlined,
       selectedIcon: Icons.account_circle,
       label: S.of(context).profileLabel,
+    ),
+    (
+      id: 'nav-review',
+      icon: Icons.insights_outlined,
+      selectedIcon: Icons.insights,
+      label: S.of(context).reviewTitle,
     ),
   ];
 
@@ -180,15 +208,18 @@ class _MainScreenState extends State<MainScreen> {
       );
     }
 
+    // A desktop-only page selected before the window narrowed falls back
+    // to Home rather than leaving the bottom bar without a selection.
+    final phoneIndex = _selectedPageIndex < _phoneDestinationCount ? _selectedPageIndex : 0;
     return Scaffold(
-      appBar: _appbarPages[_selectedPageIndex],
-      body: _bodyPages[_selectedPageIndex],
+      appBar: _appbarPages[phoneIndex],
+      body: _bodyPages[phoneIndex],
       floatingActionButton: _fab(context),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedPageIndex,
+        selectedIndex: phoneIndex,
         onDestinationSelected: _setPage,
         destinations: [
-          for (var i = 0; i < destinations.length; i++)
+          for (var i = 0; i < _phoneDestinationCount; i++)
             NavigationDestination(
               icon: Semantics(
                 identifier: destinations[i].id,

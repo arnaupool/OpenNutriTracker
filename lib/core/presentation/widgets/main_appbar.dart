@@ -5,8 +5,9 @@ import 'package:opennutritracker/features/settings/presentation/widgets/appearan
 class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final IconData iconData;
+  final List<Widget> actions;
 
-  const MainAppbar({super.key, required this.title, required this.iconData});
+  const MainAppbar({super.key, required this.title, required this.iconData, this.actions = const []});
 
   @override
   Widget build(BuildContext context) {
@@ -14,6 +15,7 @@ class MainAppbar extends StatelessWidget implements PreferredSizeWidget {
       leading: Icon(iconData),
       title: Text(title),
       actions: [
+        ...actions,
         const AppearanceButton(),
         IconButton(
           onPressed: () {
