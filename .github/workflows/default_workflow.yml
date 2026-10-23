@@ -347,6 +347,10 @@ jobs:
     permissions:
       contents: read
     steps:
+      # The hosted runner's ~14 GB free isn't enough for Gradle's dex/desugar
+      # step plus the Flutter and Android caches ("No space left on device").
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/local/share/boost
       - name: Checkout code
         uses: actions/checkout@v6
 
@@ -403,6 +407,10 @@ jobs:
     permissions:
       contents: read
     steps:
+      # The hosted runner's ~14 GB free isn't enough for Gradle's dex/desugar
+      # step plus the Flutter and Android caches ("No space left on device").
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/local/share/boost
       - name: Checkout code
         uses: actions/checkout@v6
 
@@ -715,6 +723,10 @@ jobs:
     env:
       BUNDLE_GEMFILE: ${{ github.workspace }}/android/Gemfile
     steps:
+      # The hosted runner's ~14 GB free isn't enough for Gradle's dex/desugar
+      # step plus the Flutter and Android caches ("No space left on device").
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/local/share/boost
       - name: Checkout code
         uses: actions/checkout@v6
 
