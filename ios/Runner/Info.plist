@@ -35,6 +35,8 @@
 		<string>tr</string>
 		<string>uk</string>
 		<string>zh</string>
+		<string>es</string>
+		<string>ca</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
