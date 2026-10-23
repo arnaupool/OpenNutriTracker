@@ -20,6 +20,12 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'es';
 
+  static String mSyncStatusIdle(value) =>
+      "Al día · última sincronización ${value}";
+
+  static String mSyncDoneSnackbar(pulled, pushed) =>
+      "Sincronizado: ${pulled} recibidos, ${pushed} enviados";
+
   static String m0(versionNumber) =>
       "Versión ${versionNumber}";
 
@@ -2184,5 +2190,55 @@ class MessageLookup extends MessageLookupByLibrary {
         "yearsLabel": m51,
         "zincLabel": MessageLookupByLibrary.simpleMessage(
             "zinc"),
+        "syncTitle": MessageLookupByLibrary.simpleMessage(
+            "Sincronización entre dispositivos"),
+        "syncStatusOff": MessageLookupByLibrary.simpleMessage(
+            "Desactivada en este dispositivo"),
+        "syncStatusWaiting": MessageLookupByLibrary.simpleMessage(
+            "Activada, a la espera de la primera sincronización"),
+        "syncStatusSyncing": MessageLookupByLibrary.simpleMessage(
+            "Sincronizando…"),
+        "syncStatusError": MessageLookupByLibrary.simpleMessage(
+            "La última sincronización falló. Se volverá a intentar sola."),
+        "syncStatusIdle": mSyncStatusIdle,
+        "syncExplanation": MessageLookupByLibrary.simpleMessage(
+            "Mantiene igual en el móvil y en la web de escritorio tu diario, peso, recetas, ayunos, objetivos y ajustes. Todo se cifra en este dispositivo antes de subirse, así que el servidor no puede leerlo. Las fotos no se sincronizan; van en la copia en la nube."),
+        "syncEnableTitle": MessageLookupByLibrary.simpleMessage(
+            "Activar con los datos de este dispositivo"),
+        "syncEnableSubtitle": MessageLookupByLibrary.simpleMessage(
+            "Hazlo en el móvil que tiene tus datos y luego vincula los demás dispositivos con su código."),
+        "syncLinkTitle": MessageLookupByLibrary.simpleMessage(
+            "Vincular este dispositivo"),
+        "syncLinkSubtitle": MessageLookupByLibrary.simpleMessage(
+            "Pega o escanea el código de un dispositivo con la sincronización activada."),
+        "syncLinkConfirmTitle": MessageLookupByLibrary.simpleMessage(
+            "¿Vincular este dispositivo?"),
+        "syncLinkConfirmBody": MessageLookupByLibrary.simpleMessage(
+            "Cuando los dos dispositivos tengan el mismo registro, como el perfil o los ajustes, la copia sincronizada sustituye a la de este dispositivo. Las entradas que solo existen aquí se conservan y se suben."),
+        "syncLinkAction": MessageLookupByLibrary.simpleMessage(
+            "Vincular"),
+        "syncLinkInvalid": MessageLookupByLibrary.simpleMessage(
+            "Eso no es un código de sincronización. Cópialo desde Ajustes > Sincronización entre dispositivos en el otro dispositivo."),
+        "syncLinked": MessageLookupByLibrary.simpleMessage(
+            "Dispositivo vinculado. Descargando tus datos…"),
+        "syncNowLabel": MessageLookupByLibrary.simpleMessage(
+            "Sincronizar ahora"),
+        "syncShowCodeTitle": MessageLookupByLibrary.simpleMessage(
+            "Mostrar el código para otro dispositivo"),
+        "syncShowCodeWarning": MessageLookupByLibrary.simpleMessage(
+            "Quien tenga este código puede leer y cambiar tus datos sincronizados. Úsalo solo en tus propios dispositivos."),
+        "syncCodeDialogTitle": MessageLookupByLibrary.simpleMessage(
+            "Código de sincronización"),
+        "syncDisableTitle": MessageLookupByLibrary.simpleMessage(
+            "Desactivar en este dispositivo"),
+        "syncDisableBody": MessageLookupByLibrary.simpleMessage(
+            "Este dispositivo deja de sincronizar y conserva sus datos. Tus otros dispositivos siguen sincronizando."),
+        "syncDisableAction": MessageLookupByLibrary.simpleMessage(
+            "Desactivar"),
+        "syncScanLabel": MessageLookupByLibrary.simpleMessage(
+            "Escanear QR"),
+        "syncPasteHint": MessageLookupByLibrary.simpleMessage(
+            "ontsync1:…"),
+        "syncDoneSnackbar": mSyncDoneSnackbar,
       };
 }

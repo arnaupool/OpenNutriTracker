@@ -20,6 +20,12 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ca';
 
+  static String mSyncStatusIdle(value) =>
+      "Al dia · última sincronització ${value}";
+
+  static String mSyncDoneSnackbar(pulled, pushed) =>
+      "Sincronitzat: ${pulled} rebuts, ${pushed} enviats";
+
   static String m0(versionNumber) =>
       "Versió ${versionNumber}";
 
@@ -2184,5 +2190,55 @@ class MessageLookup extends MessageLookupByLibrary {
         "yearsLabel": m51,
         "zincLabel": MessageLookupByLibrary.simpleMessage(
             "zinc"),
+        "syncTitle": MessageLookupByLibrary.simpleMessage(
+            "Sincronització entre dispositius"),
+        "syncStatusOff": MessageLookupByLibrary.simpleMessage(
+            "Desactivada en este dispositiu"),
+        "syncStatusWaiting": MessageLookupByLibrary.simpleMessage(
+            "Activada, a l'espera de la primera sincronització"),
+        "syncStatusSyncing": MessageLookupByLibrary.simpleMessage(
+            "Sincronitzant…"),
+        "syncStatusError": MessageLookupByLibrary.simpleMessage(
+            "L'última sincronització ha fallat. Es tornarà a intentar sola."),
+        "syncStatusIdle": mSyncStatusIdle,
+        "syncExplanation": MessageLookupByLibrary.simpleMessage(
+            "Manté igual en el mòbil i en la web d'escriptori el teu diari, pes, receptes, dejunis, objectius i configuració. Tot es xifra en este dispositiu abans de pujar-se, així que el servidor no ho pot llegir. Les fotos no se sincronitzen; van en la còpia en el núvol."),
+        "syncEnableTitle": MessageLookupByLibrary.simpleMessage(
+            "Activar amb les dades d'este dispositiu"),
+        "syncEnableSubtitle": MessageLookupByLibrary.simpleMessage(
+            "Fes-ho en el mòbil que té les teues dades i després vincula els altres dispositius amb el seu codi."),
+        "syncLinkTitle": MessageLookupByLibrary.simpleMessage(
+            "Vincular este dispositiu"),
+        "syncLinkSubtitle": MessageLookupByLibrary.simpleMessage(
+            "Apega o escaneja el codi d'un dispositiu amb la sincronització activada."),
+        "syncLinkConfirmTitle": MessageLookupByLibrary.simpleMessage(
+            "Vols vincular este dispositiu?"),
+        "syncLinkConfirmBody": MessageLookupByLibrary.simpleMessage(
+            "Quan els dos dispositius tinguen el mateix registre, com el perfil o la configuració, la còpia sincronitzada substituïx la d'este dispositiu. Les entrades que només existixen ací es conserven i es pugen."),
+        "syncLinkAction": MessageLookupByLibrary.simpleMessage(
+            "Vincular"),
+        "syncLinkInvalid": MessageLookupByLibrary.simpleMessage(
+            "Això no és un codi de sincronització. Copia'l des de Configuració > Sincronització entre dispositius en l'altre dispositiu."),
+        "syncLinked": MessageLookupByLibrary.simpleMessage(
+            "Dispositiu vinculat. Baixant les teues dades…"),
+        "syncNowLabel": MessageLookupByLibrary.simpleMessage(
+            "Sincronitzar ara"),
+        "syncShowCodeTitle": MessageLookupByLibrary.simpleMessage(
+            "Mostrar el codi per a un altre dispositiu"),
+        "syncShowCodeWarning": MessageLookupByLibrary.simpleMessage(
+            "Qui tinga este codi pot llegir i canviar les teues dades sincronitzades. Usa'l només en els teus propis dispositius."),
+        "syncCodeDialogTitle": MessageLookupByLibrary.simpleMessage(
+            "Codi de sincronització"),
+        "syncDisableTitle": MessageLookupByLibrary.simpleMessage(
+            "Desactivar en este dispositiu"),
+        "syncDisableBody": MessageLookupByLibrary.simpleMessage(
+            "Este dispositiu deixa de sincronitzar i conserva les seues dades. Els teus altres dispositius continuen sincronitzant."),
+        "syncDisableAction": MessageLookupByLibrary.simpleMessage(
+            "Desactivar"),
+        "syncScanLabel": MessageLookupByLibrary.simpleMessage(
+            "Escanejar QR"),
+        "syncPasteHint": MessageLookupByLibrary.simpleMessage(
+            "ontsync1:…"),
+        "syncDoneSnackbar": mSyncDoneSnackbar,
       };
 }

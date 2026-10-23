@@ -1389,5 +1389,48 @@
       }
     }
   },
-  "appearanceTitle": "Apariencia"
+  "appearanceTitle": "Apariencia",
+  "syncTitle": "Sincronización entre dispositivos",
+  "syncStatusOff": "Desactivada en este dispositivo",
+  "syncStatusWaiting": "Activada, a la espera de la primera sincronización",
+  "syncStatusSyncing": "Sincronizando…",
+  "syncStatusError": "La última sincronización falló. Se volverá a intentar sola.",
+  "syncStatusIdle": "Al día · última sincronización {value}",
+  "@syncStatusIdle": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "syncExplanation": "Mantiene igual en el móvil y en la web de escritorio tu diario, peso, recetas, ayunos, objetivos y ajustes. Todo se cifra en este dispositivo antes de subirse, así que el servidor no puede leerlo. Las fotos no se sincronizan; van en la copia en la nube.",
+  "syncEnableTitle": "Activar con los datos de este dispositivo",
+  "syncEnableSubtitle": "Hazlo en el móvil que tiene tus datos y luego vincula los demás dispositivos con su código.",
+  "syncLinkTitle": "Vincular este dispositivo",
+  "syncLinkSubtitle": "Pega o escanea el código de un dispositivo con la sincronización activada.",
+  "syncLinkConfirmTitle": "¿Vincular este dispositivo?",
+  "syncLinkConfirmBody": "Cuando los dos dispositivos tengan el mismo registro, como el perfil o los ajustes, la copia sincronizada sustituye a la de este dispositivo. Las entradas que solo existen aquí se conservan y se suben.",
+  "syncLinkAction": "Vincular",
+  "syncLinkInvalid": "Eso no es un código de sincronización. Cópialo desde Ajustes > Sincronización entre dispositivos en el otro dispositivo.",
+  "syncLinked": "Dispositivo vinculado. Descargando tus datos…",
+  "syncNowLabel": "Sincronizar ahora",
+  "syncShowCodeTitle": "Mostrar el código para otro dispositivo",
+  "syncShowCodeWarning": "Quien tenga este código puede leer y cambiar tus datos sincronizados. Úsalo solo en tus propios dispositivos.",
+  "syncCodeDialogTitle": "Código de sincronización",
+  "syncDisableTitle": "Desactivar en este dispositivo",
+  "syncDisableBody": "Este dispositivo deja de sincronizar y conserva sus datos. Tus otros dispositivos siguen sincronizando.",
+  "syncDisableAction": "Desactivar",
+  "syncScanLabel": "Escanear QR",
+  "syncPasteHint": "ontsync1:…",
+  "syncDoneSnackbar": "Sincronizado: {pulled} recibidos, {pushed} enviados",
+  "@syncDoneSnackbar": {
+    "placeholders": {
+      "pulled": {
+        "type": "String"
+      },
+      "pushed": {
+        "type": "String"
+      }
+    }
+  }
 }

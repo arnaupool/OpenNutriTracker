@@ -1389,5 +1389,48 @@
       }
     }
   },
-  "appearanceTitle": "Aparença"
+  "appearanceTitle": "Aparença",
+  "syncTitle": "Sincronització entre dispositius",
+  "syncStatusOff": "Desactivada en este dispositiu",
+  "syncStatusWaiting": "Activada, a l'espera de la primera sincronització",
+  "syncStatusSyncing": "Sincronitzant…",
+  "syncStatusError": "L'última sincronització ha fallat. Es tornarà a intentar sola.",
+  "syncStatusIdle": "Al dia · última sincronització {value}",
+  "@syncStatusIdle": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "syncExplanation": "Manté igual en el mòbil i en la web d'escriptori el teu diari, pes, receptes, dejunis, objectius i configuració. Tot es xifra en este dispositiu abans de pujar-se, així que el servidor no ho pot llegir. Les fotos no se sincronitzen; van en la còpia en el núvol.",
+  "syncEnableTitle": "Activar amb les dades d'este dispositiu",
+  "syncEnableSubtitle": "Fes-ho en el mòbil que té les teues dades i després vincula els altres dispositius amb el seu codi.",
+  "syncLinkTitle": "Vincular este dispositiu",
+  "syncLinkSubtitle": "Apega o escaneja el codi d'un dispositiu amb la sincronització activada.",
+  "syncLinkConfirmTitle": "Vols vincular este dispositiu?",
+  "syncLinkConfirmBody": "Quan els dos dispositius tinguen el mateix registre, com el perfil o la configuració, la còpia sincronitzada substituïx la d'este dispositiu. Les entrades que només existixen ací es conserven i es pugen.",
+  "syncLinkAction": "Vincular",
+  "syncLinkInvalid": "Això no és un codi de sincronització. Copia'l des de Configuració > Sincronització entre dispositius en l'altre dispositiu.",
+  "syncLinked": "Dispositiu vinculat. Baixant les teues dades…",
+  "syncNowLabel": "Sincronitzar ara",
+  "syncShowCodeTitle": "Mostrar el codi per a un altre dispositiu",
+  "syncShowCodeWarning": "Qui tinga este codi pot llegir i canviar les teues dades sincronitzades. Usa'l només en els teus propis dispositius.",
+  "syncCodeDialogTitle": "Codi de sincronització",
+  "syncDisableTitle": "Desactivar en este dispositiu",
+  "syncDisableBody": "Este dispositiu deixa de sincronitzar i conserva les seues dades. Els teus altres dispositius continuen sincronitzant.",
+  "syncDisableAction": "Desactivar",
+  "syncScanLabel": "Escanejar QR",
+  "syncPasteHint": "ontsync1:…",
+  "syncDoneSnackbar": "Sincronitzat: {pulled} rebuts, {pushed} enviats",
+  "@syncDoneSnackbar": {
+    "placeholders": {
+      "pulled": {
+        "type": "String"
+      },
+      "pushed": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -967,26 +967,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   BuildContext context,
                   void Function(void Function()) setState,
                 ) {
+                  // Scrolls: with 11 languages the list is taller than
+                  // the dialog on a short window, and the last entries
+                  // ended up under the action buttons.
                   return RadioGroup<String>(
                     groupValue: selectedCode,
                     onChanged: (v) =>
                         setState(() => selectedCode = v as String),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        RadioListTile<String>(
-                          title: Text(
-                            S.of(context).settingsThemeSystemDefaultLabel,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          RadioListTile<String>(
+                            title: Text(
+                              S.of(context).settingsThemeSystemDefaultLabel,
+                            ),
+                            value: _systemLocale,
                           ),
-                          value: _systemLocale,
-                        ),
-                        ..._supportedLocales.entries.map(
-                          (e) => RadioListTile<String>(
-                            title: Text(e.value),
-                            value: e.key,
+                          ..._supportedLocales.entries.map(
+                            (e) => RadioListTile<String>(
+                              title: Text(e.value),
+                              value: e.key,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
                 },
