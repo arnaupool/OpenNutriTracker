@@ -1,4 +1,59 @@
-# Desplegar la versión web en Unraid (Portainer + Nginx Proxy Manager)
+# Desplegar la versión web en Unraid
+
+## Opción rápida: imagen ya construida (recomendada)
+
+GitHub construye la imagen en cada push a `main` (workflow
+`docker-image.yml`) y la publica en
+`ghcr.io/arnaupool/opennutritracker:latest`. Unraid solo la descarga: no
+compila Flutter, no hace falta Portainer.
+
+### Una sola vez: dejar que Unraid pueda descargarla
+
+El repo es privado, así que el paquete de GHCR también lo es. Elige una:
+
+- **Hacerla pública (lo más fácil):** GitHub > tu perfil > Packages >
+  `opennutritracker` > Package settings > Change visibility > Public. La
+  imagen solo lleva la web compilada y la clave pública (anon) de Supabase;
+  ningún dato tuyo, que viaja cifrado. Si añades `FDC_API_KEY` como secret,
+  también iría dentro (ofuscada).
+- **Dejarla privada:** crea un token (GitHub > Settings > Developer settings
+  > Personal access tokens > classic, scope `read:packages`) y en la
+  terminal de Unraid ejecuta `docker login ghcr.io -u arnaupool` y pega el
+  token. Ojo: Unraid no guarda ese login tras reiniciar, así que habría que
+  repetirlo antes de actualizar.
+
+### Instalar
+
+1. Terminal de Unraid (icono `>_` arriba a la derecha), pega esto:
+
+   ```sh
+   curl -fsSL -o /boot/config/plugins/dockerMan/templates-user/my-OpenNutriTracker.xml      https://raw.githubusercontent.com/arnaupool/OpenNutriTracker/main/unraid/opennutritracker.xml
+   ```
+
+   (Si el repo sigue privado, ese `curl` no puede leerlo: copia a mano el
+   contenido de `unraid/opennutritracker.xml` a ese mismo fichero.)
+2. Docker > **Add Container** > *Template*: elige **OpenNutriTracker** >
+   **Apply**. Puertos por defecto: **8443** (HTTPS) y 8090 (HTTP para un
+   proxy).
+3. Abre **`https://IP-de-tu-unraid:8443`**. La primera vez el navegador
+   avisa de que el certificado no es de confianza (es autofirmado):
+   "Avanzado" > "Continuar". Después ya no vuelve a preguntar.
+4. En la web: Ajustes > Sincronización entre dispositivos > **Vincular este
+   dispositivo** y pega el código que te da el móvil.
+
+**Por qué HTTPS:** la app cifra tus datos locales con la API de cifrado del
+navegador, que solo existe en HTTPS (o `localhost`). Por
+`http://IP:puerto` sale una página que te manda a la dirección HTTPS.
+
+**Actualizar:** Docker > *Check for Updates* > *apply update*. El
+certificado se guarda en `/mnt/user/appdata/opennutritracker/certs`, así que
+el aviso no vuelve tras actualizar.
+
+**Certificado de verdad (opcional):** pon Nginx Proxy Manager o
+`tailscale serve` delante apuntando al puerto 8090, o deja tus
+`cert.pem` y `key.pem` en esa carpeta `certs`.
+
+## Opción alternativa: construir en Unraid con Portainer + Nginx Proxy Manager
 
 Portainer clona tu fork directamente de GitHub y construye la imagen él
 solo — no hace falta SSH ni `docker build` a mano. Para actualizar tras un

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!--
+  Unraid Docker template for the OpenNutriTracker web app.
+  Copy to /boot/config/plugins/dockerMan/templates-user/my-OpenNutriTracker.xml
+  and pick "OpenNutriTracker" in Docker > Add Container. See docs/deploy-docker.md.
+-->
+<Container version="2">
+  <Name>OpenNutriTracker</Name>
+  <Repository>ghcr.io/arnaupool/opennutritracker:latest</Repository>
+  <Registry>https://github.com/arnaupool/OpenNutriTracker/pkgs/container/opennutritracker</Registry>
+  <Network>bridge</Network>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Project>https://github.com/arnaupool/OpenNutriTracker</Project>
+  <Overview>Calorie and nutrient tracker (web version for the desktop). Your data stays encrypted in the browser and syncs end-to-end encrypted with the phone app. Open it over HTTPS: https://[IP]:8443 (self-signed certificate; accept the browser warning once).</Overview>
+  <Category>Tools:</Category>
+  <WebUI>https://[IP]:[PORT:443]/</WebUI>
+  <Config Name="HTTPS port" Target="443" Default="8443" Mode="tcp" Description="Open the app at https://IP-of-unraid:this-port. Browsers only run it over HTTPS (or localhost)." Type="Port" Display="always" Required="true" Mask="false">8443</Config>
+  <Config Name="HTTP port (for a reverse proxy)" Target="80" Default="8090" Mode="tcp" Description="Plain HTTP for Nginx Proxy Manager / SWAG / Tailscale serve, which add the certificate. Opening it directly shows a page pointing to HTTPS." Type="Port" Display="always" Required="false" Mask="false">8090</Config>
+  <Config Name="Certificates" Target="/certs" Default="/mnt/user/appdata/opennutritracker/certs" Mode="rw" Description="Keeps the self-signed certificate across updates (so the browser warning doesn't come back). Put your own cert.pem and key.pem here to use them instead." Type="Path" Display="advanced" Required="false" Mask="false">/mnt/user/appdata/opennutritracker/certs</Config>
+</Container>

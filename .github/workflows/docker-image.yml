@@ -24,6 +24,8 @@ on:
       - 'pubspec.lock'
       - 'Dockerfile'
       - 'nginx.default.conf'
+      - 'nginx.app.conf'
+      - 'docker/**'
       - '.github/workflows/docker-image.yml'
   workflow_dispatch:
 
@@ -57,6 +59,32 @@ jobs:
           tags: |
             type=raw,value=latest
             type=sha,prefix=sha-
+
+      # Build once into the local daemon and try it before publishing.
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          load: true
+          tags: opennutritracker:test
+          build-args: |
+            FDC_API_KEY=${{ secrets.FDC_API_KEY }}
+            SENTRY_DNS=${{ secrets.SENTRY_DNS }}
+            BACKUP_SUPABASE_PROJECT_URL=${{ secrets.SUPABASE_BACKUP_URL }}
+            BACKUP_SUPABASE_PROJECT_ANON_KEY=${{ secrets.SUPABASE_BACKUP_ANON_KEY }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Smoke test (HTTP 80, HTTPS 443 with generated cert)
+        run: |
+          docker run -d --name ont -p 8080:80 -p 8443:443 opennutritracker:test
+          for i in $(seq 1 20); do curl -fsS http://localhost:8080/ >/dev/null && break; sleep 1; done
+          curl -fsS http://localhost:8080/ | grep -q flutter_bootstrap.js
+          curl -fsS -o /dev/null http://localhost:8080/flutter_bootstrap.js
+          curl -fsSk https://localhost:8443/ | grep -q flutter_bootstrap.js
+          curl -fsSk -o /dev/null https://localhost:8443/main.dart.js
+          docker logs ont 2>&1 | grep -q "generated a self-signed certificate"
+          docker rm -f ont
 
       - uses: docker/build-push-action@v6
         with:

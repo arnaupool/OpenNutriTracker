@@ -81,6 +81,15 @@ RUN BUILD_STAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
     && flutter build web --release --dart-define=BUILD_STAMP="$BUILD_STAMP"
 
 FROM nginx:1.27-alpine AS serve
+# openssl for the first-start self-signed certificate (HTTPS on 443).
+RUN apk add --no-cache openssl
 COPY --from=build /app/build/web /usr/share/nginx/html
 COPY nginx.default.conf /etc/nginx/conf.d/default.conf
-EXPOSE 80
+COPY nginx.app.conf /etc/nginx/ont/app.conf
+COPY --chmod=755 docker/40-ont-self-signed-cert.sh /docker-entrypoint.d/40-ont-self-signed-cert.sh
+# Port 80: plain HTTP for a reverse proxy that terminates TLS.
+# Port 443: HTTPS for opening the app directly on the LAN. Browsers need a
+# secure context for the Web Crypto API the app relies on, so plain
+# http://<lan-ip> can't run it.
+EXPOSE 80 443
+VOLUME /certs
