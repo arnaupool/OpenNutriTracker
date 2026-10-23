@@ -20,6 +20,18 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ca';
 
+  static String mPlanWeekOf(value) =>
+      "Setmana del ${value}";
+
+  static String mPlanLogged(count) =>
+      "Registrades en el diari: ${count}";
+
+  static String mPlanGoalValue(planned, goal) =>
+      "${planned} / ${goal} kcal";
+
+  static String mPlanTodaySummary(count, kcal) =>
+      "${count} en el pla · ${kcal} kcal";
+
 
   static String mSyncStatusIdle(value) =>
       "Al dia · última sincronització ${value}";
@@ -2321,5 +2333,35 @@ class MessageLookup extends MessageLookupByLibrary {
             "Mes"),
         "reviewDeleteIntakeBody": MessageLookupByLibrary.simpleMessage(
             "Vols esborrar esta entrada del diari?"),
+        "planTitle": MessageLookupByLibrary.simpleMessage(
+            "Pla d'àpats"),
+        "planWeekOf": mPlanWeekOf,
+        "planThisWeek": MessageLookupByLibrary.simpleMessage(
+            "Esta setmana"),
+        "planShoppingList": MessageLookupByLibrary.simpleMessage(
+            "Llista de la compra"),
+        "planShoppingEmpty": MessageLookupByLibrary.simpleMessage(
+            "No hi ha res planificat esta setmana."),
+        "planAdd": MessageLookupByLibrary.simpleMessage(
+            "Afegir al pla"),
+        "planSearchHint": MessageLookupByLibrary.simpleMessage(
+            "Busca en les teues receptes, aliments i àpats recents"),
+        "planNoCandidates": MessageLookupByLibrary.simpleMessage(
+            "Sense resultats. Crea una recepta o un aliment personalitzat, o registra un aliment una vegada, i apareixerà ací."),
+        "planAmountLabel": MessageLookupByLibrary.simpleMessage(
+            "Quantitat"),
+        "planAddAction": MessageLookupByLibrary.simpleMessage(
+            "Afegir"),
+        "planLogDay": MessageLookupByLibrary.simpleMessage(
+            "Registrar el pla"),
+        "planLogged": mPlanLogged,
+        "planGoalValue": mPlanGoalValue,
+        "planTodayTitle": MessageLookupByLibrary.simpleMessage(
+            "Pla de hui"),
+        "planTodaySummary": mPlanTodaySummary,
+        "planCopy": MessageLookupByLibrary.simpleMessage(
+            "Copiar"),
+        "planCopied": MessageLookupByLibrary.simpleMessage(
+            "Llista copiada"),
       };
 }

@@ -26,6 +26,7 @@ import 'package:opennutritracker/core/sync/sync_remote.dart';
 import 'package:opennutritracker/core/sync/sync_state_store.dart';
 import 'package:opennutritracker/core/utils/cloud_backup_token_service.dart';
 import 'package:opennutritracker/core/utils/hive_db_provider.dart';
+import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dart';
 import 'package:opennutritracker/hive_registrar.g.dart';
 
 final _url = Platform.environment['SYNC_LIVE_URL'];
@@ -48,7 +49,8 @@ Future<(HiveDBProvider, SyncEngine, SyncStateStore)> _device(SyncRemote remote) 
     ..weightLogBox = await open('weight')
     ..waterIntakeBox = await open('water')
     ..fastingBox = await open('fasting')
-    ..bodyMeasurementBox = await open('body');
+    ..bodyMeasurementBox = await open('body')
+    ..mealPlanBox = await open('plan');
   final state = SyncStateStore(await open<dynamic>('state'));
   return (db, SyncEngine(boxes: buildSyncedBoxes(db), remote: remote, state: state), state);
 }
@@ -87,7 +89,10 @@ IntakeDBO _intake(String id, DateTime when, double kcal) => IntakeDBO(
 void main() {
   final skip = _url == null || _key == null ? 'set SYNC_LIVE_URL and SYNC_LIVE_KEY to run' : null;
 
-  setUpAll(() => Hive.registerAdapters());
+  setUpAll(() {
+    Hive.registerAdapters();
+    Hive.registerAdapter(MealPlanEntryDBOAdapter());
+  });
 
   test('two devices sync real records through Supabase', () async {
     final remote = SupabaseSyncRemote(_url!, _key!);

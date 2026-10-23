@@ -1438,5 +1438,44 @@
   "reviewPeriodDay": "Day",
   "reviewPeriodWeek": "Week",
   "reviewPeriodMonth": "Month",
-  "reviewDeleteIntakeBody": "Delete this entry from the diary?"
+  "reviewDeleteIntakeBody": "Delete this entry from the diary?",
+  "planTitle": "Meal plan",
+  "planWeekOf": "Week of {value}",
+  "@planWeekOf": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "planThisWeek": "This week",
+  "planShoppingList": "Shopping list",
+  "planShoppingEmpty": "Nothing planned this week.",
+  "planAdd": "Add to plan",
+  "planSearchHint": "Search your recipes, foods and recent meals",
+  "planNoCandidates": "No matches. Create a recipe or a custom food, or log a food once, and it will show up here.",
+  "planAmountLabel": "Amount",
+  "planAddAction": "Add",
+  "planLogDay": "Log plan",
+  "planLogged": "Logged in the diary: {count}",
+  "@planLogged": {
+    "placeholders": {
+      "count": { "type": "String" }
+    }
+  },
+  "planGoalValue": "{planned} / {goal} kcal",
+  "@planGoalValue": {
+    "placeholders": {
+      "planned": { "type": "String" },
+      "goal": { "type": "String" }
+    }
+  },
+  "planTodayTitle": "Today's plan",
+  "planTodaySummary": "{count} in the plan · {kcal} kcal",
+  "@planTodaySummary": {
+    "placeholders": {
+      "count": { "type": "String" },
+      "kcal": { "type": "String" }
+    }
+  },
+  "planCopy": "Copy",
+  "planCopied": "List copied"
 }

@@ -1472,5 +1472,56 @@
   "reviewPeriodDay": "Dia",
   "reviewPeriodWeek": "Setmana",
   "reviewPeriodMonth": "Mes",
-  "reviewDeleteIntakeBody": "Vols esborrar esta entrada del diari?"
+  "reviewDeleteIntakeBody": "Vols esborrar esta entrada del diari?",
+  "planTitle": "Pla d'àpats",
+  "planWeekOf": "Setmana del {value}",
+  "@planWeekOf": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "planThisWeek": "Esta setmana",
+  "planShoppingList": "Llista de la compra",
+  "planShoppingEmpty": "No hi ha res planificat esta setmana.",
+  "planAdd": "Afegir al pla",
+  "planSearchHint": "Busca en les teues receptes, aliments i àpats recents",
+  "planNoCandidates": "Sense resultats. Crea una recepta o un aliment personalitzat, o registra un aliment una vegada, i apareixerà ací.",
+  "planAmountLabel": "Quantitat",
+  "planAddAction": "Afegir",
+  "planLogDay": "Registrar el pla",
+  "planLogged": "Registrades en el diari: {count}",
+  "@planLogged": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "planGoalValue": "{planned} / {goal} kcal",
+  "@planGoalValue": {
+    "placeholders": {
+      "planned": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "planTodayTitle": "Pla de hui",
+  "planTodaySummary": "{count} en el pla · {kcal} kcal",
+  "@planTodaySummary": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "kcal": {
+        "type": "String"
+      }
+    }
+  },
+  "planCopy": "Copiar",
+  "planCopied": "Llista copiada"
 }

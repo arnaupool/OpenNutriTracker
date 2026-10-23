@@ -1472,5 +1472,56 @@
   "reviewPeriodDay": "Día",
   "reviewPeriodWeek": "Semana",
   "reviewPeriodMonth": "Mes",
-  "reviewDeleteIntakeBody": "¿Borrar esta entrada del diario?"
+  "reviewDeleteIntakeBody": "¿Borrar esta entrada del diario?",
+  "planTitle": "Plan de comidas",
+  "planWeekOf": "Semana del {value}",
+  "@planWeekOf": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "planThisWeek": "Esta semana",
+  "planShoppingList": "Lista de la compra",
+  "planShoppingEmpty": "No hay nada planificado esta semana.",
+  "planAdd": "Añadir al plan",
+  "planSearchHint": "Busca en tus recetas, alimentos y comidas recientes",
+  "planNoCandidates": "Sin resultados. Crea una receta o un alimento personalizado, o registra un alimento una vez, y aparecerá aquí.",
+  "planAmountLabel": "Cantidad",
+  "planAddAction": "Añadir",
+  "planLogDay": "Registrar plan",
+  "planLogged": "Registradas en el diario: {count}",
+  "@planLogged": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "planGoalValue": "{planned} / {goal} kcal",
+  "@planGoalValue": {
+    "placeholders": {
+      "planned": {
+        "type": "String"
+      },
+      "goal": {
+        "type": "String"
+      }
+    }
+  },
+  "planTodayTitle": "Plan de hoy",
+  "planTodaySummary": "{count} en el plan · {kcal} kcal",
+  "@planTodaySummary": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "kcal": {
+        "type": "String"
+      }
+    }
+  },
+  "planCopy": "Copiar",
+  "planCopied": "Lista copiada"
 }

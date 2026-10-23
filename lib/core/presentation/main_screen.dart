@@ -17,6 +17,7 @@ import 'package:opennutritracker/features/recipes/presentation/screens/recipes_p
 import 'package:opennutritracker/features/settings/presentation/bloc/custom_meals_bloc.dart';
 import 'package:opennutritracker/features/strategy/presentation/strategy_page.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/appearance_sheet.dart';
+import 'package:opennutritracker/features/meal_plan/presentation/meal_plan_page.dart';
 import 'package:opennutritracker/features/review/presentation/review_page.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
@@ -44,10 +45,24 @@ class _MainScreenState extends State<MainScreen> {
       // Desktop-only destinations (side rail); phones reach them from
       // their tabs instead.
       const ReviewPage(),
+      const MealPlanPage(),
     ];
     _appbarPages = [
       const HomeAppbar(),
-      MainAppbar(title: S.of(context).diaryLabel, iconData: Icons.book),
+      MainAppbar(
+        title: S.of(context).diaryLabel,
+        iconData: Icons.book,
+        actions: [
+          Semantics(
+            identifier: 'diary-open-plan',
+            child: IconButton(
+              tooltip: S.of(context).planTitle,
+              icon: const Icon(Icons.event_note_outlined),
+              onPressed: () => Navigator.of(context).pushNamed(NavigationOptions.mealPlanRoute),
+            ),
+          ),
+        ],
+      ),
       AppBar(
         leading: const Icon(Icons.menu_book),
         title: Text(S.of(context).recipesLabel),
@@ -118,6 +133,7 @@ class _MainScreenState extends State<MainScreen> {
         iconData: Icons.account_circle,
       ),
       MainAppbar(title: S.of(context).reviewTitle, iconData: Icons.insights),
+      MainAppbar(title: S.of(context).planTitle, iconData: Icons.event_note),
     ];
     super.didChangeDependencies();
   }
@@ -154,6 +170,12 @@ class _MainScreenState extends State<MainScreen> {
       icon: Icons.insights_outlined,
       selectedIcon: Icons.insights,
       label: S.of(context).reviewTitle,
+    ),
+    (
+      id: 'nav-plan',
+      icon: Icons.event_note_outlined,
+      selectedIcon: Icons.event_note,
+      label: S.of(context).planTitle,
     ),
   ];
 

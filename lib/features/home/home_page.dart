@@ -10,6 +10,7 @@ import 'package:opennutritracker/core/presentation/widgets/disclaimer_dialog.dar
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/features/home/presentation/bloc/home_bloc.dart';
 import 'package:opennutritracker/features/home/presentation/widgets/dashboard_widget.dart';
+import 'package:opennutritracker/features/meal_plan/presentation/meal_plan_page.dart';
 import 'package:opennutritracker/features/home/presentation/widgets/fasting_home_chip.dart';
 import 'package:opennutritracker/features/home/presentation/widgets/quick_water_widget.dart';
 import 'package:opennutritracker/features/home/presentation/widgets/quick_weight_widget.dart';
@@ -137,6 +138,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           ),
         ),
         const FastingHomeChip(),
+        // FAS-04: today's planned meals, logged in one tap.
+        const TodayPlanCard(),
         const SizedBox(height: 8.0),
         DashboardWidget(
           totalKcalDaily: totalKcalDaily,

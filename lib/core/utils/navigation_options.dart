@@ -27,4 +27,5 @@ class NavigationOptions {
   static const reviewMealRoute = "reviewMeal";
   static const scanLabelRoute = "scanLabel";
   static const reviewRoute = "review";
+  static const mealPlanRoute = "mealPlan";
 }

@@ -73,6 +73,8 @@ import 'package:opennutritracker/core/sync/sync_remote.dart';
 import 'package:opennutritracker/core/sync/sync_service.dart';
 import 'package:opennutritracker/core/sync/sync_state_store.dart';
 import 'package:opennutritracker/core/utils/env.dart';
+import 'package:opennutritracker/features/meal_plan/data/meal_plan_data_source.dart';
+import 'package:opennutritracker/features/meal_plan/domain/log_meal_plan_usecase.dart';
 import 'package:opennutritracker/core/utils/hive_db_provider.dart';
 import 'package:opennutritracker/core/utils/notification_service.dart';
 import 'package:opennutritracker/core/utils/ont_image_cache_manager.dart';
@@ -537,6 +539,12 @@ Future<void> initLocator() async {
   );
   locator.registerLazySingleton<OpenRouterRepository>(
     () => OpenRouterRepository(locator()),
+  );
+
+  // FAS-04: meal planning.
+  locator.registerLazySingleton<MealPlanDataSource>(() => MealPlanDataSource(hiveDBProvider.mealPlanBox));
+  locator.registerLazySingleton<LogMealPlanUsecase>(
+    () => LogMealPlanUsecase(locator(), locator(), locator(), locator(), locator()),
   );
 
   // FAS-01: record-level sync between this device and the others linked to

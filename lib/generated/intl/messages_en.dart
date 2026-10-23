@@ -20,6 +20,18 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
+  static String mPlanTodaySummary(count, kcal) =>
+      "${count} in the plan · ${kcal} kcal";
+
+  static String mPlanGoalValue(planned, goal) =>
+      "${planned} / ${goal} kcal";
+
+  static String mPlanLogged(count) =>
+      "Logged in the diary: ${count}";
+
+  static String mPlanWeekOf(value) =>
+      "Week of ${value}";
+
   static String mSyncDoneSnackbar(pulled, pushed) =>
       "Synced: ${pulled} received, ${pushed} sent";
 
@@ -1643,5 +1655,22 @@ class MessageLookup extends MessageLookupByLibrary {
         "reviewPeriodWeek": MessageLookupByLibrary.simpleMessage("Week"),
         "reviewPeriodMonth": MessageLookupByLibrary.simpleMessage("Month"),
         "reviewDeleteIntakeBody": MessageLookupByLibrary.simpleMessage("Delete this entry from the diary?"),
+        "planTitle": MessageLookupByLibrary.simpleMessage("Meal plan"),
+        "planWeekOf": mPlanWeekOf,
+        "planThisWeek": MessageLookupByLibrary.simpleMessage("This week"),
+        "planShoppingList": MessageLookupByLibrary.simpleMessage("Shopping list"),
+        "planShoppingEmpty": MessageLookupByLibrary.simpleMessage("Nothing planned this week."),
+        "planAdd": MessageLookupByLibrary.simpleMessage("Add to plan"),
+        "planSearchHint": MessageLookupByLibrary.simpleMessage("Search your recipes, foods and recent meals"),
+        "planNoCandidates": MessageLookupByLibrary.simpleMessage("No matches. Create a recipe or a custom food, or log a food once, and it will show up here."),
+        "planAmountLabel": MessageLookupByLibrary.simpleMessage("Amount"),
+        "planAddAction": MessageLookupByLibrary.simpleMessage("Add"),
+        "planLogDay": MessageLookupByLibrary.simpleMessage("Log plan"),
+        "planLogged": mPlanLogged,
+        "planGoalValue": mPlanGoalValue,
+        "planTodayTitle": MessageLookupByLibrary.simpleMessage("Today's plan"),
+        "planTodaySummary": mPlanTodaySummary,
+        "planCopy": MessageLookupByLibrary.simpleMessage("Copy"),
+        "planCopied": MessageLookupByLibrary.simpleMessage("List copied"),
       };
 }

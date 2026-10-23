@@ -22,6 +22,7 @@ import 'package:opennutritracker/core/sync/sync_pairing.dart';
 import 'package:opennutritracker/core/sync/sync_remote.dart';
 import 'package:opennutritracker/core/sync/sync_state_store.dart';
 import 'package:opennutritracker/core/utils/hive_db_provider.dart';
+import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dart';
 import 'package:opennutritracker/hive_registrar.g.dart';
 
 final _url = Platform.environment['SYNC_SEED_URL'];
@@ -55,7 +56,10 @@ MealDBO _meal(String name, double kcal100, double p, double c, double f) => Meal
 void main() {
   final skip = _url == null || _key == null || _code == null ? 'set SYNC_SEED_URL, SYNC_SEED_KEY, SYNC_SEED_CODE' : null;
 
-  setUpAll(() => Hive.registerAdapters());
+  setUpAll(() {
+    Hive.registerAdapters();
+    Hive.registerAdapter(MealPlanEntryDBOAdapter());
+  });
 
   test('seed demo data', () async {
     final pairing = SyncPairing.tryParse(_code!)!;
@@ -72,7 +76,8 @@ void main() {
       ..weightLogBox = await open('weight')
       ..waterIntakeBox = await open('water')
       ..fastingBox = await open('fasting')
-      ..bodyMeasurementBox = await open('body');
+      ..bodyMeasurementBox = await open('body')
+    ..mealPlanBox = await open('plan');
 
     final random = Random(7);
     final today = DateTime.now();

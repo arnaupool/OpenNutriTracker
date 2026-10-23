@@ -10308,6 +10308,176 @@ class S {
       args: [],
     );
   }
+
+  /// `Meal plan`
+  String get planTitle {
+    return Intl.message(
+      "Meal plan",
+      name: 'planTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Week of {value}`
+  String planWeekOf(String value) {
+    return Intl.message(
+      "Week of $value",
+      name: 'planWeekOf',
+      desc: '',
+      args: [value],
+    );
+  }
+
+  /// `This week`
+  String get planThisWeek {
+    return Intl.message(
+      "This week",
+      name: 'planThisWeek',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Shopping list`
+  String get planShoppingList {
+    return Intl.message(
+      "Shopping list",
+      name: 'planShoppingList',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nothing planned this week.`
+  String get planShoppingEmpty {
+    return Intl.message(
+      "Nothing planned this week.",
+      name: 'planShoppingEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add to plan`
+  String get planAdd {
+    return Intl.message(
+      "Add to plan",
+      name: 'planAdd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search your recipes, foods and recent meals`
+  String get planSearchHint {
+    return Intl.message(
+      "Search your recipes, foods and recent meals",
+      name: 'planSearchHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No matches. Create a recipe or a custom food, or log a food once, and it will show up here.`
+  String get planNoCandidates {
+    return Intl.message(
+      "No matches. Create a recipe or a custom food, or log a food once, and it will show up here.",
+      name: 'planNoCandidates',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Amount`
+  String get planAmountLabel {
+    return Intl.message(
+      "Amount",
+      name: 'planAmountLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add`
+  String get planAddAction {
+    return Intl.message(
+      "Add",
+      name: 'planAddAction',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log plan`
+  String get planLogDay {
+    return Intl.message(
+      "Log plan",
+      name: 'planLogDay',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Logged in the diary: {count}`
+  String planLogged(String count) {
+    return Intl.message(
+      "Logged in the diary: $count",
+      name: 'planLogged',
+      desc: '',
+      args: [count],
+    );
+  }
+
+  /// `{planned} / {goal} kcal`
+  String planGoalValue(String planned, String goal) {
+    return Intl.message(
+      "$planned / $goal kcal",
+      name: 'planGoalValue',
+      desc: '',
+      args: [planned, goal],
+    );
+  }
+
+  /// `Today's plan`
+  String get planTodayTitle {
+    return Intl.message(
+      "Today's plan",
+      name: 'planTodayTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{count} in the plan · {kcal} kcal`
+  String planTodaySummary(String count, String kcal) {
+    return Intl.message(
+      "$count in the plan · $kcal kcal",
+      name: 'planTodaySummary',
+      desc: '',
+      args: [count, kcal],
+    );
+  }
+
+  /// `Copy`
+  String get planCopy {
+    return Intl.message(
+      "Copy",
+      name: 'planCopy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `List copied`
+  String get planCopied {
+    return Intl.message(
+      "List copied",
+      name: 'planCopied',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

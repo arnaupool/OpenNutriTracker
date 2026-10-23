@@ -14,6 +14,7 @@ import 'package:opennutritracker/core/data/dbo/tracked_day_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/user_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/water_intake_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/weight_log_dbo.dart';
+import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dart';
 import 'package:opennutritracker/hive_registrar.g.dart';
 
 class HiveDBProvider extends ChangeNotifier {
@@ -49,6 +50,8 @@ class HiveDBProvider extends ChangeNotifier {
   // FAS-01: per-device sync bookkeeping (record fingerprints, pull cursor).
   // Never synced itself.
   static const syncStateBoxName = 'SyncStateBox';
+  // FAS-04: planned meals (synced).
+  static const mealPlanBoxName = 'MealPlanBox';
 
   late Box<ConfigDBO> configBox;
   late Box<IntakeDBO> intakeBox;
@@ -66,6 +69,7 @@ class HiveDBProvider extends ChangeNotifier {
   late Box<BodyMeasurementDBO> bodyMeasurementBox;
   late Box<Uint8List> userImageBytesBox;
   late Box<dynamic> syncStateBox;
+  late Box<MealPlanEntryDBO> mealPlanBox;
 
   Future<void> initHiveDB(Uint8List encryptionKey) async {
     final encryptionCypher = HiveAesCipher(encryptionKey);
@@ -77,6 +81,11 @@ class HiveDBProvider extends ChangeNotifier {
     // hormone profile to throw, which the previous broken async chains
     // swallowed silently. Result: profile reset to null on app relaunch.
     Hive.registerAdapters();
+    // Hand-written adapter (see MealPlanEntryDBOAdapter), outside the
+    // generated registrar.
+    if (!Hive.isAdapterRegistered(MealPlanEntryDBO.hiveTypeId)) {
+      Hive.registerAdapter(MealPlanEntryDBOAdapter());
+    }
 
     configBox = await Hive.openBox(
       configBoxName,
@@ -140,6 +149,10 @@ class HiveDBProvider extends ChangeNotifier {
     );
     syncStateBox = await Hive.openBox(
       syncStateBoxName,
+      encryptionCipher: encryptionCypher,
+    );
+    mealPlanBox = await Hive.openBox(
+      mealPlanBoxName,
       encryptionCipher: encryptionCypher,
     );
   }
