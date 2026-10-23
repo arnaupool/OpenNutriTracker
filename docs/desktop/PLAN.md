@@ -57,3 +57,18 @@ Sin ella el escritorio no tiene datos, porque hoy todo vive cifrado en el móvil
 
 1. **Reactivar Supabase:** el proyecto `openfoodtracker` (el del backup) está en pausa (`INACTIVE`), así que hoy el backup en la nube tampoco funciona. Hay que reactivarlo y crear la tabla `sync_records`.
 2. **Pausas del plan gratuito:** Supabase pausa los proyectos gratuitos tras 7 días sin actividad. Con la sincronización activa no debería volver a pasar mientras uses la app.
+
+## Estado (2026-10-23)
+
+Todo lo anterior está hecho y en `main`:
+
+| Pieza | Commit | Dónde está |
+| --- | --- | --- |
+| Fase 2: diseño de escritorio | 103f56bc | Menú lateral desde 1000 px, Home y Diary en columnas. |
+| Fase 1: sincronización | 62c3cb2d | Ajustes > Sincronización entre dispositivos. Tabla `sync_records` (ver `sync_records.sql`). |
+| Fase 3: análisis y CSV | 5befd513 | Menú lateral > Análisis (en el móvil, icono en Estrategia). |
+| Fase 4: plan de comidas | 0cdef586 | Menú lateral > Plan de comidas (en el móvil, icono en Diario); tarjeta "Plan de hoy" en Inicio. |
+| Perfiles | d48d62a2 | Ajustes o Perfil > Perfiles. |
+| Castellano y valenciano | d9b2d801 | Ajustes > Idioma. |
+
+Para empezar a sincronizar: en el móvil, Ajustes > Sincronización entre dispositivos > "Activar con los datos de este dispositivo"; en el escritorio, "Vincular este dispositivo" y pegar el código. Un cron diario de GitHub Actions (`supabase-keepalive.yml`) evita que Supabase pause el proyecto.
