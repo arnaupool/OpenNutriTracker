@@ -1523,5 +1523,40 @@
     }
   },
   "planCopy": "Copiar",
-  "planCopied": "Lista copiada"
+  "planCopied": "Lista copiada",
+  "profilesTitle": "Perfiles",
+  "profilesActiveValue": "Activo: {value}",
+  "@profilesActiveValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "profilesDefaultName": "Perfil principal",
+  "profilesExplanation": "Cada persona de este dispositivo tiene su propio diario, objetivos, ajustes, fotos y código de sincronización. Al cambiar, la app se recarga con los datos de ese perfil.",
+  "profilesAdd": "Añadir perfil",
+  "profilesActive": "En uso",
+  "profilesNameLabel": "Nombre del perfil",
+  "profilesRename": "Renombrar",
+  "profilesDelete": "Borrar",
+  "profilesDeleteTitle": "¿Borrar {value}?",
+  "@profilesDeleteTitle": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "profilesDeleteBody": "Se borran de este dispositivo el diario, el peso, las recetas, el plan, los ajustes y el código de sincronización de este perfil. No se puede deshacer.",
+  "profilesSwitchTitle": "¿Cambiar a {value}?",
+  "@profilesSwitchTitle": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "profilesSwitchBody": "La app se recarga con el diario, los objetivos y los ajustes de este perfil. Un perfil nuevo empieza por los pasos de configuración.",
+  "profilesSwitchAction": "Cambiar"
 }

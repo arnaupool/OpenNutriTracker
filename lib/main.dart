@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:logging/logging.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:opennutritracker/core/data/data_source/remote_search_cache_data_source.dart';
 import 'package:opennutritracker/core/data/data_source/user_data_source.dart';
 import 'package:opennutritracker/core/data/repository/config_repository.dart';
@@ -21,6 +22,7 @@ import 'package:opennutritracker/core/utils/notification_service.dart';
 import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/core/utils/energy_unit_provider.dart';
 import 'package:opennutritracker/core/utils/locale_provider.dart';
+import 'package:opennutritracker/core/profiles/profile_store.dart';
 import 'package:opennutritracker/core/sync/sync_service.dart';
 import 'package:opennutritracker/core/utils/theme_mode_provider.dart';
 import 'package:opennutritracker/features/activity_detail/activity_detail_screen.dart';
@@ -57,6 +59,51 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   LoggerConfig.intiLogger();
+  ProfileScope.activate(await ProfileStore().activeId());
+  final boot = await _bootstrap();
+  final log = Logger('main');
+
+  // If the user has accepted anonymous data collection, run the app with
+  // sentry enabled, else run without it
+  if (kReleaseMode && boot.hasAcceptedAnonymousData) {
+    log.info('Starting App with Sentry enabled ...');
+    await SentryFlutter.init(
+      (options) {
+        options.dsn = Env.sentryDns;
+        options.tracesSampleRate = 1.0;
+      },
+      appRunner: () => runApp(AppRestarter(initial: boot)),
+    );
+  } else {
+    log.info('Starting App ...');
+    runApp(AppRestarter(initial: boot));
+  }
+}
+
+/// What the widget tree needs from storage before it can be built.
+class AppBoot {
+  final bool isUserInitialized;
+  final bool hasAcceptedAnonymousData;
+  final AppThemeEntity appTheme;
+  final Locale? locale;
+  final bool usesKilojoules;
+  final bool useMaterialYou;
+  final int? accentColor;
+
+  const AppBoot({
+    required this.isUserInitialized,
+    required this.hasAcceptedAnonymousData,
+    required this.appTheme,
+    required this.locale,
+    required this.usesKilojoules,
+    required this.useMaterialYou,
+    required this.accentColor,
+  });
+}
+
+/// Opens the active profile's data and reads what the app starts with. Runs
+/// at launch and again after switching profile.
+Future<AppBoot> _bootstrap() async {
   await initLocator();
 
   // Drop cached remote-search results that haven't been touched in 90
@@ -96,90 +143,83 @@ Future<void> main() async {
       channelDescription: s.notificationsDailyReminderChannelDescription,
     );
   }
-  final hasAcceptedAnonymousData = await configRepo
-      .getConfigHasAcceptedAnonymousData();
-  final savedAppTheme = await configRepo.getConfigAppTheme();
-  final savedUsesKilojoules = config.usesKilojoules;
-  final savedUseMaterialYou = config.useMaterialYou;
-  final savedAccentColor = config.accentColor;
-  final log = Logger('main');
-
-  // If the user has accepted anonymous data collection, run the app with
-  // sentry enabled, else run without it
-  if (kReleaseMode && hasAcceptedAnonymousData) {
-    log.info('Starting App with Sentry enabled ...');
-    _runAppWithSentryReporting(
-      isUserInitialized,
-      savedAppTheme,
-      savedLocale,
-      savedUsesKilojoules,
-      savedUseMaterialYou,
-      savedAccentColor,
-    );
-  } else {
-    log.info('Starting App ...');
-    runAppWithChangeNotifiers(
-      isUserInitialized,
-      savedAppTheme,
-      savedLocale,
-      savedUsesKilojoules,
-      savedUseMaterialYou,
-      savedAccentColor,
-    );
-  }
-}
-
-void _runAppWithSentryReporting(
-  bool isUserInitialized,
-  AppThemeEntity savedAppTheme,
-  Locale? savedLocale,
-  bool savedUsesKilojoules,
-  bool savedUseMaterialYou,
-  int? savedAccentColor,
-) async {
-  await SentryFlutter.init(
-    (options) {
-      options.dsn = Env.sentryDns;
-      options.tracesSampleRate = 1.0;
-    },
-    appRunner: () => runAppWithChangeNotifiers(
-      isUserInitialized,
-      savedAppTheme,
-      savedLocale,
-      savedUsesKilojoules,
-      savedUseMaterialYou,
-      savedAccentColor,
-    ),
+  return AppBoot(
+    isUserInitialized: isUserInitialized,
+    hasAcceptedAnonymousData: await configRepo.getConfigHasAcceptedAnonymousData(),
+    appTheme: await configRepo.getConfigAppTheme(),
+    locale: savedLocale,
+    usesKilojoules: config.usesKilojoules,
+    useMaterialYou: config.useMaterialYou,
+    accentColor: config.accentColor,
   );
 }
 
-void runAppWithChangeNotifiers(
-  bool userInitialized,
-  AppThemeEntity savedAppTheme,
-  Locale? savedLocale,
-  bool savedUsesKilojoules,
-  bool savedUseMaterialYou,
-  int? savedAccentColor,
-) => runApp(
-  MultiProvider(
-    providers: [
-      ChangeNotifierProvider(
-        create: (_) => ThemeModeProvider(
-          appTheme: savedAppTheme,
-          useMaterialYou: savedUseMaterialYou,
-          accentColor: savedAccentColor,
-        ),
+/// Root of the app. Switching profile closes the current profile's data,
+/// opens the other one and rebuilds everything below from scratch, without
+/// restarting the process (which Flutter can't do on its own).
+class AppRestarter extends StatefulWidget {
+  final AppBoot initial;
+
+  const AppRestarter({super.key, required this.initial});
+
+  /// Makes [profileId] active and reloads the app on its data.
+  static Future<void> switchProfile(BuildContext context, String profileId) async {
+    final state = context.findAncestorStateOfType<_AppRestarterState>();
+    await state?._switchTo(profileId);
+  }
+
+  @override
+  State<AppRestarter> createState() => _AppRestarterState();
+}
+
+class _AppRestarterState extends State<AppRestarter> {
+  late AppBoot _boot = widget.initial;
+  Key _key = UniqueKey();
+  bool _switching = false;
+
+  Future<void> _switchTo(String profileId) async {
+    setState(() => _switching = true);
+    await locator<SyncService>().stop();
+    await Hive.close();
+    await locator.reset();
+    await ProfileStore().setActive(profileId);
+    ProfileScope.activate(profileId);
+    final boot = await _bootstrap();
+    if (!mounted) return;
+    setState(() {
+      _boot = boot;
+      _key = UniqueKey();
+      _switching = false;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_switching) {
+      return const Directionality(
+        textDirection: TextDirection.ltr,
+        child: ColoredBox(color: Colors.black, child: Center(child: CircularProgressIndicator())),
+      );
+    }
+    return KeyedSubtree(
+      key: _key,
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (_) => ThemeModeProvider(
+              appTheme: _boot.appTheme,
+              useMaterialYou: _boot.useMaterialYou,
+              accentColor: _boot.accentColor,
+            ),
+          ),
+          ChangeNotifierProvider(create: (_) => LocaleProvider(locale: _boot.locale)),
+          ChangeNotifierProvider(create: (_) => EnergyUnitProvider(usesKilojoules: _boot.usesKilojoules)),
+        ],
+        child: OpenNutriTrackerApp(userInitialized: _boot.isUserInitialized),
       ),
-      ChangeNotifierProvider(
-        create: (_) => LocaleProvider(locale: savedLocale),
-      ),
-      ChangeNotifierProvider(
-        create: (_) => EnergyUnitProvider(usesKilojoules: savedUsesKilojoules),
-      ),
-    ],
-    child: OpenNutriTrackerApp(userInitialized: userInitialized),
-  ),
-);
+    );
+  }
+}
 
 class OpenNutriTrackerApp extends StatelessWidget {
   final bool userInitialized;

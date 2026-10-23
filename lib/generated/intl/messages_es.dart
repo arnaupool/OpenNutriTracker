@@ -20,6 +20,15 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'es';
 
+  static String mProfilesActiveValue(value) =>
+      "Activo: ${value}";
+
+  static String mProfilesDeleteTitle(value) =>
+      "¿Borrar ${value}?";
+
+  static String mProfilesSwitchTitle(value) =>
+      "¿Cambiar a ${value}?";
+
   static String mPlanWeekOf(value) =>
       "Semana del ${value}";
 
@@ -2363,5 +2372,30 @@ class MessageLookup extends MessageLookupByLibrary {
             "Copiar"),
         "planCopied": MessageLookupByLibrary.simpleMessage(
             "Lista copiada"),
+        "profilesTitle": MessageLookupByLibrary.simpleMessage(
+            "Perfiles"),
+        "profilesActiveValue": mProfilesActiveValue,
+        "profilesDefaultName": MessageLookupByLibrary.simpleMessage(
+            "Perfil principal"),
+        "profilesExplanation": MessageLookupByLibrary.simpleMessage(
+            "Cada persona de este dispositivo tiene su propio diario, objetivos, ajustes, fotos y código de sincronización. Al cambiar, la app se recarga con los datos de ese perfil."),
+        "profilesAdd": MessageLookupByLibrary.simpleMessage(
+            "Añadir perfil"),
+        "profilesActive": MessageLookupByLibrary.simpleMessage(
+            "En uso"),
+        "profilesNameLabel": MessageLookupByLibrary.simpleMessage(
+            "Nombre del perfil"),
+        "profilesRename": MessageLookupByLibrary.simpleMessage(
+            "Renombrar"),
+        "profilesDelete": MessageLookupByLibrary.simpleMessage(
+            "Borrar"),
+        "profilesDeleteTitle": mProfilesDeleteTitle,
+        "profilesDeleteBody": MessageLookupByLibrary.simpleMessage(
+            "Se borran de este dispositivo el diario, el peso, las recetas, el plan, los ajustes y el código de sincronización de este perfil. No se puede deshacer."),
+        "profilesSwitchTitle": mProfilesSwitchTitle,
+        "profilesSwitchBody": MessageLookupByLibrary.simpleMessage(
+            "La app se recarga con el diario, los objetivos y los ajustes de este perfil. Un perfil nuevo empieza por los pasos de configuración."),
+        "profilesSwitchAction": MessageLookupByLibrary.simpleMessage(
+            "Cambiar"),
       };
 }

@@ -20,6 +20,15 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ca';
 
+  static String mProfilesActiveValue(value) =>
+      "Actiu: ${value}";
+
+  static String mProfilesDeleteTitle(value) =>
+      "Vols esborrar ${value}?";
+
+  static String mProfilesSwitchTitle(value) =>
+      "Vols canviar a ${value}?";
+
   static String mPlanWeekOf(value) =>
       "Setmana del ${value}";
 
@@ -2363,5 +2372,30 @@ class MessageLookup extends MessageLookupByLibrary {
             "Copiar"),
         "planCopied": MessageLookupByLibrary.simpleMessage(
             "Llista copiada"),
+        "profilesTitle": MessageLookupByLibrary.simpleMessage(
+            "Perfils"),
+        "profilesActiveValue": mProfilesActiveValue,
+        "profilesDefaultName": MessageLookupByLibrary.simpleMessage(
+            "Perfil principal"),
+        "profilesExplanation": MessageLookupByLibrary.simpleMessage(
+            "Cada persona d'este dispositiu té el seu propi diari, objectius, configuració, fotos i codi de sincronització. En canviar, l'aplicació es recarrega amb les dades d'eixe perfil."),
+        "profilesAdd": MessageLookupByLibrary.simpleMessage(
+            "Afegir perfil"),
+        "profilesActive": MessageLookupByLibrary.simpleMessage(
+            "En ús"),
+        "profilesNameLabel": MessageLookupByLibrary.simpleMessage(
+            "Nom del perfil"),
+        "profilesRename": MessageLookupByLibrary.simpleMessage(
+            "Canviar el nom"),
+        "profilesDelete": MessageLookupByLibrary.simpleMessage(
+            "Esborrar"),
+        "profilesDeleteTitle": mProfilesDeleteTitle,
+        "profilesDeleteBody": MessageLookupByLibrary.simpleMessage(
+            "S'esborren d'este dispositiu el diari, el pes, les receptes, el pla, la configuració i el codi de sincronització d'este perfil. No es pot desfer."),
+        "profilesSwitchTitle": mProfilesSwitchTitle,
+        "profilesSwitchBody": MessageLookupByLibrary.simpleMessage(
+            "L'aplicació es recarrega amb el diari, els objectius i la configuració d'este perfil. Un perfil nou comença pels passos de configuració."),
+        "profilesSwitchAction": MessageLookupByLibrary.simpleMessage(
+            "Canviar"),
       };
 }

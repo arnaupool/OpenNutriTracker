@@ -25,6 +25,7 @@ import 'package:opennutritracker/features/profile/presentation/widgets/set_weigh
 import 'package:opennutritracker/features/home/presentation/bloc/home_bloc.dart';
 import 'package:opennutritracker/features/settings/presentation/bloc/settings_bloc.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/water_goal_dialog.dart';
+import 'package:opennutritracker/features/profiles/profiles_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -251,6 +252,7 @@ class _ProfilePageState extends State<ProfilePage> {
               onChanged: (v) => _profileBloc.setCaloriesTaperEnabled(v),
             ),
           ),
+        const ProfilesTile(),
         Semantics(
           identifier: 'profile-fasting-entry',
           child: ListTile(

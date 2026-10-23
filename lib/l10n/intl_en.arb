@@ -1477,5 +1477,34 @@
     }
   },
   "planCopy": "Copy",
-  "planCopied": "List copied"
+  "planCopied": "List copied",
+  "profilesTitle": "Profiles",
+  "profilesActiveValue": "Active: {value}",
+  "@profilesActiveValue": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "profilesDefaultName": "Main profile",
+  "profilesExplanation": "Each person on this device gets their own diary, goals, settings, photos and sync code. Switching reloads the app with that profile's data.",
+  "profilesAdd": "Add profile",
+  "profilesActive": "In use",
+  "profilesNameLabel": "Profile name",
+  "profilesRename": "Rename",
+  "profilesDelete": "Delete",
+  "profilesDeleteTitle": "Delete {value}?",
+  "@profilesDeleteTitle": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "profilesDeleteBody": "This deletes this profile's diary, weight, recipes, plan, settings and sync code from this device. It can't be undone.",
+  "profilesSwitchTitle": "Switch to {value}?",
+  "@profilesSwitchTitle": {
+    "placeholders": {
+      "value": { "type": "String" }
+    }
+  },
+  "profilesSwitchBody": "The app reloads with this profile's diary, goals and settings. A new profile starts with the setup steps.",
+  "profilesSwitchAction": "Switch"
 }

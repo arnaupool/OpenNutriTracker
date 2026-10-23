@@ -10478,6 +10478,146 @@ class S {
       args: [],
     );
   }
+
+  /// `Profiles`
+  String get profilesTitle {
+    return Intl.message(
+      "Profiles",
+      name: 'profilesTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Active: {value}`
+  String profilesActiveValue(String value) {
+    return Intl.message(
+      "Active: $value",
+      name: 'profilesActiveValue',
+      desc: '',
+      args: [value],
+    );
+  }
+
+  /// `Main profile`
+  String get profilesDefaultName {
+    return Intl.message(
+      "Main profile",
+      name: 'profilesDefaultName',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Each person on this device gets their own diary, goals, settings, photos and sync code. Switching reloads the app with that profile's data.`
+  String get profilesExplanation {
+    return Intl.message(
+      "Each person on this device gets their own diary, goals, settings, photos and sync code. Switching reloads the app with that profile's data.",
+      name: 'profilesExplanation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add profile`
+  String get profilesAdd {
+    return Intl.message(
+      "Add profile",
+      name: 'profilesAdd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `In use`
+  String get profilesActive {
+    return Intl.message(
+      "In use",
+      name: 'profilesActive',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Profile name`
+  String get profilesNameLabel {
+    return Intl.message(
+      "Profile name",
+      name: 'profilesNameLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Rename`
+  String get profilesRename {
+    return Intl.message(
+      "Rename",
+      name: 'profilesRename',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete`
+  String get profilesDelete {
+    return Intl.message(
+      "Delete",
+      name: 'profilesDelete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete {value}?`
+  String profilesDeleteTitle(String value) {
+    return Intl.message(
+      "Delete $value?",
+      name: 'profilesDeleteTitle',
+      desc: '',
+      args: [value],
+    );
+  }
+
+  /// `This deletes this profile's diary, weight, recipes, plan, settings and sync code from this device. It can't be undone.`
+  String get profilesDeleteBody {
+    return Intl.message(
+      "This deletes this profile's diary, weight, recipes, plan, settings and sync code from this device. It can't be undone.",
+      name: 'profilesDeleteBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Switch to {value}?`
+  String profilesSwitchTitle(String value) {
+    return Intl.message(
+      "Switch to $value?",
+      name: 'profilesSwitchTitle',
+      desc: '',
+      args: [value],
+    );
+  }
+
+  /// `The app reloads with this profile's diary, goals and settings. A new profile starts with the setup steps.`
+  String get profilesSwitchBody {
+    return Intl.message(
+      "The app reloads with this profile's diary, goals and settings. A new profile starts with the setup steps.",
+      name: 'profilesSwitchBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Switch`
+  String get profilesSwitchAction {
+    return Intl.message(
+      "Switch",
+      name: 'profilesSwitchAction',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

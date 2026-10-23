@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:typed_data';
 
+import 'package:opennutritracker/core/profiles/profile_store.dart';
 import 'package:opennutritracker/core/utils/secure_app_storage_provider.dart';
 
 /// The 256-bit pairing token for the cloud-backup feature (Fase Cuenta).
@@ -22,9 +23,9 @@ class CloudBackupTokenService {
 
   /// The token active on this device, or null if cloud backup hasn't been
   /// set up here yet (neither generated nor paired in).
-  Future<String?> read() => _secureStorage.read(key: _secureStorageKey);
+  Future<String?> read() => _secureStorage.read(key: ProfileScope.secret(_secureStorageKey));
 
-  Future<bool> hasToken() => _secureStorage.containsKey(key: _secureStorageKey);
+  Future<bool> hasToken() => _secureStorage.containsKey(key: ProfileScope.secret(_secureStorageKey));
 
   /// Generates a fresh random token and persists it -- the "activate cloud
   /// backup" action, done once on whichever device owns the data.
@@ -58,8 +59,8 @@ class CloudBackupTokenService {
         'Not a valid cloud-backup pairing token',
       );
     }
-    await _secureStorage.write(key: _secureStorageKey, value: token);
+    await _secureStorage.write(key: ProfileScope.secret(_secureStorageKey), value: token);
   }
 
-  Future<void> clear() => _secureStorage.delete(key: _secureStorageKey);
+  Future<void> clear() => _secureStorage.delete(key: ProfileScope.secret(_secureStorageKey));
 }

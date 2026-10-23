@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:opennutritracker/core/profiles/profile_store.dart';
 import 'package:opennutritracker/core/data/data_source/custom_activity_template_dbo.dart';
 import 'package:opennutritracker/core/data/data_source/user_activity_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/body_measurement_dbo.dart';
@@ -71,8 +72,37 @@ class HiveDBProvider extends ChangeNotifier {
   late Box<dynamic> syncStateBox;
   late Box<MealPlanEntryDBO> mealPlanBox;
 
+  static bool _hiveReady = false;
+
+  /// Every box a profile owns, by logical name (see [ProfileScope.box]).
+  static const List<String> profileBoxNames = [
+    configBoxName,
+    intakeBoxName,
+    userActivityBoxName,
+    userBoxName,
+    trackedDayBoxName,
+    customMealBoxName,
+    recipeBoxName,
+    cachedOffMealBoxName,
+    cachedOffMealTimestampsBoxName,
+    customActivityTemplateBoxName,
+    weightLogBoxName,
+    waterIntakeBoxName,
+    fastingBoxName,
+    bodyMeasurementBoxName,
+    userImageBytesBoxName,
+    syncStateBoxName,
+    mealPlanBoxName,
+  ];
+
+  /// Opens the active profile's boxes ([ProfileScope]). Safe to call again
+  /// after [Hive.close] when switching profiles.
   Future<void> initHiveDB(Uint8List encryptionKey) async {
     final encryptionCypher = HiveAesCipher(encryptionKey);
+    if (_hiveReady) {
+      return _openBoxes(encryptionCypher);
+    }
+    _hiveReady = true;
     await Hive.initFlutter();
     // Delegate to the generated registrar so any new DBO type added to
     // the project is registered automatically on the next `just build`.
@@ -86,73 +116,77 @@ class HiveDBProvider extends ChangeNotifier {
     if (!Hive.isAdapterRegistered(MealPlanEntryDBO.hiveTypeId)) {
       Hive.registerAdapter(MealPlanEntryDBOAdapter());
     }
+    await _openBoxes(encryptionCypher);
+  }
+
+  Future<void> _openBoxes(HiveAesCipher encryptionCypher) async {
 
     configBox = await Hive.openBox(
-      configBoxName,
+      ProfileScope.box(configBoxName),
       encryptionCipher: encryptionCypher,
     );
     intakeBox = await Hive.openBox(
-      intakeBoxName,
+      ProfileScope.box(intakeBoxName),
       encryptionCipher: encryptionCypher,
     );
     userActivityBox = await Hive.openBox(
-      userActivityBoxName,
+      ProfileScope.box(userActivityBoxName),
       encryptionCipher: encryptionCypher,
     );
     userBox = await Hive.openBox(
-      userBoxName,
+      ProfileScope.box(userBoxName),
       encryptionCipher: encryptionCypher,
     );
     trackedDayBox = await Hive.openBox(
-      trackedDayBoxName,
+      ProfileScope.box(trackedDayBoxName),
       encryptionCipher: encryptionCypher,
     );
     customMealBox = await Hive.openBox(
-      customMealBoxName,
+      ProfileScope.box(customMealBoxName),
       encryptionCipher: encryptionCypher,
     );
     recipeBox = await Hive.openBox(
-      recipeBoxName,
+      ProfileScope.box(recipeBoxName),
       encryptionCipher: encryptionCypher,
     );
     cachedOffMealBox = await Hive.openBox(
-      cachedOffMealBoxName,
+      ProfileScope.box(cachedOffMealBoxName),
       encryptionCipher: encryptionCypher,
     );
     cachedOffMealTimestampsBox = await Hive.openBox(
-      cachedOffMealTimestampsBoxName,
+      ProfileScope.box(cachedOffMealTimestampsBoxName),
       encryptionCipher: encryptionCypher,
     );
     customActivityTemplateBox = await Hive.openBox(
-      customActivityTemplateBoxName,
+      ProfileScope.box(customActivityTemplateBoxName),
       encryptionCipher: encryptionCypher,
     );
     weightLogBox = await Hive.openBox(
-      weightLogBoxName,
+      ProfileScope.box(weightLogBoxName),
       encryptionCipher: encryptionCypher,
     );
     waterIntakeBox = await Hive.openBox(
-      waterIntakeBoxName,
+      ProfileScope.box(waterIntakeBoxName),
       encryptionCipher: encryptionCypher,
     );
     fastingBox = await Hive.openBox(
-      fastingBoxName,
+      ProfileScope.box(fastingBoxName),
       encryptionCipher: encryptionCypher,
     );
     bodyMeasurementBox = await Hive.openBox(
-      bodyMeasurementBoxName,
+      ProfileScope.box(bodyMeasurementBoxName),
       encryptionCipher: encryptionCypher,
     );
     userImageBytesBox = await Hive.openBox(
-      userImageBytesBoxName,
+      ProfileScope.box(userImageBytesBoxName),
       encryptionCipher: encryptionCypher,
     );
     syncStateBox = await Hive.openBox(
-      syncStateBoxName,
+      ProfileScope.box(syncStateBoxName),
       encryptionCipher: encryptionCypher,
     );
     mealPlanBox = await Hive.openBox(
-      mealPlanBoxName,
+      ProfileScope.box(mealPlanBoxName),
       encryptionCipher: encryptionCypher,
     );
   }

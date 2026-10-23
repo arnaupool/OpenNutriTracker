@@ -1523,5 +1523,40 @@
     }
   },
   "planCopy": "Copiar",
-  "planCopied": "Llista copiada"
+  "planCopied": "Llista copiada",
+  "profilesTitle": "Perfils",
+  "profilesActiveValue": "Actiu: {value}",
+  "@profilesActiveValue": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "profilesDefaultName": "Perfil principal",
+  "profilesExplanation": "Cada persona d'este dispositiu té el seu propi diari, objectius, configuració, fotos i codi de sincronització. En canviar, l'aplicació es recarrega amb les dades d'eixe perfil.",
+  "profilesAdd": "Afegir perfil",
+  "profilesActive": "En ús",
+  "profilesNameLabel": "Nom del perfil",
+  "profilesRename": "Canviar el nom",
+  "profilesDelete": "Esborrar",
+  "profilesDeleteTitle": "Vols esborrar {value}?",
+  "@profilesDeleteTitle": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "profilesDeleteBody": "S'esborren d'este dispositiu el diari, el pes, les receptes, el pla, la configuració i el codi de sincronització d'este perfil. No es pot desfer.",
+  "profilesSwitchTitle": "Vols canviar a {value}?",
+  "@profilesSwitchTitle": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "profilesSwitchBody": "L'aplicació es recarrega amb el diari, els objectius i la configuració d'este perfil. Un perfil nou comença pels passos de configuració.",
+  "profilesSwitchAction": "Canviar"
 }

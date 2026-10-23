@@ -20,6 +20,15 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
+  static String mProfilesSwitchTitle(value) =>
+      "Switch to ${value}?";
+
+  static String mProfilesDeleteTitle(value) =>
+      "Delete ${value}?";
+
+  static String mProfilesActiveValue(value) =>
+      "Active: ${value}";
+
   static String mPlanTodaySummary(count, kcal) =>
       "${count} in the plan · ${kcal} kcal";
 
@@ -1672,5 +1681,19 @@ class MessageLookup extends MessageLookupByLibrary {
         "planTodaySummary": mPlanTodaySummary,
         "planCopy": MessageLookupByLibrary.simpleMessage("Copy"),
         "planCopied": MessageLookupByLibrary.simpleMessage("List copied"),
+        "profilesTitle": MessageLookupByLibrary.simpleMessage("Profiles"),
+        "profilesActiveValue": mProfilesActiveValue,
+        "profilesDefaultName": MessageLookupByLibrary.simpleMessage("Main profile"),
+        "profilesExplanation": MessageLookupByLibrary.simpleMessage("Each person on this device gets their own diary, goals, settings, photos and sync code. Switching reloads the app with that profile's data."),
+        "profilesAdd": MessageLookupByLibrary.simpleMessage("Add profile"),
+        "profilesActive": MessageLookupByLibrary.simpleMessage("In use"),
+        "profilesNameLabel": MessageLookupByLibrary.simpleMessage("Profile name"),
+        "profilesRename": MessageLookupByLibrary.simpleMessage("Rename"),
+        "profilesDelete": MessageLookupByLibrary.simpleMessage("Delete"),
+        "profilesDeleteTitle": mProfilesDeleteTitle,
+        "profilesDeleteBody": MessageLookupByLibrary.simpleMessage("This deletes this profile's diary, weight, recipes, plan, settings and sync code from this device. It can't be undone."),
+        "profilesSwitchTitle": mProfilesSwitchTitle,
+        "profilesSwitchBody": MessageLookupByLibrary.simpleMessage("The app reloads with this profile's diary, goals and settings. A new profile starts with the setup steps."),
+        "profilesSwitchAction": MessageLookupByLibrary.simpleMessage("Switch"),
       };
 }

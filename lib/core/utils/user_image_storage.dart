@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:opennutritracker/core/profiles/profile_store.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// Three flavours of user-attached photo the app persists locally.
@@ -50,7 +51,8 @@ enum UserImageKind {
 /// implementation.
 class UserImageStorage {
   static const String _extension = 'webp';
-  static const String webBoxName = 'UserImageBytesBox';
+  // The active profile's physical box name (see ProfileScope).
+  static String get webBoxName => ProfileScope.box('UserImageBytesBox');
 
   static Box<Uint8List> get _webBox => Hive.box<Uint8List>(webBoxName);
 

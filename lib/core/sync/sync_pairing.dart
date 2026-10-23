@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:opennutritracker/core/sync/sync_crypto.dart';
 import 'package:opennutritracker/core/utils/cloud_backup_token_service.dart';
+import 'package:opennutritracker/core/profiles/profile_store.dart';
 import 'package:opennutritracker/core/utils/secure_app_storage_provider.dart';
 
 /// What a pairing code carries: the 256-bit token that scopes server rows
@@ -52,7 +53,7 @@ class SyncKeyService {
 
   Future<SyncPairing?> read() async {
     final token = await _tokenService.read();
-    final key = await _secureStorage.read(key: _secureStorageKey);
+    final key = await _secureStorage.read(key: ProfileScope.secret(_secureStorageKey));
     if (token == null || key == null) return null;
     try {
       return SyncPairing(token, base64Url.decode(key));
@@ -70,17 +71,17 @@ class SyncKeyService {
     if (existing != null) return existing;
     final token = await _tokenService.read() ?? await _tokenService.generateAndStore();
     final key = SyncCrypto.generateKey();
-    await _secureStorage.write(key: _secureStorageKey, value: base64Url.encode(key));
+    await _secureStorage.write(key: ProfileScope.secret(_secureStorageKey), value: base64Url.encode(key));
     return SyncPairing(token, key);
   }
 
   /// "Link this device" with a code from a device where sync is on.
   Future<void> store(SyncPairing pairing) async {
     await _tokenService.store(pairing.token);
-    await _secureStorage.write(key: _secureStorageKey, value: base64Url.encode(pairing.key));
+    await _secureStorage.write(key: ProfileScope.secret(_secureStorageKey), value: base64Url.encode(pairing.key));
   }
 
   /// Stops syncing on this device. Keeps the token, which cloud backup
   /// also uses, and the local data.
-  Future<void> disable() => _secureStorage.delete(key: _secureStorageKey);
+  Future<void> disable() => _secureStorage.delete(key: ProfileScope.secret(_secureStorageKey));
 }
