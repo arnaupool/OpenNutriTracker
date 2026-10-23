@@ -1,0 +1,74 @@
+# Builds the web app image (Dockerfile: Flutter web build served by nginx)
+# and publishes it to GitHub Container Registry, so Unraid (or any Docker
+# host) pulls a ready image instead of compiling Flutter itself.
+#
+#   ghcr.io/<owner>/opennutritracker:latest   newest main
+#   ghcr.io/<owner>/opennutritracker:sha-xxxxxxx
+#
+# Build-time values come from repository secrets (the same ones the app
+# reads through envied): SUPABASE_BACKUP_URL / SUPABASE_BACKUP_ANON_KEY for
+# cloud backup and sync, and optionally FDC_API_KEY (generic-food search)
+# and SENTRY_DNS. Missing optional secrets just disable that feature.
+name: Docker image
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'lib/**'
+      - 'web/**'
+      - 'assets/**'
+      - 'fonts/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'Dockerfile'
+      - 'nginx.default.conf'
+      - '.github/workflows/docker-image.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: docker-image
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/opennutritracker
+          tags: |
+            type=raw,value=latest
+            type=sha,prefix=sha-
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            FDC_API_KEY=${{ secrets.FDC_API_KEY }}
+            SENTRY_DNS=${{ secrets.SENTRY_DNS }}
+            BACKUP_SUPABASE_PROJECT_URL=${{ secrets.SUPABASE_BACKUP_URL }}
+            BACKUP_SUPABASE_PROJECT_ANON_KEY=${{ secrets.SUPABASE_BACKUP_ANON_KEY }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

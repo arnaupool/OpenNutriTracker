@@ -1,5 +1,8 @@
 name: Write .env file
-description: Writes a .env file from provided values and fails if a value is missing.
+description: >-
+  Writes the .env file envied reads at codegen time. FDC and Sentry are
+  required; the cloud-backup / sync Supabase project falls back to a stub,
+  since CI jobs never call it but env.dart needs every field to exist.
 inputs:
   fdc_api_key:
     description: FDC API key value.
@@ -7,6 +10,14 @@ inputs:
   sentry_dns:
     description: Sentry DSN value.
     required: true
+  supabase_project_url:
+    description: Backup / sync Supabase project URL (BACKUP_SUPABASE_PROJECT_URL).
+    required: false
+    default: https://stub.supabase.co
+  supabase_project_anon_key:
+    description: Backup / sync Supabase anon or publishable key (BACKUP_SUPABASE_PROJECT_ANON_KEY).
+    required: false
+    default: ci-stub
 runs:
   using: composite
   steps:
@@ -15,12 +26,17 @@ runs:
       env:
         FDC_API_KEY: ${{ inputs.fdc_api_key }}
         SENTRY_DNS: ${{ inputs.sentry_dns }}
+        BACKUP_SUPABASE_PROJECT_URL: ${{ inputs.supabase_project_url }}
+        BACKUP_SUPABASE_PROJECT_ANON_KEY: ${{ inputs.supabase_project_anon_key }}
       run: |
         : "${FDC_API_KEY:?Missing fdc_api_key input}"
         : "${SENTRY_DNS:?Missing sentry_dns input}"
+        : "${BACKUP_SUPABASE_PROJECT_URL:=https://stub.supabase.co}"
+        : "${BACKUP_SUPABASE_PROJECT_ANON_KEY:=ci-stub}"
 
         cat > .env <<EOF
         FDC_API_KEY="$FDC_API_KEY"
         SENTRY_DNS="$SENTRY_DNS"
+        BACKUP_SUPABASE_PROJECT_URL="$BACKUP_SUPABASE_PROJECT_URL"
+        BACKUP_SUPABASE_PROJECT_ANON_KEY="$BACKUP_SUPABASE_PROJECT_ANON_KEY"
         EOF
-

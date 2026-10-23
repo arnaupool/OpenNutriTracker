@@ -144,6 +144,10 @@ jobs:
           fi
 
   ios-build:
+    # This fork ships Android and the web build; iOS CI (macOS minutes count
+    # 10x on a private repo) runs only when the ENABLE_IOS_CI repository
+    # variable is 'true'.
+    if: vars.ENABLE_IOS_CI == 'true'
     runs-on: macos-26
     permissions:
       contents: write
@@ -241,6 +245,10 @@ jobs:
         run: flutter build ios --no-codesign --release --flavor full
 
   ios-integration-tests:
+    # This fork ships Android and the web build; iOS CI (macOS minutes count
+    # 10x on a private repo) runs only when the ENABLE_IOS_CI repository
+    # variable is 'true'.
+    if: vars.ENABLE_IOS_CI == 'true'
     # Runs from the start of the workflow, in parallel with everything else.
     # Not gated on ios-build: this job rebuilds the app itself (it compiles
     # its own test binary), so the dependency shared no output and only
@@ -517,9 +525,13 @@ jobs:
           script: flutter test integration_test/ --flavor full --reporter expanded
 
   ios-package:
+    # Store releases need signing secrets this fork doesn't have; they run
+    # only when the ENABLE_STORE_RELEASE repository variable is 'true'.
     if: |
-      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      github.event_name == 'workflow_dispatch'
+      vars.ENABLE_STORE_RELEASE == 'true' && (
+        (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+        github.event_name == 'workflow_dispatch'
+      )
     needs:
       - linux-checks
       - ios-build
@@ -591,6 +603,9 @@ jobs:
         with:
           fdc_api_key: ${{ env.FDC_API_KEY }}
           sentry_dns: ${{ env.SENTRY_DNS }}
+          # Release builds talk to the real backup / sync project.
+          supabase_project_url: ${{ secrets.SUPABASE_BACKUP_URL }}
+          supabase_project_anon_key: ${{ secrets.SUPABASE_BACKUP_ANON_KEY }}
 
       - name: Install Flutter packages
         run: fvm flutter pub get
@@ -627,9 +642,13 @@ jobs:
           if-no-files-found: error
 
   ios-deploy:
+    # Store releases need signing secrets this fork doesn't have; they run
+    # only when the ENABLE_STORE_RELEASE repository variable is 'true'.
     if: |
-      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      github.event_name == 'workflow_dispatch'
+      vars.ENABLE_STORE_RELEASE == 'true' && (
+        (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+        github.event_name == 'workflow_dispatch'
+      )
     # Deploy only when BOTH platforms packaged successfully (see android-deploy)
     # so a one-sided failure never publishes half a release.
     needs:
@@ -677,9 +696,13 @@ jobs:
         run: bundle exec fastlane ios beta_from_ipa
 
   android-package:
+    # Store releases need signing secrets this fork doesn't have; they run
+    # only when the ENABLE_STORE_RELEASE repository variable is 'true'.
     if: |
-      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      github.event_name == 'workflow_dispatch'
+      vars.ENABLE_STORE_RELEASE == 'true' && (
+        (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+        github.event_name == 'workflow_dispatch'
+      )
     needs:
       - linux-checks
       - ios-build
@@ -728,6 +751,9 @@ jobs:
         with:
           fdc_api_key: ${{ env.FDC_API_KEY }}
           sentry_dns: ${{ env.SENTRY_DNS }}
+          # Release builds talk to the real backup / sync project.
+          supabase_project_url: ${{ secrets.SUPABASE_BACKUP_URL }}
+          supabase_project_anon_key: ${{ secrets.SUPABASE_BACKUP_ANON_KEY }}
 
       - name: Restore Android signing material
         env:
@@ -791,9 +817,13 @@ jobs:
           if-no-files-found: error
 
   android-deploy:
+    # Store releases need signing secrets this fork doesn't have; they run
+    # only when the ENABLE_STORE_RELEASE repository variable is 'true'.
     if: |
-      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      github.event_name == 'workflow_dispatch'
+      vars.ENABLE_STORE_RELEASE == 'true' && (
+        (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+        github.event_name == 'workflow_dispatch'
+      )
     # Deploy only when BOTH platforms packaged successfully. A half-success
     # (e.g. iOS packaging fails) would otherwise still upload the Android AAB,
     # consuming a Play versionCode and forcing a build-number bump on the
@@ -830,9 +860,13 @@ jobs:
           ANDROID_AAB_PATH: ${{ github.workspace }}/release-assets/android/app-release.aab
 
   github-release:
+    # Store releases need signing secrets this fork doesn't have; they run
+    # only when the ENABLE_STORE_RELEASE repository variable is 'true'.
     if: |
-      (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
-      github.event_name == 'workflow_dispatch'
+      vars.ENABLE_STORE_RELEASE == 'true' && (
+        (github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+        github.event_name == 'workflow_dispatch'
+      )
     needs:
       - ios-deploy
       - android-deploy
