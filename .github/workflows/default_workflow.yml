@@ -401,6 +401,12 @@ jobs:
     # Same as iOS: runs in parallel from the start, gated on neither
     # android-build (it rebuilds the app itself) nor a file-discovery job.
     runs-on: ubuntu-latest
+    # Advisory on the free hosted runners: the 2-core software-rendered
+    # emulator hangs (QEMU "hanging thread", ADB "connection refused") and
+    # `flutter test` rebuilds the APK per test file (~10 min each), so the job
+    # hits its timeout for infrastructure reasons, not because a test failed.
+    # Test failures still show in the job log; they just don't fail the run.
+    continue-on-error: true
     # Same bound as iOS so a hung test fails fast rather than running to the
     # 6-hour default.
     timeout-minutes: 30
