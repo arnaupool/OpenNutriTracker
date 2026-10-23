@@ -46,6 +46,9 @@ class HiveDBProvider extends ChangeNotifier {
   // on every platform for simplicity; native ignores it and keeps using
   // files on disk.
   static const userImageBytesBoxName = 'UserImageBytesBox';
+  // FAS-01: per-device sync bookkeeping (record fingerprints, pull cursor).
+  // Never synced itself.
+  static const syncStateBoxName = 'SyncStateBox';
 
   late Box<ConfigDBO> configBox;
   late Box<IntakeDBO> intakeBox;
@@ -62,6 +65,7 @@ class HiveDBProvider extends ChangeNotifier {
   late Box<FastingSessionDBO> fastingBox;
   late Box<BodyMeasurementDBO> bodyMeasurementBox;
   late Box<Uint8List> userImageBytesBox;
+  late Box<dynamic> syncStateBox;
 
   Future<void> initHiveDB(Uint8List encryptionKey) async {
     final encryptionCypher = HiveAesCipher(encryptionKey);
@@ -132,6 +136,10 @@ class HiveDBProvider extends ChangeNotifier {
     );
     userImageBytesBox = await Hive.openBox(
       userImageBytesBoxName,
+      encryptionCipher: encryptionCypher,
+    );
+    syncStateBox = await Hive.openBox(
+      syncStateBoxName,
       encryptionCipher: encryptionCypher,
     );
   }

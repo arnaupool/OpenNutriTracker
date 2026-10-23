@@ -9648,6 +9648,266 @@ class S {
       args: [],
     );
   }
+
+  /// `Sync between devices`
+  String get syncTitle {
+    return Intl.message(
+      "Sync between devices",
+      name: 'syncTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Off on this device`
+  String get syncStatusOff {
+    return Intl.message(
+      "Off on this device",
+      name: 'syncStatusOff',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `On, waiting for the first sync`
+  String get syncStatusWaiting {
+    return Intl.message(
+      "On, waiting for the first sync",
+      name: 'syncStatusWaiting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Syncing…`
+  String get syncStatusSyncing {
+    return Intl.message(
+      "Syncing…",
+      name: 'syncStatusSyncing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The last sync failed. It will retry on its own.`
+  String get syncStatusError {
+    return Intl.message(
+      "The last sync failed. It will retry on its own.",
+      name: 'syncStatusError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Up to date · last sync {value}`
+  String syncStatusIdle(String value) {
+    return Intl.message(
+      "Up to date · last sync $value",
+      name: 'syncStatusIdle',
+      desc: '',
+      args: [value],
+    );
+  }
+
+  /// `Keeps your diary, weight, recipes, fasting, goals and settings the same on your phone and on the desktop web app. Everything is encrypted on this device before it is uploaded, so the server can't read it. Photos are not synced; they travel in the cloud backup.`
+  String get syncExplanation {
+    return Intl.message(
+      "Keeps your diary, weight, recipes, fasting, goals and settings the same on your phone and on the desktop web app. Everything is encrypted on this device before it is uploaded, so the server can't read it. Photos are not synced; they travel in the cloud backup.",
+      name: 'syncExplanation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Turn on with this device's data`
+  String get syncEnableTitle {
+    return Intl.message(
+      "Turn on with this device's data",
+      name: 'syncEnableTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Do this on the phone that has your data, then link your other devices with its code.`
+  String get syncEnableSubtitle {
+    return Intl.message(
+      "Do this on the phone that has your data, then link your other devices with its code.",
+      name: 'syncEnableSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Link this device`
+  String get syncLinkTitle {
+    return Intl.message(
+      "Link this device",
+      name: 'syncLinkTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paste or scan the code from a device where sync is on.`
+  String get syncLinkSubtitle {
+    return Intl.message(
+      "Paste or scan the code from a device where sync is on.",
+      name: 'syncLinkSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Link this device?`
+  String get syncLinkConfirmTitle {
+    return Intl.message(
+      "Link this device?",
+      name: 'syncLinkConfirmTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Where both devices have the same record, such as the profile or the settings, the synced copy replaces this device's. Entries that only exist here are kept and uploaded.`
+  String get syncLinkConfirmBody {
+    return Intl.message(
+      "Where both devices have the same record, such as the profile or the settings, the synced copy replaces this device's. Entries that only exist here are kept and uploaded.",
+      name: 'syncLinkConfirmBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Link`
+  String get syncLinkAction {
+    return Intl.message(
+      "Link",
+      name: 'syncLinkAction',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `That isn't a sync code. Copy it from Settings > Sync between devices on the other device.`
+  String get syncLinkInvalid {
+    return Intl.message(
+      "That isn't a sync code. Copy it from Settings > Sync between devices on the other device.",
+      name: 'syncLinkInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Device linked. Downloading your data…`
+  String get syncLinked {
+    return Intl.message(
+      "Device linked. Downloading your data…",
+      name: 'syncLinked',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sync now`
+  String get syncNowLabel {
+    return Intl.message(
+      "Sync now",
+      name: 'syncNowLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Show the code for another device`
+  String get syncShowCodeTitle {
+    return Intl.message(
+      "Show the code for another device",
+      name: 'syncShowCodeTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Anyone with this code can read and change your synced data. Use it only on your own devices.`
+  String get syncShowCodeWarning {
+    return Intl.message(
+      "Anyone with this code can read and change your synced data. Use it only on your own devices.",
+      name: 'syncShowCodeWarning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sync code`
+  String get syncCodeDialogTitle {
+    return Intl.message(
+      "Sync code",
+      name: 'syncCodeDialogTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Turn off on this device`
+  String get syncDisableTitle {
+    return Intl.message(
+      "Turn off on this device",
+      name: 'syncDisableTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This device stops syncing and keeps its data. Your other devices keep syncing.`
+  String get syncDisableBody {
+    return Intl.message(
+      "This device stops syncing and keeps its data. Your other devices keep syncing.",
+      name: 'syncDisableBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Turn off`
+  String get syncDisableAction {
+    return Intl.message(
+      "Turn off",
+      name: 'syncDisableAction',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Scan QR`
+  String get syncScanLabel {
+    return Intl.message(
+      "Scan QR",
+      name: 'syncScanLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ontsync1:…`
+  String get syncPasteHint {
+    return Intl.message(
+      "ontsync1:…",
+      name: 'syncPasteHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Synced: {pulled} received, {pushed} sent`
+  String syncDoneSnackbar(String pulled, String pushed) {
+    return Intl.message(
+      "Synced: $pulled received, $pushed sent",
+      name: 'syncDoneSnackbar',
+      desc: '',
+      args: [pulled, pushed],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

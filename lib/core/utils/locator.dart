@@ -65,6 +65,13 @@ import 'package:opennutritracker/core/domain/usecase/send_open_router_chat_compl
 import 'package:opennutritracker/core/domain/usecase/update_intake_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/update_user_activity_usecase.dart';
 import 'package:opennutritracker/core/utils/cloud_backup_token_service.dart';
+import 'package:opennutritracker/core/sync/sync_boxes.dart';
+import 'package:opennutritracker/core/sync/sync_day_totals.dart';
+import 'package:opennutritracker/core/sync/sync_engine.dart';
+import 'package:opennutritracker/core/sync/sync_pairing.dart';
+import 'package:opennutritracker/core/sync/sync_remote.dart';
+import 'package:opennutritracker/core/sync/sync_service.dart';
+import 'package:opennutritracker/core/sync/sync_state_store.dart';
 import 'package:opennutritracker/core/utils/env.dart';
 import 'package:opennutritracker/core/utils/hive_db_provider.dart';
 import 'package:opennutritracker/core/utils/notification_service.dart';
@@ -532,6 +539,25 @@ Future<void> initLocator() async {
     () => OpenRouterRepository(locator()),
   );
 
+  // FAS-01: record-level sync between this device and the others linked to
+  // the same pairing code, through the backup Supabase project.
+  final syncedBoxes = buildSyncedBoxes(hiveDBProvider);
+  locator.registerLazySingleton<SyncKeyService>(() => SyncKeyService(locator()));
+  locator.registerLazySingleton<SyncStateStore>(() => SyncStateStore(hiveDBProvider.syncStateBox));
+  locator.registerLazySingleton<SyncEngine>(
+    () => SyncEngine(
+      boxes: syncedBoxes,
+      remote: SupabaseSyncRemote(Env.backupSupabaseProjectUrl, Env.backupSupabaseProjectAnonKey),
+      state: locator(),
+    ),
+  );
+  locator.registerLazySingleton<SyncDayTotals>(
+    () => SyncDayTotals(hiveDBProvider.intakeBox, locator(), locator()),
+  );
+  locator.registerLazySingleton<SyncService>(
+    () => SyncService(locator(), locator(), locator(), syncedBoxes, onApplied: _onSyncApplied),
+  );
+
   // DataSources
   locator.registerLazySingleton(
     () => ConfigDataSource(hiveDBProvider.configBox),
@@ -596,4 +622,19 @@ Future<void> _initializeConfig(ConfigDataSource configDataSource) async {
   if (!await configDataSource.configInitialized()) {
     configDataSource.initializeConfig();
   }
+}
+
+/// After a sync wrote downloaded records: recompute the touched days' totals
+/// from their intakes, then reload every screen that shows synced data.
+Future<void> _onSyncApplied(List<SyncAppliedChange> applied) async {
+  await locator<SyncDayTotals>().reconcile(
+    applied,
+    HiveDBProvider.intakeBoxName,
+    HiveDBProvider.trackedDayBoxName,
+  );
+  locator<SettingsBloc>().add(LoadSettingsEvent());
+  locator<ProfileBloc>().add(LoadProfileEvent());
+  locator<HomeBloc>().add(const LoadItemsEvent());
+  locator<DiaryBloc>().add(const LoadDiaryYearEvent());
+  locator<CalendarDayBloc>().add(RefreshCalendarDayEvent());
 }

@@ -1,9 +1,11 @@
 -- FAS-01: record-level sync between the phone and the desktop web build.
 -- Applied to the backup project as migration "create_sync_records".
 --
--- One row per local record (box + id) per pairing token. The payload is
--- AES-encrypted on the device with a key that travels only in the pairing
--- QR, so the server only ever stores opaque text.
+-- One row per local record per pairing token. `box` and `id` are keyed
+-- hashes (HMAC with the sync key) of the box name and record identity, and
+-- the payload, which also carries the real identity, is AES-GCM-encrypted on
+-- the device with a key that travels only in the pairing QR. The server only
+-- ever stores opaque text plus timestamps.
 --
 -- Access model, same as the backup bucket (docs/cloud-backup-setup.md):
 -- no login; the 256-bit pairing token is the credential. The client sends

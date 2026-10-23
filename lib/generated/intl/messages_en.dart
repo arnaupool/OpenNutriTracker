@@ -20,6 +20,12 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'en';
 
+  static String mSyncDoneSnackbar(pulled, pushed) =>
+      "Synced: ${pulled} received, ${pushed} sent";
+
+  static String mSyncStatusIdle(value) =>
+      "Up to date · last sync ${value}";
+
   static String mFastingHomeChipReached(value) =>
       "Fasting · ${value}";
 
@@ -1571,5 +1577,31 @@ class MessageLookup extends MessageLookupByLibrary {
         "fastingErrorOverlaps": MessageLookupByLibrary.simpleMessage("This overlaps another fast in your history."),
         "fastingHomeChipReached": mFastingHomeChipReached,
         "appearanceTitle": MessageLookupByLibrary.simpleMessage("Appearance"),
+        "syncTitle": MessageLookupByLibrary.simpleMessage("Sync between devices"),
+        "syncStatusOff": MessageLookupByLibrary.simpleMessage("Off on this device"),
+        "syncStatusWaiting": MessageLookupByLibrary.simpleMessage("On, waiting for the first sync"),
+        "syncStatusSyncing": MessageLookupByLibrary.simpleMessage("Syncing…"),
+        "syncStatusError": MessageLookupByLibrary.simpleMessage("The last sync failed. It will retry on its own."),
+        "syncStatusIdle": mSyncStatusIdle,
+        "syncExplanation": MessageLookupByLibrary.simpleMessage("Keeps your diary, weight, recipes, fasting, goals and settings the same on your phone and on the desktop web app. Everything is encrypted on this device before it is uploaded, so the server can't read it. Photos are not synced; they travel in the cloud backup."),
+        "syncEnableTitle": MessageLookupByLibrary.simpleMessage("Turn on with this device's data"),
+        "syncEnableSubtitle": MessageLookupByLibrary.simpleMessage("Do this on the phone that has your data, then link your other devices with its code."),
+        "syncLinkTitle": MessageLookupByLibrary.simpleMessage("Link this device"),
+        "syncLinkSubtitle": MessageLookupByLibrary.simpleMessage("Paste or scan the code from a device where sync is on."),
+        "syncLinkConfirmTitle": MessageLookupByLibrary.simpleMessage("Link this device?"),
+        "syncLinkConfirmBody": MessageLookupByLibrary.simpleMessage("Where both devices have the same record, such as the profile or the settings, the synced copy replaces this device's. Entries that only exist here are kept and uploaded."),
+        "syncLinkAction": MessageLookupByLibrary.simpleMessage("Link"),
+        "syncLinkInvalid": MessageLookupByLibrary.simpleMessage("That isn't a sync code. Copy it from Settings > Sync between devices on the other device."),
+        "syncLinked": MessageLookupByLibrary.simpleMessage("Device linked. Downloading your data…"),
+        "syncNowLabel": MessageLookupByLibrary.simpleMessage("Sync now"),
+        "syncShowCodeTitle": MessageLookupByLibrary.simpleMessage("Show the code for another device"),
+        "syncShowCodeWarning": MessageLookupByLibrary.simpleMessage("Anyone with this code can read and change your synced data. Use it only on your own devices."),
+        "syncCodeDialogTitle": MessageLookupByLibrary.simpleMessage("Sync code"),
+        "syncDisableTitle": MessageLookupByLibrary.simpleMessage("Turn off on this device"),
+        "syncDisableBody": MessageLookupByLibrary.simpleMessage("This device stops syncing and keeps its data. Your other devices keep syncing."),
+        "syncDisableAction": MessageLookupByLibrary.simpleMessage("Turn off"),
+        "syncScanLabel": MessageLookupByLibrary.simpleMessage("Scan QR"),
+        "syncPasteHint": MessageLookupByLibrary.simpleMessage("ontsync1:…"),
+        "syncDoneSnackbar": mSyncDoneSnackbar,
       };
 }

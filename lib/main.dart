@@ -21,6 +21,7 @@ import 'package:opennutritracker/core/utils/notification_service.dart';
 import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/core/utils/energy_unit_provider.dart';
 import 'package:opennutritracker/core/utils/locale_provider.dart';
+import 'package:opennutritracker/core/sync/sync_service.dart';
 import 'package:opennutritracker/core/utils/theme_mode_provider.dart';
 import 'package:opennutritracker/features/activity_detail/activity_detail_screen.dart';
 import 'package:opennutritracker/features/add_meal/presentation/add_item_menu_screen.dart';
@@ -63,6 +64,8 @@ Future<void> main() async {
   );
 
   final isUserInitialized = await locator<UserDataSource>().hasUserData();
+  // FAS-01: starts syncing if this device is linked; a no-op otherwise.
+  if (isUserInitialized) unawaited(locator<SyncService>().start());
   final configRepo = locator<ConfigRepository>();
 
   final config = await configRepo.getConfig();
