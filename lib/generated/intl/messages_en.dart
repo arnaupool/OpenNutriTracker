@@ -401,6 +401,20 @@ class MessageLookup extends MessageLookupByLibrary {
         "driPanelInfoTitle":
             MessageLookupByLibrary.simpleMessage("Reference intake"),
         "driPanelReferenceLabel": mDriRef,
+        "diaryWeekPrevious": MessageLookupByLibrary.simpleMessage(
+            "Previous week"),
+        "diaryWeekNext": MessageLookupByLibrary.simpleMessage(
+            "Next week"),
+        "diaryWeekPickDate": MessageLookupByLibrary.simpleMessage(
+            "Choose a date"),
+        "diaryWeekSummaryTitle": MessageLookupByLibrary.simpleMessage(
+            "Weekly summary"),
+        "diaryWeekSummaryTotal": MessageLookupByLibrary.simpleMessage(
+            "Week total"),
+        "diaryWeekSummaryAverage": MessageLookupByLibrary.simpleMessage(
+            "Average per tracked day"),
+        "diaryWeekSummaryEmpty": MessageLookupByLibrary.simpleMessage(
+            "No tracked days this week"),
         "dinnerExample": MessageLookupByLibrary.simpleMessage(
             "e.g. soup, chicken, wine ..."),
         "dinnerLabel": MessageLookupByLibrary.simpleMessage("Dinner"),

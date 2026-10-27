@@ -593,6 +593,20 @@ class MessageLookup extends MessageLookupByLibrary {
             "Hora de registro"),
         "diaryWeeklyBarsTitle": MessageLookupByLibrary.simpleMessage(
             "Esta semana"),
+        "diaryWeekPrevious": MessageLookupByLibrary.simpleMessage(
+            "Semana anterior"),
+        "diaryWeekNext": MessageLookupByLibrary.simpleMessage(
+            "Semana siguiente"),
+        "diaryWeekPickDate": MessageLookupByLibrary.simpleMessage(
+            "Elegir una fecha"),
+        "diaryWeekSummaryTitle": MessageLookupByLibrary.simpleMessage(
+            "Resumen semanal"),
+        "diaryWeekSummaryTotal": MessageLookupByLibrary.simpleMessage(
+            "Total de la semana"),
+        "diaryWeekSummaryAverage": MessageLookupByLibrary.simpleMessage(
+            "Media por día registrado"),
+        "diaryWeekSummaryEmpty": MessageLookupByLibrary.simpleMessage(
+            "Ningún día registrado esta semana"),
         "dinnerExample": MessageLookupByLibrary.simpleMessage(
             "p. ej., sopa, pollo, vino..."),
         "dinnerLabel": MessageLookupByLibrary.simpleMessage(

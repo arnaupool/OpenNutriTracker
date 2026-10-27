@@ -4093,6 +4093,76 @@ class S {
     );
   }
 
+  /// `Previous week`
+  String get diaryWeekPrevious {
+    return Intl.message(
+      'Previous week',
+      name: 'diaryWeekPrevious',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Next week`
+  String get diaryWeekNext {
+    return Intl.message(
+      'Next week',
+      name: 'diaryWeekNext',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Choose a date`
+  String get diaryWeekPickDate {
+    return Intl.message(
+      'Choose a date',
+      name: 'diaryWeekPickDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Weekly summary`
+  String get diaryWeekSummaryTitle {
+    return Intl.message(
+      'Weekly summary',
+      name: 'diaryWeekSummaryTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Week total`
+  String get diaryWeekSummaryTotal {
+    return Intl.message(
+      'Week total',
+      name: 'diaryWeekSummaryTotal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Average per tracked day`
+  String get diaryWeekSummaryAverage {
+    return Intl.message(
+      'Average per tracked day',
+      name: 'diaryWeekSummaryAverage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No tracked days this week`
+  String get diaryWeekSummaryEmpty {
+    return Intl.message(
+      'No tracked days this week',
+      name: 'diaryWeekSummaryEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Calories (high to low)`
   String get diarySortByKcal {
     return Intl.message(
