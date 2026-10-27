@@ -19,12 +19,13 @@ class _FakeServer implements SyncRemote {
 
   @override
   Future<List<SyncRow>> pull(String token, DateTime? since, {int limit = 500}) async {
-    final matching = rows.entries
-        .where((e) => e.key.startsWith('$token|'))
-        .map((e) => e.value)
-        .where((r) => since == null || r.updatedAt!.isAfter(since))
-        .toList()
-      ..sort((a, b) => a.updatedAt!.compareTo(b.updatedAt!));
+    final matching =
+        rows.entries
+            .where((e) => e.key.startsWith('$token|'))
+            .map((e) => e.value)
+            .where((r) => since == null || r.updatedAt!.isAfter(since))
+            .toList()
+          ..sort((a, b) => a.updatedAt!.compareTo(b.updatedAt!));
     return matching.take(limit).toList();
   }
 
@@ -231,6 +232,25 @@ void main() {
       final parsed = SyncPairing.tryParse(code)!;
       expect(parsed.token, pairing.token);
       expect(parsed.key, pairing.key);
+    });
+
+    test('survives what copying between phone and computer does to it', () {
+      final code = pairing.encode();
+      final mid = code.length ~/ 2;
+      final unpadded = code.replaceAll('=', '');
+      final variants = {
+        'line breaks and spaces': '${code.substring(0, mid)}\n ${code.substring(mid)}',
+        'zero-width and no-break spaces': '​${code.substring(0, mid)} ${code.substring(mid)}﻿',
+        'surrounding message text': 'Mi código: $code (no lo compartas)',
+        'missing base64 padding': unpadded,
+        'uppercase hex token': code.replaceFirst(pairing.token, pairing.token.toUpperCase()),
+      };
+      variants.forEach((label, raw) {
+        final parsed = SyncPairing.tryParse(raw);
+        expect(parsed, isNotNull, reason: label);
+        expect(parsed!.token, pairing.token, reason: label);
+        expect(parsed.key, pairing.key, reason: label);
+      });
     });
 
     test('rejects bare backup tokens and garbage', () {

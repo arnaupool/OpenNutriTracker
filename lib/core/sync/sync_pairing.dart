@@ -19,19 +19,24 @@ class SyncPairing {
 
   String encode() => '$prefix$token.${base64Url.encode(key)}';
 
+  /// Whitespace and invisible characters that chat apps, mail clients and
+  /// soft line wrapping slip into a pasted code. None can be part of a code.
+  static final RegExp _noise = RegExp(r'[\s ​-‍⁠﻿]');
+
+  static final RegExp _code = RegExp(r'ontsync1:([a-fA-F0-9]{64})\.([A-Za-z0-9_\-]+)=*', caseSensitive: false);
+
   /// Parses a code scanned or pasted from another device. Returns null when
   /// [raw] is not a sync code (a bare backup token, garbage, a wrong key
-  /// length), so the caller can fall back or show an error.
+  /// length), so the caller can fall back or show an error. Tolerates what
+  /// copying between devices does to it: line breaks, invisible spaces,
+  /// text around it, dropped base64 padding.
   static SyncPairing? tryParse(String raw) {
-    final text = raw.trim();
-    if (!text.startsWith(prefix)) return null;
-    final body = text.substring(prefix.length);
-    final dot = body.indexOf('.');
-    if (dot < 0) return null;
-    final token = body.substring(0, dot);
+    final match = _code.firstMatch(raw.replaceAll(_noise, ''));
+    if (match == null) return null;
+    final token = match.group(1)!.toLowerCase();
     if (!CloudBackupTokenService.tokenPattern.hasMatch(token)) return null;
     try {
-      final key = base64Url.decode(body.substring(dot + 1));
+      final key = base64Url.decode(base64Url.normalize(match.group(2)!));
       if (key.length != SyncCrypto.keyLength) return null;
       return SyncPairing(token, key);
     } on FormatException {
