@@ -77,7 +77,7 @@ Ejecutar en el SQL editor (sustituir los marcadores; nunca subir claves reales a
 
 ```sql
 select vault.create_secret('https://<project-ref>.supabase.co', 'project_url');
-select vault.create_secret('<SERVICE_ROLE_KEY>', 'service_role_key');
+select vault.create_secret('<RANDOM_LONG_SECRET>', 'cron_secret');
 select vault.create_secret('<VAPID_PUBLIC_KEY>', 'vapid_public_key');
 select vault.create_secret('<VAPID_PRIVATE_KEY>', 'vapid_private_key');
 select vault.create_secret('mailto:<tu-email>', 'vapid_subject');
@@ -88,7 +88,7 @@ select vault.create_secret('<BOT_USERNAME_SIN_ARROBA>', 'telegram_bot_username')
 select vault.create_secret('<SECRETO_ALEATORIO_LARGO>', 'telegram_webhook_secret');
 ```
 
-`service_role_key` debe ser la misma clave que usa el entorno de las funciones (`SUPABASE_SERVICE_ROLE_KEY`), porque `reminders-tick` compara el `Authorization` con ella.
+`cron_secret` es un secreto aleatorio cualquiera: `reminders_cron()` lo envía en la cabecera `x-cron-secret` y `reminders-tick` lo compara con el de Vault.
 
 ## Webhook de Telegram
 
@@ -102,4 +102,4 @@ El secreto debe coincidir con el de Vault `telegram_webhook_secret`. Flujo: el c
 
 ## Cron
 
-La migración programa `reminders-tick` cada minuto con `pg_cron` (`public.reminders_cron()`, que también borra `meal_flags` de más de 3 días). Si faltan los secretos `project_url` o `service_role_key`, no hace nada.
+La migración programa `reminders-tick` cada minuto con `pg_cron` (`public.reminders_cron()`, que también borra `meal_flags` de más de 3 días). Si faltan los secretos `project_url` o `cron_secret`, no hace nada.

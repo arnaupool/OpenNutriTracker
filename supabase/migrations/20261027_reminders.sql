@@ -92,13 +92,13 @@ set search_path = ''
 as $$
 declare
   base_url text;
-  service_key text;
+  cron_secret text;
 begin
   delete from public.meal_flags where local_date < (now() at time zone 'utc')::date - 3;
 
   select decrypted_secret into base_url from vault.decrypted_secrets where name = 'project_url';
-  select decrypted_secret into service_key from vault.decrypted_secrets where name = 'service_role_key';
-  if base_url is null or service_key is null then
+  select decrypted_secret into cron_secret from vault.decrypted_secrets where name = 'cron_secret';
+  if base_url is null or cron_secret is null then
     return;
   end if;
 
@@ -106,7 +106,7 @@ begin
     url := rtrim(base_url, '/') || '/functions/v1/reminders-tick',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
-      'Authorization', 'Bearer ' || service_key
+      'x-cron-secret', cron_secret
     ),
     body := '{}'::jsonb,
     timeout_milliseconds := 20000

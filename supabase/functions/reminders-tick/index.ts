@@ -1,4 +1,4 @@
-import { json, sb } from "../_shared/common.ts";
+import { json, sb, secret } from "../_shared/common.ts";
 import { deliver, type Device, type Reminder } from "../_shared/notify.ts";
 
 const WEEKDAY: Record<string, number> = { Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6, Sun: 7 };
@@ -35,7 +35,8 @@ function inQuietHours(t: string, start: string | null, end: string | null): bool
 }
 
 Deno.serve(async (req) => {
-  if (req.headers.get("authorization") !== `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`) {
+  // pg_cron sends the shared Vault secret `cron_secret` (see reminders_cron()).
+  if (!req.headers.get("x-cron-secret") || req.headers.get("x-cron-secret") !== (await secret("cron_secret"))) {
     return json({ error: "unauthorized" }, 401);
   }
   const now = new Date();
