@@ -77,7 +77,8 @@ void main() {
       ..waterIntakeBox = await open('water')
       ..fastingBox = await open('fasting')
       ..bodyMeasurementBox = await open('body')
-    ..mealPlanBox = await open('plan');
+    ..mealPlanBox = await open('plan')
+    ..dietPlanBox = await open('diet_plan');
 
     final random = Random(7);
     final today = DateTime.now();

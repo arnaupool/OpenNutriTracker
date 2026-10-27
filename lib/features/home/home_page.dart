@@ -8,6 +8,7 @@ import 'package:opennutritracker/core/presentation/widgets/low_kcal_warning_card
 import 'package:opennutritracker/core/utils/calc/calorie_goal_calc.dart';
 import 'package:opennutritracker/core/presentation/widgets/disclaimer_dialog.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
+import 'package:opennutritracker/features/diet_plan/presentation/diet_plan_home_card.dart';
 import 'package:opennutritracker/features/home/presentation/bloc/home_bloc.dart';
 import 'package:opennutritracker/features/home/presentation/widgets/dashboard_widget.dart';
 import 'package:opennutritracker/features/meal_plan/presentation/meal_plan_page.dart';
@@ -137,6 +138,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             ],
           ),
         ),
+        // Diet plan countdown (hidden without a plan or when switched off).
+        const DietPlanHomeCard(),
         const FastingHomeChip(),
         // FAS-04: today's planned meals, logged in one tap.
         const TodayPlanCard(),

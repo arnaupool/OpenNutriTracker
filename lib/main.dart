@@ -47,6 +47,7 @@ import 'package:opennutritracker/features/home/presentation/screens/import_activ
 import 'package:opennutritracker/features/home/presentation/screens/import_meal_scanner_screen.dart';
 import 'package:opennutritracker/features/scanner/scanner_screen.dart';
 import 'package:opennutritracker/features/meal_detail/meal_detail_screen.dart';
+import 'package:opennutritracker/features/diet_plan/presentation/my_plan_screen.dart';
 import 'package:opennutritracker/features/meal_plan/presentation/meal_plan_page.dart';
 import 'package:opennutritracker/features/review/presentation/review_page.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/accent_colour_screen.dart';
@@ -341,6 +342,8 @@ class OpenNutriTrackerApp extends StatelessWidget {
         // FAS-03: full width on desktop, the tables need the room.
         NavigationOptions.reviewRoute: (context) => const ReviewScreen(),
         NavigationOptions.mealPlanRoute: (context) => const MealPlanScreen(),
+        NavigationOptions.myPlanRoute: (context) =>
+            DesktopRouteFrame(child: const MyPlanScreen()),
         NavigationOptions.fastingRoute: (context) =>
             DesktopRouteFrame(child: const FastingScreen()),
       },

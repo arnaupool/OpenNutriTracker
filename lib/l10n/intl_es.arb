@@ -1558,5 +1558,106 @@
     }
   },
   "profilesSwitchBody": "La app se recarga con el diario, los objetivos y los ajustes de este perfil. Un perfil nuevo empieza por los pasos de configuración.",
-  "profilesSwitchAction": "Cambiar"
+  "profilesSwitchAction": "Cambiar",
+  "onboardingPlanTitle": "Tu plan",
+  "onboardingPlanLossQuestion": "¿Cuántos kg quieres perder?",
+  "onboardingPlanPaceQuestion": "¿A qué ritmo?",
+  "onboardingPlanPaceHint": "Un ritmo más lento es más fácil de mantener.",
+  "onboardingPlanOnlyForLoss": "El plan con fecha de fin es para perder peso. Continúa para ver tu objetivo.",
+  "onboardingPlanReachDate": "Llegarías a tu objetivo el {date} ({days} días)",
+  "@onboardingPlanReachDate": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "days": { "type": "String" }
+    }
+  },
+  "onboardingPlanFloorSlower": "Tu objetivo diario se mantiene en el mínimo, así que perderías peso más despacio de lo previsto.",
+  "onboardingPlanFloorSuggestion": "Para mantener tu objetivo por encima del mínimo, prueba {pace} kg/semana.",
+  "@onboardingPlanFloorSuggestion": {
+    "placeholders": {
+      "pace": { "type": "String" }
+    }
+  },
+  "onboardingPlanFloorApply": "Usar {pace} kg/semana",
+  "@onboardingPlanFloorApply": {
+    "placeholders": {
+      "pace": { "type": "String" }
+    }
+  },
+  "dietPlanPaceOption": "{pace} kg/semana",
+  "@dietPlanPaceOption": {
+    "placeholders": {
+      "pace": { "type": "String" }
+    }
+  },
+  "dietPlanShowCountdown": "Mostrar la cuenta atrás en Inicio",
+  "myPlanTitle": "Mi plan",
+  "myPlanNoPlan": "Aún no tienes un plan. Créalo para ver una cuenta atrás en Inicio.",
+  "myPlanCreate": "Crear plan",
+  "myPlanModeAuto": "Automático",
+  "myPlanModeManual": "Manual",
+  "myPlanModeAutoHelp": "La fecha de fin sale de los kilos a perder y del ritmo.",
+  "myPlanStartDate": "Fecha de inicio",
+  "myPlanEndDate": "Fecha de fin",
+  "myPlanStartWeight": "Peso inicial",
+  "myPlanKgToLose": "Kilos a perder",
+  "myPlanPace": "Ritmo",
+  "myPlanByWeeks": "Por semanas",
+  "myPlanByDate": "Por fecha",
+  "myPlanWeeksValue": "{weeks} semanas",
+  "@myPlanWeeksValue": {
+    "placeholders": {
+      "weeks": { "type": "String" }
+    }
+  },
+  "myPlanEndSummary": "Termina el {date} (quedan {days} días)",
+  "@myPlanEndSummary": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "days": { "type": "String" }
+    }
+  },
+  "myPlanPause": "Pausar plan",
+  "myPlanResume": "Reanudar plan",
+  "myPlanPausedNote": "El plan está en pausa. La fecha de fin se retrasa cada día hasta que lo reanudes.",
+  "myPlanEngineNote": "Al guardar un plan automático, tu objetivo pasa a ser perder peso y se actualizan tu peso objetivo y tu ritmo.",
+  "myPlanSaved": "Plan guardado",
+  "homePlanDaysLeft": "Quedan {days} días",
+  "@homePlanDaysLeft": {
+    "placeholders": {
+      "days": { "type": "String" }
+    }
+  },
+  "homePlanOneDayLeft": "Queda 1 día",
+  "homePlanLastDay": "Último día",
+  "homePlanEnd": "Fin: {date}",
+  "@homePlanEnd": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "homePlanWeightLine": "{lost} de {total}",
+  "@homePlanWeightLine": {
+    "placeholders": {
+      "lost": { "type": "String" },
+      "total": { "type": "String" }
+    }
+  },
+  "homePlanWeightChange": "Cambio: {change}",
+  "@homePlanWeightChange": {
+    "placeholders": {
+      "change": { "type": "String" }
+    }
+  },
+  "homePlanPaused": "En pausa",
+  "homePlanFinishedTitle": "Plan terminado",
+  "homePlanReachedTitle": "Objetivo alcanzado",
+  "homePlanReachedBody": "Tu media de 7 días ha llegado a tu objetivo.",
+  "homePlanExtend": "Ampliar",
+  "homePlanNewPlan": "Plan nuevo",
+  "homePlanMaintenance": "Pasar a mantenimiento",
+  "homePlanMaintenanceDone": "Objetivo cambiado a mantenimiento",
+  "homePlanStalledTitle": "El progreso se ha estancado",
+  "homePlanStalledBody": "Tu media de 7 días no ha bajado en 21 días. Plantéate reducir 150 kcal al día o ampliar la fecha de fin.",
+  "homePlanStalledAction": "Ajustar plan"
 }

@@ -1506,5 +1506,106 @@
     }
   },
   "profilesSwitchBody": "The app reloads with this profile's diary, goals and settings. A new profile starts with the setup steps.",
-  "profilesSwitchAction": "Switch"
+  "profilesSwitchAction": "Switch",
+  "onboardingPlanTitle": "Your plan",
+  "onboardingPlanLossQuestion": "How many kg do you want to lose?",
+  "onboardingPlanPaceQuestion": "At what pace?",
+  "onboardingPlanPaceHint": "A slower pace is easier to keep up.",
+  "onboardingPlanOnlyForLoss": "The plan with an end date is for weight loss. Continue to see your goal.",
+  "onboardingPlanReachDate": "You'd reach your goal on {date} ({days} days)",
+  "@onboardingPlanReachDate": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "days": { "type": "String" }
+    }
+  },
+  "onboardingPlanFloorSlower": "Your daily goal is held at the minimum, so you'd lose weight more slowly than planned.",
+  "onboardingPlanFloorSuggestion": "To keep your goal above the minimum, try {pace} kg/week.",
+  "@onboardingPlanFloorSuggestion": {
+    "placeholders": {
+      "pace": { "type": "String" }
+    }
+  },
+  "onboardingPlanFloorApply": "Use {pace} kg/week",
+  "@onboardingPlanFloorApply": {
+    "placeholders": {
+      "pace": { "type": "String" }
+    }
+  },
+  "dietPlanPaceOption": "{pace} kg/week",
+  "@dietPlanPaceOption": {
+    "placeholders": {
+      "pace": { "type": "String" }
+    }
+  },
+  "dietPlanShowCountdown": "Show countdown on Home",
+  "myPlanTitle": "My plan",
+  "myPlanNoPlan": "You have no plan yet. Create one to see a countdown on Home.",
+  "myPlanCreate": "Create plan",
+  "myPlanModeAuto": "Automatic",
+  "myPlanModeManual": "Manual",
+  "myPlanModeAutoHelp": "The end date follows from the kilos to lose and the pace.",
+  "myPlanStartDate": "Start date",
+  "myPlanEndDate": "End date",
+  "myPlanStartWeight": "Starting weight",
+  "myPlanKgToLose": "Kilos to lose",
+  "myPlanPace": "Pace",
+  "myPlanByWeeks": "By weeks",
+  "myPlanByDate": "By date",
+  "myPlanWeeksValue": "{weeks} weeks",
+  "@myPlanWeeksValue": {
+    "placeholders": {
+      "weeks": { "type": "String" }
+    }
+  },
+  "myPlanEndSummary": "Ends on {date} ({days} days left)",
+  "@myPlanEndSummary": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "days": { "type": "String" }
+    }
+  },
+  "myPlanPause": "Pause plan",
+  "myPlanResume": "Resume plan",
+  "myPlanPausedNote": "The plan is paused. The end date moves later each day until you resume.",
+  "myPlanEngineNote": "Saving an automatic plan sets your goal to losing weight and updates your target weight and pace.",
+  "myPlanSaved": "Plan saved",
+  "homePlanDaysLeft": "{days} days left",
+  "@homePlanDaysLeft": {
+    "placeholders": {
+      "days": { "type": "String" }
+    }
+  },
+  "homePlanOneDayLeft": "1 day left",
+  "homePlanLastDay": "Last day",
+  "homePlanEnd": "End: {date}",
+  "@homePlanEnd": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "homePlanWeightLine": "{lost} of {total}",
+  "@homePlanWeightLine": {
+    "placeholders": {
+      "lost": { "type": "String" },
+      "total": { "type": "String" }
+    }
+  },
+  "homePlanWeightChange": "Change: {change}",
+  "@homePlanWeightChange": {
+    "placeholders": {
+      "change": { "type": "String" }
+    }
+  },
+  "homePlanPaused": "Paused",
+  "homePlanFinishedTitle": "Plan finished",
+  "homePlanReachedTitle": "Goal reached",
+  "homePlanReachedBody": "Your 7-day average reached your target.",
+  "homePlanExtend": "Extend",
+  "homePlanNewPlan": "New plan",
+  "homePlanMaintenance": "Switch to maintenance",
+  "homePlanMaintenanceDone": "Goal changed to maintenance",
+  "homePlanStalledTitle": "Progress has stalled",
+  "homePlanStalledBody": "Your 7-day average has not dropped in 21 days. Consider lowering your intake by 150 kcal per day or extending the end date.",
+  "homePlanStalledAction": "Adjust plan"
 }

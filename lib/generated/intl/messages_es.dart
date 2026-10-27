@@ -20,6 +20,36 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'es';
 
+  static String mOnboardingPlanReachDate(date, days) =>
+      "Llegarías a tu objetivo el ${date} (${days} días)";
+
+  static String mOnboardingPlanFloorSuggestion(pace) =>
+      "Para mantener tu objetivo por encima del mínimo, prueba ${pace} kg/semana.";
+
+  static String mOnboardingPlanFloorApply(pace) =>
+      "Usar ${pace} kg/semana";
+
+  static String mDietPlanPaceOption(pace) =>
+      "${pace} kg/semana";
+
+  static String mMyPlanWeeksValue(weeks) =>
+      "${weeks} semanas";
+
+  static String mMyPlanEndSummary(date, days) =>
+      "Termina el ${date} (quedan ${days} días)";
+
+  static String mHomePlanDaysLeft(days) =>
+      "Quedan ${days} días";
+
+  static String mHomePlanEnd(date) =>
+      "Fin: ${date}";
+
+  static String mHomePlanWeightLine(lost, total) =>
+      "${lost} de ${total}";
+
+  static String mHomePlanWeightChange(change) =>
+      "Cambio: ${change}";
+
   static String mProfilesActiveValue(value) =>
       "Activo: ${value}";
 
@@ -2397,5 +2427,53 @@ class MessageLookup extends MessageLookupByLibrary {
             "La app se recarga con el diario, los objetivos y los ajustes de este perfil. Un perfil nuevo empieza por los pasos de configuración."),
         "profilesSwitchAction": MessageLookupByLibrary.simpleMessage(
             "Cambiar"),
+        "onboardingPlanTitle": MessageLookupByLibrary.simpleMessage("Tu plan"),
+        "onboardingPlanLossQuestion": MessageLookupByLibrary.simpleMessage("¿Cuántos kg quieres perder?"),
+        "onboardingPlanPaceQuestion": MessageLookupByLibrary.simpleMessage("¿A qué ritmo?"),
+        "onboardingPlanPaceHint": MessageLookupByLibrary.simpleMessage("Un ritmo más lento es más fácil de mantener."),
+        "onboardingPlanOnlyForLoss": MessageLookupByLibrary.simpleMessage("El plan con fecha de fin es para perder peso. Continúa para ver tu objetivo."),
+        "onboardingPlanReachDate": mOnboardingPlanReachDate,
+        "onboardingPlanFloorSlower": MessageLookupByLibrary.simpleMessage("Tu objetivo diario se mantiene en el mínimo, así que perderías peso más despacio de lo previsto."),
+        "onboardingPlanFloorSuggestion": mOnboardingPlanFloorSuggestion,
+        "onboardingPlanFloorApply": mOnboardingPlanFloorApply,
+        "dietPlanPaceOption": mDietPlanPaceOption,
+        "dietPlanShowCountdown": MessageLookupByLibrary.simpleMessage("Mostrar la cuenta atrás en Inicio"),
+        "myPlanTitle": MessageLookupByLibrary.simpleMessage("Mi plan"),
+        "myPlanNoPlan": MessageLookupByLibrary.simpleMessage("Aún no tienes un plan. Créalo para ver una cuenta atrás en Inicio."),
+        "myPlanCreate": MessageLookupByLibrary.simpleMessage("Crear plan"),
+        "myPlanModeAuto": MessageLookupByLibrary.simpleMessage("Automático"),
+        "myPlanModeManual": MessageLookupByLibrary.simpleMessage("Manual"),
+        "myPlanModeAutoHelp": MessageLookupByLibrary.simpleMessage("La fecha de fin sale de los kilos a perder y del ritmo."),
+        "myPlanStartDate": MessageLookupByLibrary.simpleMessage("Fecha de inicio"),
+        "myPlanEndDate": MessageLookupByLibrary.simpleMessage("Fecha de fin"),
+        "myPlanStartWeight": MessageLookupByLibrary.simpleMessage("Peso inicial"),
+        "myPlanKgToLose": MessageLookupByLibrary.simpleMessage("Kilos a perder"),
+        "myPlanPace": MessageLookupByLibrary.simpleMessage("Ritmo"),
+        "myPlanByWeeks": MessageLookupByLibrary.simpleMessage("Por semanas"),
+        "myPlanByDate": MessageLookupByLibrary.simpleMessage("Por fecha"),
+        "myPlanWeeksValue": mMyPlanWeeksValue,
+        "myPlanEndSummary": mMyPlanEndSummary,
+        "myPlanPause": MessageLookupByLibrary.simpleMessage("Pausar plan"),
+        "myPlanResume": MessageLookupByLibrary.simpleMessage("Reanudar plan"),
+        "myPlanPausedNote": MessageLookupByLibrary.simpleMessage("El plan está en pausa. La fecha de fin se retrasa cada día hasta que lo reanudes."),
+        "myPlanEngineNote": MessageLookupByLibrary.simpleMessage("Al guardar un plan automático, tu objetivo pasa a ser perder peso y se actualizan tu peso objetivo y tu ritmo."),
+        "myPlanSaved": MessageLookupByLibrary.simpleMessage("Plan guardado"),
+        "homePlanDaysLeft": mHomePlanDaysLeft,
+        "homePlanOneDayLeft": MessageLookupByLibrary.simpleMessage("Queda 1 día"),
+        "homePlanLastDay": MessageLookupByLibrary.simpleMessage("Último día"),
+        "homePlanEnd": mHomePlanEnd,
+        "homePlanWeightLine": mHomePlanWeightLine,
+        "homePlanWeightChange": mHomePlanWeightChange,
+        "homePlanPaused": MessageLookupByLibrary.simpleMessage("En pausa"),
+        "homePlanFinishedTitle": MessageLookupByLibrary.simpleMessage("Plan terminado"),
+        "homePlanReachedTitle": MessageLookupByLibrary.simpleMessage("Objetivo alcanzado"),
+        "homePlanReachedBody": MessageLookupByLibrary.simpleMessage("Tu media de 7 días ha llegado a tu objetivo."),
+        "homePlanExtend": MessageLookupByLibrary.simpleMessage("Ampliar"),
+        "homePlanNewPlan": MessageLookupByLibrary.simpleMessage("Plan nuevo"),
+        "homePlanMaintenance": MessageLookupByLibrary.simpleMessage("Pasar a mantenimiento"),
+        "homePlanMaintenanceDone": MessageLookupByLibrary.simpleMessage("Objetivo cambiado a mantenimiento"),
+        "homePlanStalledTitle": MessageLookupByLibrary.simpleMessage("El progreso se ha estancado"),
+        "homePlanStalledBody": MessageLookupByLibrary.simpleMessage("Tu media de 7 días no ha bajado en 21 días. Plantéate reducir 150 kcal al día o ampliar la fecha de fin."),
+        "homePlanStalledAction": MessageLookupByLibrary.simpleMessage("Ajustar plan"),
       };
 }

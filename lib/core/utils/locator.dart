@@ -73,6 +73,8 @@ import 'package:opennutritracker/core/sync/sync_remote.dart';
 import 'package:opennutritracker/core/sync/sync_service.dart';
 import 'package:opennutritracker/core/sync/sync_state_store.dart';
 import 'package:opennutritracker/core/utils/env.dart';
+import 'package:opennutritracker/features/diet_plan/data/diet_plan_data_source.dart';
+import 'package:opennutritracker/features/diet_plan/domain/diet_plan_usecase.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_data_source.dart';
 import 'package:opennutritracker/features/meal_plan/domain/log_meal_plan_usecase.dart';
 import 'package:opennutritracker/core/utils/hive_db_provider.dart';
@@ -176,7 +178,7 @@ Future<void> initLocator() async {
 
   // BLoCs
   locator.registerLazySingleton<OnboardingBloc>(
-    () => OnboardingBloc(locator(), locator()),
+    () => OnboardingBloc(locator(), locator(), locator<DietPlanUsecase>()),
   );
   locator.registerLazySingleton<HomeBloc>(
     () => HomeBloc(
@@ -539,6 +541,12 @@ Future<void> initLocator() async {
   );
   locator.registerLazySingleton<OpenRouterRepository>(
     () => OpenRouterRepository(locator()),
+  );
+
+  // Diet plan with an end date and the Home countdown.
+  locator.registerLazySingleton<DietPlanDataSource>(() => DietPlanDataSource(hiveDBProvider.dietPlanBox));
+  locator.registerLazySingleton<DietPlanUsecase>(
+    () => DietPlanUsecase(locator(), locator(), locator(), (user) => locator<ProfileBloc>().updateUser(user)),
   );
 
   // FAS-04: meal planning.

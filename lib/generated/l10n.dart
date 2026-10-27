@@ -10618,6 +10618,486 @@ class S {
       args: [],
     );
   }
+
+  /// `Your plan`
+  String get onboardingPlanTitle {
+    return Intl.message(
+      "Your plan",
+      name: 'onboardingPlanTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `How many kg do you want to lose?`
+  String get onboardingPlanLossQuestion {
+    return Intl.message(
+      "How many kg do you want to lose?",
+      name: 'onboardingPlanLossQuestion',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `At what pace?`
+  String get onboardingPlanPaceQuestion {
+    return Intl.message(
+      "At what pace?",
+      name: 'onboardingPlanPaceQuestion',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A slower pace is easier to keep up.`
+  String get onboardingPlanPaceHint {
+    return Intl.message(
+      "A slower pace is easier to keep up.",
+      name: 'onboardingPlanPaceHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The plan with an end date is for weight loss. Continue to see your goal.`
+  String get onboardingPlanOnlyForLoss {
+    return Intl.message(
+      "The plan with an end date is for weight loss. Continue to see your goal.",
+      name: 'onboardingPlanOnlyForLoss',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You'd reach your goal on {date} ({days} days)`
+  String onboardingPlanReachDate(String date, String days) {
+    return Intl.message(
+      "You'd reach your goal on $date ($days days)",
+      name: 'onboardingPlanReachDate',
+      desc: '',
+      args: [date, days],
+    );
+  }
+
+  /// `Your daily goal is held at the minimum, so you'd lose weight more slowly than planned.`
+  String get onboardingPlanFloorSlower {
+    return Intl.message(
+      "Your daily goal is held at the minimum, so you'd lose weight more slowly than planned.",
+      name: 'onboardingPlanFloorSlower',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `To keep your goal above the minimum, try {pace} kg/week.`
+  String onboardingPlanFloorSuggestion(String pace) {
+    return Intl.message(
+      "To keep your goal above the minimum, try $pace kg/week.",
+      name: 'onboardingPlanFloorSuggestion',
+      desc: '',
+      args: [pace],
+    );
+  }
+
+  /// `Use {pace} kg/week`
+  String onboardingPlanFloorApply(String pace) {
+    return Intl.message(
+      "Use $pace kg/week",
+      name: 'onboardingPlanFloorApply',
+      desc: '',
+      args: [pace],
+    );
+  }
+
+  /// `{pace} kg/week`
+  String dietPlanPaceOption(String pace) {
+    return Intl.message(
+      "$pace kg/week",
+      name: 'dietPlanPaceOption',
+      desc: '',
+      args: [pace],
+    );
+  }
+
+  /// `Show countdown on Home`
+  String get dietPlanShowCountdown {
+    return Intl.message(
+      "Show countdown on Home",
+      name: 'dietPlanShowCountdown',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `My plan`
+  String get myPlanTitle {
+    return Intl.message(
+      "My plan",
+      name: 'myPlanTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `You have no plan yet. Create one to see a countdown on Home.`
+  String get myPlanNoPlan {
+    return Intl.message(
+      "You have no plan yet. Create one to see a countdown on Home.",
+      name: 'myPlanNoPlan',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create plan`
+  String get myPlanCreate {
+    return Intl.message(
+      "Create plan",
+      name: 'myPlanCreate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Automatic`
+  String get myPlanModeAuto {
+    return Intl.message(
+      "Automatic",
+      name: 'myPlanModeAuto',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Manual`
+  String get myPlanModeManual {
+    return Intl.message(
+      "Manual",
+      name: 'myPlanModeManual',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The end date follows from the kilos to lose and the pace.`
+  String get myPlanModeAutoHelp {
+    return Intl.message(
+      "The end date follows from the kilos to lose and the pace.",
+      name: 'myPlanModeAutoHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start date`
+  String get myPlanStartDate {
+    return Intl.message(
+      "Start date",
+      name: 'myPlanStartDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `End date`
+  String get myPlanEndDate {
+    return Intl.message(
+      "End date",
+      name: 'myPlanEndDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Starting weight`
+  String get myPlanStartWeight {
+    return Intl.message(
+      "Starting weight",
+      name: 'myPlanStartWeight',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Kilos to lose`
+  String get myPlanKgToLose {
+    return Intl.message(
+      "Kilos to lose",
+      name: 'myPlanKgToLose',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Pace`
+  String get myPlanPace {
+    return Intl.message(
+      "Pace",
+      name: 'myPlanPace',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `By weeks`
+  String get myPlanByWeeks {
+    return Intl.message(
+      "By weeks",
+      name: 'myPlanByWeeks',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `By date`
+  String get myPlanByDate {
+    return Intl.message(
+      "By date",
+      name: 'myPlanByDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{weeks} weeks`
+  String myPlanWeeksValue(String weeks) {
+    return Intl.message(
+      "$weeks weeks",
+      name: 'myPlanWeeksValue',
+      desc: '',
+      args: [weeks],
+    );
+  }
+
+  /// `Ends on {date} ({days} days left)`
+  String myPlanEndSummary(String date, String days) {
+    return Intl.message(
+      "Ends on $date ($days days left)",
+      name: 'myPlanEndSummary',
+      desc: '',
+      args: [date, days],
+    );
+  }
+
+  /// `Pause plan`
+  String get myPlanPause {
+    return Intl.message(
+      "Pause plan",
+      name: 'myPlanPause',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Resume plan`
+  String get myPlanResume {
+    return Intl.message(
+      "Resume plan",
+      name: 'myPlanResume',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The plan is paused. The end date moves later each day until you resume.`
+  String get myPlanPausedNote {
+    return Intl.message(
+      "The plan is paused. The end date moves later each day until you resume.",
+      name: 'myPlanPausedNote',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Saving an automatic plan sets your goal to losing weight and updates your target weight and pace.`
+  String get myPlanEngineNote {
+    return Intl.message(
+      "Saving an automatic plan sets your goal to losing weight and updates your target weight and pace.",
+      name: 'myPlanEngineNote',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Plan saved`
+  String get myPlanSaved {
+    return Intl.message(
+      "Plan saved",
+      name: 'myPlanSaved',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{days} days left`
+  String homePlanDaysLeft(String days) {
+    return Intl.message(
+      "$days days left",
+      name: 'homePlanDaysLeft',
+      desc: '',
+      args: [days],
+    );
+  }
+
+  /// `1 day left`
+  String get homePlanOneDayLeft {
+    return Intl.message(
+      "1 day left",
+      name: 'homePlanOneDayLeft',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Last day`
+  String get homePlanLastDay {
+    return Intl.message(
+      "Last day",
+      name: 'homePlanLastDay',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `End: {date}`
+  String homePlanEnd(String date) {
+    return Intl.message(
+      "End: $date",
+      name: 'homePlanEnd',
+      desc: '',
+      args: [date],
+    );
+  }
+
+  /// `{lost} of {total}`
+  String homePlanWeightLine(String lost, String total) {
+    return Intl.message(
+      "$lost of $total",
+      name: 'homePlanWeightLine',
+      desc: '',
+      args: [lost, total],
+    );
+  }
+
+  /// `Change: {change}`
+  String homePlanWeightChange(String change) {
+    return Intl.message(
+      "Change: $change",
+      name: 'homePlanWeightChange',
+      desc: '',
+      args: [change],
+    );
+  }
+
+  /// `Paused`
+  String get homePlanPaused {
+    return Intl.message(
+      "Paused",
+      name: 'homePlanPaused',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Plan finished`
+  String get homePlanFinishedTitle {
+    return Intl.message(
+      "Plan finished",
+      name: 'homePlanFinishedTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Goal reached`
+  String get homePlanReachedTitle {
+    return Intl.message(
+      "Goal reached",
+      name: 'homePlanReachedTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your 7-day average reached your target.`
+  String get homePlanReachedBody {
+    return Intl.message(
+      "Your 7-day average reached your target.",
+      name: 'homePlanReachedBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Extend`
+  String get homePlanExtend {
+    return Intl.message(
+      "Extend",
+      name: 'homePlanExtend',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New plan`
+  String get homePlanNewPlan {
+    return Intl.message(
+      "New plan",
+      name: 'homePlanNewPlan',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Switch to maintenance`
+  String get homePlanMaintenance {
+    return Intl.message(
+      "Switch to maintenance",
+      name: 'homePlanMaintenance',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Goal changed to maintenance`
+  String get homePlanMaintenanceDone {
+    return Intl.message(
+      "Goal changed to maintenance",
+      name: 'homePlanMaintenanceDone',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Progress has stalled`
+  String get homePlanStalledTitle {
+    return Intl.message(
+      "Progress has stalled",
+      name: 'homePlanStalledTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your 7-day average has not dropped in 21 days. Consider lowering your intake by 150 kcal per day or extending the end date.`
+  String get homePlanStalledBody {
+    return Intl.message(
+      "Your 7-day average has not dropped in 21 days. Consider lowering your intake by 150 kcal per day or extending the end date.",
+      name: 'homePlanStalledBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Adjust plan`
+  String get homePlanStalledAction {
+    return Intl.message(
+      "Adjust plan",
+      name: 'homePlanStalledAction',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

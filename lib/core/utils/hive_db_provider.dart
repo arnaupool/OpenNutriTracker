@@ -15,6 +15,7 @@ import 'package:opennutritracker/core/data/dbo/tracked_day_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/user_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/water_intake_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/weight_log_dbo.dart';
+import 'package:opennutritracker/features/diet_plan/data/diet_plan_dbo.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dart';
 import 'package:opennutritracker/hive_registrar.g.dart';
 
@@ -53,6 +54,8 @@ class HiveDBProvider extends ChangeNotifier {
   static const syncStateBoxName = 'SyncStateBox';
   // FAS-04: planned meals (synced).
   static const mealPlanBoxName = 'MealPlanBox';
+  // Diet plan with an end date and countdown (synced); a single record.
+  static const dietPlanBoxName = 'DietPlanBox';
 
   late Box<ConfigDBO> configBox;
   late Box<IntakeDBO> intakeBox;
@@ -71,6 +74,7 @@ class HiveDBProvider extends ChangeNotifier {
   late Box<Uint8List> userImageBytesBox;
   late Box<dynamic> syncStateBox;
   late Box<MealPlanEntryDBO> mealPlanBox;
+  late Box<DietPlanDBO> dietPlanBox;
 
   static bool _hiveReady = false;
 
@@ -93,6 +97,7 @@ class HiveDBProvider extends ChangeNotifier {
     userImageBytesBoxName,
     syncStateBoxName,
     mealPlanBoxName,
+    dietPlanBoxName,
   ];
 
   /// Opens the active profile's boxes ([ProfileScope]). Safe to call again
@@ -115,6 +120,9 @@ class HiveDBProvider extends ChangeNotifier {
     // generated registrar.
     if (!Hive.isAdapterRegistered(MealPlanEntryDBO.hiveTypeId)) {
       Hive.registerAdapter(MealPlanEntryDBOAdapter());
+    }
+    if (!Hive.isAdapterRegistered(DietPlanDBO.hiveTypeId)) {
+      Hive.registerAdapter(DietPlanDBOAdapter());
     }
     await _openBoxes(encryptionCypher);
   }
@@ -187,6 +195,10 @@ class HiveDBProvider extends ChangeNotifier {
     );
     mealPlanBox = await Hive.openBox(
       ProfileScope.box(mealPlanBoxName),
+      encryptionCipher: encryptionCypher,
+    );
+    dietPlanBox = await Hive.openBox(
+      ProfileScope.box(dietPlanBoxName),
       encryptionCipher: encryptionCypher,
     );
   }

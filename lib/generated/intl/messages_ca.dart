@@ -20,6 +20,36 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'ca';
 
+  static String mOnboardingPlanReachDate(date, days) =>
+      "Arribaries al teu objectiu el ${date} (${days} dies)";
+
+  static String mOnboardingPlanFloorSuggestion(pace) =>
+      "Per a mantindre el teu objectiu per damunt del mínim, prova ${pace} kg/setmana.";
+
+  static String mOnboardingPlanFloorApply(pace) =>
+      "Usar ${pace} kg/setmana";
+
+  static String mDietPlanPaceOption(pace) =>
+      "${pace} kg/setmana";
+
+  static String mMyPlanWeeksValue(weeks) =>
+      "${weeks} setmanes";
+
+  static String mMyPlanEndSummary(date, days) =>
+      "Acaba el ${date} (queden ${days} dies)";
+
+  static String mHomePlanDaysLeft(days) =>
+      "Queden ${days} dies";
+
+  static String mHomePlanEnd(date) =>
+      "Fi: ${date}";
+
+  static String mHomePlanWeightLine(lost, total) =>
+      "${lost} de ${total}";
+
+  static String mHomePlanWeightChange(change) =>
+      "Canvi: ${change}";
+
   static String mProfilesActiveValue(value) =>
       "Actiu: ${value}";
 
@@ -2397,5 +2427,53 @@ class MessageLookup extends MessageLookupByLibrary {
             "L'aplicació es recarrega amb el diari, els objectius i la configuració d'este perfil. Un perfil nou comença pels passos de configuració."),
         "profilesSwitchAction": MessageLookupByLibrary.simpleMessage(
             "Canviar"),
+        "onboardingPlanTitle": MessageLookupByLibrary.simpleMessage("El teu pla"),
+        "onboardingPlanLossQuestion": MessageLookupByLibrary.simpleMessage("Quants quilos vols perdre?"),
+        "onboardingPlanPaceQuestion": MessageLookupByLibrary.simpleMessage("A quin ritme?"),
+        "onboardingPlanPaceHint": MessageLookupByLibrary.simpleMessage("Un ritme més lent és més fàcil de mantindre."),
+        "onboardingPlanOnlyForLoss": MessageLookupByLibrary.simpleMessage("El pla amb data de fi és per a perdre pes. Continua per a vore el teu objectiu."),
+        "onboardingPlanReachDate": mOnboardingPlanReachDate,
+        "onboardingPlanFloorSlower": MessageLookupByLibrary.simpleMessage("El teu objectiu diari es manté en el mínim, així que perdries pes més a poc a poc del previst."),
+        "onboardingPlanFloorSuggestion": mOnboardingPlanFloorSuggestion,
+        "onboardingPlanFloorApply": mOnboardingPlanFloorApply,
+        "dietPlanPaceOption": mDietPlanPaceOption,
+        "dietPlanShowCountdown": MessageLookupByLibrary.simpleMessage("Mostrar el compte enrere a Inici"),
+        "myPlanTitle": MessageLookupByLibrary.simpleMessage("El meu pla"),
+        "myPlanNoPlan": MessageLookupByLibrary.simpleMessage("Encara no tens cap pla. Crea'n un per a vore un compte enrere a Inici."),
+        "myPlanCreate": MessageLookupByLibrary.simpleMessage("Crear pla"),
+        "myPlanModeAuto": MessageLookupByLibrary.simpleMessage("Automàtic"),
+        "myPlanModeManual": MessageLookupByLibrary.simpleMessage("Manual"),
+        "myPlanModeAutoHelp": MessageLookupByLibrary.simpleMessage("La data de fi ix dels quilos a perdre i del ritme."),
+        "myPlanStartDate": MessageLookupByLibrary.simpleMessage("Data d'inici"),
+        "myPlanEndDate": MessageLookupByLibrary.simpleMessage("Data de fi"),
+        "myPlanStartWeight": MessageLookupByLibrary.simpleMessage("Pes inicial"),
+        "myPlanKgToLose": MessageLookupByLibrary.simpleMessage("Quilos a perdre"),
+        "myPlanPace": MessageLookupByLibrary.simpleMessage("Ritme"),
+        "myPlanByWeeks": MessageLookupByLibrary.simpleMessage("Per setmanes"),
+        "myPlanByDate": MessageLookupByLibrary.simpleMessage("Per data"),
+        "myPlanWeeksValue": mMyPlanWeeksValue,
+        "myPlanEndSummary": mMyPlanEndSummary,
+        "myPlanPause": MessageLookupByLibrary.simpleMessage("Pausar el pla"),
+        "myPlanResume": MessageLookupByLibrary.simpleMessage("Reprendre el pla"),
+        "myPlanPausedNote": MessageLookupByLibrary.simpleMessage("El pla està en pausa. La data de fi s'endarrereix cada dia fins que el reprengues."),
+        "myPlanEngineNote": MessageLookupByLibrary.simpleMessage("En guardar un pla automàtic, el teu objectiu passa a ser perdre pes i s'actualitzen el teu pes objectiu i el teu ritme."),
+        "myPlanSaved": MessageLookupByLibrary.simpleMessage("Pla guardat"),
+        "homePlanDaysLeft": mHomePlanDaysLeft,
+        "homePlanOneDayLeft": MessageLookupByLibrary.simpleMessage("Queda 1 dia"),
+        "homePlanLastDay": MessageLookupByLibrary.simpleMessage("Últim dia"),
+        "homePlanEnd": mHomePlanEnd,
+        "homePlanWeightLine": mHomePlanWeightLine,
+        "homePlanWeightChange": mHomePlanWeightChange,
+        "homePlanPaused": MessageLookupByLibrary.simpleMessage("En pausa"),
+        "homePlanFinishedTitle": MessageLookupByLibrary.simpleMessage("Pla acabat"),
+        "homePlanReachedTitle": MessageLookupByLibrary.simpleMessage("Objectiu assolit"),
+        "homePlanReachedBody": MessageLookupByLibrary.simpleMessage("La teua mitjana de 7 dies ha arribat al teu objectiu."),
+        "homePlanExtend": MessageLookupByLibrary.simpleMessage("Ampliar"),
+        "homePlanNewPlan": MessageLookupByLibrary.simpleMessage("Pla nou"),
+        "homePlanMaintenance": MessageLookupByLibrary.simpleMessage("Passar a manteniment"),
+        "homePlanMaintenanceDone": MessageLookupByLibrary.simpleMessage("Objectiu canviat a manteniment"),
+        "homePlanStalledTitle": MessageLookupByLibrary.simpleMessage("El progrés s'ha estancat"),
+        "homePlanStalledBody": MessageLookupByLibrary.simpleMessage("La teua mitjana de 7 dies no ha baixat en 21 dies. Planteja't reduir 150 kcal al dia o ampliar la data de fi."),
+        "homePlanStalledAction": MessageLookupByLibrary.simpleMessage("Ajustar el pla"),
       };
 }

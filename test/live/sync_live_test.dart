@@ -50,7 +50,8 @@ Future<(HiveDBProvider, SyncEngine, SyncStateStore)> _device(SyncRemote remote) 
     ..waterIntakeBox = await open('water')
     ..fastingBox = await open('fasting')
     ..bodyMeasurementBox = await open('body')
-    ..mealPlanBox = await open('plan');
+    ..mealPlanBox = await open('plan')
+    ..dietPlanBox = await open('diet_plan');
   final state = SyncStateStore(await open<dynamic>('state'));
   return (db, SyncEngine(boxes: buildSyncedBoxes(db), remote: remote, state: state), state);
 }

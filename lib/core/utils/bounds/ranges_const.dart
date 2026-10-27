@@ -21,11 +21,11 @@ class Ranges {
   /// are the figures Harvard Health publishes for safe calorie counting:
   /// https://www.health.harvard.edu/healthy-aging-and-longevity/calorie-counting-made-easy
   /// Non-binary users on the averaged midpoint, or who have not yet chosen
-  /// a calories profile, use the lower (female) floor because the averaged
-  /// TDEE is itself a midpoint and the lower bound sits more naturally
-  /// beside it.
+  /// a calories profile, use the midpoint of the two (1350 kcal) because
+  /// the averaged TDEE is itself a midpoint.
   static const double minRecommendedDailyKcalMale = 1500;
   static const double minRecommendedDailyKcalFemale = 1200;
+  static const double minRecommendedDailyKcalNonBinary = 1350;
 
   static const bool cmAllowDecimalPlaces = false;
   static const bool feetAllowDecimalPlaces = true;

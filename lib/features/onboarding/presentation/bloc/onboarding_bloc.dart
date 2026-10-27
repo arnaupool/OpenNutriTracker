@@ -7,6 +7,9 @@ import 'package:opennutritracker/core/domain/usecase/add_user_usecase.dart';
 import 'package:opennutritracker/core/utils/bounds/ranges_const.dart';
 import 'package:opennutritracker/core/utils/calc/calorie_goal_calc.dart';
 import 'package:opennutritracker/core/utils/calc/macro_dynamic_calc.dart';
+import 'package:opennutritracker/features/diet_plan/domain/diet_plan_calc.dart';
+import 'package:opennutritracker/features/diet_plan/domain/diet_plan_goal_calc.dart';
+import 'package:opennutritracker/features/diet_plan/domain/diet_plan_usecase.dart';
 import 'package:opennutritracker/features/onboarding/domain/entity/user_data_mask_entity.dart';
 
 part 'onboarding_event.dart';
@@ -18,8 +21,13 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   final AddUserUsecase _addUserUsecase;
   final AddConfigUsecase _addConfigUsecase;
 
-  OnboardingBloc(this._addUserUsecase, this._addConfigUsecase)
-      : super(OnboardingInitialState()) {
+  final DietPlanUsecase? _dietPlanUsecase;
+
+  OnboardingBloc(
+    this._addUserUsecase,
+    this._addConfigUsecase, [
+    this._dietPlanUsecase,
+  ]) : super(OnboardingInitialState()) {
     on<LoadOnboardingEvent>((event, emit) async {
       emit(OnboardingLoadingState());
 
@@ -37,6 +45,43 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
       hasAcceptedDataCollection,
     );
     await _addConfigUsecase.setConfigUsesImperialUnits(usesImperialUnits);
+    // A "lose weight" onboarding also creates the diet plan whose end date
+    // the overview page showed.
+    final kg = userSelection.effectiveLossKg;
+    if (userSelection.isLoseGoal && kg != null) {
+      await _dietPlanUsecase?.save(
+        DietPlanUsecase.newAutoPlan(
+          start: DateTime.now(),
+          startWeightKg: userEntity.weightKG,
+          kgToLose: kg,
+          paceKgPerWeek: userSelection.paceKgPerWeek,
+          showCountdown: userSelection.showCountdown,
+        ),
+      );
+    }
+  }
+
+  /// The date the overview promises: today plus the plan's duration, or
+  /// null when the goal is not "lose weight".
+  ({DateTime end, int days})? getOverviewPlanEnd({DateTime? today}) {
+    final kg = userSelection.effectiveLossKg;
+    if (!userSelection.isLoseGoal || kg == null) return null;
+    final start = DietPlanCalc.dateOnly(today ?? DateTime.now());
+    final end = DietPlanCalc.autoEnd(start, kg, userSelection.paceKgPerWeek);
+    return (end: end, days: DietPlanCalc.daysBetween(start, end));
+  }
+
+  /// A lower pace that keeps the goal above the kcal floor, when the
+  /// chosen one does not.
+  double? getOverviewSuggestedPace() {
+    final userEntity = userSelection.toUserEntity();
+    final kg = userSelection.effectiveLossKg;
+    if (userEntity == null || kg == null) return null;
+    return DietPlanGoalCalc.suggestedPace(
+      userEntity,
+      kgToLose: kg,
+      currentPace: userSelection.paceKgPerWeek,
+    );
   }
 
   /// The goal the app will actually use right after onboarding: the same
@@ -76,13 +121,10 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
   /// surface the soft low-kcal warning.
   bool isOverviewBelowRecommendedKcalFloor() {
     final userEntity = userSelection.toUserEntity();
-    final calorieGoal = getOverviewCalorieGoal();
-    if (userEntity == null || calorieGoal == null) return false;
-    return CalorieGoalCalc.isBelowRecommendedDailyKcalFloor(
-      goalKcal: calorieGoal,
-      gender: userEntity.gender,
-      caloriesProfile: userEntity.caloriesProfile,
-    );
+    if (userEntity == null) return false;
+    // The shown goal is already raised to the floor, so ask the engine
+    // whether it had to.
+    return DietPlanGoalCalc.goalFor(userEntity).floorApplied;
   }
 
   /// The kcal floor the overview warning quotes back to the user. Falls

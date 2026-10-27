@@ -7,6 +7,7 @@ import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/features/diary/presentation/bloc/calendar_day_bloc.dart';
 import 'package:opennutritracker/features/diary/presentation/bloc/diary_bloc.dart';
 import 'package:opennutritracker/features/home/presentation/bloc/home_bloc.dart';
+import 'package:opennutritracker/features/diet_plan/domain/diet_plan_goal_calc.dart';
 import 'package:opennutritracker/features/onboarding/domain/entity/user_activity_selection_entity.dart';
 import 'package:opennutritracker/features/onboarding/domain/entity/user_gender_selection_entity.dart';
 import 'package:opennutritracker/features/onboarding/domain/entity/user_goal_selection_entity.dart';
@@ -14,6 +15,7 @@ import 'package:opennutritracker/features/onboarding/presentation/bloc/onboardin
 import 'package:opennutritracker/features/onboarding/presentation/onboarding_intro_page_body.dart';
 import 'package:opennutritracker/features/onboarding/presentation/widgets/onboarding_fourth_page_body.dart';
 import 'package:opennutritracker/features/onboarding/presentation/widgets/onboarding_overview_page_body.dart';
+import 'package:opennutritracker/features/onboarding/presentation/widgets/onboarding_plan_page_body.dart';
 import 'package:opennutritracker/features/onboarding/presentation/widgets/onboarding_third_page_body.dart';
 import 'package:opennutritracker/features/onboarding/presentation/widgets/highlight_button.dart';
 import 'package:opennutritracker/features/onboarding/presentation/widgets/onboarding_first_page_body.dart';
@@ -190,6 +192,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         // empty
         decoration: _pageDecoration,
         image: _defaultImageWidget,
+        bodyWidget: OnboardingPlanPageBody(
+          isLoseGoal: selection.isLoseGoal,
+          lossKg: selection.effectiveLossKg ?? 5,
+          maxLossKg: DietPlanGoalCalc.maxLossFor(selection.weight ?? 70),
+          paceKgPerWeek: selection.paceKgPerWeek,
+          usesImperialUnits: selection.usesImperialUnits,
+          onLossChanged: (kg) => setState(() => selection.lossKg = kg),
+          onPaceChanged: (pace) => setState(() => selection.paceKgPerWeek = pace),
+        ),
+        footer: HighlightButton(
+          buttonLabel: S.of(context).buttonNextLabel,
+          onButtonPressed: () => _scrollToPage(6),
+          buttonActive: true,
+        ),
+      ),
+      PageViewModel(
+        titleWidget: const SizedBox(),
+        // empty
+        decoration: _pageDecoration,
+        image: _defaultImageWidget,
         bodyWidget: OnboardingOverviewPageBody(
           calorieGoalDayString:
               _onboardingBloc.getOverviewCalorieGoal()?.round().toString() ??
@@ -206,6 +228,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               .isOverviewBelowRecommendedKcalFloor(),
           lowKcalWarningThreshold: _onboardingBloc
               .getOverviewRecommendedKcalFloor(),
+          planEnd: _onboardingBloc.getOverviewPlanEnd()?.end,
+          planDays: _onboardingBloc.getOverviewPlanEnd()?.days ?? 0,
+          showCountdown: selection.showCountdown,
+          onShowCountdownChanged: (value) => setState(() => selection.showCountdown = value),
+          suggestedPace: _onboardingBloc.getOverviewSuggestedPace(),
+          onApplySuggestedPace: () {
+            final pace = _onboardingBloc.getOverviewSuggestedPace();
+            if (pace != null) setState(() => selection.paceKgPerWeek = pace);
+          },
         ),
         footer: HighlightButton(
           buttonLabel: S.of(context).buttonStartLabel,

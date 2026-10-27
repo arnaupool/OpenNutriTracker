@@ -3,6 +3,8 @@ import 'package:opennutritracker/core/domain/entity/user_entity.dart';
 import 'package:opennutritracker/core/domain/entity/user_gender_entity.dart';
 import 'package:opennutritracker/core/domain/entity/user_pal_entity.dart';
 import 'package:opennutritracker/core/domain/entity/user_weight_goal_entity.dart';
+import 'package:opennutritracker/features/diet_plan/domain/diet_plan_calc.dart';
+import 'package:opennutritracker/features/diet_plan/domain/diet_plan_goal_calc.dart';
 import 'package:opennutritracker/features/onboarding/domain/entity/user_activity_selection_entity.dart';
 import 'package:opennutritracker/features/onboarding/domain/entity/user_gender_selection_entity.dart';
 import 'package:opennutritracker/features/onboarding/domain/entity/user_goal_selection_entity.dart';
@@ -22,9 +24,30 @@ class UserDataMaskEntity {
   /// regardless of the display unit the user picked.
   double? targetWeight;
 
+  /// Kilograms to lose and pace (kg/week) of the diet plan, asked after the
+  /// goal when it is "lose weight". Null kg means "not chosen yet": the
+  /// default is derived from [targetWeight] (see [effectiveLossKg]).
+  double? lossKg;
+  double paceKgPerWeek = DietPlanCalc.defaultPaceKgPerWeek;
+
+  /// Whether Home shows the plan's countdown.
+  bool showCountdown = true;
+
   bool acceptDataCollection = false;
 
   bool usesImperialUnits = false;
+
+  bool get isLoseGoal => goal == UserGoalSelectionEntity.loseWeight;
+
+  /// Kilograms to lose: the user's pick, else the gap to a target weight
+  /// typed earlier, else 5 kg; kept inside what the weight allows.
+  double? get effectiveLossKg {
+    final w = weight;
+    if (w == null) return null;
+    final t = targetWeight;
+    final raw = lossKg ?? (t != null && t < w ? w - t : 5.0);
+    return DietPlanGoalCalc.clampLoss(raw, w);
+  }
 
   UserDataMaskEntity({
     this.gender,
@@ -106,7 +129,7 @@ class UserDataMaskEntity {
         userPal = UserPALEntity.lowActive;
     }
 
-    return UserEntity(
+    final user = UserEntity(
       birthday: userBirthday,
       heightCM: userHeight,
       weightKG: userWeight,
@@ -117,5 +140,11 @@ class UserDataMaskEntity {
           userGender == UserGenderEntity.nonBinary ? caloriesProfile : null,
       targetWeightKg: targetWeight,
     );
+    // The diet plan feeds the existing engine: target weight = weight - kg
+    // and weekly rate = pace as a percentage of body weight.
+    if (userGoal == UserWeightGoalEntity.loseWeight) {
+      DietPlanGoalCalc.applyToUser(user, kgToLose: effectiveLossKg ?? 5, paceKgPerWeek: paceKgPerWeek);
+    }
+    return user;
   }
 }

@@ -3,6 +3,7 @@ import 'package:opennutritracker/core/presentation/sources_screen.dart';
 import 'package:opennutritracker/core/presentation/widgets/low_kcal_warning_card.dart';
 import 'package:opennutritracker/core/utils/calc/unit_calc.dart';
 import 'package:opennutritracker/core/utils/energy_unit_provider.dart';
+import 'package:opennutritracker/features/diet_plan/presentation/diet_plan_format.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 import 'package:provider/provider.dart';
 
@@ -16,6 +17,18 @@ class OnboardingOverviewPageBody extends StatelessWidget {
   final bool showLowKcalWarning;
   final double lowKcalWarningThreshold;
 
+  /// End date and length of the diet plan the user just set up; null when
+  /// the goal is not "lose weight".
+  final DateTime? planEnd;
+  final int planDays;
+  final bool showCountdown;
+  final ValueChanged<bool>? onShowCountdownChanged;
+
+  /// A lower pace (kg/week) that keeps the goal above the kcal floor, and
+  /// the callback that applies it.
+  final double? suggestedPace;
+  final VoidCallback? onApplySuggestedPace;
+
   const OnboardingOverviewPageBody({
     super.key,
     required this.setButtonActive,
@@ -26,6 +39,12 @@ class OnboardingOverviewPageBody extends StatelessWidget {
     required this.proteinGoalString,
     this.showLowKcalWarning = false,
     this.lowKcalWarningThreshold = 0,
+    this.planEnd,
+    this.planDays = 0,
+    this.showCountdown = true,
+    this.onShowCountdownChanged,
+    this.suggestedPace,
+    this.onApplySuggestedPace,
   });
 
   @override
@@ -83,6 +102,48 @@ class OnboardingOverviewPageBody extends StatelessWidget {
             LowKcalWarningCard(
               thresholdKcal: lowKcalWarningThreshold,
               margin: EdgeInsets.zero,
+            ),
+            if (planEnd != null) ...[
+              const SizedBox(height: 8.0),
+              Text(
+                S.of(context).onboardingPlanFloorSlower,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
+            if (suggestedPace != null) ...[
+              const SizedBox(height: 8.0),
+              Text(
+                S.of(context).onboardingPlanFloorSuggestion(DietPlanFormat.pace(context, suggestedPace!)),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Semantics(
+                  identifier: 'onboarding-plan-apply-pace',
+                  child: TextButton(
+                    onPressed: onApplySuggestedPace,
+                    child: Text(
+                      S.of(context).onboardingPlanFloorApply(DietPlanFormat.pace(context, suggestedPace!)),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+          if (planEnd != null) ...[
+            const SizedBox(height: 24.0),
+            Text(
+              S.of(context).onboardingPlanReachDate(DietPlanFormat.date(planEnd!), planDays.toString()),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            Semantics(
+              identifier: 'onboarding-plan-countdown-switch',
+              child: SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(S.of(context).dietPlanShowCountdown),
+                value: showCountdown,
+                onChanged: onShowCountdownChanged,
+              ),
             ),
           ],
           const SizedBox(height: 32.0),

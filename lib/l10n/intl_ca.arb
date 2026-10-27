@@ -1558,5 +1558,106 @@
     }
   },
   "profilesSwitchBody": "L'aplicació es recarrega amb el diari, els objectius i la configuració d'este perfil. Un perfil nou comença pels passos de configuració.",
-  "profilesSwitchAction": "Canviar"
+  "profilesSwitchAction": "Canviar",
+  "onboardingPlanTitle": "El teu pla",
+  "onboardingPlanLossQuestion": "Quants quilos vols perdre?",
+  "onboardingPlanPaceQuestion": "A quin ritme?",
+  "onboardingPlanPaceHint": "Un ritme més lent és més fàcil de mantindre.",
+  "onboardingPlanOnlyForLoss": "El pla amb data de fi és per a perdre pes. Continua per a vore el teu objectiu.",
+  "onboardingPlanReachDate": "Arribaries al teu objectiu el {date} ({days} dies)",
+  "@onboardingPlanReachDate": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "days": { "type": "String" }
+    }
+  },
+  "onboardingPlanFloorSlower": "El teu objectiu diari es manté en el mínim, així que perdries pes més a poc a poc del previst.",
+  "onboardingPlanFloorSuggestion": "Per a mantindre el teu objectiu per damunt del mínim, prova {pace} kg/setmana.",
+  "@onboardingPlanFloorSuggestion": {
+    "placeholders": {
+      "pace": { "type": "String" }
+    }
+  },
+  "onboardingPlanFloorApply": "Usar {pace} kg/setmana",
+  "@onboardingPlanFloorApply": {
+    "placeholders": {
+      "pace": { "type": "String" }
+    }
+  },
+  "dietPlanPaceOption": "{pace} kg/setmana",
+  "@dietPlanPaceOption": {
+    "placeholders": {
+      "pace": { "type": "String" }
+    }
+  },
+  "dietPlanShowCountdown": "Mostrar el compte enrere a Inici",
+  "myPlanTitle": "El meu pla",
+  "myPlanNoPlan": "Encara no tens cap pla. Crea'n un per a vore un compte enrere a Inici.",
+  "myPlanCreate": "Crear pla",
+  "myPlanModeAuto": "Automàtic",
+  "myPlanModeManual": "Manual",
+  "myPlanModeAutoHelp": "La data de fi ix dels quilos a perdre i del ritme.",
+  "myPlanStartDate": "Data d'inici",
+  "myPlanEndDate": "Data de fi",
+  "myPlanStartWeight": "Pes inicial",
+  "myPlanKgToLose": "Quilos a perdre",
+  "myPlanPace": "Ritme",
+  "myPlanByWeeks": "Per setmanes",
+  "myPlanByDate": "Per data",
+  "myPlanWeeksValue": "{weeks} setmanes",
+  "@myPlanWeeksValue": {
+    "placeholders": {
+      "weeks": { "type": "String" }
+    }
+  },
+  "myPlanEndSummary": "Acaba el {date} (queden {days} dies)",
+  "@myPlanEndSummary": {
+    "placeholders": {
+      "date": { "type": "String" },
+      "days": { "type": "String" }
+    }
+  },
+  "myPlanPause": "Pausar el pla",
+  "myPlanResume": "Reprendre el pla",
+  "myPlanPausedNote": "El pla està en pausa. La data de fi s'endarrereix cada dia fins que el reprengues.",
+  "myPlanEngineNote": "En guardar un pla automàtic, el teu objectiu passa a ser perdre pes i s'actualitzen el teu pes objectiu i el teu ritme.",
+  "myPlanSaved": "Pla guardat",
+  "homePlanDaysLeft": "Queden {days} dies",
+  "@homePlanDaysLeft": {
+    "placeholders": {
+      "days": { "type": "String" }
+    }
+  },
+  "homePlanOneDayLeft": "Queda 1 dia",
+  "homePlanLastDay": "Últim dia",
+  "homePlanEnd": "Fi: {date}",
+  "@homePlanEnd": {
+    "placeholders": {
+      "date": { "type": "String" }
+    }
+  },
+  "homePlanWeightLine": "{lost} de {total}",
+  "@homePlanWeightLine": {
+    "placeholders": {
+      "lost": { "type": "String" },
+      "total": { "type": "String" }
+    }
+  },
+  "homePlanWeightChange": "Canvi: {change}",
+  "@homePlanWeightChange": {
+    "placeholders": {
+      "change": { "type": "String" }
+    }
+  },
+  "homePlanPaused": "En pausa",
+  "homePlanFinishedTitle": "Pla acabat",
+  "homePlanReachedTitle": "Objectiu assolit",
+  "homePlanReachedBody": "La teua mitjana de 7 dies ha arribat al teu objectiu.",
+  "homePlanExtend": "Ampliar",
+  "homePlanNewPlan": "Pla nou",
+  "homePlanMaintenance": "Passar a manteniment",
+  "homePlanMaintenanceDone": "Objectiu canviat a manteniment",
+  "homePlanStalledTitle": "El progrés s'ha estancat",
+  "homePlanStalledBody": "La teua mitjana de 7 dies no ha baixat en 21 dies. Planteja't reduir 150 kcal al dia o ampliar la data de fi.",
+  "homePlanStalledAction": "Ajustar el pla"
 }

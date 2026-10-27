@@ -142,13 +142,11 @@ class CalorieGoalCalc {
   /// minimum for the user's hormonal profile. Used to decide whether to
   /// surface the soft low-kcal warning card next to the target value.
   ///
-  /// The male floor (≈1500 kcal) is used when there is positive evidence
-  /// for it: a binary male profile, or a non-binary user who explicitly
-  /// picked a testosterone-typical calories profile. Everywhere else —
-  /// binary female, non-binary on estrogen-typical, non-binary on the
-  /// averaged midpoint (because that maps to a TDEE midpoint and the
-  /// lower floor sits more naturally beside it), or non-binary who hasn't
-  /// chosen a profile yet — the female floor (≈1200 kcal) is used.
+  /// The male floor (1500 kcal) is used for a binary male profile or a
+  /// non-binary user who picked a testosterone-typical calories profile;
+  /// the female floor (1200 kcal) for binary female or an estrogen-typical
+  /// profile; non-binary on the averaged midpoint, or without a chosen
+  /// profile, gets the midpoint (1350 kcal).
   ///
   /// The check is intentionally non-strict (`<`), so a value sitting
   /// exactly on the floor does not trip the warning.
@@ -182,10 +180,21 @@ class CalorieGoalCalc {
     required UserGenderEntity gender,
     CaloriesProfileEntity? caloriesProfile,
   }) {
-    final usesMaleFloor = gender == UserGenderEntity.male ||
-        caloriesProfile == CaloriesProfileEntity.testosteroneTypical;
-    return usesMaleFloor
-        ? Ranges.minRecommendedDailyKcalMale
-        : Ranges.minRecommendedDailyKcalFemale;
+    switch (gender) {
+      case UserGenderEntity.male:
+        return Ranges.minRecommendedDailyKcalMale;
+      case UserGenderEntity.female:
+        return Ranges.minRecommendedDailyKcalFemale;
+      case UserGenderEntity.nonBinary:
+        switch (caloriesProfile) {
+          case CaloriesProfileEntity.testosteroneTypical:
+            return Ranges.minRecommendedDailyKcalMale;
+          case CaloriesProfileEntity.estrogenTypical:
+            return Ranges.minRecommendedDailyKcalFemale;
+          case CaloriesProfileEntity.averaged:
+          case null:
+            return Ranges.minRecommendedDailyKcalNonBinary;
+        }
+    }
   }
 }

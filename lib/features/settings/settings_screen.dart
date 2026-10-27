@@ -107,6 +107,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
             return ListView(
               children: [
                 const SizedBox(height: 16.0),
+                Semantics(
+                  identifier: 'settings-my-plan',
+                  child: ListTile(
+                    leading: const Icon(Icons.flag_outlined),
+                    title: Text(S.of(context).myPlanTitle),
+                    onTap: () => Navigator.of(context).pushNamed(NavigationOptions.myPlanRoute),
+                  ),
+                ),
                 ListTile(
                   leading: const Icon(Icons.ac_unit_outlined),
                   title: Text(S.of(context).settingsUnitsLabel),
