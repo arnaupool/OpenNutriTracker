@@ -29,4 +29,5 @@ class NavigationOptions {
   static const reviewRoute = "review";
   static const mealPlanRoute = "mealPlan";
   static const myPlanRoute = "myPlan";
+  static const remindersRoute = "reminders";
 }

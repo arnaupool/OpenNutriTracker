@@ -39,13 +39,13 @@ const MEAL_WORD = { breakfast: "desayuno", lunch: "almuerzo", snack: "merienda",
 export function payloadFor(r: Reminder): Payload {
   const title = "OpenNutriTracker";
   if (r.type === "weigh_in") {
-    return { title, body: "Pésate en ayunas antes de beber nada", url: "/#/weightHistory" };
+    return { title, body: "Pésate en ayunas antes de beber nada", url: "/?open=weigh_in" };
   }
   if (r.type === "meal" && r.meal_type) {
     return {
       title,
       body: `Registra tu ${MEAL_WORD[r.meal_type]}`,
-      url: `/#/addMeal?meal=${r.meal_type}`,
+      url: `/?open=meal&meal=${r.meal_type}`,
     };
   }
   return { title, body: r.label, url: "/" };

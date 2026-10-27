@@ -14,6 +14,7 @@ import 'package:opennutritracker/core/sync/synced_box.dart';
 import 'package:opennutritracker/core/utils/hive_db_provider.dart';
 import 'package:opennutritracker/features/diet_plan/data/diet_plan_dbo.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dart';
+import 'package:opennutritracker/features/reminders/data/reminder_dbo.dart';
 
 /// The boxes that sync between devices and how each identifies a record.
 /// Left out on purpose: the Open Food Facts cache (re-downloadable) and
@@ -126,6 +127,22 @@ List<SyncedBox<dynamic>> buildSyncedBoxes(HiveDBProvider db) => [
     identityOf: (_, key) => key?.toString(),
     toJson: (v) => v.toJson(),
     fromJson: DietPlanDBO.fromJson,
+    naturalKey: true,
+  ),
+  SyncedBox<ReminderDBO>(
+    name: HiveDBProvider.reminderBoxName,
+    box: db.reminderBox,
+    identityOf: (_, key) => key?.toString(),
+    toJson: (v) => v.toJson(),
+    fromJson: ReminderDBO.fromJson,
+    naturalKey: true,
+  ),
+  SyncedBox<ReminderSettingsDBO>(
+    name: HiveDBProvider.reminderSettingsBoxName,
+    box: db.reminderSettingsBox,
+    identityOf: (_, key) => key?.toString(),
+    toJson: (v) => v.toJson(),
+    fromJson: ReminderSettingsDBO.fromJson,
     naturalKey: true,
   ),
 ];

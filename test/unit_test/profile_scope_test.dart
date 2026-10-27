@@ -26,10 +26,12 @@ void main() {
         HiveDBProvider.userBoxName,
         HiveDBProvider.mealPlanBoxName,
         HiveDBProvider.dietPlanBoxName,
+        HiveDBProvider.reminderBoxName,
+        HiveDBProvider.reminderSettingsBoxName,
         HiveDBProvider.syncStateBoxName,
         HiveDBProvider.userImageBytesBoxName,
       ]),
     );
-    expect(HiveDBProvider.profileBoxNames.length, 18);
+    expect(HiveDBProvider.profileBoxNames.length, 20);
   });
 }

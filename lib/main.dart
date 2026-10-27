@@ -48,6 +48,8 @@ import 'package:opennutritracker/features/home/presentation/screens/import_meal_
 import 'package:opennutritracker/features/scanner/scanner_screen.dart';
 import 'package:opennutritracker/features/meal_detail/meal_detail_screen.dart';
 import 'package:opennutritracker/features/diet_plan/presentation/my_plan_screen.dart';
+import 'package:opennutritracker/features/reminders/domain/reminders_service.dart';
+import 'package:opennutritracker/features/reminders/presentation/reminders_screen.dart';
 import 'package:opennutritracker/features/meal_plan/presentation/meal_plan_page.dart';
 import 'package:opennutritracker/features/review/presentation/review_page.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/accent_colour_screen.dart';
@@ -115,7 +117,11 @@ Future<AppBoot> _bootstrap() async {
 
   final isUserInitialized = await locator<UserDataSource>().hasUserData();
   // FAS-01: starts syncing if this device is linked; a no-op otherwise.
-  if (isUserInitialized) unawaited(locator<SyncService>().start());
+  if (isUserInitialized) {
+    unawaited(locator<SyncService>().start());
+    // Mirrors existing reminders to the reminders backend; a no-op without any.
+    unawaited(locator<RemindersService>().start());
+  }
   final configRepo = locator<ConfigRepository>();
 
   final config = await configRepo.getConfig();
@@ -181,6 +187,7 @@ class _AppRestarterState extends State<AppRestarter> {
   Future<void> _switchTo(String profileId) async {
     setState(() => _switching = true);
     await locator<SyncService>().stop();
+    await locator<RemindersService>().stop();
     await Hive.close();
     await locator.reset();
     await ProfileStore().setActive(profileId);
@@ -344,6 +351,8 @@ class OpenNutriTrackerApp extends StatelessWidget {
         NavigationOptions.mealPlanRoute: (context) => const MealPlanScreen(),
         NavigationOptions.myPlanRoute: (context) =>
             DesktopRouteFrame(child: const MyPlanScreen()),
+        NavigationOptions.remindersRoute: (context) =>
+            DesktopRouteFrame(child: const RemindersScreen()),
         NavigationOptions.fastingRoute: (context) =>
             DesktopRouteFrame(child: const FastingScreen()),
       },

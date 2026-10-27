@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:opennutritracker/core/domain/usecase/get_config_usecase.dart';
 import 'package:opennutritracker/core/presentation/widgets/add_item_bottom_sheet.dart';
@@ -19,6 +20,9 @@ import 'package:opennutritracker/features/strategy/presentation/strategy_page.da
 import 'package:opennutritracker/features/settings/presentation/widgets/appearance_sheet.dart';
 import 'package:opennutritracker/features/meal_plan/presentation/meal_plan_page.dart';
 import 'package:opennutritracker/features/review/presentation/review_page.dart';
+import 'package:opennutritracker/features/add_meal/presentation/add_meal_screen.dart';
+import 'package:opennutritracker/features/add_meal/presentation/add_meal_type.dart';
+import 'package:opennutritracker/features/reminders/domain/reminder_open_target.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 class MainScreen extends StatefulWidget {
@@ -33,6 +37,35 @@ class _MainScreenState extends State<MainScreen> {
 
   late List<Widget> _bodyPages;
   late List<PreferredSizeWidget> _appbarPages;
+
+  /// The URL a reminder notification opened is acted on once per page load.
+  static bool _handledReminderLink = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (kIsWeb && !_handledReminderLink) {
+      _handledReminderLink = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _openReminderTarget(Uri.base));
+    }
+  }
+
+  /// A tapped reminder opens the app at `/?open=weigh_in` or
+  /// `/?open=meal&meal=lunch`: go to weight history or add food for today.
+  void _openReminderTarget(Uri uri) {
+    final target = ReminderOpenTarget.fromUri(uri);
+    if (target == null || !mounted) return;
+    final navigator = Navigator.of(context);
+    if (target.weighIn) {
+      navigator.pushNamed(NavigationOptions.weightHistoryRoute);
+      return;
+    }
+    final intakeType = IntakeTypeEntity.values.byName(target.meal!.name);
+    navigator.pushNamed(
+      NavigationOptions.addItemMenuRoute,
+      arguments: AddMealScreenArguments(AddMealExtension.fromIntakeTypeEntity(intakeType), DateTime.now()),
+    );
+  }
 
   @override
   void didChangeDependencies() {

@@ -11098,6 +11098,706 @@ class S {
       args: [],
     );
   }
+
+  /// `Reminders`
+  String get remindersTitle {
+    return Intl.message(
+      "Reminders",
+      name: 'remindersTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add reminder`
+  String get remindersAdd {
+    return Intl.message(
+      "Add reminder",
+      name: 'remindersAdd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New reminder`
+  String get remindersNew {
+    return Intl.message(
+      "New reminder",
+      name: 'remindersNew',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Weigh-in`
+  String get remindersNameWeighIn {
+    return Intl.message(
+      "Weigh-in",
+      name: 'remindersNameWeighIn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Breakfast`
+  String get remindersNameBreakfast {
+    return Intl.message(
+      "Breakfast",
+      name: 'remindersNameBreakfast',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Lunch`
+  String get remindersNameLunch {
+    return Intl.message(
+      "Lunch",
+      name: 'remindersNameLunch',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Snack`
+  String get remindersNameSnack {
+    return Intl.message(
+      "Snack",
+      name: 'remindersNameSnack',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Dinner`
+  String get remindersNameDinner {
+    return Intl.message(
+      "Dinner",
+      name: 'remindersNameDinner',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Weigh yourself fasting, before drinking anything`
+  String get remindersBodyWeighIn {
+    return Intl.message(
+      "Weigh yourself fasting, before drinking anything",
+      name: 'remindersBodyWeighIn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log your breakfast`
+  String get remindersBodyBreakfast {
+    return Intl.message(
+      "Log your breakfast",
+      name: 'remindersBodyBreakfast',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log your lunch`
+  String get remindersBodyLunch {
+    return Intl.message(
+      "Log your lunch",
+      name: 'remindersBodyLunch',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log your snack`
+  String get remindersBodySnack {
+    return Intl.message(
+      "Log your snack",
+      name: 'remindersBodySnack',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log your dinner`
+  String get remindersBodyDinner {
+    return Intl.message(
+      "Log your dinner",
+      name: 'remindersBodyDinner',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `M`
+  String get remindersDayMon {
+    return Intl.message(
+      "M",
+      name: 'remindersDayMon',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `T`
+  String get remindersDayTue {
+    return Intl.message(
+      "T",
+      name: 'remindersDayTue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `W`
+  String get remindersDayWed {
+    return Intl.message(
+      "W",
+      name: 'remindersDayWed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `T`
+  String get remindersDayThu {
+    return Intl.message(
+      "T",
+      name: 'remindersDayThu',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `F`
+  String get remindersDayFri {
+    return Intl.message(
+      "F",
+      name: 'remindersDayFri',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `S`
+  String get remindersDaySat {
+    return Intl.message(
+      "S",
+      name: 'remindersDaySat',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `S`
+  String get remindersDaySun {
+    return Intl.message(
+      "S",
+      name: 'remindersDaySun',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Name`
+  String get remindersFieldName {
+    return Intl.message(
+      "Name",
+      name: 'remindersFieldName',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Message`
+  String get remindersFieldMessage {
+    return Intl.message(
+      "Message",
+      name: 'remindersFieldMessage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Time`
+  String get remindersFieldTime {
+    return Intl.message(
+      "Time",
+      name: 'remindersFieldTime',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Days`
+  String get remindersFieldDays {
+    return Intl.message(
+      "Days",
+      name: 'remindersFieldDays',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Channel`
+  String get remindersFieldChannel {
+    return Intl.message(
+      "Channel",
+      name: 'remindersFieldChannel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Web notification`
+  String get remindersChannelPush {
+    return Intl.message(
+      "Web notification",
+      name: 'remindersChannelPush',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Email`
+  String get remindersChannelEmail {
+    return Intl.message(
+      "Email",
+      name: 'remindersChannelEmail',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Telegram`
+  String get remindersChannelTelegram {
+    return Intl.message(
+      "Telegram",
+      name: 'remindersChannelTelegram',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Skip if already logged`
+  String get remindersSkipIfLogged {
+    return Intl.message(
+      "Skip if already logged",
+      name: 'remindersSkipIfLogged',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Duplicate`
+  String get remindersDuplicate {
+    return Intl.message(
+      "Duplicate",
+      name: 'remindersDuplicate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{name} (copy)`
+  String remindersCopyOf(String name) {
+    return Intl.message(
+      "$name (copy)",
+      name: 'remindersCopyOf',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `Delete "{name}"?`
+  String remindersDeleteQuestion(String name) {
+    return Intl.message(
+      "Delete \"$name\"?",
+      name: 'remindersDeleteQuestion',
+      desc: '',
+      args: [name],
+    );
+  }
+
+  /// `You can have up to 15 reminders.`
+  String get remindersLimitReached {
+    return Intl.message(
+      "You can have up to 15 reminders.",
+      name: 'remindersLimitReached',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Send test`
+  String get remindersSendTest {
+    return Intl.message(
+      "Send test",
+      name: 'remindersSendTest',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Test sent through {channel}`
+  String remindersTestSent(String channel) {
+    return Intl.message(
+      "Test sent through $channel",
+      name: 'remindersTestSent',
+      desc: '',
+      args: [channel],
+    );
+  }
+
+  /// `The test could not be sent. Check that the channel is set up.`
+  String get remindersTestFailed {
+    return Intl.message(
+      "The test could not be sent. Check that the channel is set up.",
+      name: 'remindersTestFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Do not disturb`
+  String get remindersQuietTitle {
+    return Intl.message(
+      "Do not disturb",
+      name: 'remindersQuietTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `From`
+  String get remindersQuietFrom {
+    return Intl.message(
+      "From",
+      name: 'remindersQuietFrom',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Until`
+  String get remindersQuietTo {
+    return Intl.message(
+      "Until",
+      name: 'remindersQuietTo',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Channels`
+  String get remindersChannelsTitle {
+    return Intl.message(
+      "Channels",
+      name: 'remindersChannelsTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Linked`
+  String get remindersTelegramLinked {
+    return Intl.message(
+      "Linked",
+      name: 'remindersTelegramLinked',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Link Telegram`
+  String get remindersTelegramLink {
+    return Intl.message(
+      "Link Telegram",
+      name: 'remindersTelegramLink',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Waiting for you to press Start in Telegram...`
+  String get remindersTelegramWaiting {
+    return Intl.message(
+      "Waiting for you to press Start in Telegram...",
+      name: 'remindersTelegramWaiting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open Telegram with this link and press Start to finish linking.`
+  String get remindersTelegramOpenBody {
+    return Intl.message(
+      "Open Telegram with this link and press Start to finish linking.",
+      name: 'remindersTelegramOpenBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open Telegram`
+  String get remindersTelegramOpen {
+    return Intl.message(
+      "Open Telegram",
+      name: 'remindersTelegramOpen',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Telegram linked`
+  String get remindersTelegramDone {
+    return Intl.message(
+      "Telegram linked",
+      name: 'remindersTelegramDone',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Telegram was not linked. Try again.`
+  String get remindersTelegramTimeout {
+    return Intl.message(
+      "Telegram was not linked. Try again.",
+      name: 'remindersTelegramTimeout',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not verified`
+  String get remindersEmailUnverified {
+    return Intl.message(
+      "Not verified",
+      name: 'remindersEmailUnverified',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Verified: {email}`
+  String remindersEmailVerifiedAs(String email) {
+    return Intl.message(
+      "Verified: $email",
+      name: 'remindersEmailVerifiedAs',
+      desc: '',
+      args: [email],
+    );
+  }
+
+  /// `Email address`
+  String get remindersEmailAddress {
+    return Intl.message(
+      "Email address",
+      name: 'remindersEmailAddress',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Send code`
+  String get remindersEmailSendCode {
+    return Intl.message(
+      "Send code",
+      name: 'remindersEmailSendCode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We sent a code to {email}`
+  String remindersEmailCodeSent(String email) {
+    return Intl.message(
+      "We sent a code to $email",
+      name: 'remindersEmailCodeSent',
+      desc: '',
+      args: [email],
+    );
+  }
+
+  /// `6-digit code`
+  String get remindersEmailCode {
+    return Intl.message(
+      "6-digit code",
+      name: 'remindersEmailCode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Confirm`
+  String get remindersEmailConfirm {
+    return Intl.message(
+      "Confirm",
+      name: 'remindersEmailConfirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Email verified`
+  String get remindersEmailDone {
+    return Intl.message(
+      "Email verified",
+      name: 'remindersEmailDone',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `That email address is not valid.`
+  String get remindersEmailErrorBad {
+    return Intl.message(
+      "That email address is not valid.",
+      name: 'remindersEmailErrorBad',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Wait a minute before asking for another code.`
+  String get remindersEmailErrorTooSoon {
+    return Intl.message(
+      "Wait a minute before asking for another code.",
+      name: 'remindersEmailErrorTooSoon',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Wrong code.`
+  String get remindersEmailErrorWrongCode {
+    return Intl.message(
+      "Wrong code.",
+      name: 'remindersEmailErrorWrongCode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The code expired. Ask for a new one.`
+  String get remindersEmailErrorExpired {
+    return Intl.message(
+      "The code expired. Ask for a new one.",
+      name: 'remindersEmailErrorExpired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Too many attempts. Ask for a new code.`
+  String get remindersEmailErrorTooMany {
+    return Intl.message(
+      "Too many attempts. Ask for a new code.",
+      name: 'remindersEmailErrorTooMany',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Active`
+  String get remindersPushActive {
+    return Intl.message(
+      "Active",
+      name: 'remindersPushActive',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No permission`
+  String get remindersPushNoPermission {
+    return Intl.message(
+      "No permission",
+      name: 'remindersPushNoPermission',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not available in this browser`
+  String get remindersPushNotSupported {
+    return Intl.message(
+      "Not available in this browser",
+      name: 'remindersPushNotSupported',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `On iPhone, notifications only work after adding the app to the Home Screen (Share, Add to Home Screen) and opening it from there. Telegram is more reliable.`
+  String get remindersPushIosNotInstalled {
+    return Intl.message(
+      "On iPhone, notifications only work after adding the app to the Home Screen (Share, Add to Home Screen) and opening it from there. Telegram is more reliable.",
+      name: 'remindersPushIosNotInstalled',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Allow notifications`
+  String get remindersPushEnable {
+    return Intl.message(
+      "Allow notifications",
+      name: 'remindersPushEnable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Notifications are blocked. Allow them in the browser settings.`
+  String get remindersPushDenied {
+    return Intl.message(
+      "Notifications are blocked. Allow them in the browser settings.",
+      name: 'remindersPushDenied',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Web notifications could not be set up.`
+  String get remindersPushFailed {
+    return Intl.message(
+      "Web notifications could not be set up.",
+      name: 'remindersPushFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Notifications may arrive 1-2 minutes late. The server only stores times, days, timezone and how to reach you; never weights or foods.`
+  String get remindersLateNote {
+    return Intl.message(
+      "Notifications may arrive 1-2 minutes late. The server only stores times, days, timezone and how to reach you; never weights or foods.",
+      name: 'remindersLateNote',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not reach the reminders server. Changes will be sent later.`
+  String get remindersSyncFailed {
+    return Intl.message(
+      "Could not reach the reminders server. Changes will be sent later.",
+      name: 'remindersSyncFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Something went wrong. Try again.`
+  String get remindersError {
+    return Intl.message(
+      "Something went wrong. Try again.",
+      name: 'remindersError',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

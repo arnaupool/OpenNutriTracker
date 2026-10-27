@@ -17,6 +17,7 @@ import 'package:opennutritracker/core/data/dbo/water_intake_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/weight_log_dbo.dart';
 import 'package:opennutritracker/features/diet_plan/data/diet_plan_dbo.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dart';
+import 'package:opennutritracker/features/reminders/data/reminder_dbo.dart';
 import 'package:opennutritracker/hive_registrar.g.dart';
 
 class HiveDBProvider extends ChangeNotifier {
@@ -56,6 +57,9 @@ class HiveDBProvider extends ChangeNotifier {
   static const mealPlanBoxName = 'MealPlanBox';
   // Diet plan with an end date and countdown (synced); a single record.
   static const dietPlanBoxName = 'DietPlanBox';
+  // Reminders (keyed by id) and their settings (single record); both synced.
+  static const reminderBoxName = 'ReminderBox';
+  static const reminderSettingsBoxName = 'ReminderSettingsBox';
 
   late Box<ConfigDBO> configBox;
   late Box<IntakeDBO> intakeBox;
@@ -75,6 +79,8 @@ class HiveDBProvider extends ChangeNotifier {
   late Box<dynamic> syncStateBox;
   late Box<MealPlanEntryDBO> mealPlanBox;
   late Box<DietPlanDBO> dietPlanBox;
+  late Box<ReminderDBO> reminderBox;
+  late Box<ReminderSettingsDBO> reminderSettingsBox;
 
   static bool _hiveReady = false;
 
@@ -98,6 +104,8 @@ class HiveDBProvider extends ChangeNotifier {
     syncStateBoxName,
     mealPlanBoxName,
     dietPlanBoxName,
+    reminderBoxName,
+    reminderSettingsBoxName,
   ];
 
   /// Opens the active profile's boxes ([ProfileScope]). Safe to call again
@@ -123,6 +131,12 @@ class HiveDBProvider extends ChangeNotifier {
     }
     if (!Hive.isAdapterRegistered(DietPlanDBO.hiveTypeId)) {
       Hive.registerAdapter(DietPlanDBOAdapter());
+    }
+    if (!Hive.isAdapterRegistered(ReminderDBO.hiveTypeId)) {
+      Hive.registerAdapter(ReminderDBOAdapter());
+    }
+    if (!Hive.isAdapterRegistered(ReminderSettingsDBO.hiveTypeId)) {
+      Hive.registerAdapter(ReminderSettingsDBOAdapter());
     }
     await _openBoxes(encryptionCypher);
   }
@@ -199,6 +213,14 @@ class HiveDBProvider extends ChangeNotifier {
     );
     dietPlanBox = await Hive.openBox(
       ProfileScope.box(dietPlanBoxName),
+      encryptionCipher: encryptionCypher,
+    );
+    reminderBox = await Hive.openBox(
+      ProfileScope.box(reminderBoxName),
+      encryptionCipher: encryptionCypher,
+    );
+    reminderSettingsBox = await Hive.openBox(
+      ProfileScope.box(reminderSettingsBoxName),
       encryptionCipher: encryptionCypher,
     );
   }

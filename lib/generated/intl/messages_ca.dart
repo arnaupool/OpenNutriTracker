@@ -234,6 +234,21 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m51(age) =>
       "${age} anys";
 
+  static String mRemindersCopyOf(name) =>
+      "${name} (còpia)";
+
+  static String mRemindersDeleteQuestion(name) =>
+      "Vols eliminar \"${name}\"?";
+
+  static String mRemindersTestSent(channel) =>
+      "Prova enviada per ${channel}";
+
+  static String mRemindersEmailVerifiedAs(email) =>
+      "Verificat: ${email}";
+
+  static String mRemindersEmailCodeSent(email) =>
+      "Hem enviat un codi a ${email}";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "activityExample": MessageLookupByLibrary.simpleMessage(
@@ -2475,5 +2490,75 @@ class MessageLookup extends MessageLookupByLibrary {
         "homePlanStalledTitle": MessageLookupByLibrary.simpleMessage("El progrés s'ha estancat"),
         "homePlanStalledBody": MessageLookupByLibrary.simpleMessage("La teua mitjana de 7 dies no ha baixat en 21 dies. Planteja't reduir 150 kcal al dia o ampliar la data de fi."),
         "homePlanStalledAction": MessageLookupByLibrary.simpleMessage("Ajustar el pla"),
+        "remindersTitle": MessageLookupByLibrary.simpleMessage("Recordatoris"),
+        "remindersAdd": MessageLookupByLibrary.simpleMessage("Afegir recordatori"),
+        "remindersNew": MessageLookupByLibrary.simpleMessage("Nou recordatori"),
+        "remindersNameWeighIn": MessageLookupByLibrary.simpleMessage("Pesada"),
+        "remindersNameBreakfast": MessageLookupByLibrary.simpleMessage("Esmorzar"),
+        "remindersNameLunch": MessageLookupByLibrary.simpleMessage("Dinar"),
+        "remindersNameSnack": MessageLookupByLibrary.simpleMessage("Berenar"),
+        "remindersNameDinner": MessageLookupByLibrary.simpleMessage("Sopar"),
+        "remindersBodyWeighIn": MessageLookupByLibrary.simpleMessage("Pesa't en dejú abans de beure res"),
+        "remindersBodyBreakfast": MessageLookupByLibrary.simpleMessage("Registra el teu esmorzar"),
+        "remindersBodyLunch": MessageLookupByLibrary.simpleMessage("Registra el teu dinar"),
+        "remindersBodySnack": MessageLookupByLibrary.simpleMessage("Registra el teu berenar"),
+        "remindersBodyDinner": MessageLookupByLibrary.simpleMessage("Registra el teu sopar"),
+        "remindersDayMon": MessageLookupByLibrary.simpleMessage("L"),
+        "remindersDayTue": MessageLookupByLibrary.simpleMessage("M"),
+        "remindersDayWed": MessageLookupByLibrary.simpleMessage("X"),
+        "remindersDayThu": MessageLookupByLibrary.simpleMessage("J"),
+        "remindersDayFri": MessageLookupByLibrary.simpleMessage("V"),
+        "remindersDaySat": MessageLookupByLibrary.simpleMessage("S"),
+        "remindersDaySun": MessageLookupByLibrary.simpleMessage("D"),
+        "remindersFieldName": MessageLookupByLibrary.simpleMessage("Nom"),
+        "remindersFieldMessage": MessageLookupByLibrary.simpleMessage("Missatge"),
+        "remindersFieldTime": MessageLookupByLibrary.simpleMessage("Hora"),
+        "remindersFieldDays": MessageLookupByLibrary.simpleMessage("Dies"),
+        "remindersFieldChannel": MessageLookupByLibrary.simpleMessage("Canal"),
+        "remindersChannelPush": MessageLookupByLibrary.simpleMessage("Notificació web"),
+        "remindersChannelEmail": MessageLookupByLibrary.simpleMessage("Correu electrònic"),
+        "remindersChannelTelegram": MessageLookupByLibrary.simpleMessage("Telegram"),
+        "remindersSkipIfLogged": MessageLookupByLibrary.simpleMessage("Ometre si ja està registrat"),
+        "remindersDuplicate": MessageLookupByLibrary.simpleMessage("Duplicar"),
+        "remindersCopyOf": mRemindersCopyOf,
+        "remindersDeleteQuestion": mRemindersDeleteQuestion,
+        "remindersLimitReached": MessageLookupByLibrary.simpleMessage("Pots tindre fins a 15 recordatoris."),
+        "remindersSendTest": MessageLookupByLibrary.simpleMessage("Enviar una prova"),
+        "remindersTestSent": mRemindersTestSent,
+        "remindersTestFailed": MessageLookupByLibrary.simpleMessage("No s'ha pogut enviar la prova. Comprova que el canal estiga configurat."),
+        "remindersQuietTitle": MessageLookupByLibrary.simpleMessage("No molestar"),
+        "remindersQuietFrom": MessageLookupByLibrary.simpleMessage("Des de"),
+        "remindersQuietTo": MessageLookupByLibrary.simpleMessage("Fins a"),
+        "remindersChannelsTitle": MessageLookupByLibrary.simpleMessage("Canals"),
+        "remindersTelegramLinked": MessageLookupByLibrary.simpleMessage("Vinculat"),
+        "remindersTelegramLink": MessageLookupByLibrary.simpleMessage("Vincular Telegram"),
+        "remindersTelegramWaiting": MessageLookupByLibrary.simpleMessage("Esperant que premes Inicia a Telegram..."),
+        "remindersTelegramOpenBody": MessageLookupByLibrary.simpleMessage("Obri Telegram amb este enllaç i prem Inicia per acabar de vincular."),
+        "remindersTelegramOpen": MessageLookupByLibrary.simpleMessage("Obrir Telegram"),
+        "remindersTelegramDone": MessageLookupByLibrary.simpleMessage("Telegram vinculat"),
+        "remindersTelegramTimeout": MessageLookupByLibrary.simpleMessage("No s'ha vinculat Telegram. Torna-ho a provar."),
+        "remindersEmailUnverified": MessageLookupByLibrary.simpleMessage("Sense verificar"),
+        "remindersEmailVerifiedAs": mRemindersEmailVerifiedAs,
+        "remindersEmailAddress": MessageLookupByLibrary.simpleMessage("Adreça de correu"),
+        "remindersEmailSendCode": MessageLookupByLibrary.simpleMessage("Enviar el codi"),
+        "remindersEmailCodeSent": mRemindersEmailCodeSent,
+        "remindersEmailCode": MessageLookupByLibrary.simpleMessage("Codi de 6 xifres"),
+        "remindersEmailConfirm": MessageLookupByLibrary.simpleMessage("Confirmar"),
+        "remindersEmailDone": MessageLookupByLibrary.simpleMessage("Correu verificat"),
+        "remindersEmailErrorBad": MessageLookupByLibrary.simpleMessage("Esta adreça de correu no és vàlida."),
+        "remindersEmailErrorTooSoon": MessageLookupByLibrary.simpleMessage("Espera un minut abans de demanar un altre codi."),
+        "remindersEmailErrorWrongCode": MessageLookupByLibrary.simpleMessage("Codi incorrecte."),
+        "remindersEmailErrorExpired": MessageLookupByLibrary.simpleMessage("El codi ha caducat. Demana'n un de nou."),
+        "remindersEmailErrorTooMany": MessageLookupByLibrary.simpleMessage("Massa intents. Demana un codi nou."),
+        "remindersPushActive": MessageLookupByLibrary.simpleMessage("Actiu"),
+        "remindersPushNoPermission": MessageLookupByLibrary.simpleMessage("Sense permís"),
+        "remindersPushNotSupported": MessageLookupByLibrary.simpleMessage("No disponible en este navegador"),
+        "remindersPushIosNotInstalled": MessageLookupByLibrary.simpleMessage("A l'iPhone, les notificacions només funcionen si afegeixes l'app a la pantalla d'inici (Compartir, Afegir a la pantalla d'inici) i l'obris des d'allí. Telegram és més fiable."),
+        "remindersPushEnable": MessageLookupByLibrary.simpleMessage("Permetre les notificacions"),
+        "remindersPushDenied": MessageLookupByLibrary.simpleMessage("Les notificacions estan bloquejades. Permet-les en els ajustos del navegador."),
+        "remindersPushFailed": MessageLookupByLibrary.simpleMessage("No s'han pogut configurar les notificacions web."),
+        "remindersLateNote": MessageLookupByLibrary.simpleMessage("Les notificacions poden arribar amb 1-2 minuts de retard. El servidor només guarda hores, dies, zona horària i com avisar-te; mai pesos ni aliments."),
+        "remindersSyncFailed": MessageLookupByLibrary.simpleMessage("No s'ha pogut contactar amb el servidor de recordatoris. Els canvis s'enviaran més tard."),
+        "remindersError": MessageLookupByLibrary.simpleMessage("Alguna cosa ha eixit mal. Torna-ho a provar."),
       };
 }

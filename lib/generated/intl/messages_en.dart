@@ -199,6 +199,21 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String mDayCopiedSnackbar(count) => "${count} items copied";
 
+  static String mRemindersCopyOf(name) =>
+      "${name} (copy)";
+
+  static String mRemindersDeleteQuestion(name) =>
+      "Delete \"${name}\"?";
+
+  static String mRemindersTestSent(channel) =>
+      "Test sent through ${channel}";
+
+  static String mRemindersEmailVerifiedAs(email) =>
+      "Verified: ${email}";
+
+  static String mRemindersEmailCodeSent(email) =>
+      "We sent a code to ${email}";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "nutrientPanelLimitLabel": MessageLookupByLibrary.simpleMessage("limit"),
@@ -1773,5 +1788,75 @@ class MessageLookup extends MessageLookupByLibrary {
         "homePlanStalledTitle": MessageLookupByLibrary.simpleMessage("Progress has stalled"),
         "homePlanStalledBody": MessageLookupByLibrary.simpleMessage("Your 7-day average has not dropped in 21 days. Consider lowering your intake by 150 kcal per day or extending the end date."),
         "homePlanStalledAction": MessageLookupByLibrary.simpleMessage("Adjust plan"),
+        "remindersTitle": MessageLookupByLibrary.simpleMessage("Reminders"),
+        "remindersAdd": MessageLookupByLibrary.simpleMessage("Add reminder"),
+        "remindersNew": MessageLookupByLibrary.simpleMessage("New reminder"),
+        "remindersNameWeighIn": MessageLookupByLibrary.simpleMessage("Weigh-in"),
+        "remindersNameBreakfast": MessageLookupByLibrary.simpleMessage("Breakfast"),
+        "remindersNameLunch": MessageLookupByLibrary.simpleMessage("Lunch"),
+        "remindersNameSnack": MessageLookupByLibrary.simpleMessage("Snack"),
+        "remindersNameDinner": MessageLookupByLibrary.simpleMessage("Dinner"),
+        "remindersBodyWeighIn": MessageLookupByLibrary.simpleMessage("Weigh yourself fasting, before drinking anything"),
+        "remindersBodyBreakfast": MessageLookupByLibrary.simpleMessage("Log your breakfast"),
+        "remindersBodyLunch": MessageLookupByLibrary.simpleMessage("Log your lunch"),
+        "remindersBodySnack": MessageLookupByLibrary.simpleMessage("Log your snack"),
+        "remindersBodyDinner": MessageLookupByLibrary.simpleMessage("Log your dinner"),
+        "remindersDayMon": MessageLookupByLibrary.simpleMessage("M"),
+        "remindersDayTue": MessageLookupByLibrary.simpleMessage("T"),
+        "remindersDayWed": MessageLookupByLibrary.simpleMessage("W"),
+        "remindersDayThu": MessageLookupByLibrary.simpleMessage("T"),
+        "remindersDayFri": MessageLookupByLibrary.simpleMessage("F"),
+        "remindersDaySat": MessageLookupByLibrary.simpleMessage("S"),
+        "remindersDaySun": MessageLookupByLibrary.simpleMessage("S"),
+        "remindersFieldName": MessageLookupByLibrary.simpleMessage("Name"),
+        "remindersFieldMessage": MessageLookupByLibrary.simpleMessage("Message"),
+        "remindersFieldTime": MessageLookupByLibrary.simpleMessage("Time"),
+        "remindersFieldDays": MessageLookupByLibrary.simpleMessage("Days"),
+        "remindersFieldChannel": MessageLookupByLibrary.simpleMessage("Channel"),
+        "remindersChannelPush": MessageLookupByLibrary.simpleMessage("Web notification"),
+        "remindersChannelEmail": MessageLookupByLibrary.simpleMessage("Email"),
+        "remindersChannelTelegram": MessageLookupByLibrary.simpleMessage("Telegram"),
+        "remindersSkipIfLogged": MessageLookupByLibrary.simpleMessage("Skip if already logged"),
+        "remindersDuplicate": MessageLookupByLibrary.simpleMessage("Duplicate"),
+        "remindersCopyOf": mRemindersCopyOf,
+        "remindersDeleteQuestion": mRemindersDeleteQuestion,
+        "remindersLimitReached": MessageLookupByLibrary.simpleMessage("You can have up to 15 reminders."),
+        "remindersSendTest": MessageLookupByLibrary.simpleMessage("Send test"),
+        "remindersTestSent": mRemindersTestSent,
+        "remindersTestFailed": MessageLookupByLibrary.simpleMessage("The test could not be sent. Check that the channel is set up."),
+        "remindersQuietTitle": MessageLookupByLibrary.simpleMessage("Do not disturb"),
+        "remindersQuietFrom": MessageLookupByLibrary.simpleMessage("From"),
+        "remindersQuietTo": MessageLookupByLibrary.simpleMessage("Until"),
+        "remindersChannelsTitle": MessageLookupByLibrary.simpleMessage("Channels"),
+        "remindersTelegramLinked": MessageLookupByLibrary.simpleMessage("Linked"),
+        "remindersTelegramLink": MessageLookupByLibrary.simpleMessage("Link Telegram"),
+        "remindersTelegramWaiting": MessageLookupByLibrary.simpleMessage("Waiting for you to press Start in Telegram..."),
+        "remindersTelegramOpenBody": MessageLookupByLibrary.simpleMessage("Open Telegram with this link and press Start to finish linking."),
+        "remindersTelegramOpen": MessageLookupByLibrary.simpleMessage("Open Telegram"),
+        "remindersTelegramDone": MessageLookupByLibrary.simpleMessage("Telegram linked"),
+        "remindersTelegramTimeout": MessageLookupByLibrary.simpleMessage("Telegram was not linked. Try again."),
+        "remindersEmailUnverified": MessageLookupByLibrary.simpleMessage("Not verified"),
+        "remindersEmailVerifiedAs": mRemindersEmailVerifiedAs,
+        "remindersEmailAddress": MessageLookupByLibrary.simpleMessage("Email address"),
+        "remindersEmailSendCode": MessageLookupByLibrary.simpleMessage("Send code"),
+        "remindersEmailCodeSent": mRemindersEmailCodeSent,
+        "remindersEmailCode": MessageLookupByLibrary.simpleMessage("6-digit code"),
+        "remindersEmailConfirm": MessageLookupByLibrary.simpleMessage("Confirm"),
+        "remindersEmailDone": MessageLookupByLibrary.simpleMessage("Email verified"),
+        "remindersEmailErrorBad": MessageLookupByLibrary.simpleMessage("That email address is not valid."),
+        "remindersEmailErrorTooSoon": MessageLookupByLibrary.simpleMessage("Wait a minute before asking for another code."),
+        "remindersEmailErrorWrongCode": MessageLookupByLibrary.simpleMessage("Wrong code."),
+        "remindersEmailErrorExpired": MessageLookupByLibrary.simpleMessage("The code expired. Ask for a new one."),
+        "remindersEmailErrorTooMany": MessageLookupByLibrary.simpleMessage("Too many attempts. Ask for a new code."),
+        "remindersPushActive": MessageLookupByLibrary.simpleMessage("Active"),
+        "remindersPushNoPermission": MessageLookupByLibrary.simpleMessage("No permission"),
+        "remindersPushNotSupported": MessageLookupByLibrary.simpleMessage("Not available in this browser"),
+        "remindersPushIosNotInstalled": MessageLookupByLibrary.simpleMessage("On iPhone, notifications only work after adding the app to the Home Screen (Share, Add to Home Screen) and opening it from there. Telegram is more reliable."),
+        "remindersPushEnable": MessageLookupByLibrary.simpleMessage("Allow notifications"),
+        "remindersPushDenied": MessageLookupByLibrary.simpleMessage("Notifications are blocked. Allow them in the browser settings."),
+        "remindersPushFailed": MessageLookupByLibrary.simpleMessage("Web notifications could not be set up."),
+        "remindersLateNote": MessageLookupByLibrary.simpleMessage("Notifications may arrive 1-2 minutes late. The server only stores times, days, timezone and how to reach you; never weights or foods."),
+        "remindersSyncFailed": MessageLookupByLibrary.simpleMessage("Could not reach the reminders server. Changes will be sent later."),
+        "remindersError": MessageLookupByLibrary.simpleMessage("Something went wrong. Try again."),
       };
 }

@@ -115,6 +115,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onTap: () => Navigator.of(context).pushNamed(NavigationOptions.myPlanRoute),
                   ),
                 ),
+                Semantics(
+                  identifier: 'settings-reminders',
+                  child: ListTile(
+                    leading: const Icon(Icons.notifications_active_outlined),
+                    title: Text(S.of(context).remindersTitle),
+                    onTap: () => Navigator.of(context).pushNamed(NavigationOptions.remindersRoute),
+                  ),
+                ),
                 ListTile(
                   leading: const Icon(Icons.ac_unit_outlined),
                   title: Text(S.of(context).settingsUnitsLabel),

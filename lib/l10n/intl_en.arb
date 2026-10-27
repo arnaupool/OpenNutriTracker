@@ -1607,5 +1607,100 @@
   "homePlanMaintenanceDone": "Goal changed to maintenance",
   "homePlanStalledTitle": "Progress has stalled",
   "homePlanStalledBody": "Your 7-day average has not dropped in 21 days. Consider lowering your intake by 150 kcal per day or extending the end date.",
-  "homePlanStalledAction": "Adjust plan"
+  "homePlanStalledAction": "Adjust plan",
+  "remindersTitle": "Reminders",
+  "remindersAdd": "Add reminder",
+  "remindersNew": "New reminder",
+  "remindersNameWeighIn": "Weigh-in",
+  "remindersNameBreakfast": "Breakfast",
+  "remindersNameLunch": "Lunch",
+  "remindersNameSnack": "Snack",
+  "remindersNameDinner": "Dinner",
+  "remindersBodyWeighIn": "Weigh yourself fasting, before drinking anything",
+  "remindersBodyBreakfast": "Log your breakfast",
+  "remindersBodyLunch": "Log your lunch",
+  "remindersBodySnack": "Log your snack",
+  "remindersBodyDinner": "Log your dinner",
+  "remindersDayMon": "M",
+  "remindersDayTue": "T",
+  "remindersDayWed": "W",
+  "remindersDayThu": "T",
+  "remindersDayFri": "F",
+  "remindersDaySat": "S",
+  "remindersDaySun": "S",
+  "remindersFieldName": "Name",
+  "remindersFieldMessage": "Message",
+  "remindersFieldTime": "Time",
+  "remindersFieldDays": "Days",
+  "remindersFieldChannel": "Channel",
+  "remindersChannelPush": "Web notification",
+  "remindersChannelEmail": "Email",
+  "remindersChannelTelegram": "Telegram",
+  "remindersSkipIfLogged": "Skip if already logged",
+  "remindersDuplicate": "Duplicate",
+  "remindersCopyOf": "{name} (copy)",
+  "@remindersCopyOf": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "remindersDeleteQuestion": "Delete \"{name}\"?",
+  "@remindersDeleteQuestion": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "remindersLimitReached": "You can have up to 15 reminders.",
+  "remindersSendTest": "Send test",
+  "remindersTestSent": "Test sent through {channel}",
+  "@remindersTestSent": {
+    "placeholders": {
+      "channel": { "type": "String" }
+    }
+  },
+  "remindersTestFailed": "The test could not be sent. Check that the channel is set up.",
+  "remindersQuietTitle": "Do not disturb",
+  "remindersQuietFrom": "From",
+  "remindersQuietTo": "Until",
+  "remindersChannelsTitle": "Channels",
+  "remindersTelegramLinked": "Linked",
+  "remindersTelegramLink": "Link Telegram",
+  "remindersTelegramWaiting": "Waiting for you to press Start in Telegram...",
+  "remindersTelegramOpenBody": "Open Telegram with this link and press Start to finish linking.",
+  "remindersTelegramOpen": "Open Telegram",
+  "remindersTelegramDone": "Telegram linked",
+  "remindersTelegramTimeout": "Telegram was not linked. Try again.",
+  "remindersEmailUnverified": "Not verified",
+  "remindersEmailVerifiedAs": "Verified: {email}",
+  "@remindersEmailVerifiedAs": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "remindersEmailAddress": "Email address",
+  "remindersEmailSendCode": "Send code",
+  "remindersEmailCodeSent": "We sent a code to {email}",
+  "@remindersEmailCodeSent": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "remindersEmailCode": "6-digit code",
+  "remindersEmailConfirm": "Confirm",
+  "remindersEmailDone": "Email verified",
+  "remindersEmailErrorBad": "That email address is not valid.",
+  "remindersEmailErrorTooSoon": "Wait a minute before asking for another code.",
+  "remindersEmailErrorWrongCode": "Wrong code.",
+  "remindersEmailErrorExpired": "The code expired. Ask for a new one.",
+  "remindersEmailErrorTooMany": "Too many attempts. Ask for a new code.",
+  "remindersPushActive": "Active",
+  "remindersPushNoPermission": "No permission",
+  "remindersPushNotSupported": "Not available in this browser",
+  "remindersPushIosNotInstalled": "On iPhone, notifications only work after adding the app to the Home Screen (Share, Add to Home Screen) and opening it from there. Telegram is more reliable.",
+  "remindersPushEnable": "Allow notifications",
+  "remindersPushDenied": "Notifications are blocked. Allow them in the browser settings.",
+  "remindersPushFailed": "Web notifications could not be set up.",
+  "remindersLateNote": "Notifications may arrive 1-2 minutes late. The server only stores times, days, timezone and how to reach you; never weights or foods.",
+  "remindersSyncFailed": "Could not reach the reminders server. Changes will be sent later.",
+  "remindersError": "Something went wrong. Try again."
 }

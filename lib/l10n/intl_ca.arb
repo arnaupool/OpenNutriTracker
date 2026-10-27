@@ -1659,5 +1659,100 @@
   "homePlanMaintenanceDone": "Objectiu canviat a manteniment",
   "homePlanStalledTitle": "El progrés s'ha estancat",
   "homePlanStalledBody": "La teua mitjana de 7 dies no ha baixat en 21 dies. Planteja't reduir 150 kcal al dia o ampliar la data de fi.",
-  "homePlanStalledAction": "Ajustar el pla"
+  "homePlanStalledAction": "Ajustar el pla",
+  "remindersTitle": "Recordatoris",
+  "remindersAdd": "Afegir recordatori",
+  "remindersNew": "Nou recordatori",
+  "remindersNameWeighIn": "Pesada",
+  "remindersNameBreakfast": "Esmorzar",
+  "remindersNameLunch": "Dinar",
+  "remindersNameSnack": "Berenar",
+  "remindersNameDinner": "Sopar",
+  "remindersBodyWeighIn": "Pesa't en dejú abans de beure res",
+  "remindersBodyBreakfast": "Registra el teu esmorzar",
+  "remindersBodyLunch": "Registra el teu dinar",
+  "remindersBodySnack": "Registra el teu berenar",
+  "remindersBodyDinner": "Registra el teu sopar",
+  "remindersDayMon": "L",
+  "remindersDayTue": "M",
+  "remindersDayWed": "X",
+  "remindersDayThu": "J",
+  "remindersDayFri": "V",
+  "remindersDaySat": "S",
+  "remindersDaySun": "D",
+  "remindersFieldName": "Nom",
+  "remindersFieldMessage": "Missatge",
+  "remindersFieldTime": "Hora",
+  "remindersFieldDays": "Dies",
+  "remindersFieldChannel": "Canal",
+  "remindersChannelPush": "Notificació web",
+  "remindersChannelEmail": "Correu electrònic",
+  "remindersChannelTelegram": "Telegram",
+  "remindersSkipIfLogged": "Ometre si ja està registrat",
+  "remindersDuplicate": "Duplicar",
+  "remindersCopyOf": "{name} (còpia)",
+  "@remindersCopyOf": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "remindersDeleteQuestion": "Vols eliminar \"{name}\"?",
+  "@remindersDeleteQuestion": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "remindersLimitReached": "Pots tindre fins a 15 recordatoris.",
+  "remindersSendTest": "Enviar una prova",
+  "remindersTestSent": "Prova enviada per {channel}",
+  "@remindersTestSent": {
+    "placeholders": {
+      "channel": { "type": "String" }
+    }
+  },
+  "remindersTestFailed": "No s'ha pogut enviar la prova. Comprova que el canal estiga configurat.",
+  "remindersQuietTitle": "No molestar",
+  "remindersQuietFrom": "Des de",
+  "remindersQuietTo": "Fins a",
+  "remindersChannelsTitle": "Canals",
+  "remindersTelegramLinked": "Vinculat",
+  "remindersTelegramLink": "Vincular Telegram",
+  "remindersTelegramWaiting": "Esperant que premes Inicia a Telegram...",
+  "remindersTelegramOpenBody": "Obri Telegram amb este enllaç i prem Inicia per acabar de vincular.",
+  "remindersTelegramOpen": "Obrir Telegram",
+  "remindersTelegramDone": "Telegram vinculat",
+  "remindersTelegramTimeout": "No s'ha vinculat Telegram. Torna-ho a provar.",
+  "remindersEmailUnverified": "Sense verificar",
+  "remindersEmailVerifiedAs": "Verificat: {email}",
+  "@remindersEmailVerifiedAs": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "remindersEmailAddress": "Adreça de correu",
+  "remindersEmailSendCode": "Enviar el codi",
+  "remindersEmailCodeSent": "Hem enviat un codi a {email}",
+  "@remindersEmailCodeSent": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "remindersEmailCode": "Codi de 6 xifres",
+  "remindersEmailConfirm": "Confirmar",
+  "remindersEmailDone": "Correu verificat",
+  "remindersEmailErrorBad": "Esta adreça de correu no és vàlida.",
+  "remindersEmailErrorTooSoon": "Espera un minut abans de demanar un altre codi.",
+  "remindersEmailErrorWrongCode": "Codi incorrecte.",
+  "remindersEmailErrorExpired": "El codi ha caducat. Demana'n un de nou.",
+  "remindersEmailErrorTooMany": "Massa intents. Demana un codi nou.",
+  "remindersPushActive": "Actiu",
+  "remindersPushNoPermission": "Sense permís",
+  "remindersPushNotSupported": "No disponible en este navegador",
+  "remindersPushIosNotInstalled": "A l'iPhone, les notificacions només funcionen si afegeixes l'app a la pantalla d'inici (Compartir, Afegir a la pantalla d'inici) i l'obris des d'allí. Telegram és més fiable.",
+  "remindersPushEnable": "Permetre les notificacions",
+  "remindersPushDenied": "Les notificacions estan bloquejades. Permet-les en els ajustos del navegador.",
+  "remindersPushFailed": "No s'han pogut configurar les notificacions web.",
+  "remindersLateNote": "Les notificacions poden arribar amb 1-2 minuts de retard. El servidor només guarda hores, dies, zona horària i com avisar-te; mai pesos ni aliments.",
+  "remindersSyncFailed": "No s'ha pogut contactar amb el servidor de recordatoris. Els canvis s'enviaran més tard.",
+  "remindersError": "Alguna cosa ha eixit mal. Torna-ho a provar."
 }

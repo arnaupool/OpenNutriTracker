@@ -1,5 +1,10 @@
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:get_it/get_it.dart';
+import 'package:opennutritracker/features/reminders/data/reminder_data_source.dart';
+import 'package:opennutritracker/features/reminders/data/reminder_device_token_service.dart';
+import 'package:opennutritracker/features/reminders/data/reminder_platform.dart';
+import 'package:opennutritracker/features/reminders/data/reminders_api.dart';
+import 'package:opennutritracker/features/reminders/domain/reminders_service.dart';
 import 'package:opennutritracker/core/data/data_source/config_data_source.dart';
 import 'package:opennutritracker/core/data/data_source/custom_activity_template_data_source.dart';
 import 'package:opennutritracker/core/data/data_source/remote_search_cache_data_source.dart';
@@ -354,7 +359,7 @@ Future<void> initLocator() async {
     () => GetIntakeUsecase(locator()),
   );
   locator.registerLazySingleton<AddIntakeUsecase>(
-    () => AddIntakeUsecase(locator()),
+    () => AddIntakeUsecase(locator(), onIntakeAdded: (intake) => locator<RemindersService>().onIntakeAdded(intake)),
   );
   locator.registerLazySingleton<DeleteIntakeUsecase>(
     () => DeleteIntakeUsecase(locator()),
@@ -547,6 +552,20 @@ Future<void> initLocator() async {
   locator.registerLazySingleton<DietPlanDataSource>(() => DietPlanDataSource(hiveDBProvider.dietPlanBox));
   locator.registerLazySingleton<DietPlanUsecase>(
     () => DietPlanUsecase(locator(), locator(), locator(), (user) => locator<ProfileBloc>().updateUser(user)),
+  );
+
+  // Reminders (web push / email / Telegram) mirrored to the reminders backend.
+  locator.registerLazySingleton<ReminderDeviceTokenService>(() => ReminderDeviceTokenService());
+  locator.registerLazySingleton<RemindersService>(
+    () => RemindersService(
+      ReminderDataSource(hiveDBProvider.reminderBox, hiveDBProvider.reminderSettingsBox),
+      RemindersApi(
+        Env.backupSupabaseProjectUrl,
+        Env.backupSupabaseProjectAnonKey,
+        () => locator<ReminderDeviceTokenService>().readOrCreate(),
+      ),
+      createReminderPlatform(),
+    ),
   );
 
   // FAS-04: meal planning.

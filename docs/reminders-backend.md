@@ -61,12 +61,12 @@ Respuesta 200:
 
 ## Payload de la notificación
 
-`{ "title": "OpenNutriTracker", "body": "...", "url": "..." }`. El service worker abre `url`:
+`{ "title": "OpenNutriTracker", "body": "...", "url": "..." }`. El service worker (`web/push_sw.js`) abre `url`; la app lee `open` al arrancar y navega a la pantalla:
 
 | Tipo | `body` | `url` |
 | --- | --- | --- |
-| weigh_in | Pésate en ayunas antes de beber nada | `/#/weightHistory` |
-| meal | Registra tu desayuno/almuerzo/merienda/cena | `/#/addMeal?meal=<breakfast\|lunch\|snack\|dinner>` |
+| weigh_in | Pésate en ayunas antes de beber nada | `/?open=weigh_in` |
+| meal | Registra tu desayuno/almuerzo/merienda/cena | `/?open=meal&meal=<breakfast\|lunch\|snack\|dinner>` |
 | custom | la etiqueta | `/` |
 
 Push falla con 404/410: se borra la suscripción y se usa email (si verificado) o Telegram (si vinculado).

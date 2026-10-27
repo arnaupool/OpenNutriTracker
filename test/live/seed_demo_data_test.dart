@@ -23,6 +23,7 @@ import 'package:opennutritracker/core/sync/sync_remote.dart';
 import 'package:opennutritracker/core/sync/sync_state_store.dart';
 import 'package:opennutritracker/core/utils/hive_db_provider.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dart';
+import 'package:opennutritracker/features/reminders/data/reminder_dbo.dart';
 import 'package:opennutritracker/hive_registrar.g.dart';
 
 final _url = Platform.environment['SYNC_SEED_URL'];
@@ -59,6 +60,8 @@ void main() {
   setUpAll(() {
     Hive.registerAdapters();
     Hive.registerAdapter(MealPlanEntryDBOAdapter());
+    Hive.registerAdapter(ReminderDBOAdapter());
+    Hive.registerAdapter(ReminderSettingsDBOAdapter());
   });
 
   test('seed demo data', () async {
@@ -78,7 +81,9 @@ void main() {
       ..fastingBox = await open('fasting')
       ..bodyMeasurementBox = await open('body')
     ..mealPlanBox = await open('plan')
-    ..dietPlanBox = await open('diet_plan');
+    ..dietPlanBox = await open('diet_plan')
+    ..reminderBox = await open('reminders')
+    ..reminderSettingsBox = await open('reminder_settings');
 
     final random = Random(7);
     final today = DateTime.now();

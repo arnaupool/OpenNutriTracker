@@ -1659,5 +1659,100 @@
   "homePlanMaintenanceDone": "Objetivo cambiado a mantenimiento",
   "homePlanStalledTitle": "El progreso se ha estancado",
   "homePlanStalledBody": "Tu media de 7 días no ha bajado en 21 días. Plantéate reducir 150 kcal al día o ampliar la fecha de fin.",
-  "homePlanStalledAction": "Ajustar plan"
+  "homePlanStalledAction": "Ajustar plan",
+  "remindersTitle": "Recordatorios",
+  "remindersAdd": "Añadir recordatorio",
+  "remindersNew": "Nuevo recordatorio",
+  "remindersNameWeighIn": "Pesaje",
+  "remindersNameBreakfast": "Desayuno",
+  "remindersNameLunch": "Almuerzo",
+  "remindersNameSnack": "Merienda",
+  "remindersNameDinner": "Cena",
+  "remindersBodyWeighIn": "Pésate en ayunas antes de beber nada",
+  "remindersBodyBreakfast": "Registra tu desayuno",
+  "remindersBodyLunch": "Registra tu almuerzo",
+  "remindersBodySnack": "Registra tu merienda",
+  "remindersBodyDinner": "Registra tu cena",
+  "remindersDayMon": "L",
+  "remindersDayTue": "M",
+  "remindersDayWed": "X",
+  "remindersDayThu": "J",
+  "remindersDayFri": "V",
+  "remindersDaySat": "S",
+  "remindersDaySun": "D",
+  "remindersFieldName": "Nombre",
+  "remindersFieldMessage": "Mensaje",
+  "remindersFieldTime": "Hora",
+  "remindersFieldDays": "Días",
+  "remindersFieldChannel": "Canal",
+  "remindersChannelPush": "Notificación web",
+  "remindersChannelEmail": "Correo electrónico",
+  "remindersChannelTelegram": "Telegram",
+  "remindersSkipIfLogged": "Omitir si ya está registrado",
+  "remindersDuplicate": "Duplicar",
+  "remindersCopyOf": "{name} (copia)",
+  "@remindersCopyOf": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "remindersDeleteQuestion": "¿Eliminar \"{name}\"?",
+  "@remindersDeleteQuestion": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "remindersLimitReached": "Puedes tener hasta 15 recordatorios.",
+  "remindersSendTest": "Enviar prueba",
+  "remindersTestSent": "Prueba enviada por {channel}",
+  "@remindersTestSent": {
+    "placeholders": {
+      "channel": { "type": "String" }
+    }
+  },
+  "remindersTestFailed": "No se pudo enviar la prueba. Comprueba que el canal esté configurado.",
+  "remindersQuietTitle": "No molestar",
+  "remindersQuietFrom": "Desde",
+  "remindersQuietTo": "Hasta",
+  "remindersChannelsTitle": "Canales",
+  "remindersTelegramLinked": "Vinculado",
+  "remindersTelegramLink": "Vincular Telegram",
+  "remindersTelegramWaiting": "Esperando a que pulses Iniciar en Telegram...",
+  "remindersTelegramOpenBody": "Abre Telegram con este enlace y pulsa Iniciar para terminar de vincular.",
+  "remindersTelegramOpen": "Abrir Telegram",
+  "remindersTelegramDone": "Telegram vinculado",
+  "remindersTelegramTimeout": "No se vinculó Telegram. Inténtalo de nuevo.",
+  "remindersEmailUnverified": "Sin verificar",
+  "remindersEmailVerifiedAs": "Verificado: {email}",
+  "@remindersEmailVerifiedAs": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "remindersEmailAddress": "Dirección de correo",
+  "remindersEmailSendCode": "Enviar código",
+  "remindersEmailCodeSent": "Hemos enviado un código a {email}",
+  "@remindersEmailCodeSent": {
+    "placeholders": {
+      "email": { "type": "String" }
+    }
+  },
+  "remindersEmailCode": "Código de 6 cifras",
+  "remindersEmailConfirm": "Confirmar",
+  "remindersEmailDone": "Correo verificado",
+  "remindersEmailErrorBad": "Esa dirección de correo no es válida.",
+  "remindersEmailErrorTooSoon": "Espera un minuto antes de pedir otro código.",
+  "remindersEmailErrorWrongCode": "Código incorrecto.",
+  "remindersEmailErrorExpired": "El código caducó. Pide uno nuevo.",
+  "remindersEmailErrorTooMany": "Demasiados intentos. Pide un código nuevo.",
+  "remindersPushActive": "Activo",
+  "remindersPushNoPermission": "Sin permiso",
+  "remindersPushNotSupported": "No disponible en este navegador",
+  "remindersPushIosNotInstalled": "En iPhone, las notificaciones solo funcionan si añades la app a la pantalla de inicio (Compartir, Añadir a pantalla de inicio) y la abres desde allí. Telegram es más fiable.",
+  "remindersPushEnable": "Permitir notificaciones",
+  "remindersPushDenied": "Las notificaciones están bloqueadas. Permítelas en los ajustes del navegador.",
+  "remindersPushFailed": "No se pudieron configurar las notificaciones web.",
+  "remindersLateNote": "Las notificaciones pueden llegar con 1-2 minutos de retraso. El servidor solo guarda horas, días, zona horaria y cómo avisarte; nunca pesos ni alimentos.",
+  "remindersSyncFailed": "No se pudo contactar con el servidor de recordatorios. Los cambios se enviarán más tarde.",
+  "remindersError": "Algo salió mal. Inténtalo de nuevo."
 }

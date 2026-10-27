@@ -234,6 +234,21 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m51(age) =>
       "${age} años";
 
+  static String mRemindersCopyOf(name) =>
+      "${name} (copia)";
+
+  static String mRemindersDeleteQuestion(name) =>
+      "¿Eliminar \"${name}\"?";
+
+  static String mRemindersTestSent(channel) =>
+      "Prueba enviada por ${channel}";
+
+  static String mRemindersEmailVerifiedAs(email) =>
+      "Verificado: ${email}";
+
+  static String mRemindersEmailCodeSent(email) =>
+      "Hemos enviado un código a ${email}";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "activityExample": MessageLookupByLibrary.simpleMessage(
@@ -2475,5 +2490,75 @@ class MessageLookup extends MessageLookupByLibrary {
         "homePlanStalledTitle": MessageLookupByLibrary.simpleMessage("El progreso se ha estancado"),
         "homePlanStalledBody": MessageLookupByLibrary.simpleMessage("Tu media de 7 días no ha bajado en 21 días. Plantéate reducir 150 kcal al día o ampliar la fecha de fin."),
         "homePlanStalledAction": MessageLookupByLibrary.simpleMessage("Ajustar plan"),
+        "remindersTitle": MessageLookupByLibrary.simpleMessage("Recordatorios"),
+        "remindersAdd": MessageLookupByLibrary.simpleMessage("Añadir recordatorio"),
+        "remindersNew": MessageLookupByLibrary.simpleMessage("Nuevo recordatorio"),
+        "remindersNameWeighIn": MessageLookupByLibrary.simpleMessage("Pesaje"),
+        "remindersNameBreakfast": MessageLookupByLibrary.simpleMessage("Desayuno"),
+        "remindersNameLunch": MessageLookupByLibrary.simpleMessage("Almuerzo"),
+        "remindersNameSnack": MessageLookupByLibrary.simpleMessage("Merienda"),
+        "remindersNameDinner": MessageLookupByLibrary.simpleMessage("Cena"),
+        "remindersBodyWeighIn": MessageLookupByLibrary.simpleMessage("Pésate en ayunas antes de beber nada"),
+        "remindersBodyBreakfast": MessageLookupByLibrary.simpleMessage("Registra tu desayuno"),
+        "remindersBodyLunch": MessageLookupByLibrary.simpleMessage("Registra tu almuerzo"),
+        "remindersBodySnack": MessageLookupByLibrary.simpleMessage("Registra tu merienda"),
+        "remindersBodyDinner": MessageLookupByLibrary.simpleMessage("Registra tu cena"),
+        "remindersDayMon": MessageLookupByLibrary.simpleMessage("L"),
+        "remindersDayTue": MessageLookupByLibrary.simpleMessage("M"),
+        "remindersDayWed": MessageLookupByLibrary.simpleMessage("X"),
+        "remindersDayThu": MessageLookupByLibrary.simpleMessage("J"),
+        "remindersDayFri": MessageLookupByLibrary.simpleMessage("V"),
+        "remindersDaySat": MessageLookupByLibrary.simpleMessage("S"),
+        "remindersDaySun": MessageLookupByLibrary.simpleMessage("D"),
+        "remindersFieldName": MessageLookupByLibrary.simpleMessage("Nombre"),
+        "remindersFieldMessage": MessageLookupByLibrary.simpleMessage("Mensaje"),
+        "remindersFieldTime": MessageLookupByLibrary.simpleMessage("Hora"),
+        "remindersFieldDays": MessageLookupByLibrary.simpleMessage("Días"),
+        "remindersFieldChannel": MessageLookupByLibrary.simpleMessage("Canal"),
+        "remindersChannelPush": MessageLookupByLibrary.simpleMessage("Notificación web"),
+        "remindersChannelEmail": MessageLookupByLibrary.simpleMessage("Correo electrónico"),
+        "remindersChannelTelegram": MessageLookupByLibrary.simpleMessage("Telegram"),
+        "remindersSkipIfLogged": MessageLookupByLibrary.simpleMessage("Omitir si ya está registrado"),
+        "remindersDuplicate": MessageLookupByLibrary.simpleMessage("Duplicar"),
+        "remindersCopyOf": mRemindersCopyOf,
+        "remindersDeleteQuestion": mRemindersDeleteQuestion,
+        "remindersLimitReached": MessageLookupByLibrary.simpleMessage("Puedes tener hasta 15 recordatorios."),
+        "remindersSendTest": MessageLookupByLibrary.simpleMessage("Enviar prueba"),
+        "remindersTestSent": mRemindersTestSent,
+        "remindersTestFailed": MessageLookupByLibrary.simpleMessage("No se pudo enviar la prueba. Comprueba que el canal esté configurado."),
+        "remindersQuietTitle": MessageLookupByLibrary.simpleMessage("No molestar"),
+        "remindersQuietFrom": MessageLookupByLibrary.simpleMessage("Desde"),
+        "remindersQuietTo": MessageLookupByLibrary.simpleMessage("Hasta"),
+        "remindersChannelsTitle": MessageLookupByLibrary.simpleMessage("Canales"),
+        "remindersTelegramLinked": MessageLookupByLibrary.simpleMessage("Vinculado"),
+        "remindersTelegramLink": MessageLookupByLibrary.simpleMessage("Vincular Telegram"),
+        "remindersTelegramWaiting": MessageLookupByLibrary.simpleMessage("Esperando a que pulses Iniciar en Telegram..."),
+        "remindersTelegramOpenBody": MessageLookupByLibrary.simpleMessage("Abre Telegram con este enlace y pulsa Iniciar para terminar de vincular."),
+        "remindersTelegramOpen": MessageLookupByLibrary.simpleMessage("Abrir Telegram"),
+        "remindersTelegramDone": MessageLookupByLibrary.simpleMessage("Telegram vinculado"),
+        "remindersTelegramTimeout": MessageLookupByLibrary.simpleMessage("No se vinculó Telegram. Inténtalo de nuevo."),
+        "remindersEmailUnverified": MessageLookupByLibrary.simpleMessage("Sin verificar"),
+        "remindersEmailVerifiedAs": mRemindersEmailVerifiedAs,
+        "remindersEmailAddress": MessageLookupByLibrary.simpleMessage("Dirección de correo"),
+        "remindersEmailSendCode": MessageLookupByLibrary.simpleMessage("Enviar código"),
+        "remindersEmailCodeSent": mRemindersEmailCodeSent,
+        "remindersEmailCode": MessageLookupByLibrary.simpleMessage("Código de 6 cifras"),
+        "remindersEmailConfirm": MessageLookupByLibrary.simpleMessage("Confirmar"),
+        "remindersEmailDone": MessageLookupByLibrary.simpleMessage("Correo verificado"),
+        "remindersEmailErrorBad": MessageLookupByLibrary.simpleMessage("Esa dirección de correo no es válida."),
+        "remindersEmailErrorTooSoon": MessageLookupByLibrary.simpleMessage("Espera un minuto antes de pedir otro código."),
+        "remindersEmailErrorWrongCode": MessageLookupByLibrary.simpleMessage("Código incorrecto."),
+        "remindersEmailErrorExpired": MessageLookupByLibrary.simpleMessage("El código caducó. Pide uno nuevo."),
+        "remindersEmailErrorTooMany": MessageLookupByLibrary.simpleMessage("Demasiados intentos. Pide un código nuevo."),
+        "remindersPushActive": MessageLookupByLibrary.simpleMessage("Activo"),
+        "remindersPushNoPermission": MessageLookupByLibrary.simpleMessage("Sin permiso"),
+        "remindersPushNotSupported": MessageLookupByLibrary.simpleMessage("No disponible en este navegador"),
+        "remindersPushIosNotInstalled": MessageLookupByLibrary.simpleMessage("En iPhone, las notificaciones solo funcionan si añades la app a la pantalla de inicio (Compartir, Añadir a pantalla de inicio) y la abres desde allí. Telegram es más fiable."),
+        "remindersPushEnable": MessageLookupByLibrary.simpleMessage("Permitir notificaciones"),
+        "remindersPushDenied": MessageLookupByLibrary.simpleMessage("Las notificaciones están bloqueadas. Permítelas en los ajustes del navegador."),
+        "remindersPushFailed": MessageLookupByLibrary.simpleMessage("No se pudieron configurar las notificaciones web."),
+        "remindersLateNote": MessageLookupByLibrary.simpleMessage("Las notificaciones pueden llegar con 1-2 minutos de retraso. El servidor solo guarda horas, días, zona horaria y cómo avisarte; nunca pesos ni alimentos."),
+        "remindersSyncFailed": MessageLookupByLibrary.simpleMessage("No se pudo contactar con el servidor de recordatorios. Los cambios se enviarán más tarde."),
+        "remindersError": MessageLookupByLibrary.simpleMessage("Algo salió mal. Inténtalo de nuevo."),
       };
 }

@@ -27,6 +27,7 @@ import 'package:opennutritracker/core/sync/sync_state_store.dart';
 import 'package:opennutritracker/core/utils/cloud_backup_token_service.dart';
 import 'package:opennutritracker/core/utils/hive_db_provider.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dart';
+import 'package:opennutritracker/features/reminders/data/reminder_dbo.dart';
 import 'package:opennutritracker/hive_registrar.g.dart';
 
 final _url = Platform.environment['SYNC_LIVE_URL'];
@@ -51,7 +52,9 @@ Future<(HiveDBProvider, SyncEngine, SyncStateStore)> _device(SyncRemote remote) 
     ..fastingBox = await open('fasting')
     ..bodyMeasurementBox = await open('body')
     ..mealPlanBox = await open('plan')
-    ..dietPlanBox = await open('diet_plan');
+    ..dietPlanBox = await open('diet_plan')
+    ..reminderBox = await open('reminders')
+    ..reminderSettingsBox = await open('reminder_settings');
   final state = SyncStateStore(await open<dynamic>('state'));
   return (db, SyncEngine(boxes: buildSyncedBoxes(db), remote: remote, state: state), state);
 }
@@ -93,6 +96,8 @@ void main() {
   setUpAll(() {
     Hive.registerAdapters();
     Hive.registerAdapter(MealPlanEntryDBOAdapter());
+    Hive.registerAdapter(ReminderDBOAdapter());
+    Hive.registerAdapter(ReminderSettingsDBOAdapter());
   });
 
   test('two devices sync real records through Supabase', () async {
