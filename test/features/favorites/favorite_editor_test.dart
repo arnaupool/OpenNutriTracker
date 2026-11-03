@@ -8,6 +8,9 @@ import 'package:opennutritracker/features/favorites/domain/favorite_food_entity.
 import 'package:opennutritracker/features/favorites/domain/favorite_food_repository.dart';
 import 'package:opennutritracker/features/favorites/presentation/favorite_editor_screen.dart';
 import 'package:opennutritracker/features/favorites/presentation/favorite_star_button.dart';
+import 'package:opennutritracker/features/scanner/presentation/barcode_capture_page.dart';
+import 'package:opennutritracker/features/scanner/util/camera_scanner_support.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 import 'in_memory_favorites.dart';
@@ -276,6 +279,32 @@ void main() {
       expect(find.text('8410297112345'), findsNothing);
       await tapId(tester, 'favorite-save');
       expect(repo.getById('f1')!.barcodes, isEmpty);
+    });
+
+    testWidgets('on web the scan button opens the camera scanner, with typing as the secondary option', (tester) async {
+      cameraScannerSupportOverride = true;
+      addTearDown(() => cameraScannerSupportOverride = null);
+      await open(tester, const FavoriteEditorArguments());
+
+      await tapId(tester, 'favorite-barcode-scan');
+
+      expect(find.byType(BarcodeCapturePage), findsOneWidget);
+      expect(find.byType(MobileScanner), findsOneWidget);
+      expect(
+        find.byWidgetPredicate((w) => w is Semantics && w.properties.identifier == 'barcode-capture-field'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('without camera support the scanner page offers only typing', (tester) async {
+      cameraScannerSupportOverride = false;
+      addTearDown(() => cameraScannerSupportOverride = null);
+      await open(tester, const FavoriteEditorArguments());
+
+      await tapId(tester, 'favorite-barcode-scan');
+
+      expect(find.byType(BarcodeCapturePage), findsOneWidget);
+      expect(find.byType(MobileScanner), findsNothing);
     });
 
     testWidgets('editing changes the favorite, never its id or origin', (tester) async {

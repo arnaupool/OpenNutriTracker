@@ -15,11 +15,12 @@ import 'package:opennutritracker/features/home/presentation/screens/import_activ
 import 'package:opennutritracker/features/home/presentation/screens/import_meal_scanner_screen.dart';
 import 'package:opennutritracker/features/meal_detail/meal_detail_screen.dart';
 import 'package:opennutritracker/features/recipes/presentation/screens/import_recipe_scanner_screen.dart';
+import 'package:opennutritracker/features/scanner/presentation/camera_error_fallback.dart';
 import 'package:opennutritracker/features/scanner/presentation/scan_label_screen.dart';
 import 'package:opennutritracker/features/scanner/presentation/scanner_bloc.dart';
 import 'package:opennutritracker/features/scanner/util/barcode_check_digit.dart';
+import 'package:opennutritracker/features/scanner/util/camera_scanner_support.dart';
 import 'package:opennutritracker/generated/l10n.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class ScannerScreen extends StatefulWidget {
   const ScannerScreen({super.key});
@@ -60,7 +61,7 @@ class _ScannerScreenState extends State<ScannerScreen>
   void initState() {
     super.initState();
     _scannerBloc = locator<ScannerBloc>();
-    _cameraController = MobileScannerController();
+    _cameraController = MobileScannerController(facing: CameraFacing.back, formats: productAndQrBarcodeFormats);
     WidgetsBinding.instance.addObserver(this);
     unawaited(
       _cameraController.getSupportedLenses().then((lenses) {
@@ -228,7 +229,7 @@ class _ScannerScreenState extends State<ScannerScreen>
           Expanded(
             child: MobileScanner(
               controller: _cameraController,
-              errorBuilder: (context, error) => _ScannerErrorFallback(
+              errorBuilder: (context, error) => CameraErrorFallback(
                 error: error,
                 onRetry: () => unawaited(_cameraController.start()),
               ),
@@ -413,87 +414,6 @@ class _ScannerScreenState extends State<ScannerScreen>
   void _onScanAgainPressed() {
     _scannedBarcode = null;
     _scannerBloc.add(const ScannerResetEvent());
-  }
-}
-
-/// Replaces [MobileScanner]'s default black screen + unstyled English
-/// string on any camera error. [MobileScannerErrorCode.permissionDenied]
-/// gets its own dead-end-free treatment: per the package's own docs, once
-/// denied on iOS/macOS/web there is no way to re-request the permission
-/// from within the app, so "try again" alone can permanently strand the
-/// user — this offers a direct path to the OS settings screen instead.
-/// Other error codes (unsupported device, generic failures) just get a
-/// retry, matching the app's existing error-fallback style.
-class _ScannerErrorFallback extends StatelessWidget {
-  final MobileScannerException error;
-  final VoidCallback onRetry;
-
-  const _ScannerErrorFallback({required this.error, required this.onRetry});
-
-  @override
-  Widget build(BuildContext context) {
-    final s = S.of(context);
-    final isPermissionDenied =
-        error.errorCode == MobileScannerErrorCode.permissionDenied;
-    return ColoredBox(
-      color: Colors.black,
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                isPermissionDenied
-                    ? Icons.no_photography_outlined
-                    : Icons.error_outline,
-                size: 64,
-                color: Colors.white,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                isPermissionDenied
-                    ? s.scannerCameraPermissionDeniedTitle
-                    : error.errorCode.message,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleMedium?.copyWith(color: Colors.white),
-                textAlign: TextAlign.center,
-              ),
-              if (isPermissionDenied) ...[
-                const SizedBox(height: 8),
-                Text(
-                  s.scannerCameraPermissionDeniedExplanation,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.white70),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-              const SizedBox(height: 16),
-              if (isPermissionDenied)
-                Semantics(
-                  identifier: 'scanner-open-settings',
-                  child: FilledButton.icon(
-                    onPressed: () => unawaited(openAppSettings()),
-                    icon: const Icon(Icons.settings_outlined),
-                    label: Text(s.scannerOpenSettingsButton),
-                  ),
-                ),
-              const SizedBox(height: 8),
-              TextButton.icon(
-                onPressed: onRetry,
-                icon: const Icon(Icons.refresh_outlined, color: Colors.white),
-                label: Text(
-                  s.retryLabel,
-                  style: const TextStyle(color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }
 

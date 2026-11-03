@@ -1,17 +1,19 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:opennutritracker/features/scanner/presentation/camera_error_fallback.dart';
+import 'package:opennutritracker/features/scanner/util/camera_scanner_support.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 /// True for a code the favorites accept: 8 to 14 digits.
 bool isPlausibleBarcode(String code) => RegExp(r'^\d{8,14}$').hasMatch(code);
 
 /// Scans (or takes typed) a barcode and pops it as a `String`. Used to add
-/// codes to a favorite. The camera scanner is skipped on web, where only
-/// typing is offered.
+/// codes to a favorite. The rear camera opens first (on web too, through
+/// getUserMedia); typing the code is the secondary option below it, and the
+/// only one when the camera is missing or denied.
 class BarcodeCapturePage extends StatefulWidget {
   const BarcodeCapturePage({super.key});
 
@@ -28,7 +30,9 @@ class _BarcodeCapturePageState extends State<BarcodeCapturePage> {
   @override
   void initState() {
     super.initState();
-    if (!kIsWeb) _camera = MobileScannerController();
+    if (cameraScannerSupported()) {
+      _camera = MobileScannerController(facing: CameraFacing.back, formats: productBarcodeFormats);
+    }
   }
 
   @override
@@ -74,7 +78,12 @@ class _BarcodeCapturePageState extends State<BarcodeCapturePage> {
         children: [
           if (camera != null)
             Expanded(
-              child: MobileScanner(controller: camera, onDetect: _onDetect),
+              child: MobileScanner(
+                controller: camera,
+                onDetect: _onDetect,
+                errorBuilder: (context, error) =>
+                    CameraErrorFallback(error: error, onRetry: () => unawaited(camera.start())),
+              ),
             ),
           Padding(
             padding: const EdgeInsets.all(16),

@@ -1861,6 +1861,12 @@ class MessageLookup extends MessageLookupByLibrary {
             "OpenNutriTracker necessita accés a la càmera per a escanejar codis de barres. Activa\'l en la configuració del dispositiu, torna i prova-ho de nou."),
         "scannerCameraPermissionDeniedTitle": MessageLookupByLibrary.simpleMessage(
             "Cal accés a la càmera"),
+        "scannerNoCameraTitle": MessageLookupByLibrary.simpleMessage(
+            "No hi ha cap càmera disponible"),
+        "scannerNoCameraExplanation": MessageLookupByLibrary.simpleMessage(
+            "No s'ha trobat cap càmera en aquest dispositiu, o el navegador no permet usar-la. Escriu el codi."),
+        "scannerCameraPermissionDeniedWebExplanation": MessageLookupByLibrary.simpleMessage(
+            "L'accés a la càmera està bloquejat. Permet la càmera per a aquest lloc en la configuració del navegador, recarrega la pàgina i torna-ho a provar."),
         "scannerManualEntryButton": MessageLookupByLibrary.simpleMessage(
             "Escriure el codi a mà"),
         "scannerManualEntryCancel": MessageLookupByLibrary.simpleMessage(

@@ -34,6 +34,13 @@
 
   <title>OpenNutriTracker</title>
   <link rel="manifest" href="manifest.json">
+  <!--
+    Barcode decoder for the camera scanner (mobile_scanner on web). iOS Safari has no BarcodeDetector, so
+    the package uses ZXing. It looks for a script with this exact id before fetching one from unpkg.com, so
+    shipping the file here keeps the scanner same-origin and working without third-party requests.
+    @zxing/library 0.21.3 (Apache-2.0), umd/index.min.js, unmodified.
+  -->
+  <script id="mobile-scanner-barcode-reader" src="zxing-library-0.21.3.min.js"></script>
 </head>
 <body>
   <!--

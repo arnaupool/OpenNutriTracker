@@ -1275,6 +1275,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("saturated fat"),
         "scanProductLabel":
             MessageLookupByLibrary.simpleMessage("Scan Product"),
+        "scannerNoCameraTitle": MessageLookupByLibrary.simpleMessage(
+            "No camera available"),
+        "scannerNoCameraExplanation": MessageLookupByLibrary.simpleMessage(
+            "No camera was found on this device, or the browser does not allow using it. Type the code instead."),
+        "scannerCameraPermissionDeniedWebExplanation": MessageLookupByLibrary.simpleMessage(
+            "Camera access is blocked. Allow the camera for this site in your browser settings, reload the page and try again."),
         "scannerManualEntryButton":
             MessageLookupByLibrary.simpleMessage("Type code manually"),
         "scannerManualEntryCancel":

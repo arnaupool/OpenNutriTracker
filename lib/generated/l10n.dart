@@ -5394,6 +5394,36 @@ class S {
     );
   }
 
+  /// `No camera available`
+  String get scannerNoCameraTitle {
+    return Intl.message(
+      'No camera available',
+      name: 'scannerNoCameraTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No camera was found on this device, or the browser does not allow using it. Type the code instead.`
+  String get scannerNoCameraExplanation {
+    return Intl.message(
+      'No camera was found on this device, or the browser does not allow using it. Type the code instead.',
+      name: 'scannerNoCameraExplanation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Camera access is blocked. Allow the camera for this site in your browser settings, reload the page and try again.`
+  String get scannerCameraPermissionDeniedWebExplanation {
+    return Intl.message(
+      'Camera access is blocked. Allow the camera for this site in your browser settings, reload the page and try again.',
+      name: 'scannerCameraPermissionDeniedWebExplanation',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Open Settings`
   String get scannerOpenSettingsButton {
     return Intl.message(

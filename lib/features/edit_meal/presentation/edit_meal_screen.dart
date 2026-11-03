@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:logging/logging.dart';
 import 'package:opennutritracker/core/domain/entity/intake_type_entity.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:opennutritracker/features/scanner/util/camera_scanner_support.dart';
 import 'package:opennutritracker/core/presentation/widgets/user_image_picker_tile.dart';
 import 'package:opennutritracker/core/utils/barcode_validator.dart';
 import 'package:opennutritracker/core/utils/user_image_storage.dart';
@@ -1097,7 +1098,10 @@ class _EditMealBarcodeScanPage extends StatefulWidget {
 class _EditMealBarcodeScanPageState extends State<_EditMealBarcodeScanPage>
     with WidgetsBindingObserver {
   static final _log = Logger('EditMealBarcodeScan');
-  final MobileScannerController _controller = MobileScannerController();
+  final MobileScannerController _controller = MobileScannerController(
+    facing: CameraFacing.back,
+    formats: productBarcodeFormats,
+  );
   bool _done = false;
 
   @override
