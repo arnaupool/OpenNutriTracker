@@ -306,11 +306,13 @@ class AccountActions {
     );
   }
 
-  /// The default profile can not be deleted: it stays as a local profile
-  /// with its data. Any other profile is removed after switching away.
+  /// Decision 10: the account and its data leave the device. The default
+  /// profile can not be removed, so it is wiped and stays as an empty local
+  /// profile (first-run choice); any other profile is removed after
+  /// switching away.
   Future<void> _removeOrUnlink(BuildContext context, AppProfile profile) async {
     if (profile.isDefault) {
-      await store.setAccount(profile.id, null);
+      await switchProfile(context, AppProfile.defaultId, afterSwitch: store.wipeDefault);
       return;
     }
     await switchProfile(context, AppProfile.defaultId, afterSwitch: () => store.remove(profile.id));

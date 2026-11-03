@@ -74,9 +74,17 @@ class _Sync implements SyncService {
 
 class _Store implements ProfileStore {
   final unlinked = <String>[];
+  var wiped = 0;
+  final removed = <String>[];
 
   @override
   Future<void> setAccount(String id, AccountLink? account) async => unlinked.add(id);
+
+  @override
+  Future<void> wipeDefault() async => wiped++;
+
+  @override
+  Future<void> remove(String id) async => removed.add(id);
 
   @override
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError('${invocation.memberName}');
@@ -257,6 +265,8 @@ void main() {
       account: AccountLink(userId: 'u1', email: 'me@example.org'),
     );
 
+    var signingOut = profile;
+
     Future<void> pumpButton(WidgetTester tester) async {
       final actions = AccountActions(
         sessions: sessions,
@@ -265,13 +275,13 @@ void main() {
         admin: _Admin(),
         store: store,
         detachReminders: () async => detached++,
-        switchProfile: (context, id, {afterSwitch}) async {},
+        switchProfile: (context, id, {afterSwitch}) async => await afterSwitch?.call(),
       );
       await tester.pumpWidget(
         _app(
           Builder(
             builder: (context) =>
-                TextButton(onPressed: () => actions.signOut(context, profile), child: const Text('go')),
+                TextButton(onPressed: () => actions.signOut(context, signingOut), child: const Text('go')),
           ),
         ),
       );
@@ -285,6 +295,7 @@ void main() {
       sync = _Sync();
       store = _Store();
       detached = 0;
+      signingOut = profile;
     });
 
     testWidgets('signs out straight away when everything is uploaded', (tester) async {
@@ -292,7 +303,25 @@ void main() {
       expect(find.text('Changes not uploaded'), findsNothing);
       expect(sessions.calls, ['signOut:default']);
       expect(detached, 1);
-      expect(store.unlinked, ['default']);
+      expect(store.wiped, 1);
+      expect(store.removed, isEmpty);
+    });
+
+    testWidgets('wipes the default profile only after the pending-changes confirmation', (tester) async {
+      sync.synced = false;
+      await pumpButton(tester);
+      expect(store.wiped, 0);
+      await tester.tap(find.text('CANCEL'));
+      await tester.pumpAndSettle();
+      expect(store.wiped, 0);
+    });
+
+    testWidgets('wipes the default profile after losing changes explicitly', (tester) async {
+      sync.synced = false;
+      await pumpButton(tester);
+      await tester.tap(find.text('Sign out and lose changes'));
+      await tester.pumpAndSettle();
+      expect(store.wiped, 1);
     });
 
     testWidgets('warns when changes are pending and does nothing if cancelled', (tester) async {

@@ -145,20 +145,33 @@ class ProfileStore {
   }
 
   /// Deletes a profile that is not the active one, with its boxes and its
-  /// secrets (backup token, sync key, account session and data key).
+  /// secrets (legacy pairing tokens, account session and data key).
   Future<void> remove(String id) async {
     if (id == AppProfile.defaultId) throw ArgumentError('The default profile cannot be removed');
     if (id == ProfileScope.activeId) throw ArgumentError('Switch to another profile first');
-    for (final name in HiveDBProvider.profileBoxNames) {
-      await Hive.deleteBoxFromDisk('p_${id}_$name');
-    }
-    for (final key in secretKeys) {
-      await _storage.delete(key: ProfileScope.secretFor(key, id));
-    }
+    await _deleteData(id);
     await _save([
       for (final p in await all())
         if (p.id != id) p,
     ]);
+  }
+
+  /// Signing out of the default profile (which cannot be removed): deletes
+  /// its boxes and secrets and leaves an empty local profile, so the app
+  /// starts at the first-run choice. Hive must be closed (the app reloads
+  /// afterwards), as the boxes are deleted from disk.
+  Future<void> wipeDefault() async {
+    await _deleteData(AppProfile.defaultId);
+    await _save([for (final p in await all()) p.isDefault ? const AppProfile(AppProfile.defaultId, '') : p]);
+  }
+
+  Future<void> _deleteData(String id) async {
+    for (final name in HiveDBProvider.profileBoxNames) {
+      await Hive.deleteBoxFromDisk(id == AppProfile.defaultId ? name : 'p_${id}_$name');
+    }
+    for (final key in secretKeys) {
+      await _storage.delete(key: ProfileScope.secretFor(key, id));
+    }
   }
 
   Future<void> _save(List<AppProfile> profiles) =>
