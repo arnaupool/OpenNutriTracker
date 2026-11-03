@@ -6,6 +6,7 @@ import 'package:logging/logging.dart';
 import 'package:opennutritracker/core/domain/entity/intake_type_entity.dart';
 import 'package:opennutritracker/core/presentation/widgets/meal_value_unit_text.dart';
 import 'package:opennutritracker/core/presentation/widgets/image_full_screen.dart';
+import 'package:opennutritracker/core/presentation/widgets/meal_type_selector.dart';
 import 'package:opennutritracker/core/domain/usecase/get_config_usecase.dart';
 import 'package:opennutritracker/core/utils/energy_display.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
@@ -50,6 +51,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
   late MealEntity meal;
   late DateTime _day;
   late IntakeTypeEntity intakeTypeEntity;
+  bool _mealTypeChosen = false;
 
   /// Set when the meal shown is a favorite (opened from the Favorites tab, a
   /// scan that matched one, or after its star was used).
@@ -84,7 +86,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
     final args = ModalRoute.of(context)?.settings.arguments as MealDetailScreenArguments;
     meal = args.mealEntity;
     _day = args.day;
-    intakeTypeEntity = args.intakeTypeEntity;
+    if (!_mealTypeChosen) intakeTypeEntity = args.intakeTypeEntity;
     _favorite ??= args.favorite;
     _usesImperialUnits = args.usesImperialUnits;
 
@@ -271,6 +273,14 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
         ),
         SliverList(
           delegate: SliverChildListDelegate([
+            const SizedBox(height: 16),
+            MealTypeSelector(
+              value: intakeTypeEntity,
+              onChanged: (type) => setState(() {
+                _mealTypeChosen = true;
+                intakeTypeEntity = type;
+              }),
+            ),
             const SizedBox(height: 16),
             Center(
               child: ClipRRect(

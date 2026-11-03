@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:opennutritracker/core/data/repository/config_repository.dart';
-import 'package:opennutritracker/core/domain/entity/intake_type_entity.dart';
-import 'package:opennutritracker/core/domain/entity/user_activity_entity.dart';
 import 'package:opennutritracker/core/domain/entity/weight_log_entity.dart';
 import 'package:opennutritracker/core/domain/usecase/add_weight_log_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_user_usecase.dart';
 import 'package:opennutritracker/core/utils/calc/unit_calc.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/core/utils/navigation_options.dart';
-import 'package:opennutritracker/features/add_activity/presentation/add_activity_screen.dart';
+import 'package:opennutritracker/features/add_meal/domain/meal_for_time.dart';
+import 'package:opennutritracker/features/scanner/scanner_screen.dart';
 import 'package:opennutritracker/features/add_meal/presentation/add_meal_screen.dart';
 import 'package:opennutritracker/features/add_meal/presentation/add_meal_type.dart';
 import 'package:opennutritracker/features/profile/presentation/bloc/profile_bloc.dart';
@@ -17,7 +16,9 @@ import 'package:opennutritracker/generated/l10n.dart';
 
 class AddItemBottomSheet extends StatelessWidget {
   final DateTime day;
-  final bool showActivityTracking;
+
+  /// Clock, injectable for tests.
+  final DateTime Function()? now;
   final GetUserUsecase? getUserUsecase;
   final ConfigRepository? configRepository;
   final AddWeightLogUsecase? addWeightLogUsecase;
@@ -26,7 +27,7 @@ class AddItemBottomSheet extends StatelessWidget {
   const AddItemBottomSheet({
     super.key,
     required this.day,
-    this.showActivityTracking = true,
+    this.now,
     this.getUserUsecase,
     this.configRepository,
     this.addWeightLogUsecase,
@@ -55,25 +56,18 @@ class AddItemBottomSheet extends StatelessWidget {
             child: ListTile(
               title: Text(
                 S.of(context).weightLabel,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Theme.of(context).colorScheme.onSurface),
               ),
               subtitle: Text(
                 S.of(context).addItemWeightExample,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
               // ignore: sized_box_for_whitespace
               leading: Container(
                 height: double.infinity,
-                child: Icon(
-                  Icons.monitor_weight_outlined,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+                child: Icon(Icons.monitor_weight_outlined, color: Theme.of(context).colorScheme.onSurface),
               ),
               onTap: () => _logWeight(context),
             ),
@@ -83,169 +77,72 @@ class AddItemBottomSheet extends StatelessWidget {
             child: ListTile(
               title: Text(
                 S.of(context).profileBodyMeasurementsTitle,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Theme.of(context).colorScheme.onSurface),
               ),
               subtitle: Text(
                 S.of(context).addItemBodyMeasurementsExample,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
               // ignore: sized_box_for_whitespace
               leading: Container(
                 height: double.infinity,
-                child: Icon(
-                  Icons.straighten_outlined,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+                child: Icon(Icons.straighten_outlined, color: Theme.of(context).colorScheme.onSurface),
               ),
               onTap: () => _showBodyMeasurementsScreen(context),
             ),
           ),
           const Divider(indent: 16, endIndent: 16),
-          if (showActivityTracking) ...[
-            Semantics(
-              identifier: 'add-item-activity',
-              child: ListTile(
-                title: Text(
-                  S.of(context).activityLabel,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-                subtitle: Text(
-                  S.of(context).activityExample,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withValues(alpha: 0.7),
-                  ),
-                ),
-                // ignore: sized_box_for_whitespace
-                leading: Container(
-                  height: double.infinity,
-                  child: Icon(
-                    UserActivityEntity.getIconData(),
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-                onTap: () {
-                  _showAddActivityScreen(context);
-                },
-              ),
-            ),
-            const Divider(indent: 16, endIndent: 16),
-          ],
           Semantics(
-            identifier: 'add-item-breakfast',
+            identifier: 'add-item-search',
             child: ListTile(
               title: Text(
-                S.of(context).breakfastLabel,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+                S.of(context).addItemMenuSearchLabel,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Theme.of(context).colorScheme.onSurface),
               ),
               subtitle: Text(
-                S.of(context).breakfastExample,
+                S.of(context).addItemMenuSearchSubtitle,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
-              // ignore: sized_box_for_whitespace
-              leading: Container(
-                height: double.infinity,
-                child: Icon(IntakeTypeEntity.breakfast.getIconData()),
-              ),
-              onTap: () {
-                _showAddItemScreen(context, AddMealType.breakfastType);
-              },
+              leading: Icon(Icons.search_outlined, color: Theme.of(context).colorScheme.onSurface),
+              onTap: () => _openSearch(context),
             ),
           ),
           Semantics(
-            identifier: 'add-item-lunch',
+            identifier: 'add-item-scan',
             child: ListTile(
               title: Text(
-                S.of(context).lunchLabel,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+                S.of(context).addItemMenuScanProductLabel,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Theme.of(context).colorScheme.onSurface),
               ),
               subtitle: Text(
-                S.of(context).lunchExample,
+                S.of(context).addItemMenuScanProductSubtitle,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
-              // ignore: sized_box_for_whitespace
-              leading: Container(
-                height: double.infinity,
-                child: Icon(IntakeTypeEntity.lunch.getIconData()),
-              ),
-              onTap: () {
-                _showAddItemScreen(context, AddMealType.lunchType);
-              },
+              leading: Icon(Icons.qr_code_scanner_outlined, color: Theme.of(context).colorScheme.onSurface),
+              onTap: () => _openScanner(context),
             ),
           ),
           Semantics(
-            identifier: 'add-item-dinner',
+            identifier: 'add-item-ai',
             child: ListTile(
               title: Text(
-                S.of(context).dinnerLabel,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+                S.of(context).addItemMenuMagicLabel,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Theme.of(context).colorScheme.onSurface),
               ),
               subtitle: Text(
-                S.of(context).dinnerExample,
+                S.of(context).addItemMenuMagicSubtitle,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
-              // ignore: sized_box_for_whitespace
-              leading: Container(
-                height: double.infinity,
-                child: Icon(IntakeTypeEntity.dinner.getIconData()),
-              ),
-              onTap: () {
-                _showAddItemScreen(context, AddMealType.dinnerType);
-              },
-            ),
-          ),
-          Semantics(
-            identifier: 'add-item-snack',
-            child: ListTile(
-              title: Text(
-                S.of(context).snackLabel,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-              subtitle: Text(
-                S.of(context).snackExample,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
-              ),
-              // ignore: sized_box_for_whitespace
-              leading: Container(
-                height: double.infinity,
-                child: Icon(IntakeTypeEntity.snack.getIconData()),
-              ),
-              onTap: () {
-                _showAddItemScreen(context, AddMealType.snackType);
-              },
+              leading: Icon(Icons.auto_awesome_outlined, color: Theme.of(context).colorScheme.onSurface),
+              onTap: () => _openMagic(context),
             ),
           ),
         ],
@@ -253,20 +150,30 @@ class AddItemBottomSheet extends StatelessWidget {
     );
   }
 
-  void _showAddItemScreen(BuildContext context, AddMealType itemType) {
+  /// Meal the item is logged to: chosen from the current local time, and
+  /// changeable on the following screen before saving.
+  AddMealType _mealType() => AddMealExtension.fromIntakeTypeEntity(mealForTime(now?.call() ?? DateTime.now()));
+
+  void _openSearch(BuildContext context) {
+    final args = AddMealScreenArguments(_mealType(), day);
     Navigator.of(context).pop(); // Close bottom sheet
-    Navigator.of(context).pushNamed(
-      NavigationOptions.addItemMenuRoute,
-      arguments: AddMealScreenArguments(itemType, day),
-    );
+    Navigator.of(context).pushNamed(NavigationOptions.addMealRoute, arguments: args);
   }
 
-  void _showAddActivityScreen(BuildContext context) {
+  /// On web there is no camera scanner; the scanner screen itself falls back
+  /// to manual barcode entry there.
+  void _openScanner(BuildContext context) {
+    final type = _mealType();
     Navigator.of(context).pop();
-    Navigator.of(context).pushNamed(
-      NavigationOptions.addActivityRoute,
-      arguments: AddActivityScreenArguments(day: day),
-    );
+    Navigator.of(
+      context,
+    ).pushNamed(NavigationOptions.scannerRoute, arguments: ScannerScreenArguments(day, type.getIntakeType()));
+  }
+
+  void _openMagic(BuildContext context) {
+    final args = AddMealScreenArguments(_mealType(), day);
+    Navigator.of(context).pop();
+    Navigator.of(context).pushNamed(NavigationOptions.magicRoute, arguments: args);
   }
 
   /// Unlike Weight, measurements are a multi-field (7 optional metrics)
@@ -291,14 +198,11 @@ class AddItemBottomSheet extends StatelessWidget {
   /// deactivated by the time execution resumes.
   Future<void> _logWeight(BuildContext context) async {
     final userUsecase = getUserUsecase ?? locator<GetUserUsecase>();
-    final config = await (configRepository ?? locator<ConfigRepository>())
-        .getConfig();
+    final config = await (configRepository ?? locator<ConfigRepository>()).getConfig();
     final user = await userUsecase.getUserData();
     if (!context.mounted) return;
 
-    final displayWeight = config.usesImperialUnits
-        ? UnitCalc.kgToLbs(user.weightKG)
-        : user.weightKG;
+    final displayWeight = config.usesImperialUnits ? UnitCalc.kgToLbs(user.weightKG) : user.weightKG;
 
     Navigator.of(context).pop(); // Close bottom sheet
     // The bottom sheet's context is intentionally defunct from here on —
@@ -307,21 +211,13 @@ class AddItemBottomSheet extends StatelessWidget {
     // to check on this pop-and-forget widget.
     final newWeight = await showDialog<double>(
       context: context,
-      builder: (context) => SetWeightDialog(
-        userWeight: displayWeight,
-        usesImperialUnits: config.usesImperialUnits,
-      ),
+      builder: (context) => SetWeightDialog(userWeight: displayWeight, usesImperialUnits: config.usesImperialUnits),
     );
     if (newWeight == null) return;
 
-    final newWeightKg = config.usesImperialUnits
-        ? UnitCalc.lbsToKg(newWeight)
-        : newWeight;
+    final newWeightKg = config.usesImperialUnits ? UnitCalc.lbsToKg(newWeight) : newWeight;
     await (addWeightLogUsecase ?? locator<AddWeightLogUsecase>()).addEntry(
-      WeightLogEntity(
-        date: DateTime(day.year, day.month, day.day),
-        weightKg: newWeightKg,
-      ),
+      WeightLogEntity(date: DateTime(day.year, day.month, day.day), weightKg: newWeightKg),
     );
 
     // AddWeightLogUsecase already persisted the user's new current weight

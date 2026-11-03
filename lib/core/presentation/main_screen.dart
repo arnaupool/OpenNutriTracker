@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:opennutritracker/core/domain/usecase/get_config_usecase.dart';
 import 'package:opennutritracker/core/presentation/widgets/add_item_bottom_sheet.dart';
 import 'package:opennutritracker/core/presentation/widgets/responsive_layout.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
@@ -325,9 +324,7 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  Future<void> _onFabPressed(BuildContext context) async {
-    final config = await locator<GetConfigUsecase>().getConfig();
-    if (!context.mounted) return;
+  void _onFabPressed(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -338,10 +335,7 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
       builder: (BuildContext context) {
-        return AddItemBottomSheet(
-          day: DateTime.now(),
-          showActivityTracking: config.showActivityTracking,
-        );
+        return AddItemBottomSheet(day: DateTime.now());
       },
     );
   }

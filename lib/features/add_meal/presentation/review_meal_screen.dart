@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:opennutritracker/core/domain/entity/intake_entity.dart';
+import 'package:opennutritracker/core/domain/entity/intake_type_entity.dart';
+import 'package:opennutritracker/core/presentation/widgets/meal_type_selector.dart';
 import 'package:opennutritracker/core/domain/entity/recipe_entity.dart';
 import 'package:opennutritracker/core/domain/entity/recipe_ingredient_entity.dart';
 import 'package:opennutritracker/core/domain/usecase/add_intake_usecase.dart';
@@ -86,6 +88,7 @@ class _ReviewMealScreenState extends State<ReviewMealScreen> {
 
   bool _argsLoaded = false;
   late ReviewMealScreenArguments _args;
+  late IntakeTypeEntity _mealType;
   List<_ReviewItem> _items = [];
 
   bool _addingAll = false;
@@ -100,6 +103,7 @@ class _ReviewMealScreenState extends State<ReviewMealScreen> {
         ModalRoute.of(context)?.settings.arguments
             as ReviewMealScreenArguments;
     _items = _args.items.map(_ReviewItem.fromMagicItem).toList();
+    _mealType = _args.mealType.getIntakeType();
     _argsLoaded = true;
   }
 
@@ -156,7 +160,7 @@ class _ReviewMealScreenState extends State<ReviewMealScreen> {
       id: IdGenerator.getUniqueID(),
       unit: 'g',
       amount: item.currentGrams,
-      type: _args.mealType.getIntakeType(),
+      type: _mealType,
       meal: meal,
       dateTime: _args.day,
     );
@@ -286,6 +290,10 @@ class _ReviewMealScreenState extends State<ReviewMealScreen> {
           _HeaderBanner(
             imageBytes: _args.imageBytes,
             totalKcalLabel: s.reviewMealTotalKcalLabel(_totalKcal.round()),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: MealTypeSelector(value: _mealType, onChanged: (type) => setState(() => _mealType = type)),
           ),
           Expanded(
             child: Semantics(

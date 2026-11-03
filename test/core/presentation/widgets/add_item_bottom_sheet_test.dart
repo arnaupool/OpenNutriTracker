@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:opennutritracker/core/data/repository/config_repository.dart';
 import 'package:opennutritracker/core/domain/entity/app_theme_entity.dart';
 import 'package:opennutritracker/core/domain/entity/config_entity.dart';
+import 'package:opennutritracker/core/domain/entity/intake_type_entity.dart';
 import 'package:opennutritracker/core/domain/entity/user_entity.dart';
 import 'package:opennutritracker/core/domain/entity/user_gender_entity.dart';
 import 'package:opennutritracker/core/domain/entity/user_pal_entity.dart';
@@ -12,7 +13,10 @@ import 'package:opennutritracker/core/domain/usecase/add_weight_log_usecase.dart
 import 'package:opennutritracker/core/domain/usecase/get_user_usecase.dart';
 import 'package:opennutritracker/core/presentation/widgets/add_item_bottom_sheet.dart';
 import 'package:opennutritracker/core/utils/navigation_options.dart';
+import 'package:opennutritracker/features/add_meal/presentation/add_meal_screen.dart';
+import 'package:opennutritracker/features/add_meal/presentation/add_meal_type.dart';
 import 'package:opennutritracker/features/profile/presentation/bloc/profile_bloc.dart';
+import 'package:opennutritracker/features/scanner/scanner_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 class _FakeGetUserUsecase extends Fake implements GetUserUsecase {
@@ -59,76 +63,106 @@ UserEntity _buildUser({double weightKG = 84.0}) {
   );
 }
 
-// #277: the Show Activity Tracking toggle in Settings has been wired to
-// hide every activity-related surface in the app. AddItemBottomSheet is
-// the FAB's add-something menu — when the toggle is off, the Activity
-// row at the top should disappear so the meal options are all that's on
-// offer. Locking the behaviour in here so a future refactor that drops
-// the conditional or its default trips the test instead of slipping past
-// review.
-
-Widget _wrapWithMaterial(Widget child) {
+Widget _wrapWithMaterial(Widget child, {List<NavigatorObserver> observers = const []}) {
   return MaterialApp(
+    key: UniqueKey(),
     localizationsDelegates: const [S.delegate],
     supportedLocales: S.delegate.supportedLocales,
-    home: Scaffold(body: child),
+    navigatorObservers: observers,
+    home: Builder(
+      builder: (context) => Scaffold(
+        body: Center(
+          child: ElevatedButton(
+            onPressed: () => showModalBottomSheet<void>(context: context, builder: (_) => child),
+            child: const Text('open'),
+          ),
+        ),
+      ),
+    ),
+    onGenerateRoute: (settings) =>
+        MaterialPageRoute(settings: settings, builder: (_) => Scaffold(body: Text('dest:${settings.name}'))),
   );
 }
 
+class _PushObserver extends NavigatorObserver {
+  final List<RouteSettings> pushed = [];
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) => pushed.add(route.settings);
+}
+
 void main() {
-  testWidgets(
-    'shows the Activity tile when showActivityTracking is true',
-    (tester) async {
-      await tester.pumpWidget(_wrapWithMaterial(
-        AddItemBottomSheet(
-          day: DateTime(2026, 1, 1),
-          showActivityTracking: true,
-        ),
-      ));
-      await tester.pumpAndSettle();
+  testWidgets('lists exactly Weight, Body measurements, Search, Scan, AI in that order', (tester) async {
+    tester.view.physicalSize = const Size(1080, 3000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(_wrapWithMaterial(AddItemBottomSheet(day: DateTime(2026, 1, 1))));
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
 
-      expect(find.text(S.current.activityLabel), findsOneWidget);
-      expect(find.text(S.current.weightLabel), findsOneWidget);
-      expect(
-        find.text(S.current.profileBodyMeasurementsTitle),
-        findsOneWidget,
-      );
-      expect(find.text(S.current.breakfastLabel), findsOneWidget);
-    },
-  );
+    final labels = [
+      S.current.weightLabel,
+      S.current.profileBodyMeasurementsTitle,
+      S.current.addItemMenuSearchLabel,
+      S.current.addItemMenuScanProductLabel,
+      S.current.addItemMenuMagicLabel,
+    ];
+    final ys = [for (final l in labels) tester.getTopLeft(find.text(l)).dy];
+    expect(ys, orderedEquals([...ys]..sort()));
+    expect(find.byType(ListTile), findsNWidgets(5));
+    for (final removed in [
+      S.current.activityLabel,
+      S.current.breakfastLabel,
+      S.current.lunchLabel,
+      S.current.dinnerLabel,
+      S.current.snackLabel,
+    ]) {
+      expect(find.text(removed), findsNothing);
+    }
+  });
 
-  testWidgets(
-    'hides the Activity tile when showActivityTracking is false',
-    (tester) async {
-      await tester.pumpWidget(_wrapWithMaterial(
-        AddItemBottomSheet(
-          day: DateTime(2026, 1, 1),
-          showActivityTracking: false,
-        ),
-      ));
-      await tester.pumpAndSettle();
+  for (final c in [
+    (DateTime(2026, 1, 1, 8, 0), IntakeTypeEntity.breakfast),
+    (DateTime(2026, 1, 1, 12, 30), IntakeTypeEntity.lunch),
+    (DateTime(2026, 1, 1, 17, 0), IntakeTypeEntity.snack),
+    (DateTime(2026, 1, 1, 21, 0), IntakeTypeEntity.dinner),
+  ]) {
+    testWidgets('Search, Scan and AI use the meal for ${c.$1.hour}:${c.$1.minute}', (tester) async {
+      tester.view.physicalSize = const Size(1080, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await S.load(const Locale('en'));
+      final day = DateTime(2026, 1, 1, 9);
+      for (final (label, route) in [
+        (S.current.addItemMenuSearchLabel, NavigationOptions.addMealRoute),
+        (S.current.addItemMenuScanProductLabel, NavigationOptions.scannerRoute),
+        (S.current.addItemMenuMagicLabel, NavigationOptions.magicRoute),
+      ]) {
+        final observer = _PushObserver();
+        await tester.pumpWidget(
+          _wrapWithMaterial(AddItemBottomSheet(day: day, now: () => c.$1), observers: [observer]),
+        );
+        await tester.tap(find.text('open'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(label));
+        await tester.pumpAndSettle();
 
-      expect(find.text(S.current.activityLabel), findsNothing);
-      // Weight and meal tiles still render so the sheet stays useful.
-      expect(find.text(S.current.weightLabel), findsOneWidget);
-      expect(find.text(S.current.breakfastLabel), findsOneWidget);
-      expect(find.text(S.current.lunchLabel), findsOneWidget);
-      expect(find.text(S.current.dinnerLabel), findsOneWidget);
-      expect(find.text(S.current.snackLabel), findsOneWidget);
-    },
-  );
-
-  testWidgets(
-    'defaults to showing the Activity tile when the flag is omitted',
-    (tester) async {
-      await tester.pumpWidget(_wrapWithMaterial(
-        AddItemBottomSheet(day: DateTime(2026, 1, 1)),
-      ));
-      await tester.pumpAndSettle();
-
-      expect(find.text(S.current.activityLabel), findsOneWidget);
-    },
-  );
+        final pushed = observer.pushed.last;
+        expect(pushed.name, route);
+        if (pushed.arguments is AddMealScreenArguments) {
+          final args = pushed.arguments as AddMealScreenArguments;
+          expect(args.mealType.getIntakeType(), c.$2);
+          expect(args.day, day);
+        } else {
+          final args = pushed.arguments as ScannerScreenArguments;
+          expect(args.intakeTypeEntity, c.$2);
+          expect(args.day, day);
+        }
+      }
+    });
+  }
 
   testWidgets(
     'tapping Weight closes the sheet, opens the weight dialog, and '
