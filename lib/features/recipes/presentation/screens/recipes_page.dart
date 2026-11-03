@@ -93,6 +93,9 @@ class _RecipesPageState extends State<RecipesPage> with WidgetsBindingObserver, 
                   identifier: 'recipes-tabs',
                   child: TabBar(
                     controller: _tabController,
+                    // Three tabs do not fit in a narrow screen in every language.
+                    isScrollable: true,
+                    tabAlignment: TabAlignment.start,
                     tabs: [
                       Tab(text: s.recipesLabel),
                       Tab(text: s.favoritesTitle),

@@ -59,7 +59,7 @@ class DiaryWeekSummary extends StatelessWidget {
               Text(s.diaryWeekSummaryEmpty)
             else ...[
               for (final macro in [
-                (s.kcalLabel, s.kcalLabel, totals[0]),
+                (s.caloriesLabel, s.kcalLabel, totals[0]),
                 (s.fatLabel, 'g', totals[1]),
                 (s.proteinLabel, 'g', totals[2]),
                 (s.carbsLabel, 'g', totals[3]),

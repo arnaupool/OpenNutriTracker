@@ -645,6 +645,9 @@ class _AddPlanEntryDialogState extends State<AddPlanEntryDialog> with TickerProv
           identifier: 'plan-candidate-tabs',
           child: TabBar(
             controller: controller,
+            // Four tabs do not fit in a phone-wide dialog.
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
             tabs: [for (final g in groups) Tab(text: _groupLabel(g, s))],
           ),
         ),
