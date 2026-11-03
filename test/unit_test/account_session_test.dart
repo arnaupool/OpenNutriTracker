@@ -222,6 +222,9 @@ class _FakeSupabase {
         if (own == null) return _json(200, []);
         own.addAll(jsonDecode(request.body) as Map<String, dynamic>);
         return _json(200, [own]);
+      case 'DELETE':
+        keyRows.remove(session.userId);
+        return http.Response('', 204);
     }
     return _json(405, {});
   }
@@ -529,6 +532,65 @@ void main() {
         expect(await laptop.service.status('default'), AccountStatus.ready);
       });
 
+      test('start from scratch replaces the key and links the profile, after deleting the records', () async {
+        await phone.createAccount('default', _email, _pw);
+        final oldKey = (await phone.service.dataKey('default'))!;
+        await phone.service.signOut('default');
+        final laptop = _Device(server);
+        await laptop.service.requestPasswordReset(_email);
+        await laptop.service.completePasswordReset(_email, server.user(_email).recoveryCode!, _newPw);
+        expect(await laptop.service.signIn('default', _email, _newPw), SignInResult.needsRecoveryKey);
+        final oldSalt = server.envelope(_email).salt;
+
+        final deleted = <String>[];
+        await expectLater(
+          laptop.service.startFresh(
+            'default',
+            'wrong password',
+            email: _email,
+            deleteRecords: (token, userId) async => deleted.add(userId),
+          ),
+          throwsA(isA<InvalidCredentialsException>()),
+        );
+        expect(deleted, isEmpty);
+        expect(server.envelope(_email).salt, oldSalt);
+
+        final newKey = await laptop.service.startFresh(
+          'default',
+          _newPw,
+          email: _email,
+          deleteRecords: (token, userId) async {
+            expect(_subOf(token), userId);
+            expect(server.keyRows.containsKey(userId), isTrue, reason: 'records go before the key row');
+            deleted.add(userId);
+          },
+        );
+        expect(deleted, [server.user(_email).id]);
+        expect(newKey, isNot(oldKey));
+        expect(await laptop.service.dataKey('default'), newKey);
+        expect(await laptop.service.status('default'), AccountStatus.ready);
+        expect(server.envelope(_email).salt, isNot(oldSalt));
+        expect(server.envelope(_email).needsRewrap, isFalse);
+        expect((await laptop.profiles.byId('default'))!.account?.email, _email);
+        // The new password opens the new key on another device.
+        final tablet = _Device(server);
+        expect(await tablet.service.signIn('default', _email, _newPw), SignInResult.ready);
+        expect(await tablet.service.dataKey('default'), newKey);
+      });
+
+      test('start from scratch keeps the key row when deleting the records fails', () async {
+        await phone.createAccount('default', _email, _pw);
+        final key = (await phone.service.dataKey('default'))!;
+        await expectLater(
+          phone.service.startFresh('default', _pw, deleteRecords: (_, _) async => throw StateError('offline')),
+          throwsStateError,
+        );
+        expect(server.keyRows, hasLength(1));
+        final other = _Device(server);
+        expect(await other.service.signIn('default', _email, _pw), SignInResult.ready);
+        expect(await other.service.dataKey('default'), key);
+      });
+
       test('a profile that lost its session but kept the key rewraps on sign-in', () async {
         await phone.createAccount('default', _email, _pw);
         final dataKey = await phone.service.dataKey('default');
@@ -620,6 +682,16 @@ void main() {
         expect(bobToken, isNot(anaToken));
         expect((await phone.store.readSession('default'))!.userId, ana);
         expect((await phone.store.readSession(work))!.userId, bob);
+      });
+
+      test('forceRefresh refreshes a token that has not expired yet', () async {
+        await phone.createAccount('default', _email, _pw);
+        final first = await phone.service.accessToken('default');
+        expect(await phone.service.accessToken('default'), first);
+        final forced = await phone.service.accessToken('default', forceRefresh: true);
+        expect(forced, isNot(first));
+        expect(_subOf(forced), server.user(_email).id);
+        expect(server.requests.where((r) => r.url.queryParameters['grant_type'] == 'refresh_token'), hasLength(1));
       });
 
       test('concurrent callers share one refresh', () async {

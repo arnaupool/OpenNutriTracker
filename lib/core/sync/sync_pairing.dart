@@ -89,4 +89,12 @@ class SyncKeyService {
   /// Stops syncing on this device. Keeps the token, which cloud backup
   /// also uses, and the local data.
   Future<void> disable() => _secureStorage.delete(key: ProfileScope.secret(_secureStorageKey));
+
+  /// Retires the pairing for good once the profile syncs through its
+  /// account (task B6): [disable] plus forgetting the token, so this device
+  /// never uses the token path again.
+  Future<void> forget() async {
+    await disable();
+    await _tokenService.clear();
+  }
 }

@@ -76,6 +76,11 @@ class AccountKeyService {
     return _crypto.unwrapWithRecoveryKey(envelope, recoveryKey);
   }
 
+  /// Deletes the account's key row, so [createForNewAccount] can make a new
+  /// one. Everything encrypted under the old key becomes unreadable: only
+  /// for "start from scratch", after deleting those records.
+  Future<void> deleteKey(String accessToken) => _remote.delete(accessToken);
+
   Future<AccountKeyEnvelope> _require(String accessToken) async {
     final envelope = await _remote.fetch(accessToken);
     if (envelope == null) throw const AccountKeyNotFoundException();

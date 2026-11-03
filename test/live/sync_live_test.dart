@@ -35,7 +35,7 @@ final _key = Platform.environment['SYNC_LIVE_KEY'];
 
 var _deviceCount = 0;
 
-Future<(HiveDBProvider, SyncEngine, SyncStateStore)> _device(SyncRemote remote) async {
+Future<(HiveDBProvider, SyncEngine, SyncStateStore)> _device() async {
   final n = _deviceCount++;
   Future<Box<T>> open<T>(String name) => Hive.openBox<T>('$name$n', bytes: Uint8List(0));
   final db = HiveDBProvider()
@@ -56,7 +56,7 @@ Future<(HiveDBProvider, SyncEngine, SyncStateStore)> _device(SyncRemote remote) 
     ..reminderBox = await open('reminders')
     ..reminderSettingsBox = await open('reminder_settings');
   final state = SyncStateStore(await open<dynamic>('state'));
-  return (db, SyncEngine(boxes: buildSyncedBoxes(db), remote: remote, state: state), state);
+  return (db, SyncEngine(boxes: buildSyncedBoxes(db)), state);
 }
 
 IntakeDBO _intake(String id, DateTime when, double kcal) => IntakeDBO(
@@ -101,12 +101,13 @@ void main() {
   });
 
   test('two devices sync real records through Supabase', () async {
-    final remote = SupabaseSyncRemote(_url!, _key!);
     final pairing = SyncPairing(CloudBackupTokenService.generateToken(), SyncCrypto.generateKey());
+    final remote = TokenSyncRemote(_url!, _key!, pairing.token);
     // ignore: avoid_print
     print('live token: ${pairing.token}');
 
-    final (phone, phoneEngine, _) = await _device(remote);
+    final (phone, phoneEngine, phoneState) = await _device();
+    SyncTarget phoneSet() => SyncTarget(remote: remote, state: phoneState, key: pairing.key);
     await phone.intakeBox.add(_intake('i1', DateTime(2026, 10, 22, 13, 30), 180));
     await phone.weightLogBox.put('2026-10-22', WeightLogDBO(date: DateTime(2026, 10, 22), weightKg: 80.4));
     await phone.fastingBox.put(
@@ -118,12 +119,13 @@ void main() {
         completedAt: DateTime(2026, 10, 22, 12, 5),
       ),
     );
-    final up = await phoneEngine.sync(pairing);
+    final up = await phoneEngine.sync(phoneSet());
     expect(up.pushed, 3);
 
-    final (desktop, desktopEngine, desktopState) = await _device(remote);
+    final (desktop, desktopEngine, desktopState) = await _device();
+    SyncTarget desktopSet() => SyncTarget(remote: remote, state: desktopState, key: pairing.key);
     await desktopState.setJoining(true);
-    final down = await desktopEngine.sync(pairing);
+    final down = await desktopEngine.sync(desktopSet());
     expect(down.pulled, 3);
     expect(down.unreadable, 0);
     final intake = desktop.intakeBox.values.single;
@@ -134,15 +136,15 @@ void main() {
 
     // Edit on the desktop, delete on the phone, and meet in the middle.
     await desktop.weightLogBox.put('2026-10-22', WeightLogDBO(date: DateTime(2026, 10, 22), weightKg: 80.1));
-    await desktopEngine.sync(pairing);
+    await desktopEngine.sync(desktopSet());
     await phone.intakeBox.clear();
-    await phoneEngine.sync(pairing);
-    await desktopEngine.sync(pairing);
+    await phoneEngine.sync(phoneSet());
+    await desktopEngine.sync(desktopSet());
     expect(phone.weightLogBox.get('2026-10-22')!.weightKg, 80.1);
     expect(desktop.intakeBox.isEmpty, isTrue);
 
     // Another token sees nothing.
-    final stranger = await remote.pull(CloudBackupTokenService.generateToken(), null);
+    final stranger = await TokenSyncRemote(_url!, _key!, CloudBackupTokenService.generateToken()).pull();
     expect(stranger, isEmpty);
   }, skip: skip);
 }

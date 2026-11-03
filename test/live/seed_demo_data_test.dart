@@ -55,7 +55,9 @@ MealDBO _meal(String name, double kcal100, double p, double c, double f) => Meal
 );
 
 void main() {
-  final skip = _url == null || _key == null || _code == null ? 'set SYNC_SEED_URL, SYNC_SEED_KEY, SYNC_SEED_CODE' : null;
+  final skip = _url == null || _key == null || _code == null
+      ? 'set SYNC_SEED_URL, SYNC_SEED_KEY, SYNC_SEED_CODE'
+      : null;
 
   setUpAll(() {
     Hive.registerAdapters();
@@ -80,10 +82,10 @@ void main() {
       ..waterIntakeBox = await open('water')
       ..fastingBox = await open('fasting')
       ..bodyMeasurementBox = await open('body')
-    ..mealPlanBox = await open('plan')
-    ..dietPlanBox = await open('diet_plan')
-    ..reminderBox = await open('reminders')
-    ..reminderSettingsBox = await open('reminder_settings');
+      ..mealPlanBox = await open('plan')
+      ..dietPlanBox = await open('diet_plan')
+      ..reminderBox = await open('reminders')
+      ..reminderSettingsBox = await open('reminder_settings');
 
     final random = Random(7);
     final today = DateTime.now();
@@ -120,12 +122,14 @@ void main() {
       }
     }
 
-    final engine = SyncEngine(
-      boxes: buildSyncedBoxes(db),
-      remote: SupabaseSyncRemote(_url!, _key!),
-      state: SyncStateStore(await open<dynamic>('state')),
+    final engine = SyncEngine(boxes: buildSyncedBoxes(db));
+    final result = await engine.sync(
+      SyncTarget(
+        remote: TokenSyncRemote(_url!, _key!, pairing.token),
+        state: SyncStateStore(await open<dynamic>('state')),
+        key: pairing.key,
+      ),
     );
-    final result = await engine.sync(pairing);
     // ignore: avoid_print
     print('seeded: pushed ${result.pushed}, pulled ${result.pulled}');
     expect(result.pushed, greaterThan(100));

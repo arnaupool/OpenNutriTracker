@@ -84,6 +84,20 @@ class AccountKeyRemote {
     return _envelope(rows.single);
   }
 
+  /// Deletes the caller's row ("start from scratch"). Succeeds when there
+  /// is none.
+  Future<void> delete(String accessToken) async {
+    final response = await _client
+        .delete(
+          _endpoint.replace(queryParameters: {'user_id': 'eq.${_userId(accessToken)}'}),
+          headers: {..._headers(accessToken), 'Prefer': 'return=minimal'},
+        )
+        .timeout(_timeout);
+    if (response.statusCode != 204 && response.statusCode != 200) {
+      throw AccountKeyRemoteException(response.statusCode, response.body);
+    }
+  }
+
   static List<dynamic> _decodeRows(http.Response response) {
     final decoded = jsonDecode(utf8.decode(response.bodyBytes));
     if (decoded is! List<dynamic>) throw AccountKeyRemoteException(response.statusCode, 'expected a JSON array');

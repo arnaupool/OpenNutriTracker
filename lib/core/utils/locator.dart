@@ -82,7 +82,6 @@ import 'package:opennutritracker/core/sync/sync_engine.dart';
 import 'package:opennutritracker/core/sync/sync_pairing.dart';
 import 'package:opennutritracker/core/sync/sync_remote.dart';
 import 'package:opennutritracker/core/sync/sync_service.dart';
-import 'package:opennutritracker/core/sync/sync_state_store.dart';
 import 'package:opennutritracker/core/utils/env.dart';
 import 'package:opennutritracker/features/diet_plan/data/diet_plan_data_source.dart';
 import 'package:opennutritracker/features/diet_plan/domain/diet_plan_usecase.dart';
@@ -594,23 +593,27 @@ Future<void> initLocator() async {
     ),
   );
 
-  // FAS-01: record-level sync between this device and the others linked to
-  // the same pairing code, through the backup Supabase project.
+  // FAS-01 and B6: record-level sync of the active profile through its
+  // account (or, until D11, through an old pairing code), on the same
+  // Supabase project.
   final syncedBoxes = buildSyncedBoxes(hiveDBProvider);
   locator.registerLazySingleton<SyncKeyService>(() => SyncKeyService(locator()));
-  locator.registerLazySingleton<SyncStateStore>(() => SyncStateStore(hiveDBProvider.syncStateBox));
-  locator.registerLazySingleton<SyncEngine>(
-    () => SyncEngine(
-      boxes: syncedBoxes,
-      remote: SupabaseSyncRemote(Env.backupSupabaseProjectUrl, Env.backupSupabaseProjectAnonKey),
-      state: locator(),
-    ),
-  );
+  locator.registerLazySingleton<SyncEngine>(() => SyncEngine(boxes: syncedBoxes));
   locator.registerLazySingleton<SyncDayTotals>(
     () => SyncDayTotals(hiveDBProvider.intakeBox, locator(), locator()),
   );
   locator.registerLazySingleton<SyncService>(
-    () => SyncService(locator(), locator(), locator(), syncedBoxes, onApplied: _onSyncApplied),
+    () => SyncService(
+      engine: locator(),
+      pairings: locator(),
+      accounts: locator(),
+      stateBox: hiveDBProvider.syncStateBox,
+      boxes: syncedBoxes,
+      tokenRemote: (token) => TokenSyncRemote(Env.backupSupabaseProjectUrl, Env.backupSupabaseProjectAnonKey, token),
+      accountRemote: (userId, accessToken) =>
+          AccountSyncRemote(Env.backupSupabaseProjectUrl, Env.backupSupabaseProjectAnonKey, userId, accessToken),
+      onApplied: _onSyncApplied,
+    ),
   );
 
   // DataSources

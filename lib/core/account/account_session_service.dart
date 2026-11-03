@@ -298,11 +298,16 @@ class AccountSessionService {
   }
 
   /// A valid access token for [profileId], refreshed when it expires within
-  /// [refreshMargin]. Concurrent calls share one refresh. Throws
+  /// [refreshMargin], or always with [forceRefresh] (sync does that once
+  /// after a 401). Concurrent calls share one refresh. Throws
   /// [NotSignedInException] without a session and [SessionExpiredException]
   /// when the server refuses the refresh token (the session is then deleted,
   /// the data key kept).
-  Future<String> accessToken(String profileId) async => (await _freshSession(profileId)).accessToken;
+  Future<String> accessToken(String profileId, {bool forceRefresh = false}) async =>
+      (await _freshSession(profileId, force: forceRefresh)).accessToken;
+
+  /// The account [profileId] belongs to, or null for a local profile.
+  Future<AccountLink?> link(String profileId) async => (await _profiles.byId(profileId))?.account;
 
   /// The unwrapped data key of a signed-in profile, for sync (B6).
   Future<Uint8List?> dataKey(String profileId) async {
@@ -338,12 +343,50 @@ class AccountSessionService {
     }
   }
 
+  // Start from scratch
+
+  /// "Start from scratch" (C7/C8): for an account whose data key nobody can
+  /// open any more (password reset without a device holding the key and
+  /// without a recovery key). Checks [password] by signing in, calls
+  /// [deleteRecords] with the fresh access token and user id to delete the
+  /// account's synced records, deletes the key row, creates a new data key
+  /// wrapped with [password] and stores it, the session and the link for
+  /// [profileId] like a sign-in. Returns the new data key.
+  ///
+  /// Everything the account had in the cloud is lost; the caller pushes the
+  /// profile's local data afterwards (`SyncService.startFresh` does both).
+  /// [email] is needed when the profile is not linked yet (the sign-in that
+  /// returned [SignInResult.needsRecoveryKey] stored nothing).
+  Future<Uint8List> startFresh(
+    String profileId,
+    String password, {
+    String? email,
+    required Future<void> Function(String accessToken, String userId) deleteRecords,
+  }) async {
+    final address = email ?? (await link(profileId))?.email;
+    if (address == null) throw ArgumentError.value(email, 'email', 'needed for a profile without an account');
+    final normalized = AccountAuthSecret.normalizeEmail(address);
+    await _checkAttachable(profileId, email: normalized);
+    final session = await _api.signIn(normalized, await _secret.derive(password, normalized));
+    await _checkAttachableOrRevoke(profileId, session);
+    try {
+      await deleteRecords(session.accessToken, session.userId);
+      await _keys.deleteKey(session.accessToken);
+      final dataKey = await _keys.createForNewAccount(password, session.accessToken);
+      await _persist(profileId, session, dataKey);
+      return dataKey;
+    } on Object {
+      await _revokeQuietly(session);
+      rethrow;
+    }
+  }
+
   // Internals
 
-  Future<AuthSession> _freshSession(String profileId) async {
+  Future<AuthSession> _freshSession(String profileId, {bool force = false}) async {
     final session = await _store.readSession(profileId);
     if (session == null) throw const NotSignedInException();
-    if (!session.expiresWithin(refreshMargin, _now().toUtc())) return session;
+    if (!force && !session.expiresWithin(refreshMargin, _now().toUtc())) return session;
     // Block body: whenComplete would wait on a returned future, here itself.
     return _refreshing[profileId] ??= _refresh(profileId, session).whenComplete(() {
       _refreshing.remove(profileId);
