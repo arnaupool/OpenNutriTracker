@@ -2637,5 +2637,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "planDatabaseColumn": MessageLookupByLibrary.simpleMessage("Base de datos"),
         "planNewRecipe": MessageLookupByLibrary.simpleMessage("Nueva receta"),
         "activityHideLabel": MessageLookupByLibrary.simpleMessage("Ocultar"),
+        "weeklyNoteTitle": MessageLookupByLibrary.simpleMessage("Notas de la semana"),
+        "weeklyNoteHint": MessageLookupByLibrary.simpleMessage("Escribe lo que quieras para esta semana. Las líneas que empiezan por - [ ] se convierten en casillas."),
+        "weeklyNoteEdit": MessageLookupByLibrary.simpleMessage("Editar"),
+        "weeklyNoteDone": MessageLookupByLibrary.simpleMessage("Listo"),
       };
 }

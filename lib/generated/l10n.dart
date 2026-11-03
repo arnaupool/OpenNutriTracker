@@ -12758,6 +12758,46 @@ class S {
       args: [],
     );
   }
+
+  /// `Notes of the week`
+  String get weeklyNoteTitle {
+    return Intl.message(
+      "Notes of the week",
+      name: 'weeklyNoteTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Write anything for this week. Lines that start with - [ ] become checkboxes.`
+  String get weeklyNoteHint {
+    return Intl.message(
+      "Write anything for this week. Lines that start with - [ ] become checkboxes.",
+      name: 'weeklyNoteHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Edit`
+  String get weeklyNoteEdit {
+    return Intl.message(
+      "Edit",
+      name: 'weeklyNoteEdit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Done`
+  String get weeklyNoteDone {
+    return Intl.message(
+      "Done",
+      name: 'weeklyNoteDone',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

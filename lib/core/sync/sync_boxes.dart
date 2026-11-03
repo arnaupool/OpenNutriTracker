@@ -15,6 +15,7 @@ import 'package:opennutritracker/core/utils/hive_db_provider.dart';
 import 'package:opennutritracker/features/diet_plan/data/diet_plan_dbo.dart';
 import 'package:opennutritracker/features/favorites/data/favorite_food_dbo.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dart';
+import 'package:opennutritracker/features/meal_plan/data/weekly_note_dbo.dart';
 import 'package:opennutritracker/features/reminders/data/reminder_dbo.dart';
 
 /// The boxes that sync between devices and how each identifies a record.
@@ -152,6 +153,14 @@ List<SyncedBox<dynamic>> buildSyncedBoxes(HiveDBProvider db) => [
     identityOf: (_, key) => key?.toString(),
     toJson: (v) => v.toJson(),
     fromJson: FavoriteFoodDBO.fromJson,
+    naturalKey: true,
+  ),
+  SyncedBox<WeeklyNoteDBO>(
+    name: HiveDBProvider.weeklyNoteBoxName,
+    box: db.weeklyNoteBox,
+    identityOf: (_, key) => key?.toString(),
+    toJson: (v) => v.toJson(),
+    fromJson: WeeklyNoteDBO.fromJson,
     naturalKey: true,
   ),
 ];

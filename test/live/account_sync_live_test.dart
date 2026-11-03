@@ -130,7 +130,8 @@ class _Device {
       ..dietPlanBox = await open('diet_plan')
       ..reminderBox = await open('reminders')
       ..reminderSettingsBox = await open('reminder_settings')
-      ..favoriteFoodBox = await open('favorites');
+      ..favoriteFoodBox = await open('favorites')
+      ..weeklyNoteBox = await open('weekly_notes');
     return _Device(db, await open<dynamic>('state'));
   }
 }

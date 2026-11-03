@@ -17,6 +17,7 @@ import 'package:opennutritracker/core/data/dbo/water_intake_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/weight_log_dbo.dart';
 import 'package:opennutritracker/features/diet_plan/data/diet_plan_dbo.dart';
 import 'package:opennutritracker/features/favorites/data/favorite_food_dbo.dart';
+import 'package:opennutritracker/features/meal_plan/data/weekly_note_dbo.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dart';
 import 'package:opennutritracker/features/reminders/data/reminder_dbo.dart';
 import 'package:opennutritracker/hive_registrar.g.dart';
@@ -63,6 +64,8 @@ class HiveDBProvider extends ChangeNotifier {
   static const reminderSettingsBoxName = 'ReminderSettingsBox';
   // Favorite foods: editable local copies of foods, keyed by id (synced).
   static const favoriteFoodBoxName = 'FavoriteFoodBox';
+  // One note per ISO week of the meal plan, keyed by week (synced).
+  static const weeklyNoteBoxName = 'WeeklyNoteBox';
 
   late Box<ConfigDBO> configBox;
   late Box<IntakeDBO> intakeBox;
@@ -85,6 +88,7 @@ class HiveDBProvider extends ChangeNotifier {
   late Box<ReminderDBO> reminderBox;
   late Box<ReminderSettingsDBO> reminderSettingsBox;
   late Box<FavoriteFoodDBO> favoriteFoodBox;
+  late Box<WeeklyNoteDBO> weeklyNoteBox;
 
   static bool _hiveReady = false;
 
@@ -111,6 +115,7 @@ class HiveDBProvider extends ChangeNotifier {
     reminderBoxName,
     reminderSettingsBoxName,
     favoriteFoodBoxName,
+    weeklyNoteBoxName,
   ];
 
   /// Opens the active profile's boxes ([ProfileScope]). Safe to call again
@@ -145,6 +150,9 @@ class HiveDBProvider extends ChangeNotifier {
     }
     if (!Hive.isAdapterRegistered(FavoriteFoodDBO.hiveTypeId)) {
       Hive.registerAdapter(FavoriteFoodDBOAdapter());
+    }
+    if (!Hive.isAdapterRegistered(WeeklyNoteDBO.hiveTypeId)) {
+      Hive.registerAdapter(WeeklyNoteDBOAdapter());
     }
     await _openBoxes(encryptionCypher);
   }
@@ -233,6 +241,10 @@ class HiveDBProvider extends ChangeNotifier {
     );
     favoriteFoodBox = await Hive.openBox(
       ProfileScope.box(favoriteFoodBoxName),
+      encryptionCipher: encryptionCypher,
+    );
+    weeklyNoteBox = await Hive.openBox(
+      ProfileScope.box(weeklyNoteBoxName),
       encryptionCipher: encryptionCypher,
     );
   }

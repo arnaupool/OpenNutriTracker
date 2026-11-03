@@ -23,6 +23,7 @@ The export is a single `.zip` file (default filename
 | `user_tracked_day.csv`  | CSV  | Flat companion to `user_tracked_day.json`.                         |
 | `user_recipes.json`   | JSON   | Recipes only. Nested-ingredient shape, no CSV counterpart.         |
 | `favorite_foods.json` | JSON   | Favorite foods (JSON export only). Optional on import.             |
+| `weekly_notes.json`   | JSON   | Meal plan notes, one per ISO week (JSON export only). Optional on import. |
 
 User profile (height, weight, birthday, PAL, goal) is intentionally **not**
 included — see `core/data/data_source/user_data_source.dart` for the box that
@@ -189,6 +190,29 @@ Import merges by `id`: a record replaces the local favorite only when its
 `modifiedAt` is newer. The file is optional, so zips from older versions
 still import. Favorites also sync between devices of an account (box
 `FavoriteFoodBox`, record identity = `id`).
+
+### `weekly_notes.json`
+
+Array of the notes of the meal plan, one per ISO week. The text is free; lines
+that start with `- [ ]` or `- [x]` are shown as checkboxes. The source of
+truth is `lib/features/meal_plan/data/weekly_note_dbo.dart`.
+
+```jsonc
+[
+  {
+    "weekKey": "2026-W45",                  // ISO week: year of the Thursday, week number
+    "text": "Comprar\n- [ ] leche\n- [x] pan",
+    "modifiedAt": "2026-11-03T09:00:00.000"
+  }
+]
+```
+
+Import merges by `weekKey`: a record replaces the local note only when its
+`modifiedAt` is newer. The file is optional, so zips from older versions still
+import. Notes also sync between devices of an account (box `WeeklyNoteBox`,
+record identity = `weekKey`). If two devices edit the same week's note before
+syncing, the last write of the whole note wins, as with the rest of the sync;
+the other edit is not merged line by line.
 
 ## CSV schema
 

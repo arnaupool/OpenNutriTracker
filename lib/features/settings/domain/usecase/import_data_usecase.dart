@@ -24,6 +24,7 @@ import 'package:opennutritracker/core/data/repository/weight_log_repository.dart
 import 'package:opennutritracker/core/utils/csv_data_exporter.dart';
 import 'package:opennutritracker/core/utils/user_image_storage.dart';
 import 'package:opennutritracker/features/favorites/domain/favorite_food_repository.dart';
+import 'package:opennutritracker/features/meal_plan/domain/weekly_note_repository.dart';
 
 class ImportDataUsecase {
   final UserActivityRepository _userActivityRepository;
@@ -36,6 +37,7 @@ class ImportDataUsecase {
   final UserRepository _userRepository;
   final ConfigRepository _configRepository;
   final FavoriteFoodRepository _favoriteFoodRepository;
+  final WeeklyNoteRepository? _weeklyNoteRepository;
 
   ImportDataUsecase(
     this._userActivityRepository,
@@ -47,8 +49,9 @@ class ImportDataUsecase {
     this._bodyMeasurementRepository,
     this._userRepository,
     this._configRepository,
-    this._favoriteFoodRepository,
-  );
+    this._favoriteFoodRepository, [
+    this._weeklyNoteRepository,
+  ]);
 
   /// Imports user activity, intake, tracked day, and (optionally) recipe,
   /// weight log, Custom activity template or body measurement data from a
@@ -122,6 +125,7 @@ class ImportDataUsecase {
     String customActivityTemplateJsonFileName = 'custom_activity_templates.json',
     String bodyMeasurementJsonFileName = 'body_measurements.json',
     String favoriteFoodsJsonFileName = 'favorite_foods.json',
+    String weeklyNotesJsonFileName = 'weekly_notes.json',
     bool restoreProfile = false,
     String userProfileJsonFileName = 'user_profile.json',
     String userConfigJsonFileName = 'user_config.json',
@@ -212,6 +216,15 @@ class ImportDataUsecase {
       final favoriteList = (jsonDecode(utf8.decode(favoriteFile.content as List<int>)) as List)
           .cast<Map<String, dynamic>>();
       await _favoriteFoodRepository.importJson(favoriteList);
+    }
+
+    // Weekly notes of the meal plan — optional; a note of a known week is
+    // replaced only when the zip's copy is newer.
+    final noteFile = archive.findFile(weeklyNotesJsonFileName);
+    final weeklyNotes = _weeklyNoteRepository;
+    if (noteFile != null && weeklyNotes != null) {
+      final noteList = (jsonDecode(utf8.decode(noteFile.content as List<int>)) as List).cast<Map<String, dynamic>>();
+      await weeklyNotes.importJson(noteList);
     }
 
     // Restore profile + settings — explicit opt-in, see restoreProfile doc

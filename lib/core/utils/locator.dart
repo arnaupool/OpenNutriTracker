@@ -86,6 +86,8 @@ import 'package:opennutritracker/features/diet_plan/data/diet_plan_data_source.d
 import 'package:opennutritracker/features/diet_plan/domain/diet_plan_usecase.dart';
 import 'package:opennutritracker/features/favorites/data/favorite_food_data_source.dart';
 import 'package:opennutritracker/features/favorites/domain/favorite_food_repository.dart';
+import 'package:opennutritracker/features/meal_plan/data/weekly_note_data_source.dart';
+import 'package:opennutritracker/features/meal_plan/domain/weekly_note_repository.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_data_source.dart';
 import 'package:opennutritracker/features/meal_plan/domain/log_meal_plan_usecase.dart';
 import 'package:opennutritracker/core/utils/hive_db_provider.dart';
@@ -303,10 +305,12 @@ Future<void> initLocator() async {
       locator(),
       locator(),
       locator(),
+      locator(),
     ),
   );
   locator.registerLazySingleton(
     () => ImportDataUsecase(
+      locator(),
       locator(),
       locator(),
       locator(),
@@ -384,6 +388,9 @@ Future<void> initLocator() async {
   // Favorite foods (editable local copies of foods).
   locator.registerLazySingleton<FavoriteFoodDataSource>(() => FavoriteFoodDataSource(hiveDBProvider.favoriteFoodBox));
   locator.registerLazySingleton<FavoriteFoodRepository>(() => FavoriteFoodRepository(locator()));
+  // Weekly notes of the meal plan.
+  locator.registerLazySingleton<WeeklyNoteDataSource>(() => WeeklyNoteDataSource(hiveDBProvider.weeklyNoteBox));
+  locator.registerLazySingleton<WeeklyNoteRepository>(() => WeeklyNoteRepository(locator()));
 
   // FAS-04: meal planning.
   locator.registerLazySingleton<MealPlanDataSource>(() => MealPlanDataSource(hiveDBProvider.mealPlanBox));

@@ -26,6 +26,7 @@ import 'package:opennutritracker/features/meal_plan/data/meal_plan_data_source.d
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dart';
 import 'package:opennutritracker/features/meal_plan/domain/log_meal_plan_usecase.dart';
 import 'package:opennutritracker/features/meal_plan/domain/meal_plan_calc.dart';
+import 'package:opennutritracker/features/meal_plan/presentation/weekly_note_card.dart';
 import 'package:opennutritracker/features/review/domain/review_calc.dart';
 import 'package:opennutritracker/core/domain/entity/recipe_entity.dart';
 import 'package:opennutritracker/core/utils/navigation_options.dart';
@@ -182,10 +183,20 @@ class _MealPlanPageState extends State<MealPlanPage> {
               ? const Center(child: CircularProgressIndicator())
               : SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
-                  child: Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
-                    children: [for (final d in _days) SizedBox(width: 340, child: _dayCard(context, d))],
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        spacing: 16,
+                        runSpacing: 16,
+                        children: [for (final d in _days) SizedBox(width: 340, child: _dayCard(context, d))],
+                      ),
+                      const SizedBox(height: 16),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 700),
+                        child: WeeklyNoteCard(week: _weekStart),
+                      ),
+                    ],
                   ),
                 ),
         ),

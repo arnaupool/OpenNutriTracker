@@ -31,6 +31,9 @@ import 'package:opennutritracker/core/sync/synced_box.dart';
 import 'package:opennutritracker/features/favorites/data/favorite_food_data_source.dart';
 import 'package:opennutritracker/features/favorites/data/favorite_food_dbo.dart';
 import 'package:opennutritracker/features/favorites/domain/favorite_food_repository.dart';
+import 'package:opennutritracker/features/meal_plan/data/weekly_note_data_source.dart';
+import 'package:opennutritracker/features/meal_plan/data/weekly_note_dbo.dart';
+import 'package:opennutritracker/features/meal_plan/domain/weekly_note_repository.dart';
 import 'package:opennutritracker/features/settings/domain/usecase/export_data_usecase.dart';
 import 'package:opennutritracker/features/settings/domain/usecase/import_data_usecase.dart';
 
@@ -168,6 +171,9 @@ void main() {
     if (!Hive.isAdapterRegistered(FavoriteFoodDBO.hiveTypeId)) {
       Hive.registerAdapter(FavoriteFoodDBOAdapter());
     }
+    if (!Hive.isAdapterRegistered(WeeklyNoteDBO.hiveTypeId)) {
+      Hive.registerAdapter(WeeklyNoteDBOAdapter());
+    }
   });
 
   setUp(() async {
@@ -281,5 +287,48 @@ void main() {
     expect(target.getById('f1')!.name, 'Leche nueva');
     expect(await target.importJson([_leche(name: 'Vieja', at: DateTime(2026, 11, 1)).toJson()]), 0);
     expect(target.getById('f1')!.name, 'Leche nueva');
+  });
+
+  test('weekly plan notes travel in the export zip and merge on import, newer wins', () async {
+    final notes = WeeklyNoteRepository(WeeklyNoteDataSource(await Hive.openBox<WeeklyNoteDBO>('notes_src')));
+    await notes.save('2026-W45', 'Lista\n- [x] leche', now: DateTime(2026, 11, 3));
+    final favorites = FavoriteFoodRepository(FavoriteFoodDataSource(await Hive.openBox<FavoriteFoodDBO>('f_src')));
+    final export = ExportDataUsecase(
+      _Activity(),
+      _Intake(),
+      _Tracked(),
+      _Recipes(),
+      _CustomMeals(),
+      _Weight(),
+      _Templates(),
+      _Body(),
+      _User(),
+      _Config(),
+      favorites,
+      notes,
+    );
+    final zip = await export.buildZipBytes();
+    final file = ZipDecoder().decodeBytes(zip).findFile('weekly_notes.json');
+    expect(file, isNotNull);
+    expect(utf8.decode(file!.content as List<int>), contains('2026-W45'));
+
+    final target = WeeklyNoteRepository(WeeklyNoteDataSource(await Hive.openBox<WeeklyNoteDBO>('notes_dst')));
+    await target.save('2026-W46', 'Otra semana', now: DateTime(2026, 11, 3));
+    final import = ImportDataUsecase(
+      _Activity(),
+      _Intake(),
+      _Tracked(),
+      _Recipes(),
+      _Weight(),
+      _Templates(),
+      _Body(),
+      _User(),
+      _Config(),
+      FavoriteFoodRepository(FavoriteFoodDataSource(await Hive.openBox<FavoriteFoodDBO>('f_dst'))),
+      target,
+    );
+    expect(await import.importFromZipBytes(zip), isTrue);
+    expect(target.textOf('2026-W45'), 'Lista\n- [x] leche');
+    expect(target.textOf('2026-W46'), 'Otra semana');
   });
 }

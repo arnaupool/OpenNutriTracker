@@ -1861,5 +1861,9 @@
   "searchSimilarResultsLabel": "Resultats semblants",
   "planDatabaseColumn": "Base de dades",
   "planNewRecipe": "Nova recepta",
-  "activityHideLabel": "Amaga"
+  "activityHideLabel": "Amaga",
+  "weeklyNoteTitle": "Notes de la setmana",
+  "weeklyNoteHint": "Escriu el que vulgues per a esta setmana. Les línies que comencen per - [ ] es convertixen en caselles.",
+  "weeklyNoteEdit": "Edita",
+  "weeklyNoteDone": "Fet"
 }

@@ -29,10 +29,11 @@ void main() {
         HiveDBProvider.reminderBoxName,
         HiveDBProvider.reminderSettingsBoxName,
         HiveDBProvider.favoriteFoodBoxName,
+        HiveDBProvider.weeklyNoteBoxName,
         HiveDBProvider.syncStateBoxName,
         HiveDBProvider.userImageBytesBoxName,
       ]),
     );
-    expect(HiveDBProvider.profileBoxNames.length, 21);
+    expect(HiveDBProvider.profileBoxNames.length, 22);
   });
 }

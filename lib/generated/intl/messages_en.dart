@@ -1998,5 +1998,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "planDatabaseColumn": MessageLookupByLibrary.simpleMessage("Database"),
         "planNewRecipe": MessageLookupByLibrary.simpleMessage("New recipe"),
         "activityHideLabel": MessageLookupByLibrary.simpleMessage("Hide"),
+        "weeklyNoteTitle": MessageLookupByLibrary.simpleMessage("Notes of the week"),
+        "weeklyNoteHint": MessageLookupByLibrary.simpleMessage("Write anything for this week. Lines that start with - [ ] become checkboxes."),
+        "weeklyNoteEdit": MessageLookupByLibrary.simpleMessage("Edit"),
+        "weeklyNoteDone": MessageLookupByLibrary.simpleMessage("Done"),
       };
 }

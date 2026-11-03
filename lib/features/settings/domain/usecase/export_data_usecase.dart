@@ -16,6 +16,7 @@ import 'package:opennutritracker/core/data/repository/weight_log_repository.dart
 import 'package:opennutritracker/core/utils/csv_data_exporter.dart';
 import 'package:opennutritracker/core/utils/user_image_storage.dart';
 import 'package:opennutritracker/features/favorites/domain/favorite_food_repository.dart';
+import 'package:opennutritracker/features/meal_plan/domain/weekly_note_repository.dart';
 
 /// The two export shapes available from Settings → Export / Import App Data.
 /// JSON is the canonical backup-and-restore format the app re-imports from;
@@ -34,6 +35,7 @@ class ExportDataUsecase {
   final UserRepository _userRepository;
   final ConfigRepository _configRepository;
   final FavoriteFoodRepository _favoriteFoodRepository;
+  final WeeklyNoteRepository? _weeklyNoteRepository;
 
   ExportDataUsecase(
     this._userActivityRepository,
@@ -46,8 +48,9 @@ class ExportDataUsecase {
     this._bodyMeasurementRepository,
     this._userRepository,
     this._configRepository,
-    this._favoriteFoodRepository,
-  );
+    this._favoriteFoodRepository, [
+    this._weeklyNoteRepository,
+  ]);
 
   /// Exports user activity, intake, tracked day, recipe, weight-log and
   /// Custom activity template data to a zip at a user-specified location,
@@ -129,6 +132,7 @@ class ExportDataUsecase {
     String customActivityTemplateJsonFileName = 'custom_activity_templates.json',
     String bodyMeasurementJsonFileName = 'body_measurements.json',
     String favoriteFoodsJsonFileName = 'favorite_foods.json',
+    String weeklyNotesJsonFileName = 'weekly_notes.json',
     ExportFormat format = ExportFormat.json,
     String userActivityCsvFileName = 'user_activity.csv',
     String userIntakeCsvFileName = 'user_intake.csv',
@@ -227,6 +231,13 @@ class ExportDataUsecase {
       // Favorite foods (editable copies with portion and barcodes).
       final favoriteBytes = utf8.encode(jsonEncode(_favoriteFoodRepository.exportJson()));
       archive.addFile(ArchiveFile(favoriteFoodsJsonFileName, favoriteBytes.length, favoriteBytes));
+
+      // Weekly notes of the meal plan.
+      final weeklyNotes = _weeklyNoteRepository;
+      if (weeklyNotes != null) {
+        final noteBytes = utf8.encode(jsonEncode(weeklyNotes.exportJson()));
+        archive.addFile(ArchiveFile(weeklyNotesJsonFileName, noteBytes.length, noteBytes));
+      }
 
       // Profile + settings — opt-in only, see the includeProfile doc above.
       if (includeProfile) {

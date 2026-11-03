@@ -1861,5 +1861,9 @@
   "searchSimilarResultsLabel": "Resultados parecidos",
   "planDatabaseColumn": "Base de datos",
   "planNewRecipe": "Nueva receta",
-  "activityHideLabel": "Ocultar"
+  "activityHideLabel": "Ocultar",
+  "weeklyNoteTitle": "Notas de la semana",
+  "weeklyNoteHint": "Escribe lo que quieras para esta semana. Las líneas que empiezan por - [ ] se convierten en casillas.",
+  "weeklyNoteEdit": "Editar",
+  "weeklyNoteDone": "Listo"
 }

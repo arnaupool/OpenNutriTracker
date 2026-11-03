@@ -2637,5 +2637,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "planDatabaseColumn": MessageLookupByLibrary.simpleMessage("Base de dades"),
         "planNewRecipe": MessageLookupByLibrary.simpleMessage("Nova recepta"),
         "activityHideLabel": MessageLookupByLibrary.simpleMessage("Amaga"),
+        "weeklyNoteTitle": MessageLookupByLibrary.simpleMessage("Notes de la setmana"),
+        "weeklyNoteHint": MessageLookupByLibrary.simpleMessage("Escriu el que vulgues per a esta setmana. Les línies que comencen per - [ ] es convertixen en caselles."),
+        "weeklyNoteEdit": MessageLookupByLibrary.simpleMessage("Edita"),
+        "weeklyNoteDone": MessageLookupByLibrary.simpleMessage("Fet"),
       };
 }

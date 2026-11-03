@@ -1813,5 +1813,9 @@
   "searchSimilarResultsLabel": "Similar results",
   "planDatabaseColumn": "Database",
   "planNewRecipe": "New recipe",
-  "activityHideLabel": "Hide"
+  "activityHideLabel": "Hide",
+  "weeklyNoteTitle": "Notes of the week",
+  "weeklyNoteHint": "Write anything for this week. Lines that start with - [ ] become checkboxes.",
+  "weeklyNoteEdit": "Edit",
+  "weeklyNoteDone": "Done"
 }
