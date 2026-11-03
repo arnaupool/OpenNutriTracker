@@ -12728,6 +12728,26 @@ class S {
       args: [],
     );
   }
+
+  /// `Database`
+  String get planDatabaseColumn {
+    return Intl.message(
+      "Database",
+      name: 'planDatabaseColumn',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New recipe`
+  String get planNewRecipe {
+    return Intl.message(
+      "New recipe",
+      name: 'planNewRecipe',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

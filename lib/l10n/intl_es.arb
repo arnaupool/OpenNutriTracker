@@ -1858,5 +1858,7 @@
   "favoritesNoMatch": "Ningún favorito coincide con la búsqueda.",
   "favoriteViewOriginal": "Ver producto original",
   "favoriteOriginalFailed": "No se pudo cargar el producto original.",
-  "searchSimilarResultsLabel": "Resultados parecidos"
+  "searchSimilarResultsLabel": "Resultados parecidos",
+  "planDatabaseColumn": "Base de datos",
+  "planNewRecipe": "Nueva receta"
 }

@@ -1995,5 +1995,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "favoriteViewOriginal": MessageLookupByLibrary.simpleMessage("View original product"),
         "favoriteOriginalFailed": MessageLookupByLibrary.simpleMessage("Could not load the original product."),
         "searchSimilarResultsLabel": MessageLookupByLibrary.simpleMessage("Similar results"),
+        "planDatabaseColumn": MessageLookupByLibrary.simpleMessage("Database"),
+        "planNewRecipe": MessageLookupByLibrary.simpleMessage("New recipe"),
       };
 }

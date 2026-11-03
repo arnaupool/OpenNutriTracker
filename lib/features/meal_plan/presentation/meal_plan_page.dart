@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
@@ -25,6 +27,13 @@ import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dar
 import 'package:opennutritracker/features/meal_plan/domain/log_meal_plan_usecase.dart';
 import 'package:opennutritracker/features/meal_plan/domain/meal_plan_calc.dart';
 import 'package:opennutritracker/features/review/domain/review_calc.dart';
+import 'package:opennutritracker/core/domain/entity/recipe_entity.dart';
+import 'package:opennutritracker/core/utils/navigation_options.dart';
+import 'package:opennutritracker/core/utils/search_match.dart';
+import 'package:opennutritracker/features/add_meal/domain/entity/meal_entity.dart';
+import 'package:opennutritracker/features/add_meal/domain/usecase/search_products_usecase.dart';
+import 'package:opennutritracker/features/add_meal/presentation/bloc/search_debounce.dart';
+import 'package:opennutritracker/features/favorites/presentation/favorite_editor_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 /// Pushed on phones from the Diary app bar; on desktop the same
@@ -355,8 +364,9 @@ void refreshAfterPlanLogged() {
 }
 
 /// Where a plan candidate comes from; one column on desktop, one tab on the
-/// phone.
-enum PlanCandidateGroup { favorites, recipes, recent }
+/// phone. [database] (Open Food Facts and USDA) only appears while the search
+/// field has text.
+enum PlanCandidateGroup { favorites, recipes, recent, database }
 
 class _Candidate {
   final MealDBO meal;
@@ -367,21 +377,49 @@ class _Candidate {
   const _Candidate(this.meal, this.defaultAmount, this.icon, this.group);
 }
 
-/// Picks what to plan from the user's own recipes, custom foods and recent
-/// intakes (searching online databases stays in the regular add flow).
+/// Looks [query] up in the online databases (Open Food Facts and USDA).
+typedef PlanDatabaseSearch = Future<List<MealEntity>> Function(String query);
+
+Future<List<MealEntity>> _searchDatabases(String query) async {
+  final useCase = locator<SearchProductsUseCase>();
+  final results = await Future.wait([useCase.searchOFFProductsByString(query), useCase.searchFDCFoodByString(query)]);
+  final off = results[0];
+  final fdc = results[1];
+  // The use case also returns the user's own foods; those are already in the
+  // other columns.
+  return [
+    ...off.meals.where((m) => m.source == MealSourceEntity.off),
+    if (!off.meals.any((m) => m.source == MealSourceEntity.off)) ...off.similar,
+    ...fdc.meals.where((m) => m.source == MealSourceEntity.fdc || m.source == MealSourceEntity.bedca),
+  ];
+}
+
+/// Picks what to plan from the user's own favorites, recipes, custom foods
+/// and recent intakes, and, once something is typed, from the online
+/// databases too. New favorites and recipes can be created from here.
 @visibleForTesting
 class AddPlanEntryDialog extends StatefulWidget {
-  const AddPlanEntryDialog({super.key});
+  /// Replaces the online lookup (tests).
+  final PlanDatabaseSearch? databaseSearch;
+
+  /// Pause after the last keystroke before the databases are asked.
+  final Duration searchDelay;
+
+  const AddPlanEntryDialog({super.key, this.databaseSearch, this.searchDelay = searchDebounceDuration});
 
   @override
   State<AddPlanEntryDialog> createState() => _AddPlanEntryDialogState();
 }
 
-class _AddPlanEntryDialogState extends State<AddPlanEntryDialog> {
+class _AddPlanEntryDialogState extends State<AddPlanEntryDialog> with TickerProviderStateMixin {
   final _search = TextEditingController();
   final _amount = TextEditingController();
   List<_Candidate> _candidates = [];
+  List<_Candidate> _databaseCandidates = [];
+  bool _databaseLoading = false;
+  Timer? _searchTimer;
   _Candidate? _selected;
+  TabController? _tabController;
 
   @override
   void initState() {
@@ -391,10 +429,21 @@ class _AddPlanEntryDialogState extends State<AddPlanEntryDialog> {
 
   @override
   void dispose() {
+    _searchTimer?.cancel();
+    _tabController?.dispose();
     _search.dispose();
     _amount.dispose();
     super.dispose();
   }
+
+  bool get _showDatabase => _search.text.trim().isNotEmpty;
+
+  List<PlanCandidateGroup> get _groups => [
+    PlanCandidateGroup.favorites,
+    PlanCandidateGroup.recipes,
+    PlanCandidateGroup.recent,
+    if (_showDatabase) PlanCandidateGroup.database,
+  ];
 
   Future<void> _loadCandidates() async {
     final seen = <PlanCandidateGroup, Set<String>>{for (final g in PlanCandidateGroup.values) g: <String>{}};
@@ -412,10 +461,12 @@ class _AddPlanEntryDialogState extends State<AddPlanEntryDialog> {
     }
 
     for (final r in locator<RecipeRepository>().getAllRecipes()) {
-      final serving = r.servingsCount != null && r.servingsCount! > 0
-          ? r.totalWeightG / r.servingsCount!
-          : r.totalWeightG;
-      add(PlanCandidateGroup.recipes, MealDBO.fromMealEntity(r.toMealEntity()), serving, Icons.menu_book_outlined);
+      add(
+        PlanCandidateGroup.recipes,
+        MealDBO.fromMealEntity(r.toMealEntity()),
+        _recipeServing(r),
+        Icons.menu_book_outlined,
+      );
     }
     for (final m in locator<CustomMealDataSource>().getAllCustomMeals()) {
       add(PlanCandidateGroup.recipes, m, 100, Icons.restaurant_outlined);
@@ -426,13 +477,96 @@ class _AddPlanEntryDialogState extends State<AddPlanEntryDialog> {
     if (mounted) setState(() => _candidates = result);
   }
 
+  double _recipeServing(RecipeEntity r) =>
+      r.servingsCount != null && r.servingsCount! > 0 ? r.totalWeightG / r.servingsCount! : r.totalWeightG;
+
+  void _onSearchChanged(String _) {
+    setState(() {});
+    _searchTimer?.cancel();
+    final query = _search.text.trim();
+    if (query.length < minRemoteQueryLength) {
+      setState(() {
+        _databaseCandidates = [];
+        _databaseLoading = false;
+      });
+      return;
+    }
+    setState(() => _databaseLoading = true);
+    _searchTimer = Timer(widget.searchDelay, () => _searchDatabase(query));
+  }
+
+  Future<void> _searchDatabase(String query) async {
+    List<MealEntity> meals;
+    try {
+      meals = await (widget.databaseSearch ?? _searchDatabases)(query);
+    } catch (_) {
+      meals = const [];
+    }
+    // A newer query replaced this one while it was running.
+    if (!mounted || _search.text.trim() != query) return;
+    final seen = <String>{};
+    final candidates = <_Candidate>[];
+    for (final meal in meals) {
+      if (!seen.add('${meal.source.name}:${meal.code ?? meal.name}')) continue;
+      candidates.add(
+        _Candidate(
+          MealDBO.fromMealEntity(meal),
+          meal.servingQuantity ?? 100,
+          Icons.public,
+          PlanCandidateGroup.database,
+        ),
+      );
+    }
+    setState(() {
+      _databaseCandidates = candidates;
+      _databaseLoading = false;
+    });
+  }
+
+  void _select(_Candidate c) => setState(() {
+    _selected = c;
+    _amount.text = c.defaultAmount.round().toString();
+  });
+
+  Future<void> _createFavorite() async {
+    final result = await Navigator.of(
+      context,
+    ).pushNamed(NavigationOptions.favoriteEditorRoute, arguments: const FavoriteEditorArguments());
+    if (result is! String || !mounted) return;
+    final id = result;
+    await _loadCandidates();
+    final favorite = locator<FavoriteFoodRepository>().getById(id);
+    if (favorite == null || !mounted) return;
+    final code = favorite.toMealEntity().code;
+    final created = _candidates.where((c) => c.group == PlanCandidateGroup.favorites && c.meal.code == code);
+    if (created.isNotEmpty) _select(created.first);
+  }
+
+  Future<void> _createRecipe() async {
+    final repository = locator<RecipeRepository>();
+    final before = {for (final r in repository.getAllRecipes()) r.id};
+    await Navigator.of(context).pushNamed(NavigationOptions.recipeBuilderRoute);
+    if (!mounted) return;
+    await _loadCandidates();
+    if (!mounted) return;
+    final added = repository.getAllRecipes().where((r) => !before.contains(r.id));
+    if (added.isEmpty) return;
+    final code = added.first.id;
+    final created = _candidates.where((c) => c.group == PlanCandidateGroup.recipes && c.meal.code == code);
+    if (created.isNotEmpty) _select(created.first);
+  }
+
   String _groupLabel(PlanCandidateGroup g, S s) => switch (g) {
     PlanCandidateGroup.favorites => s.favoritesTitle,
     PlanCandidateGroup.recipes => s.recipesLabel,
     PlanCandidateGroup.recent => s.addItemMenuRecentlyLabel,
+    PlanCandidateGroup.database => s.planDatabaseColumn,
   };
 
   Widget _candidateList(PlanCandidateGroup group, List<_Candidate> visible, S s) {
+    if (group == PlanCandidateGroup.database && _databaseLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
     if (visible.isEmpty) {
       return Center(child: Text(s.planNoCandidates, textAlign: TextAlign.center));
     }
@@ -444,25 +578,27 @@ class _AddPlanEntryDialogState extends State<AddPlanEntryDialog> {
             ListTile(
               leading: Icon(c.icon),
               title: Text(c.meal.name ?? ''),
-              subtitle: Text(
-                '${(c.meal.nutriments.energyKcal100 ?? 0).round()} kcal / 100 ${c.meal.mealUnit == 'ml' ? 'ml' : 'g'}',
-              ),
-              onTap: () => setState(() {
-                _selected = c;
-                _amount.text = c.defaultAmount.round().toString();
-              }),
+              subtitle: Text(_subtitle(c.meal)),
+              onTap: () => _select(c),
             ),
         ],
       ),
     );
   }
 
-  /// Desktop: Favorites, Recipes and Recent side by side.
-  Widget _columns(List<_Candidate> Function(PlanCandidateGroup) visibleOf, S s) {
+  String _subtitle(MealDBO meal) {
+    final unit = meal.mealUnit == 'ml' ? 'ml' : 'g';
+    final brand = meal.brands;
+    final kcal = '${(meal.nutriments.energyKcal100 ?? 0).round()} kcal / 100 $unit';
+    return brand == null || brand.isEmpty ? kcal : '$brand · $kcal';
+  }
+
+  /// Desktop: the groups side by side.
+  Widget _columns(List<PlanCandidateGroup> groups, List<_Candidate> Function(PlanCandidateGroup) visibleOf, S s) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (final g in PlanCandidateGroup.values)
+        for (final g in groups)
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -480,37 +616,58 @@ class _AddPlanEntryDialogState extends State<AddPlanEntryDialog> {
   }
 
   /// Phone: one tab per group, Favorites first.
-  Widget _tabs(List<_Candidate> Function(PlanCandidateGroup) visibleOf, S s) {
-    return DefaultTabController(
-      length: PlanCandidateGroup.values.length,
-      child: Column(
-        children: [
-          Semantics(
-            identifier: 'plan-candidate-tabs',
-            child: TabBar(tabs: [for (final g in PlanCandidateGroup.values) Tab(text: _groupLabel(g, s))]),
+  Widget _tabs(List<PlanCandidateGroup> groups, List<_Candidate> Function(PlanCandidateGroup) visibleOf, S s) {
+    // The controller follows the number of tabs (the database tab comes and
+    // goes with the search text) and keeps the tab the user is on.
+    var controller = _tabController;
+    if (controller == null || controller.length != groups.length) {
+      final index = controller == null ? 0 : controller.index.clamp(0, groups.length - 1);
+      // Disposed after the frame: the old TabBar still uses it while building.
+      final old = controller;
+      if (old != null) WidgetsBinding.instance.addPostFrameCallback((_) => old.dispose());
+      controller = TabController(length: groups.length, vsync: this, initialIndex: index);
+      _tabController = controller;
+    }
+    return Column(
+      children: [
+        Semantics(
+          identifier: 'plan-candidate-tabs',
+          child: TabBar(
+            controller: controller,
+            tabs: [for (final g in groups) Tab(text: _groupLabel(g, s))],
           ),
-          Expanded(
-            child: TabBarView(
-              children: [for (final g in PlanCandidateGroup.values) _candidateList(g, visibleOf(g), s)],
-            ),
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: controller,
+            children: [for (final g in groups) _candidateList(g, visibleOf(g), s)],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
-    final query = _search.text.trim().toLowerCase();
-    List<_Candidate> visibleOf(PlanCandidateGroup g) =>
-        _candidates.where((c) => c.group == g && (c.meal.name ?? '').toLowerCase().contains(query)).take(60).toList();
-    final wide = MediaQuery.of(context).size.width >= 900;
+    final words = searchWords(_search.text);
+    final groups = _groups;
+    List<_Candidate> visibleOf(PlanCandidateGroup g) {
+      if (g == PlanCandidateGroup.database) return _databaseCandidates;
+      return _candidates
+          .where((c) => c.group == g && (words.isEmpty || mealContainsAllWords(MealEntity.fromMealDBO(c.meal), words)))
+          .take(60)
+          .toList();
+    }
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final wide = screenWidth >= 900;
     final selected = _selected;
+    final listWidth = groups.length > 3 ? 1100.0 : 840.0;
     return AlertDialog(
       title: Text(s.planAdd),
       content: SizedBox(
-        width: wide && _selected == null ? 840 : 460,
+        width: wide && selected == null ? math.min(listWidth, screenWidth - 120) : 460,
         height: 420,
         child: selected == null
             ? Column(
@@ -521,11 +678,35 @@ class _AddPlanEntryDialogState extends State<AddPlanEntryDialog> {
                       controller: _search,
                       autofocus: true,
                       decoration: InputDecoration(prefixIcon: const Icon(Icons.search), hintText: s.planSearchHint),
-                      onChanged: (_) => setState(() {}),
+                      onChanged: _onSearchChanged,
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Expanded(child: wide ? _columns(visibleOf, s) : _tabs(visibleOf, s)),
+                  Expanded(child: wide ? _columns(groups, visibleOf, s) : _tabs(groups, visibleOf, s)),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Wrap(
+                      spacing: 8,
+                      children: [
+                        Semantics(
+                          identifier: 'plan-new-favorite',
+                          child: TextButton.icon(
+                            icon: const Icon(Icons.star_border),
+                            label: Text(s.favoriteNew),
+                            onPressed: _createFavorite,
+                          ),
+                        ),
+                        Semantics(
+                          identifier: 'plan-new-recipe',
+                          child: TextButton.icon(
+                            icon: const Icon(Icons.menu_book_outlined),
+                            label: Text(s.planNewRecipe),
+                            onPressed: _createRecipe,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               )
             : Column(

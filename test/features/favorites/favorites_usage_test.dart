@@ -301,7 +301,12 @@ void main() {
   });
 
   group('meal plan picker', () {
-    Future<void> pumpDialog(WidgetTester tester, Size size) async {
+    Future<void> pumpDialog(
+      WidgetTester tester,
+      Size size, {
+      PlanDatabaseSearch? search,
+      Map<String, WidgetBuilder> routes = const {},
+    }) async {
       tester.view.devicePixelRatio = 1;
       tester.view.physicalSize = size;
       addTearDown(tester.view.reset);
@@ -311,11 +316,116 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           localizationsDelegates: const [S.delegate],
-          home: const Scaffold(body: AddPlanEntryDialog()),
+          routes: routes,
+          home: Scaffold(
+            body: AddPlanEntryDialog(databaseSearch: search, searchDelay: const Duration(milliseconds: 10)),
+          ),
         ),
       );
       await tester.pumpAndSettle();
     }
+
+    MealEntity offProduct(String code, String name) => MealEntity(
+      code: code,
+      name: name,
+      brands: 'Hacendado',
+      url: null,
+      mealQuantity: '500',
+      mealUnit: 'g',
+      servingQuantity: null,
+      servingUnit: null,
+      servingSize: null,
+      nutriments: _nutriments,
+      source: MealSourceEntity.off,
+    );
+
+    testWidgets('typing adds a Base de datos column with the online results', (tester) async {
+      await repo.save(_leche());
+      final queries = <String>[];
+      await pumpDialog(
+        tester,
+        const Size(1400, 900),
+        search: (q) async {
+          queries.add(q);
+          return [offProduct('111', 'Leche de avena')];
+        },
+      );
+      expect(find.text(S.current.planDatabaseColumn), findsNothing);
+
+      await tester.enterText(find.byType(TextField), 'leche');
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pumpAndSettle();
+      expect(find.text(S.current.planDatabaseColumn), findsOneWidget);
+      expect(find.text('Leche de avena'), findsOneWidget);
+      expect(queries, ['leche']);
+
+      await tester.tap(find.text('Leche de avena'));
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(TextField, '100'), findsOneWidget);
+    });
+
+    testWidgets('the phone gets a Base de datos tab only while there is text', (tester) async {
+      await pumpDialog(tester, const Size(500, 900), search: (q) async => [offProduct('111', 'Leche de avena')]);
+      expect(tester.widget<TabBar>(find.byType(TabBar)).tabs.length, 3);
+      await tester.enterText(find.byType(TextField), 'leche');
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pumpAndSettle();
+      final tabs = tester.widget<TabBar>(find.byType(TabBar)).tabs.map((t) => (t as Tab).text).toList();
+      expect(tabs.last, S.current.planDatabaseColumn);
+    });
+
+    testWidgets('short text does not ask the databases', (tester) async {
+      var calls = 0;
+      await pumpDialog(
+        tester,
+        const Size(1400, 900),
+        search: (q) async {
+          calls++;
+          return [];
+        },
+      );
+      await tester.enterText(find.byType(TextField), 'le');
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pumpAndSettle();
+      expect(calls, 0);
+    });
+
+    testWidgets('New favorite opens the editor and comes back with the favorite ready to add', (tester) async {
+      await pumpDialog(
+        tester,
+        const Size(1400, 900),
+        routes: {
+          NavigationOptions.favoriteEditorRoute: (context) => Scaffold(
+            body: TextButton(
+              onPressed: () async {
+                await repo.save(_leche());
+                if (context.mounted) Navigator.of(context).pop('f1');
+              },
+              child: const Text('save favorite'),
+            ),
+          ),
+        },
+      );
+      expect(find.text('Leche'), findsNothing);
+      await tester.tap(find.text(S.current.favoriteNew));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('save favorite'));
+      await tester.pumpAndSettle();
+      // Back in the dialog, the new favorite is selected with its portion.
+      expect(find.text('Leche'), findsOneWidget);
+      expect(find.widgetWithText(TextField, '250'), findsOneWidget);
+    });
+
+    testWidgets('New recipe opens the recipe builder', (tester) async {
+      await pumpDialog(
+        tester,
+        const Size(1400, 900),
+        routes: {NavigationOptions.recipeBuilderRoute: (context) => const Scaffold(body: Text('builder'))},
+      );
+      await tester.tap(find.text(S.current.planNewRecipe));
+      await tester.pumpAndSettle();
+      expect(find.text('builder'), findsOneWidget);
+    });
 
     testWidgets('desktop shows a Favoritos column next to recipes and recent', (tester) async {
       await repo.save(_leche());

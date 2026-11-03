@@ -1810,5 +1810,7 @@
   "favoritesNoMatch": "No favorites match your search.",
   "favoriteViewOriginal": "View original product",
   "favoriteOriginalFailed": "Could not load the original product.",
-  "searchSimilarResultsLabel": "Similar results"
+  "searchSimilarResultsLabel": "Similar results",
+  "planDatabaseColumn": "Database",
+  "planNewRecipe": "New recipe"
 }

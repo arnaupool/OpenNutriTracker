@@ -1858,5 +1858,7 @@
   "favoritesNoMatch": "Cap preferit coincideix amb la cerca.",
   "favoriteViewOriginal": "Veure el producte original",
   "favoriteOriginalFailed": "No s'ha pogut carregar el producte original.",
-  "searchSimilarResultsLabel": "Resultats semblants"
+  "searchSimilarResultsLabel": "Resultats semblants",
+  "planDatabaseColumn": "Base de dades",
+  "planNewRecipe": "Nova recepta"
 }

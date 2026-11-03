@@ -2634,5 +2634,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "favoriteViewOriginal": MessageLookupByLibrary.simpleMessage("Veure el producte original"),
         "favoriteOriginalFailed": MessageLookupByLibrary.simpleMessage("No s'ha pogut carregar el producte original."),
         "searchSimilarResultsLabel": MessageLookupByLibrary.simpleMessage("Resultats semblants"),
+        "planDatabaseColumn": MessageLookupByLibrary.simpleMessage("Base de dades"),
+        "planNewRecipe": MessageLookupByLibrary.simpleMessage("Nova recepta"),
       };
 }
