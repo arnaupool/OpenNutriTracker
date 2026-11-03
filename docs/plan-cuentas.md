@@ -62,3 +62,7 @@ Orden: A1 → (A2, A3, B4) → B5 → B6 → (C7, C8, C9, C10) → D11 → D12.
 
 - Dominio para Resend y sus 3 registros DNS (sin él, los códigos solo llegan al email de la cuenta de Resend).
 - Confirmar el email de administrador.
+- Plantillas y SMTP en el panel de Supabase (no se pueden desplegar desde el repo). Qué pegar:
+  - Authentication > Email Templates > "Confirm signup": asunto y cuerpo en español que muestren solo `{{ .Token }}` (código de 6 dígitos), sin enlaces ni `{{ .ConfirmationURL }}`. Ejemplo de cuerpo: "Tu código para crear la cuenta es {{ .Token }}. Caduca en una hora. Si no lo pediste, ignora este mensaje."
+  - Authentication > Email Templates > "Reset Password": igual, con `{{ .Token }}` y sin `{{ .ConfirmationURL }}`. Ejemplo: "Tu código para restablecer la contraseña es {{ .Token }}. Si no lo pediste, ignora este mensaje."
+  - Authentication > SMTP Settings (activar "Enable custom SMTP"): Host `smtp.resend.com`, Port `465`, Username `resend`, Password = la API key de Resend, Sender email `no-reply@<dominio>`, Sender name `OpenNutriTracker`.

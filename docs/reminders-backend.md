@@ -12,6 +12,24 @@ supabase functions deploy reminders-sync reminders-test email-verify reminders-t
 
 Todas las llamadas son `POST` a `https://<project>.supabase.co/functions/v1/<nombre>` con `Content-Type: application/json` y `x-reminder-device`. Errores: `{"error": "<codigo>"}` con 400/401/429/502.
 
+## Modo cuenta (migración `20261103_reminders_accounts.sql`)
+
+Las mismas funciones aceptan `Authorization: Bearer <JWT de usuario de Supabase Auth>`. Sin ese JWT (o con la clave anon como bearer) el comportamiento es el de dispositivo, descrito en el resto del documento, sin cambios.
+
+- El servidor valida el JWT con `auth.getUser(jwt)` de la service role; nunca se fía de un `sub` sin verificar. JWT caducado o inválido: 401 `{"error":"invalid_jwt"}` (no cae a modo dispositivo).
+- Con JWT, todo se guarda por `user_id`: un único juego de recordatorios, `meal_flags`, zona horaria, No molestar, Telegram y email verificado por cuenta (tabla `reminder_accounts`). `email_codes` también va por cuenta.
+- `x-reminder-device` es opcional en modo cuenta. Si se envía, ese dispositivo queda ligado a la cuenta (`reminder_devices.user_id`) y es el dueño de `pushSubscription` (la suscripción push es siempre por dispositivo; sin cabecera, `pushSubscription` devuelve 400 `device_required`). `channels.push` indica si ese dispositivo tiene suscripción (sin cabecera: si la tiene alguno de la cuenta).
+- `reminders-tick` envía cada recordatorio de cuenta una sola vez por email o Telegram, y por push a todos los dispositivos suscritos de la cuenta. Si ninguno recibe el push, cae a email (si verificado) o Telegram. Tras 3 fallos seguidos de un dispositivo, y con email verificado, los recordatorios push de la cuenta pasan a email.
+- Telegram: `{"telegramLink":true}` con JWT genera un código aleatorio de un solo uso asociado a la cuenta; `telegram-webhook` lo resuelve primero contra cuentas y luego contra dispositivos.
+- Cerrar sesión: el cliente llama sin JWT (solo con `x-reminder-device`) a `reminders-sync` con `{"detachAccount":true}`; el dispositivo deja de pertenecer a la cuenta y pierde su suscripción push. Los recordatorios del modo local (clave `device_token`) no se tocan.
+- Los datos de dispositivo y de cuenta son independientes: una cuenta nueva empieza sin recordatorios y el cliente los sube con `reminders`.
+
+### `account-delete`
+
+`POST` con `Authorization: Bearer <JWT>` (sin cuerpo). Borra `account_records`, `account_keys`, `reminder_accounts` (en cascada recordatorios, flags y códigos), quita la suscripción push y el `user_id` de los dispositivos de la cuenta y, por último, el usuario de Auth. Solo actúa sobre quien llama. 200 `{"ok":true}`; 401 `{"error":"unauthorized"}` sin JWT de usuario válido.
+
+Desplegar también `account-delete` con `--no-verify-jwt`.
+
 ## `reminders-sync`
 
 Cuerpo (todas las claves son opcionales; solo se cambia lo presente):

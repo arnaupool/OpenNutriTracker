@@ -2,20 +2,29 @@
 import webpush from "npm:web-push@3.6.7";
 import { sb, secret } from "./common.ts";
 
-export interface Device {
-  device_token: string;
+/** Settings shared by a device row and an account row. */
+export interface Target {
   timezone: string;
   quiet_start: string | null;
   quiet_end: string | null;
-  push_subscription: webpush.PushSubscription | null;
-  push_failures: number;
   email: string | null;
   email_verified: boolean;
   telegram_chat_id: number | null;
 }
 
-export interface Reminder {
+export interface Device extends Target {
   device_token: string;
+  push_subscription: webpush.PushSubscription | null;
+  push_failures: number;
+}
+
+export interface Account extends Target {
+  user_id: string;
+}
+
+export interface Reminder {
+  device_token: string | null;
+  user_id: string | null;
   id: string;
   type: "weigh_in" | "meal" | "custom";
   meal_type: "breakfast" | "lunch" | "snack" | "dinner" | null;
@@ -83,7 +92,7 @@ export async function sendTelegram(chatId: number, text: string): Promise<void> 
 }
 
 /** Email if verified, else Telegram if linked, else fail. Returns the channel used. */
-async function fallback(d: Device, p: Payload): Promise<string> {
+async function fallback(d: Target, p: Payload): Promise<string> {
   if (d.email_verified && d.email) {
     await sendEmail(d.email, p);
     return "email";
@@ -135,5 +144,50 @@ export async function deliver(d: Device, r: Reminder): Promise<string> {
   }
   if (!d.telegram_chat_id) throw new Error("telegram_not_linked");
   await sendTelegram(d.telegram_chat_id, p.body);
+  return "telegram";
+}
+
+/**
+ * Sends one account reminder: push goes to every subscribed device of the
+ * account, email and Telegram go out once. Returns the channel actually used.
+ */
+export async function deliverAccount(a: Account, devices: Device[], r: Reminder): Promise<string> {
+  const p = payloadFor(r);
+
+  if (r.channel === "push") {
+    let delivered = 0;
+    let escalate = false;
+    await Promise.all(devices.map(async (d) => {
+      const dev = sb.from("reminder_devices");
+      try {
+        await sendPush(d.push_subscription!, p);
+        delivered++;
+        if (d.push_failures > 0) await dev.update({ push_failures: 0 }).eq("device_token", d.device_token);
+      } catch (e) {
+        const code = (e as { statusCode?: number }).statusCode;
+        if (code === 404 || code === 410) {
+          await dev.update({ push_subscription: null, push_failures: 0 }).eq("device_token", d.device_token);
+        } else if (d.push_failures + 1 >= 3 && a.email_verified) {
+          escalate = true;
+          await dev.update({ push_failures: 0 }).eq("device_token", d.device_token);
+        } else {
+          await dev.update({ push_failures: d.push_failures + 1 }).eq("device_token", d.device_token);
+        }
+      }
+    }));
+    if (delivered > 0) return "push";
+    if (escalate) {
+      // Every device keeps failing: move the account's push reminders to email.
+      await sb.from("reminders").update({ channel: "email" }).eq("user_id", a.user_id).eq("channel", "push");
+    }
+    return await fallback(a, p);
+  }
+  if (r.channel === "email") {
+    if (!a.email_verified || !a.email) throw new Error("email_not_verified");
+    await sendEmail(a.email, p);
+    return "email";
+  }
+  if (!a.telegram_chat_id) throw new Error("telegram_not_linked");
+  await sendTelegram(a.telegram_chat_id, p.body);
   return "telegram";
 }
