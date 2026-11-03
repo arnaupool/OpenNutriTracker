@@ -12,6 +12,8 @@ import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/features/add_meal/domain/entity/meal_entity.dart';
 import 'package:opennutritracker/features/edit_meal/presentation/edit_meal_screen.dart';
+import 'package:opennutritracker/features/favorites/domain/favorite_food_entity.dart';
+import 'package:opennutritracker/features/favorites/presentation/favorite_star_button.dart';
 import 'package:opennutritracker/features/meal_detail/presentation/bloc/meal_detail_bloc.dart';
 import 'package:opennutritracker/features/meal_detail/presentation/widgets/daily_kcal_overview.dart';
 import 'package:opennutritracker/features/meal_detail/presentation/widgets/meal_detail_bottom_sheet.dart';
@@ -23,6 +25,7 @@ import 'package:opennutritracker/features/meal_detail/presentation/widgets/meal_
 import 'package:opennutritracker/features/meal_detail/presentation/widgets/bedca_disclaimer.dart';
 import 'package:opennutritracker/features/meal_detail/presentation/widgets/off_disclaimer.dart';
 import 'package:opennutritracker/features/off_contribution/presentation/off_contribute_button.dart';
+import 'package:opennutritracker/features/scanner/domain/usecase/search_product_by_barcode_usecase.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 class MealDetailScreen extends StatefulWidget {
@@ -46,6 +49,10 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
   late MealEntity meal;
   late DateTime _day;
   late IntakeTypeEntity intakeTypeEntity;
+
+  /// Set when the meal shown is a favorite (opened from the Favorites tab, a
+  /// scan that matched one, or after its star was used).
+  FavoriteFoodEntity? _favorite;
 
   final quantityTextController = TextEditingController();
   late bool _usesImperialUnits;
@@ -73,11 +80,11 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
 
   @override
   void didChangeDependencies() {
-    final args =
-        ModalRoute.of(context)?.settings.arguments as MealDetailScreenArguments;
+    final args = ModalRoute.of(context)?.settings.arguments as MealDetailScreenArguments;
     meal = args.mealEntity;
     _day = args.day;
     intakeTypeEntity = args.intakeTypeEntity;
+    _favorite ??= args.favorite;
     _usesImperialUnits = args.usesImperialUnits;
 
     _mealDetailBloc.add(LoadDailyTotalsEvent(_day));
@@ -104,19 +111,13 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
       if (meal.hasServingValues) {
         _initialUnit = UnitDropdownItem.serving.toString();
       } else if (meal.isLiquid) {
-        _initialUnit = _usesImperialUnits
-            ? UnitDropdownItem.flOz.toString()
-            : UnitDropdownItem.ml.toString();
+        _initialUnit = _usesImperialUnits ? UnitDropdownItem.flOz.toString() : UnitDropdownItem.ml.toString();
       } else if (meal.isSolid) {
-        _initialUnit = _usesImperialUnits
-            ? UnitDropdownItem.oz.toString()
-            : UnitDropdownItem.g.toString();
+        _initialUnit = _usesImperialUnits ? UnitDropdownItem.oz.toString() : UnitDropdownItem.g.toString();
       } else {
         _initialUnit = UnitDropdownItem.gml.toString();
       }
-      _mealDetailBloc.add(
-        UpdateKcalEvent(meal: meal, selectedUnit: _initialUnit),
-      );
+      _mealDetailBloc.add(UpdateKcalEvent(meal: meal, selectedUnit: _initialUnit));
     }
 
     if (_initialQuantity == "") {
@@ -130,9 +131,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
         _initialQuantity = _initialQuantityMetric;
         quantityTextController.text = _initialQuantityMetric;
       }
-      _mealDetailBloc.add(
-        UpdateKcalEvent(meal: meal, totalQuantity: quantityTextController.text),
-      );
+      _mealDetailBloc.add(UpdateKcalEvent(meal: meal, totalQuantity: quantityTextController.text));
     }
   }
 
@@ -161,8 +160,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
   Widget build(BuildContext context) {
     return BlocListener<MealDetailBloc, MealDetailState>(
       bloc: _mealDetailBloc,
-      listenWhen: (prev, curr) =>
-          curr.hydratedMeal != null && curr.hydratedMeal != prev.hydratedMeal,
+      listenWhen: (prev, curr) => curr.hydratedMeal != null && curr.hydratedMeal != prev.hydratedMeal,
       listener: (context, state) => _onMealHydrated(state.hydratedMeal!),
       child: SafeArea(
         child: Scaffold(
@@ -186,20 +184,20 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
               return const Center(child: CircularProgressIndicator());
             },
           ),
-        bottomSheet: BlocSelector<MealDetailBloc, MealDetailState, String>(
-          bloc: _mealDetailBloc,
-          selector: (state) => state.selectedUnit,
-          builder: (context, selectedUnit) {
-            return MealDetailBottomSheet(
-              product: meal,
-              day: _day,
-              intakeTypeEntity: intakeTypeEntity,
-              selectedUnit: selectedUnit,
-              mealDetailBloc: _mealDetailBloc,
-              quantityTextController: quantityTextController,
-              onQuantityOrUnitChanged: onQuantityOrUnitChanged,
-            );
-          },
+          bottomSheet: BlocSelector<MealDetailBloc, MealDetailState, String>(
+            bloc: _mealDetailBloc,
+            selector: (state) => state.selectedUnit,
+            builder: (context, selectedUnit) {
+              return MealDetailBottomSheet(
+                product: meal,
+                day: _day,
+                intakeTypeEntity: intakeTypeEntity,
+                selectedUnit: selectedUnit,
+                mealDetailBloc: _mealDetailBloc,
+                quantityTextController: quantityTextController,
+                onQuantityOrUnitChanged: onQuantityOrUnitChanged,
+              );
+            },
           ),
         ),
       ),
@@ -235,19 +233,13 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
           flexibleSpace: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
               final top = constraints.biggest.height;
-              final barsHeight =
-                  MediaQuery.of(context).padding.top + kToolbarHeight;
+              final barsHeight = MediaQuery.of(context).padding.top + kToolbarHeight;
               const offset = 10;
               return FlexibleSpaceBar(
                 expandedTitleScale: 1, // don't scale title
                 background: Padding(
-                  padding: EdgeInsets.only(
-                    bottom: dayKcalGoal > 0 ? 68 : 0,
-                  ),
-                  child: MealTitleExpanded(
-                    meal: meal,
-                    usesImperialUnits: _usesImperialUnits,
-                  ),
+                  padding: EdgeInsets.only(bottom: dayKcalGoal > 0 ? 68 : 0),
+                  child: MealTitleExpanded(meal: meal, usesImperialUnits: _usesImperialUnits),
                 ),
                 title: AnimatedOpacity(
                   opacity: 1.0,
@@ -264,16 +256,12 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
             },
           ),
           actions: [
+            FavoriteStarButton(meal: meal, onEdited: _onFavoriteEdited),
             IconButton(
               onPressed: () {
                 Navigator.of(context).pushNamed(
                   NavigationOptions.editMealRoute,
-                  arguments: EditMealScreenArguments(
-                    _day,
-                    meal,
-                    intakeTypeEntity,
-                    _usesImperialUnits,
-                  ),
+                  arguments: EditMealScreenArguments(_day, meal, intakeTypeEntity, _usesImperialUnits),
                 );
               },
               icon: const Icon(Icons.edit_outlined),
@@ -296,16 +284,13 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                       imageUrl: meal.mainImageUrl ?? "",
                       fit: BoxFit.cover,
                       placeholder: (context, string) => const MealPlaceholder(),
-                      errorWidget: (context, url, error) =>
-                          const MealPlaceholder(),
+                      errorWidget: (context, url, error) => const MealPlaceholder(),
                     ),
                   ),
                   onTap: () {
                     Navigator.of(context).pushNamed(
                       NavigationOptions.imageFullScreenRoute,
-                      arguments: ImageFullScreenArguments(
-                        meal.mainImageUrl ?? "",
-                      ),
+                      arguments: ImageFullScreenArguments(meal.mainImageUrl ?? ""),
                     );
                   },
                 ),
@@ -324,10 +309,9 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                       MealValueUnitText(
                         value: double.parse(totalQuantity),
                         meal: meal,
-                        displayUnit:
-                            selectedUnit == UnitDropdownItem.serving.toString()
-                                ? meal.servingUnit
-                                : selectedUnit,
+                        displayUnit: selectedUnit == UnitDropdownItem.serving.toString()
+                            ? meal.servingUnit
+                            : selectedUnit,
                         usesImperialUnits: _usesImperialUnits,
                         textStyle: Theme.of(context).textTheme.bodyMedium,
                         prefix: ' / ',
@@ -338,27 +322,15 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      MealDetailMacroNutrients(
-                        typeString: S.of(context).carbsLabel,
-                        value: totalCarbs,
-                      ),
-                      MealDetailMacroNutrients(
-                        typeString: S.of(context).fatLabel,
-                        value: totalFat,
-                      ),
-                      MealDetailMacroNutrients(
-                        typeString: S.of(context).proteinLabel,
-                        value: totalProtein,
-                      ),
+                      MealDetailMacroNutrients(typeString: S.of(context).carbsLabel, value: totalCarbs),
+                      MealDetailMacroNutrients(typeString: S.of(context).fatLabel, value: totalFat),
+                      MealDetailMacroNutrients(typeString: S.of(context).proteinLabel, value: totalProtein),
                     ],
                   ),
                   const Divider(),
                   const SizedBox(height: 16.0),
                   if (isHydrating)
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 16.0),
-                      child: LinearProgressIndicator(minHeight: 2),
-                    ),
+                    const Padding(padding: EdgeInsets.only(bottom: 16.0), child: LinearProgressIndicator(minHeight: 2)),
                   MealDetailNutrimentsTable(
                     product: meal,
                     usesImperialUnits: _usesImperialUnits,
@@ -368,19 +340,28 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                   ),
                   const SizedBox(height: 32.0),
                   MealInfoButton(url: meal.url, source: meal.source),
+                  if (_canViewOriginal) ...[
+                    const SizedBox(height: 16),
+                    Center(
+                      child: Semantics(
+                        identifier: 'meal-detail-view-original',
+                        child: OutlinedButton.icon(
+                          icon: const Icon(Icons.open_in_new),
+                          label: Text(S.of(context).favoriteViewOriginal),
+                          onPressed: _viewOriginal,
+                        ),
+                      ),
+                    ),
+                  ],
                   if (OffContributeButton.appliesTo(meal)) ...[
                     const SizedBox(height: 16),
                     Center(child: OffContributeButton(meal: meal)),
                   ],
                   meal.source == MealSourceEntity.off
-                      ? const Column(
-                          children: [SizedBox(height: 32), OffDisclaimer()],
-                        )
+                      ? const Column(children: [SizedBox(height: 32), OffDisclaimer()])
                       : const SizedBox(),
                   if (meal.source == MealSourceEntity.bedca)
-                    const Column(
-                      children: [SizedBox(height: 32), BedcaDisclaimer()],
-                    ),
+                    const Column(children: [SizedBox(height: 32), BedcaDisclaimer()]),
                   const SizedBox(height: 200.0), // height added to scroll
                 ],
               ),
@@ -391,28 +372,50 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
     );
   }
 
+  bool get _canViewOriginal {
+    final favorite = _favorite;
+    return favorite != null && favorite.originSource == 'off' && favorite.originId != null;
+  }
+
+  /// After the favorite's editor closed: show its new values (and note a
+  /// deletion by leaving the displayed meal as it was).
+  void _onFavoriteEdited(FavoriteFoodEntity? favorite) {
+    if (favorite == null || !mounted || _favorite == null) return;
+    setState(() => _favorite = favorite);
+    _onMealHydrated(favorite.toMealEntity());
+  }
+
+  /// Opens the Open Food Facts product a favorite was copied from.
+  Future<void> _viewOriginal() async {
+    final favorite = _favorite;
+    if (favorite == null || favorite.originId == null) return;
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final failed = S.of(context).favoriteOriginalFailed;
+    try {
+      final original = await locator<SearchProductByBarcodeUseCase>().searchProductByBarcode(favorite.originId!);
+      navigator.pushReplacementNamed(
+        NavigationOptions.mealDetailRoute,
+        arguments: MealDetailScreenArguments(original, intakeTypeEntity, _day, _usesImperialUnits),
+      );
+    } catch (e, st) {
+      log.warning('Could not load the original product', e, st);
+      messenger.showSnackBar(SnackBar(content: Text(failed)));
+    }
+  }
+
   void onQuantityOrUnitChanged(String? quantityString, String? unit) {
     if (quantityString == null || unit == null) {
       return;
     }
     _userChangedSelection = true;
-    _mealDetailBloc.add(
-      UpdateKcalEvent(
-        meal: meal,
-        totalQuantity: quantityString,
-        selectedUnit: unit,
-      ),
-    );
+    _mealDetailBloc.add(UpdateKcalEvent(meal: meal, totalQuantity: quantityString, selectedUnit: unit));
     _scrollToCalorieText();
   }
 
   void _scrollToCalorieText() {
     if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _containerSize - 50,
-        duration: const Duration(seconds: 1),
-        curve: Curves.easeInOut,
-      );
+      _scrollController.animateTo(_containerSize - 50, duration: const Duration(seconds: 1), curve: Curves.easeInOut);
     }
   }
 }
@@ -423,11 +426,8 @@ class MealDetailScreenArguments {
   final DateTime day;
   final bool usesImperialUnits;
 
-  MealDetailScreenArguments(
-    this.mealEntity,
-    this.intakeTypeEntity,
-    this.day,
-    this.usesImperialUnits,
-  );
-}
+  /// The favorite the meal comes from, when it does.
+  final FavoriteFoodEntity? favorite;
 
+  MealDetailScreenArguments(this.mealEntity, this.intakeTypeEntity, this.day, this.usesImperialUnits, {this.favorite});
+}

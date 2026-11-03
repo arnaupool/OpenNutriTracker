@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get_it/get_it.dart';
 import 'package:opennutritracker/core/domain/entity/intake_entity.dart';
 import 'package:opennutritracker/core/domain/entity/intake_type_entity.dart';
 import 'package:opennutritracker/core/presentation/widgets/edit_dialog.dart';
 import 'package:opennutritracker/features/add_meal/domain/entity/meal_entity.dart';
 import 'package:opennutritracker/features/add_meal/domain/entity/meal_nutriments_entity.dart';
+import 'package:opennutritracker/features/favorites/domain/favorite_food_repository.dart';
 import 'package:opennutritracker/generated/l10n.dart';
+
+import '../../../features/favorites/in_memory_favorites.dart';
 
 MealEntity _buildMeal({
   String? mealUnit = 'g',
@@ -55,6 +59,13 @@ Widget _wrap(Widget child) {
 }
 
 void main() {
+  // The dialog carries a favorite star, which reads the favorites repository.
+  setUp(() async {
+    await GetIt.instance.reset();
+    GetIt.instance.registerSingleton<FavoriteFoodRepository>(inMemoryRepository());
+  });
+  tearDown(() => GetIt.instance.reset());
+
   group('EditDialog', () {
     testWidgets('pre-fills the amount and shows the real unit as a suffix',
         (tester) async {

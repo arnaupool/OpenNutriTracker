@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:opennutritracker/core/domain/entity/intake_entity.dart';
 import 'package:opennutritracker/core/utils/calc/unit_calc.dart';
+import 'package:opennutritracker/features/favorites/presentation/favorite_star_button.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 class EditDialog extends StatefulWidget {
@@ -62,7 +63,12 @@ class _EditDialogState extends State<EditDialog> {
     final metricAmount = _currentMetricAmount;
 
     return AlertDialog(
-      title: Text(s.editItemDialogTitle),
+      title: Row(
+        children: [
+          Expanded(child: Text(s.editItemDialogTitle)),
+          FavoriteStarButton(meal: widget.intakeEntity.meal, identifier: 'edit-dialog-favorite'),
+        ],
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -30,4 +30,5 @@ class NavigationOptions {
   static const mealPlanRoute = "mealPlan";
   static const myPlanRoute = "myPlan";
   static const remindersRoute = "reminders";
+  static const favoriteEditorRoute = "favoriteEditor";
 }

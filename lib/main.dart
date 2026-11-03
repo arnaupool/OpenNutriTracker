@@ -36,6 +36,7 @@ import 'package:opennutritracker/features/add_meal/presentation/presets_screen.d
 import 'package:opennutritracker/features/add_meal/presentation/recently_screen.dart';
 import 'package:opennutritracker/features/add_activity/presentation/add_activity_screen.dart';
 import 'package:opennutritracker/features/edit_meal/presentation/edit_meal_screen.dart';
+import 'package:opennutritracker/features/favorites/presentation/favorite_editor_screen.dart';
 import 'package:opennutritracker/features/onboarding/onboarding_screen.dart';
 import 'package:opennutritracker/features/fasting/presentation/fasting_screen.dart';
 import 'package:opennutritracker/features/profile/presentation/weight_history_screen.dart';
@@ -334,6 +335,7 @@ class OpenNutriTrackerApp extends StatelessWidget {
         NavigationOptions.mealPlanRoute: (context) => const MealPlanScreen(),
         NavigationOptions.myPlanRoute: (context) => DesktopRouteFrame(child: const MyPlanScreen()),
         NavigationOptions.remindersRoute: (context) => DesktopRouteFrame(child: const RemindersScreen()),
+        NavigationOptions.favoriteEditorRoute: (context) => DesktopRouteFrame(child: const FavoriteEditorScreen()),
         NavigationOptions.fastingRoute: (context) => DesktopRouteFrame(child: const FastingScreen()),
       },
     );

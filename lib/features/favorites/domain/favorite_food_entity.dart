@@ -7,6 +7,41 @@ import 'package:opennutritracker/features/favorites/data/favorite_food_dbo.dart'
 /// Prefix of the meal code of a favorite that has no barcode.
 const String favoriteCodePrefix = 'fav:';
 
+/// [base] with its four main macros replaced (null clears one); micronutrients
+/// and the rest are kept.
+MealNutrimentsEntity nutrimentsWithMacros(
+  MealNutrimentsEntity base, {
+  required double? kcal,
+  required double? carbs,
+  required double? fat,
+  required double? protein,
+}) => MealNutrimentsEntity(
+  energyKcal100: kcal,
+  carbohydrates100: carbs,
+  fat100: fat,
+  proteins100: protein,
+  sugars100: base.sugars100,
+  saturatedFat100: base.saturatedFat100,
+  fiber100: base.fiber100,
+  monounsaturatedFat100: base.monounsaturatedFat100,
+  polyunsaturatedFat100: base.polyunsaturatedFat100,
+  transFat100: base.transFat100,
+  cholesterol100: base.cholesterol100,
+  sodium100: base.sodium100,
+  potassium100: base.potassium100,
+  magnesium100: base.magnesium100,
+  calcium100: base.calcium100,
+  iron100: base.iron100,
+  zinc100: base.zinc100,
+  phosphorus100: base.phosphorus100,
+  vitaminA100: base.vitaminA100,
+  vitaminC100: base.vitaminC100,
+  vitaminD100: base.vitaminD100,
+  vitaminB6100: base.vitaminB6100,
+  vitaminB12100: base.vitaminB12100,
+  niacin100: base.niacin100,
+);
+
 /// A favorite food as the UI sees it. See [FavoriteFoodDBO].
 class FavoriteFoodEntity extends Equatable {
   final String id;
@@ -119,7 +154,10 @@ class FavoriteFoodEntity extends Equatable {
     final unit = meal.isLiquid || meal.servingUnit == 'ml' ? 'ml' : 'g';
     final code = barcode ?? meal.code;
     final isBarcode =
-        barcode != null || (code != null && RegExp(r'^\d{6,}$').hasMatch(code) && meal.source == MealSourceEntity.off);
+        barcode != null ||
+        (code != null &&
+            RegExp(r'^\d{8,14}$').hasMatch(code) &&
+            (meal.source == MealSourceEntity.off || meal.source == MealSourceEntity.custom));
     return FavoriteFoodEntity(
       id: id,
       name: meal.name ?? '',

@@ -12398,6 +12398,276 @@ class S {
       args: [],
     );
   }
+
+  /// `Favorites`
+  String get favoritesTitle {
+    return Intl.message(
+      "Favorites",
+      name: 'favoritesTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New favorite`
+  String get favoriteNew {
+    return Intl.message(
+      "New favorite",
+      name: 'favoriteNew',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Edit favorite`
+  String get favoriteEditTitle {
+    return Intl.message(
+      "Edit favorite",
+      name: 'favoriteEditTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add to favorites`
+  String get favoriteAddTooltip {
+    return Intl.message(
+      "Add to favorites",
+      name: 'favoriteAddTooltip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Brand (optional)`
+  String get favoriteBrandLabel {
+    return Intl.message(
+      "Brand (optional)",
+      name: 'favoriteBrandLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Measured in`
+  String get favoriteUnitLabel {
+    return Intl.message(
+      "Measured in",
+      name: 'favoriteUnitLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nutrition per 100 g`
+  String get favoriteMacrosPer100g {
+    return Intl.message(
+      "Nutrition per 100 g",
+      name: 'favoriteMacrosPer100g',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Nutrition per 100 ml`
+  String get favoriteMacrosPer100ml {
+    return Intl.message(
+      "Nutrition per 100 ml",
+      name: 'favoriteMacrosPer100ml',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Default portion`
+  String get favoritePortionTitle {
+    return Intl.message(
+      "Default portion",
+      name: 'favoritePortionTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Portion name (for example, glass)`
+  String get favoritePortionNameLabel {
+    return Intl.message(
+      "Portion name (for example, glass)",
+      name: 'favoritePortionNameLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Portion size`
+  String get favoritePortionQuantityLabel {
+    return Intl.message(
+      "Portion size",
+      name: 'favoritePortionQuantityLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter a portion size greater than 0.`
+  String get favoritePortionInvalid {
+    return Intl.message(
+      "Enter a portion size greater than 0.",
+      name: 'favoritePortionInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Barcodes`
+  String get favoriteBarcodesTitle {
+    return Intl.message(
+      "Barcodes",
+      name: 'favoriteBarcodesTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Type a code`
+  String get favoriteBarcodeAddHint {
+    return Intl.message(
+      "Type a code",
+      name: 'favoriteBarcodeAddHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add code`
+  String get favoriteBarcodeAdd {
+    return Intl.message(
+      "Add code",
+      name: 'favoriteBarcodeAdd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Scan`
+  String get favoriteBarcodeScan {
+    return Intl.message(
+      "Scan",
+      name: 'favoriteBarcodeScan',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add barcode`
+  String get favoriteBarcodeCaptureTitle {
+    return Intl.message(
+      "Add barcode",
+      name: 'favoriteBarcodeCaptureTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `That code is already on this favorite.`
+  String get favoriteBarcodeDuplicate {
+    return Intl.message(
+      "That code is already on this favorite.",
+      name: 'favoriteBarcodeDuplicate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `That code already belongs to another favorite.`
+  String get favoriteBarcodeTaken {
+    return Intl.message(
+      "That code already belongs to another favorite.",
+      name: 'favoriteBarcodeTaken',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter a number of 0 or more.`
+  String get favoriteNumberInvalid {
+    return Intl.message(
+      "Enter a number of 0 or more.",
+      name: 'favoriteNumberInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete favorite`
+  String get favoriteDelete {
+    return Intl.message(
+      "Delete favorite",
+      name: 'favoriteDelete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete this favorite? Entries already logged or planned do not change.`
+  String get favoriteDeleteConfirm {
+    return Intl.message(
+      "Delete this favorite? Entries already logged or planned do not change.",
+      name: 'favoriteDeleteConfirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Favorite saved`
+  String get favoriteSaved {
+    return Intl.message(
+      "Favorite saved",
+      name: 'favoriteSaved',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No favorites yet. Tap the star on any food to save a copy, or create one by hand.`
+  String get favoritesEmpty {
+    return Intl.message(
+      "No favorites yet. Tap the star on any food to save a copy, or create one by hand.",
+      name: 'favoritesEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No favorites match your search.`
+  String get favoritesNoMatch {
+    return Intl.message(
+      "No favorites match your search.",
+      name: 'favoritesNoMatch',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `View original product`
+  String get favoriteViewOriginal {
+    return Intl.message(
+      "View original product",
+      name: 'favoriteViewOriginal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not load the original product.`
+  String get favoriteOriginalFailed {
+    return Intl.message(
+      "Could not load the original product.",
+      name: 'favoriteOriginalFailed',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

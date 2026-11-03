@@ -17,5 +17,5 @@ class FavoriteFoodDataSource {
   Future<void> delete(String id) => _box.delete(id);
 
   /// Notifies on every change to the box (local edits and synced ones).
-  ValueListenable<Box<FavoriteFoodDBO>> listenable() => _box.listenable();
+  Listenable listenable() => _box.listenable();
 }

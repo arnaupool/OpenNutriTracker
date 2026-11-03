@@ -14,6 +14,7 @@ import 'package:opennutritracker/features/add_meal/presentation/widgets/meal_ite
 import 'package:opennutritracker/features/add_meal/presentation/widgets/quick_add_bottom_sheet.dart';
 import 'package:opennutritracker/features/add_meal/presentation/bloc/products_bloc.dart';
 import 'package:opennutritracker/features/edit_meal/presentation/edit_meal_screen.dart';
+import 'package:opennutritracker/features/favorites/presentation/favorite_editor_screen.dart';
 import 'package:opennutritracker/features/scanner/scanner_screen.dart';
 import 'package:opennutritracker/features/scanner/util/barcode_check_digit.dart';
 import 'package:opennutritracker/generated/l10n.dart';
@@ -75,6 +76,17 @@ class _AddMealScreenState extends State<AddMealScreen>
       appBar: AppBar(
         title: Text(_mealType.getTypeName(context)),
         actions: [
+          Semantics(
+            identifier: 'add-meal-new-favorite',
+            child: IconButton(
+              tooltip: S.of(context).favoriteNew,
+              icon: const Icon(Icons.star_border),
+              onPressed: () => Navigator.of(context).pushNamed(
+                NavigationOptions.favoriteEditorRoute,
+                arguments: const FavoriteEditorArguments(),
+              ),
+            ),
+          ),
           Semantics(
             identifier: 'add-meal-quick-add',
             child: TextButton(
