@@ -18,6 +18,7 @@ import 'package:opennutritracker/core/utils/id_generator.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/features/diary/presentation/bloc/calendar_day_bloc.dart';
 import 'package:opennutritracker/features/diary/presentation/bloc/diary_bloc.dart';
+import 'package:opennutritracker/features/favorites/domain/favorite_food_repository.dart';
 import 'package:opennutritracker/features/home/presentation/bloc/home_bloc.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_data_source.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dart';
@@ -353,12 +354,17 @@ void refreshAfterPlanLogged() {
   locator<CalendarDayBloc>().add(RefreshCalendarDayEvent());
 }
 
+/// Where a plan candidate comes from; one column on desktop, one tab on the
+/// phone.
+enum PlanCandidateGroup { favorites, recipes, recent }
+
 class _Candidate {
   final MealDBO meal;
   final double defaultAmount;
   final IconData icon;
+  final PlanCandidateGroup group;
 
-  const _Candidate(this.meal, this.defaultAmount, this.icon);
+  const _Candidate(this.meal, this.defaultAmount, this.icon, this.group);
 }
 
 /// Picks what to plan from the user's own recipes, custom foods and recent
@@ -390,37 +396,120 @@ class _AddPlanEntryDialogState extends State<_AddPlanEntryDialog> {
   }
 
   Future<void> _loadCandidates() async {
-    final seen = <String>{};
+    final seen = <PlanCandidateGroup, Set<String>>{for (final g in PlanCandidateGroup.values) g: <String>{}};
     final result = <_Candidate>[];
-    void add(MealDBO meal, double amount, IconData icon) {
+    void add(PlanCandidateGroup group, MealDBO meal, double amount, IconData icon) {
       final key = (meal.code ?? meal.name ?? '').toLowerCase();
-      if (key.isEmpty || !seen.add(key)) return;
-      result.add(_Candidate(meal, amount, icon));
+      if (key.isEmpty || !seen[group]!.add(key)) return;
+      result.add(_Candidate(meal, amount, icon, group));
+    }
+
+    // Plan entries keep their own copy of the meal, so a favorite deleted
+    // later does not touch what was planned from it.
+    for (final f in locator<FavoriteFoodRepository>().getAll()) {
+      add(PlanCandidateGroup.favorites, MealDBO.fromMealEntity(f.toMealEntity()), f.portionQuantity ?? 100, Icons.star);
     }
 
     for (final r in locator<RecipeRepository>().getAllRecipes()) {
-      final serving = r.servingsCount != null && r.servingsCount! > 0 ? r.totalWeightG / r.servingsCount! : r.totalWeightG;
-      add(MealDBO.fromMealEntity(r.toMealEntity()), serving, Icons.menu_book_outlined);
+      final serving = r.servingsCount != null && r.servingsCount! > 0
+          ? r.totalWeightG / r.servingsCount!
+          : r.totalWeightG;
+      add(PlanCandidateGroup.recipes, MealDBO.fromMealEntity(r.toMealEntity()), serving, Icons.menu_book_outlined);
     }
     for (final m in locator<CustomMealDataSource>().getAllCustomMeals()) {
-      add(m, 100, Icons.restaurant_outlined);
+      add(PlanCandidateGroup.recipes, m, 100, Icons.restaurant_outlined);
     }
     for (final i in await locator<IntakeRepository>().getRecentIntake()) {
-      add(MealDBO.fromMealEntity(i.meal), i.amount, Icons.history);
+      add(PlanCandidateGroup.recent, MealDBO.fromMealEntity(i.meal), i.amount, Icons.history);
     }
     if (mounted) setState(() => _candidates = result);
+  }
+
+  String _groupLabel(PlanCandidateGroup g, S s) => switch (g) {
+    PlanCandidateGroup.favorites => s.favoritesTitle,
+    PlanCandidateGroup.recipes => s.recipesLabel,
+    PlanCandidateGroup.recent => s.addItemMenuRecentlyLabel,
+  };
+
+  Widget _candidateList(PlanCandidateGroup group, List<_Candidate> visible, S s) {
+    if (visible.isEmpty) {
+      return Center(child: Text(s.planNoCandidates, textAlign: TextAlign.center));
+    }
+    return Semantics(
+      identifier: 'plan-candidates-${group.name}',
+      child: ListView(
+        children: [
+          for (final c in visible)
+            ListTile(
+              leading: Icon(c.icon),
+              title: Text(c.meal.name ?? ''),
+              subtitle: Text(
+                '${(c.meal.nutriments.energyKcal100 ?? 0).round()} kcal / 100 ${c.meal.mealUnit == 'ml' ? 'ml' : 'g'}',
+              ),
+              onTap: () => setState(() {
+                _selected = c;
+                _amount.text = c.defaultAmount.round().toString();
+              }),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// Desktop: Favorites, Recipes and Recent side by side.
+  Widget _columns(List<_Candidate> Function(PlanCandidateGroup) visibleOf, S s) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final g in PlanCandidateGroup.values)
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 8, 4),
+                  child: Text(_groupLabel(g, s), style: Theme.of(context).textTheme.titleSmall),
+                ),
+                Expanded(child: _candidateList(g, visibleOf(g), s)),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  /// Phone: one tab per group, Favorites first.
+  Widget _tabs(List<_Candidate> Function(PlanCandidateGroup) visibleOf, S s) {
+    return DefaultTabController(
+      length: PlanCandidateGroup.values.length,
+      child: Column(
+        children: [
+          Semantics(
+            identifier: 'plan-candidate-tabs',
+            child: TabBar(tabs: [for (final g in PlanCandidateGroup.values) Tab(text: _groupLabel(g, s))]),
+          ),
+          Expanded(
+            child: TabBarView(
+              children: [for (final g in PlanCandidateGroup.values) _candidateList(g, visibleOf(g), s)],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final s = S.of(context);
     final query = _search.text.trim().toLowerCase();
-    final visible = _candidates.where((c) => (c.meal.name ?? '').toLowerCase().contains(query)).take(60).toList();
+    List<_Candidate> visibleOf(PlanCandidateGroup g) =>
+        _candidates.where((c) => c.group == g && (c.meal.name ?? '').toLowerCase().contains(query)).take(60).toList();
+    final wide = MediaQuery.of(context).size.width >= 900;
     final selected = _selected;
     return AlertDialog(
       title: Text(s.planAdd),
       content: SizedBox(
-        width: 460,
+        width: wide && _selected == null ? 840 : 460,
         height: 420,
         child: selected == null
             ? Column(
@@ -435,29 +524,7 @@ class _AddPlanEntryDialogState extends State<_AddPlanEntryDialog> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Expanded(
-                    child: visible.isEmpty
-                        ? Center(child: Text(s.planNoCandidates, textAlign: TextAlign.center))
-                        : Semantics(
-                            identifier: 'plan-candidates',
-                            child: ListView(
-                              children: [
-                                for (final c in visible)
-                                  ListTile(
-                                    leading: Icon(c.icon),
-                                    title: Text(c.meal.name ?? ''),
-                                    subtitle: Text(
-                                      '${(c.meal.nutriments.energyKcal100 ?? 0).round()} kcal / 100 ${c.meal.mealUnit == 'ml' ? 'ml' : 'g'}',
-                                    ),
-                                    onTap: () => setState(() {
-                                      _selected = c;
-                                      _amount.text = c.defaultAmount.round().toString();
-                                    }),
-                                  ),
-                              ],
-                            ),
-                          ),
-                  ),
+                  Expanded(child: wide ? _columns(visibleOf, s) : _tabs(visibleOf, s)),
                 ],
               )
             : Column(

@@ -5,6 +5,8 @@ import 'package:opennutritracker/core/domain/usecase/get_config_usecase.dart';
 import 'package:opennutritracker/features/add_meal/domain/entity/meal_entity.dart';
 import 'package:opennutritracker/features/add_meal/domain/usecase/search_products_usecase.dart';
 import 'package:opennutritracker/features/add_meal/presentation/bloc/search_debounce.dart';
+import 'package:opennutritracker/features/favorites/domain/favorite_food_entity.dart';
+import 'package:opennutritracker/features/favorites/domain/favorite_food_repository.dart';
 
 part 'products_event.dart';
 
@@ -15,10 +17,11 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
 
   final SearchProductsUseCase _searchProductUseCase;
   final GetConfigUsecase _getConfigUsecase;
+  final FavoriteFoodRepository? _favorites;
 
   String _searchString = "";
 
-  ProductsBloc(this._searchProductUseCase, this._getConfigUsecase)
+  ProductsBloc(this._searchProductUseCase, this._getConfigUsecase, [this._favorites])
       : super(ProductsInitial()) {
     on<LoadProductsEvent>(
       (event, emit) =>
@@ -38,8 +41,10 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
         final result = await _searchProductUseCase.searchOFFProductsByString(
           _searchString,
         );
+        final favorites = _matchingFavorites(_searchString);
         emit(ProductsLoadedState(
-          products: result.meals,
+          products: _without(favorites, result.meals),
+          favorites: favorites,
           remoteSourceEmpty: result.remoteSourceEmpty,
         ));
       } catch (error) {
@@ -74,9 +79,11 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
         skipRemote: skipRemote,
       );
       final config = await _getConfigUsecase.getConfig();
+      final favorites = _matchingFavorites(searchString);
       emit(
         ProductsLoadedState(
-          products: result.meals,
+          products: _without(favorites, result.meals),
+          favorites: favorites,
           usesImperialUnits: config.usesImperialUnits,
           remoteSourceEmpty: result.remoteSourceEmpty,
         ),
@@ -86,4 +93,12 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
       emit(ProductsFailedState());
     }
   }
+
+  /// The favorites that match [query]; they are shown before the results.
+  List<FavoriteFoodEntity> _matchingFavorites(String query) => _favorites?.search(query) ?? const [];
+
+  /// [meals] without the products the [favorites] stand for.
+  List<MealEntity> _without(List<FavoriteFoodEntity> favorites, List<MealEntity> meals) => favorites.isEmpty
+      ? meals
+      : meals.where((m) => !favorites.any((f) => favoriteCoversMeal(f, m))).toList();
 }

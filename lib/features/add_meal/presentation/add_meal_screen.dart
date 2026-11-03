@@ -14,7 +14,9 @@ import 'package:opennutritracker/features/add_meal/presentation/widgets/meal_ite
 import 'package:opennutritracker/features/add_meal/presentation/widgets/quick_add_bottom_sheet.dart';
 import 'package:opennutritracker/features/add_meal/presentation/bloc/products_bloc.dart';
 import 'package:opennutritracker/features/edit_meal/presentation/edit_meal_screen.dart';
-import 'package:opennutritracker/features/favorites/presentation/favorite_editor_screen.dart';
+import 'package:opennutritracker/features/favorites/domain/favorite_food_entity.dart';
+import 'package:opennutritracker/features/favorites/domain/favorite_food_repository.dart';
+import 'package:opennutritracker/features/favorites/presentation/favorites_list.dart';
 import 'package:opennutritracker/features/scanner/scanner_screen.dart';
 import 'package:opennutritracker/features/scanner/util/barcode_check_digit.dart';
 import 'package:opennutritracker/generated/l10n.dart';
@@ -47,7 +49,10 @@ class _AddMealScreenState extends State<AddMealScreen>
   void initState() {
     _productsBloc = locator<ProductsBloc>();
     _foodBloc = locator<FoodBloc>();
-    _tabController = TabController(length: 2, vsync: this);
+    // Favorites first; start there when there are any, otherwise on the
+    // product search.
+    final hasFavorites = locator<FavoriteFoodRepository>().getAll().isNotEmpty;
+    _tabController = TabController(length: 3, vsync: this, initialIndex: hasFavorites ? 0 : 1);
     _tabController.addListener(() {
       // Update search results when tab changes
       _onSearchSubmit(_searchStringListener.value);
@@ -76,17 +81,6 @@ class _AddMealScreenState extends State<AddMealScreen>
       appBar: AppBar(
         title: Text(_mealType.getTypeName(context)),
         actions: [
-          Semantics(
-            identifier: 'add-meal-new-favorite',
-            child: IconButton(
-              tooltip: S.of(context).favoriteNew,
-              icon: const Icon(Icons.star_border),
-              onPressed: () => Navigator.of(context).pushNamed(
-                NavigationOptions.favoriteEditorRoute,
-                arguments: const FavoriteEditorArguments(),
-              ),
-            ),
-          ),
           Semantics(
             identifier: 'add-meal-quick-add',
             child: TextButton(
@@ -124,6 +118,7 @@ class _AddMealScreenState extends State<AddMealScreen>
               const SizedBox(height: 16.0),
               TabBar(
                 tabs: [
+                  Tab(text: S.of(context).favoritesTitle),
                   Tab(text: S.of(context).searchProductsPage),
                   Tab(text: S.of(context).searchFoodPage),
                 ],
@@ -135,6 +130,11 @@ class _AddMealScreenState extends State<AddMealScreen>
                 child: TabBarView(
                   controller: _tabController,
                   children: [
+                    FavoritesList(
+                      query: _searchStringListener,
+                      day: _day,
+                      mealType: _mealType,
+                    ),
                     Column(
                       children: [
                         Container(
@@ -156,26 +156,16 @@ class _AddMealScreenState extends State<AddMealScreen>
                                 child: CircularProgressIndicator(),
                               );
                             } else if (state is ProductsLoadedState) {
-                              if (state.products.isEmpty) {
+                              if (state.products.isEmpty &&
+                                  state.favorites.isEmpty) {
                                 return const NoResultsWidget();
                               }
                               return Flexible(
-                                child: ListView.builder(
-                                  itemCount:
-                                      state.products.length +
-                                      (state.remoteSourceEmpty ? 1 : 0),
-                                  itemBuilder: (context, index) {
-                                    if (index == state.products.length) {
-                                      return const NoResultsWidget();
-                                    }
-                                    return MealItemCard(
-                                      day: _day,
-                                      mealEntity: state.products[index],
-                                      addMealType: _mealType,
-                                      usesImperialUnits:
-                                          state.usesImperialUnits,
-                                    );
-                                  },
+                                child: _resultsList(
+                                  state.favorites,
+                                  state.products,
+                                  state.remoteSourceEmpty,
+                                  state.usesImperialUnits,
                                 ),
                               );
                             } else if (state is ProductsFailedState) {
@@ -214,26 +204,16 @@ class _AddMealScreenState extends State<AddMealScreen>
                                 child: CircularProgressIndicator(),
                               );
                             } else if (state is FoodLoadedState) {
-                              if (state.food.isEmpty) {
+                              if (state.food.isEmpty &&
+                                  state.favorites.isEmpty) {
                                 return const NoResultsWidget();
                               }
                               return Flexible(
-                                child: ListView.builder(
-                                  itemCount:
-                                      state.food.length +
-                                      (state.remoteSourceEmpty ? 1 : 0),
-                                  itemBuilder: (context, index) {
-                                    if (index == state.food.length) {
-                                      return const NoResultsWidget();
-                                    }
-                                    return MealItemCard(
-                                      day: _day,
-                                      mealEntity: state.food[index],
-                                      addMealType: _mealType,
-                                      usesImperialUnits:
-                                          state.usesImperialUnits,
-                                    );
-                                  },
+                                child: _resultsList(
+                                  state.favorites,
+                                  state.food,
+                                  state.remoteSourceEmpty,
+                                  state.usesImperialUnits,
                                 ),
                               );
                             } else if (state is FoodFailedState) {
@@ -260,6 +240,42 @@ class _AddMealScreenState extends State<AddMealScreen>
     );
   }
 
+  /// Search results: the matching favorites first (with a star), then the
+  /// products found.
+  Widget _resultsList(
+    List<FavoriteFoodEntity> favorites,
+    List<MealEntity> meals,
+    bool remoteSourceEmpty,
+    bool usesImperialUnits,
+  ) {
+    return Semantics(
+      identifier: 'add-meal-results',
+      child: ListView.builder(
+        itemCount: favorites.length + meals.length + (remoteSourceEmpty ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index < favorites.length) {
+            final favorite = favorites[index];
+            return MealItemCard(
+              day: _day,
+              mealEntity: favorite.toMealEntity(),
+              addMealType: _mealType,
+              usesImperialUnits: usesImperialUnits,
+              favorite: favorite,
+            );
+          }
+          final mealIndex = index - favorites.length;
+          if (mealIndex == meals.length) return const NoResultsWidget();
+          return MealItemCard(
+            day: _day,
+            mealEntity: meals[mealIndex],
+            addMealType: _mealType,
+            usesImperialUnits: usesImperialUnits,
+          );
+        },
+      ),
+    );
+  }
+
   void _onProductsRefreshButtonPressed() {
     _productsBloc.add(const RefreshProductsEvent());
   }
@@ -271,6 +287,9 @@ class _AddMealScreenState extends State<AddMealScreen>
   void _onSearchSubmit(String inputText) {
     switch (_tabController.index) {
       case 0:
+        // Favorites filter locally as the text changes.
+        break;
+      case 1:
         final trimmed = inputText.trim();
         if (isValidBarcodeCheckDigit(trimmed)) {
           Navigator.of(context).pushNamed(
@@ -284,7 +303,7 @@ class _AddMealScreenState extends State<AddMealScreen>
           return;
         }
         _productsBloc.add(LoadProductsEvent(searchString: inputText));
-      case 1:
+      case 2:
         _foodBloc.add(LoadFoodEvent(searchString: inputText));
     }
   }
@@ -292,9 +311,9 @@ class _AddMealScreenState extends State<AddMealScreen>
   /// Debounced search-as-you-type.
   void _onSearchChanged(String inputText) {
     switch (_tabController.index) {
-      case 0:
-        _productsBloc.add(SearchInputChangedEvent(searchString: inputText));
       case 1:
+        _productsBloc.add(SearchInputChangedEvent(searchString: inputText));
+      case 2:
         _foodBloc.add(SearchFoodInputChangedEvent(searchString: inputText));
     }
   }

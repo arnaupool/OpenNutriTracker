@@ -16,6 +16,9 @@ class FoodLoadingState extends FoodState {
 
 class FoodLoadedState extends FoodState {
   final List<MealEntity> food;
+
+  /// Favorites matching the search, shown first with a star.
+  final List<FavoriteFoodEntity> favorites;
   final bool usesImperialUnits;
 
   /// True when the remote FDC source returned zero results (or failed
@@ -25,12 +28,13 @@ class FoodLoadedState extends FoodState {
 
   const FoodLoadedState({
     required this.food,
+    this.favorites = const [],
     this.usesImperialUnits = false,
     this.remoteSourceEmpty = false,
   });
 
   @override
-  List<Object?> get props => [food, usesImperialUnits, remoteSourceEmpty];
+  List<Object?> get props => [food, favorites, usesImperialUnits, remoteSourceEmpty];
 }
 
 class FoodFailedState extends FoodState {

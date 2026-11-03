@@ -19,13 +19,17 @@ class ScannerLoadedState extends ScannerState {
   final MealEntity product;
   final bool usesImperialUnits;
 
+  /// Set when the code belongs to a favorite (then [product] is its meal).
+  final FavoriteFoodEntity? favorite;
+
   const ScannerLoadedState({
     required this.product,
     this.usesImperialUnits = false,
+    this.favorite,
   });
 
   @override
-  List<Object?> get props => [product];
+  List<Object?> get props => [product, favorite];
 }
 
 class ScannerFailedState extends ScannerState {

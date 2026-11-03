@@ -229,11 +229,11 @@ Future<void> initLocator() async {
   locator.registerFactory<MealDetailBloc>(
     () => MealDetailBloc(locator(), locator(), locator(), locator(), locator(), locator(), locator()),
   );
-  locator.registerFactory<ScannerBloc>(() => ScannerBloc(locator(), locator()));
+  locator.registerFactory<ScannerBloc>(() => ScannerBloc(locator(), locator(), locator()));
   locator.registerFactory<EditMealBloc>(() => EditMealBloc(locator(), locator(), locator()));
   locator.registerFactory<AddMealBloc>(() => AddMealBloc(locator()));
-  locator.registerFactory<ProductsBloc>(() => ProductsBloc(locator(), locator()));
-  locator.registerFactory<FoodBloc>(() => FoodBloc(locator(), locator()));
+  locator.registerFactory<ProductsBloc>(() => ProductsBloc(locator(), locator(), locator()));
+  locator.registerFactory<FoodBloc>(() => FoodBloc(locator(), locator(), locator()));
   locator.registerFactory(() => RecentMealBloc(locator(), locator()));
   // #84: fasting timer. Factory so the screen-scoped timer and dialog
   // state reset cleanly each time the user opens the screen.

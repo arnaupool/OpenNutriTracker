@@ -8,6 +8,7 @@ import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/features/add_meal/domain/entity/meal_entity.dart';
 import 'package:opennutritracker/features/add_meal/presentation/add_meal_type.dart';
 import 'package:opennutritracker/features/add_meal/util/food_emoji_resolver.dart';
+import 'package:opennutritracker/features/favorites/domain/favorite_food_entity.dart';
 import 'package:opennutritracker/features/meal_detail/meal_detail_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
@@ -17,12 +18,17 @@ class MealItemCard extends StatelessWidget {
   final MealEntity mealEntity;
   final bool usesImperialUnits;
 
+  /// Set when the card stands for a favorite: it is drawn with a star and
+  /// opens the detail with the favorite's default portion.
+  final FavoriteFoodEntity? favorite;
+
   const MealItemCard({
     super.key,
     required this.day,
     required this.mealEntity,
     required this.addMealType,
     required this.usesImperialUnits,
+    this.favorite,
   });
 
   @override
@@ -164,12 +170,18 @@ class MealItemCard extends StatelessWidget {
                           usesImperialUnits: usesImperialUnits,
                         )
                       : const SizedBox()),
-              trailing: IconButton(
-                style: IconButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.onSurface,
-                ),
-                icon: const Icon(Icons.add_outlined),
-                onPressed: () => _onItemPressed(context),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (favorite != null) const Icon(Icons.star, color: Colors.amber, key: Key('favorite-star')),
+                  IconButton(
+                    style: IconButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.onSurface,
+                    ),
+                    icon: const Icon(Icons.add_outlined),
+                    onPressed: () => _onItemPressed(context),
+                  ),
+                ],
               ),
             ),
           ),
@@ -187,6 +199,7 @@ class MealItemCard extends StatelessWidget {
         addMealType.getIntakeType(),
         day,
         usesImperialUnits,
+        favorite: favorite,
       ),
     );
   }

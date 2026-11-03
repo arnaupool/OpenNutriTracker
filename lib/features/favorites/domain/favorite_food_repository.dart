@@ -1,7 +1,16 @@
 import 'package:flutter/foundation.dart';
+import 'package:opennutritracker/features/add_meal/domain/entity/meal_entity.dart';
 import 'package:opennutritracker/features/favorites/data/favorite_food_data_source.dart';
 import 'package:opennutritracker/features/favorites/data/favorite_food_dbo.dart';
 import 'package:opennutritracker/features/favorites/domain/favorite_food_entity.dart';
+
+/// Whether [meal] is the product [favorite] was copied from, or carries one
+/// of its barcodes (so a search shows the favorite instead of it).
+bool favoriteCoversMeal(FavoriteFoodEntity favorite, MealEntity meal) {
+  final code = meal.code;
+  if (code == null) return false;
+  return favorite.barcodes.contains(code) || (favorite.originSource == meal.source.name && favorite.originId == code);
+}
 
 class FavoriteFoodRepository {
   final FavoriteFoodDataSource _dataSource;

@@ -144,6 +144,7 @@ class _ScannerScreenState extends State<ScannerScreen>
                   _intakeTypeEntity!,
                   _day!,
                   state.usesImperialUnits,
+                  favorite: state.favorite,
                 ),
               );
             });
