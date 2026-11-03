@@ -7,7 +7,6 @@ import 'package:logging/logging.dart';
 import 'package:opennutritracker/core/account/account_session_service.dart';
 import 'package:opennutritracker/core/profiles/profile_store.dart';
 import 'package:opennutritracker/core/sync/sync_engine.dart';
-import 'package:opennutritracker/core/sync/sync_pairing.dart';
 import 'package:opennutritracker/core/sync/sync_remote.dart';
 import 'package:opennutritracker/core/sync/sync_state_store.dart';
 import 'package:opennutritracker/core/sync/synced_box.dart';
@@ -47,22 +46,12 @@ class _Unavailable extends _Mode {
   _Unavailable(this.status);
 }
 
-/// Old pairing token, for a profile without an account (until D11).
-class _Token extends _Mode {
-  final SyncPairing pairing;
-
-  _Token(this.pairing);
-}
-
 class _Account extends _Mode {
   final String profileId;
   final AccountLink link;
   final Uint8List key;
 
-  /// The profile's old pairing, still to retire.
-  final SyncPairing? pairing;
-
-  _Account(this.profileId, this.link, this.key, this.pairing);
+  _Account(this.profileId, this.link, this.key);
 }
 
 /// Decides when to sync and reports how it went (FAS-01, B6): on app start,
@@ -75,28 +64,20 @@ class _Account extends _Mode {
 ///   account's access token and data key) when the account is
 ///   [AccountStatus.ready]; otherwise the status is an error with
 ///   [AccountSyncUnavailableException] and nothing is sent.
-/// - The first account sync of a profile that still has an old pairing is
-///   the migration (docs/plan-cuentas.md, decision 6): a token sync to pick
-///   up the other devices' changes, then an upload and merge into the
-///   account using the old set's timestamps. Only after that succeeds are
-///   the token's rows deleted from `sync_records` and the pairing
-///   forgotten.
-/// - A profile without an account syncs through its old pairing if it has
-///   one (until D11), and not at all otherwise.
+/// - A profile without an account does not sync. This includes a profile
+///   that was paired with the removed QR-code sync: it keeps its data and
+///   syncs again once it is linked to an account.
 class SyncService with WidgetsBindingObserver {
   static const Duration changeDebounce = Duration(seconds: 4);
   static const Duration periodic = Duration(minutes: 2);
 
   final _log = Logger('SyncService');
   final SyncEngine _engine;
-  final SyncKeyService _pairings;
   final AccountSessionService _accounts;
   final Box<dynamic> _stateBox;
   final List<SyncedBox<dynamic>> _boxes;
-  final SyncRemote Function(String token) _tokenRemote;
   final SyncRemote Function(String userId, AccessTokenSource accessToken) _accountRemote;
   final String Function() _activeProfile;
-  late final SyncStateStore _tokenState = SyncStateStore(_stateBox);
 
   /// Called after a sync wrote downloaded records into local boxes, to
   /// recompute derived data and refresh the screens.
@@ -116,20 +97,16 @@ class SyncService with WidgetsBindingObserver {
 
   SyncService({
     required SyncEngine engine,
-    required SyncKeyService pairings,
     required AccountSessionService accounts,
     required Box<dynamic> stateBox,
     required List<SyncedBox<dynamic>> boxes,
-    required SyncRemote Function(String token) tokenRemote,
     required SyncRemote Function(String userId, AccessTokenSource accessToken) accountRemote,
     required this.onApplied,
     String Function()? activeProfile,
   }) : _engine = engine,
-       _pairings = pairings,
        _accounts = accounts,
        _stateBox = stateBox,
        _boxes = boxes,
-       _tokenRemote = tokenRemote,
        _accountRemote = accountRemote,
        _activeProfile = activeProfile ?? (() => ProfileScope.activeId);
 
@@ -252,31 +229,6 @@ class SyncService with WidgetsBindingObserver {
     return syncBeforeSignOut(profileId);
   }
 
-  // Old pairing token (until D11)
-
-  /// Turns token sync on as the device whose data seeds the set. Not for a
-  /// profile with an account.
-  Future<SyncPairing> enableAsOwner() async {
-    await _requireNoAccount();
-    final pairing = await _pairings.enable();
-    await _tokenState.reset();
-    await _refreshPhase();
-    _kick();
-    return pairing;
-  }
-
-  /// Links this device to an existing token set: the server's copy wins on
-  /// the first sync, so this device's records only fill gaps. Not for a
-  /// profile with an account.
-  Future<void> join(SyncPairing pairing) async {
-    await _requireNoAccount();
-    await _pairings.store(pairing);
-    await _tokenState.reset();
-    await _tokenState.setJoining(true);
-    await _refreshPhase();
-    _kick();
-  }
-
   /// Stops the automatic triggers (tests, and before a restore replaces the
   /// boxes wholesale).
   Future<void> stop() async {
@@ -288,14 +240,6 @@ class SyncService with WidgetsBindingObserver {
     _watchers.clear();
     if (_started) WidgetsBinding.instance.removeObserver(this);
     _started = false;
-  }
-
-  /// Turns token sync off on this device. A profile with an account keeps
-  /// syncing through it.
-  Future<void> disable() async {
-    await _pairings.disable();
-    await _tokenState.reset();
-    await _refreshPhase();
   }
 
   // Internals
@@ -311,14 +255,6 @@ class SyncService with WidgetsBindingObserver {
         case _Unavailable(status: final accountStatus):
           status.value = SyncStatus(SyncPhase.error, error: AccountSyncUnavailableException(accountStatus));
           return null;
-        case _Token(:final pairing):
-          status.value = SyncStatus(SyncPhase.syncing, lastSync: _tokenState.lastSync);
-          final target = SyncTarget(remote: _tokenRemote(pairing.token), state: _tokenState, key: pairing.key);
-          final result = await _engine.sync(target);
-          if (result.applied.isNotEmpty) await onApplied(result.applied);
-          status.value = SyncStatus(SyncPhase.idle, lastSync: _tokenState.lastSync);
-          _log.fine('Token sync: pulled ${result.pulled}, pushed ${result.pushed}, unreadable ${result.unreadable}');
-          return result;
         case _Account():
           return await _runAccount(mode);
       }
@@ -332,45 +268,13 @@ class SyncService with WidgetsBindingObserver {
   Future<SyncResult> _runAccount(_Account mode) async {
     final state = await _accountState(mode.link.userId, mode.key);
     status.value = SyncStatus(SyncPhase.syncing, lastSync: state.lastSync);
-    final pairing = mode.pairing;
-    SyncSeed? seed;
-    if (pairing != null && state.lastSync == null) {
-      // Migration: bring the old set up to date first, then read when each
-      // record was last changed there.
-      final tokenRemote = _tokenRemote(pairing.token);
-      final caughtUp = await _engine.sync(SyncTarget(remote: tokenRemote, state: _tokenState, key: pairing.key));
-      if (caughtUp.applied.isNotEmpty) await onApplied(caughtUp.applied);
-      seed = await _engine.readSeed(tokenRemote, pairing.key, _tokenState);
-    }
     final result = await _engine.sync(
-      SyncTarget(
-        remote: _accountRemote(mode.link.userId, _tokenSource(mode.profileId)),
-        state: state,
-        key: mode.key,
-        account: true,
-        seed: seed,
-      ),
+      SyncTarget(remote: _accountRemote(mode.link.userId, _tokenSource(mode.profileId)), state: state, key: mode.key),
     );
     if (result.applied.isNotEmpty) await onApplied(result.applied);
-    // Reached only when every local record is on the account.
-    if (pairing != null) await _retirePairing(pairing);
     status.value = SyncStatus(SyncPhase.idle, lastSync: state.lastSync);
     _log.fine('Account sync: pulled ${result.pulled}, pushed ${result.pushed}, unreadable ${result.unreadable}');
     return result;
-  }
-
-  /// Deletes the old token's rows and forgets the pairing. On failure the
-  /// pairing stays and the next successful account sync tries again.
-  Future<void> _retirePairing(SyncPairing pairing) async {
-    try {
-      await _tokenRemote(pairing.token).deleteAll();
-    } on Object catch (e) {
-      _log.warning('Could not delete the old sync rows; retrying after the next sync', e);
-      return;
-    }
-    await _pairings.forget();
-    await _tokenState.reset();
-    _log.info('Old sync pairing retired');
   }
 
   Future<_Mode> _resolve() async {
@@ -381,10 +285,9 @@ class SyncService with WidgetsBindingObserver {
       if (accountStatus != AccountStatus.ready) return _Unavailable(accountStatus);
       final key = await _accounts.dataKey(profileId);
       if (key == null) return _Unavailable(AccountStatus.signedOut);
-      return _Account(profileId, link, key, await _pairings.read());
+      return _Account(profileId, link, key);
     }
-    final pairing = await _pairings.read();
-    return pairing == null ? _Off() : _Token(pairing);
+    return _Off();
   }
 
   /// The account state for [key]; a state built with another key starts
@@ -408,31 +311,12 @@ class SyncService with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _requireNoAccount() async {
-    if (await _accounts.link(_activeProfile()) != null) {
-      throw StateError('This profile syncs through its account');
-    }
-  }
-
-  /// Syncs now, starting the automatic triggers first if the app was
-  /// launched before sync was turned on (for example, right after onboarding).
-  void _kick() {
-    if (_started) {
-      unawaited(syncNow());
-    } else {
-      unawaited(start());
-    }
-  }
-
   Future<void> _refreshPhase() async {
     final link = await _accounts.link(_activeProfile());
     if (link != null) {
       status.value = SyncStatus(SyncPhase.idle, lastSync: SyncStateStore.account(_stateBox, link.userId).lastSync);
       return;
     }
-    final enabled = await _pairings.isEnabled();
-    status.value = enabled
-        ? SyncStatus(SyncPhase.idle, lastSync: _tokenState.lastSync)
-        : const SyncStatus(SyncPhase.off);
+    status.value = const SyncStatus(SyncPhase.off);
   }
 }

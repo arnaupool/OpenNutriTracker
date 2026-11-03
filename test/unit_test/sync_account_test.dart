@@ -9,7 +9,6 @@ import 'package:opennutritracker/core/account/account_session_service.dart';
 import 'package:opennutritracker/core/profiles/profile_store.dart';
 import 'package:opennutritracker/core/sync/sync_crypto.dart';
 import 'package:opennutritracker/core/sync/sync_engine.dart';
-import 'package:opennutritracker/core/sync/sync_pairing.dart';
 import 'package:opennutritracker/core/sync/sync_remote.dart';
 import 'package:opennutritracker/core/sync/sync_service.dart';
 
@@ -21,32 +20,6 @@ const _userId = 'user-1';
 String _jwt(String sub, [String jti = 'a']) {
   String part(Map<String, dynamic> json) => base64Url.encode(utf8.encode(jsonEncode(json))).replaceAll('=', '');
   return '${part({'alg': 'HS256'})}.${part({'sub': sub, 'jti': jti})}.sig';
-}
-
-class _FakePairings implements SyncKeyService {
-  SyncPairing? pairing;
-  bool forgotten = false;
-
-  @override
-  Future<SyncPairing?> read() async => pairing;
-
-  @override
-  Future<bool> isEnabled() async => pairing != null;
-
-  @override
-  Future<SyncPairing> enable() async => pairing ??= SyncPairing('b' * 64, SyncCrypto.generateKey());
-
-  @override
-  Future<void> store(SyncPairing value) async => pairing = value;
-
-  @override
-  Future<void> disable() async => pairing = null;
-
-  @override
-  Future<void> forget() async {
-    pairing = null;
-    forgotten = true;
-  }
 }
 
 /// The parts of [AccountSessionService] sync uses.
@@ -129,20 +102,13 @@ class _GuardedRemote implements SyncRemote {
 class _Harness {
   final FakeSyncServer server;
   final FakeSyncDevice device;
-  final pairings = _FakePairings();
   final accounts = _FakeAccounts();
-  final tokenSets = <String>[];
   final accountSets = <String>[];
   late final SyncService service = SyncService(
     engine: device.engine,
-    pairings: pairings,
     accounts: accounts,
     stateBox: device.stateBox,
     boxes: device.engine.boxes,
-    tokenRemote: (token) {
-      tokenSets.add(token);
-      return server.remote(token);
-    },
     accountRemote: (userId, token) {
       accountSets.add(userId);
       return _GuardedRemote(server.remote(userId), token);
@@ -175,25 +141,25 @@ void main() {
   setUp(() => server = FakeSyncServer());
 
   group('which path a profile uses', () {
-    test('a local profile without a pairing does not sync at all', () async {
+    test('a local profile does not sync at all', () async {
       final h = await _Harness.create(server);
       await h.device.diary.add({'id': 'm1'});
       expect(await h.service.syncNow(), isNull);
       expect(h.service.status.value.phase, SyncPhase.off);
-      expect(h.tokenSets, isEmpty);
       expect(h.accountSets, isEmpty);
       expect(server.rows, isEmpty);
     });
 
-    test('a local profile with an old pairing keeps the token path', () async {
+    test('a profile that was paired with the removed QR sync simply stops syncing', () async {
       final h = await _Harness.create(server);
-      h.pairings.pairing = SyncPairing('c' * 64, SyncCrypto.generateKey());
       await h.device.diary.add({'id': 'm1'});
-      final result = await h.service.syncNow();
-      expect(result!.pushed, 1);
-      expect(server.rowsOf('c' * 64), hasLength(1));
-      expect(h.accountSets, isEmpty);
-      expect(h.pairings.pairing, isNotNull);
+      // Old per-profile secrets and token state are ignored, not read.
+      await h.device.stateBox.put('cursor', '2026-01-01T00:00:00.000Z');
+      await h.device.stateBox.put('hashes:diary', {'m1': 'x'});
+      expect(await h.service.syncNow(), isNull);
+      expect(h.service.status.value.phase, SyncPhase.off);
+      expect(server.rows, isEmpty);
+      expect(h.device.diary.length, 1);
     });
 
     test('a ready account syncs through account_records only', () async {
@@ -202,7 +168,6 @@ void main() {
       await h.device.diary.add({'id': 'm1', 'kcal': 5});
       final result = await h.service.syncNow();
       expect(result!.pushed, 1);
-      expect(h.tokenSets, isEmpty);
       expect(h.accountRecords().keys, ['m1']);
       expect(h.service.status.value.phase, SyncPhase.idle);
       expect(h.service.status.value.lastSync, isNotNull);
@@ -213,13 +178,11 @@ void main() {
         final h = await _Harness.create(server);
         h.link();
         h.accounts.accountStatus = st;
-        h.pairings.pairing = SyncPairing('d' * 64, SyncCrypto.generateKey());
         await h.device.diary.add({'id': 'm1'});
         expect(await h.service.syncNow(), isNull);
         expect(h.service.status.value.phase, SyncPhase.error);
         expect((h.service.status.value.error! as AccountSyncUnavailableException).status, st);
         expect(h.accountSets, isEmpty);
-        expect(h.tokenSets, isEmpty, reason: 'an account profile never falls back to its pairing');
       }
       expect(server.rows, isEmpty);
     });
@@ -234,87 +197,6 @@ void main() {
       expect(h.service.status.value.error, isA<NotSignedInException>());
       expect(server.rows, isEmpty);
       expect(server.pulls + server.pushes, 0);
-    });
-
-    test('an account profile cannot start a new pairing', () async {
-      final h = await _Harness.create(server);
-      h.link();
-      await expectLater(h.service.enableAsOwner(), throwsStateError);
-      expect(h.pairings.pairing, isNull);
-    });
-  });
-
-  group('migration from an old pairing', () {
-    late SyncPairing pairing;
-
-    setUp(() => pairing = SyncPairing('e' * 64, SyncCrypto.generateKey()));
-
-    /// Another device of the same token set with a record of its own.
-    Future<void> otherDeviceWrites(String id) async {
-      final other = await FakeSyncDevice.create();
-      await other.diary.add({'id': id});
-      await other.engine.sync(
-        SyncTarget(remote: server.remote(pairing.token), state: other.tokenState, key: pairing.key),
-      );
-    }
-
-    test('uploads and merges everything, then deletes the token rows and forgets the pairing', () async {
-      final h = await _Harness.create(server);
-      h.pairings.pairing = pairing;
-      await h.device.diary.add({'id': 'local'});
-      await h.service.syncNow();
-      await otherDeviceWrites('from-other-device');
-      expect(server.rowsOf(pairing.token), hasLength(2));
-
-      h.link();
-      final result = await h.service.syncNow();
-      expect(result, isNotNull);
-      expect(h.accountRecords().keys, unorderedEquals(['local', 'from-other-device']));
-      expect(h.device.entries.keys, unorderedEquals(['local', 'from-other-device']));
-      expect(server.rowsOf(pairing.token), isEmpty);
-      expect(h.pairings.forgotten, isTrue);
-      expect(h.device.tokenState.lastSync, isNull);
-      expect(await h.service.hasPendingChanges(_profile), isFalse);
-    });
-
-    test('a failed account push keeps the token rows and the pairing', () async {
-      final h = await _Harness.create(server);
-      h.pairings.pairing = pairing;
-      await h.device.diary.add({'id': 'local'});
-      await h.service.syncNow();
-      h.link();
-
-      server.failPush = true;
-      expect(await h.service.syncNow(), isNull);
-      expect(h.service.status.value.phase, SyncPhase.error);
-      expect(server.rowsOf(pairing.token), hasLength(1));
-      expect(server.deletes, 0);
-      expect(h.pairings.pairing, isNotNull);
-
-      server.failPush = false;
-      expect(await h.service.syncNow(), isNotNull);
-      expect(server.rowsOf(pairing.token), isEmpty);
-      expect(h.pairings.forgotten, isTrue);
-    });
-
-    test('a failed delete keeps the pairing and is retried after the next account sync', () async {
-      final h = await _Harness.create(server);
-      h.pairings.pairing = pairing;
-      await h.device.diary.add({'id': 'local'});
-      await h.service.syncNow();
-      h.link();
-
-      server.failDelete = true;
-      expect(await h.service.syncNow(), isNotNull);
-      expect(h.service.status.value.phase, SyncPhase.idle);
-      expect(h.accountRecords().keys, ['local']);
-      expect(server.rowsOf(pairing.token), hasLength(1));
-      expect(h.pairings.pairing, isNotNull);
-
-      server.failDelete = false;
-      await h.service.syncNow();
-      expect(server.rowsOf(pairing.token), isEmpty);
-      expect(h.pairings.forgotten, isTrue);
     });
   });
 
@@ -358,7 +240,7 @@ void main() {
       // Another device of the account, still holding the old key.
       final stale = await FakeSyncDevice.create();
       await stale.engine.sync(
-        SyncTarget(remote: server.remote(_userId), state: stale.accountState(_userId), key: oldKey, account: true),
+        SyncTarget(remote: server.remote(_userId), state: stale.accountState(_userId), key: oldKey),
       );
 
       expect(await h.service.startFresh(_profile, 'new password'), isTrue);
@@ -368,9 +250,7 @@ void main() {
       expect(await h.service.hasPendingChanges(_profile), isFalse);
 
       await expectLater(
-        stale.engine.sync(
-          SyncTarget(remote: server.remote(_userId), state: stale.accountState(_userId), key: oldKey, account: true),
-        ),
+        stale.engine.sync(SyncTarget(remote: server.remote(_userId), state: stale.accountState(_userId), key: oldKey)),
         throwsA(isA<SyncKeyMismatchException>()),
       );
     });
@@ -464,7 +344,7 @@ void main() {
         queries.add(r.url.queryParameters);
         return http.Response('[]', 200);
       });
-      final remote = TokenSyncRemote('https://x.supabase.co', 'anon', 'f' * 64, client: client);
+      final remote = AccountSyncRemote('https://x.supabase.co', 'anon', _userId, tokens([]), client: client);
       final last = SyncRow.fromJson({
         'box': 'bx',
         'id': 'id1',

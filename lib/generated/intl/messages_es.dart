@@ -446,18 +446,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "clearOffCacheLabel": MessageLookupByLibrary.simpleMessage(
             "Borrar elementos en caché"),
         "clearOffCacheSubtitle": m2,
-        "cloudBackupPairInstructionsLabel": MessageLookupByLibrary.simpleMessage(
-            "Escanea el código QR que aparece en tu otro dispositivo o pega el código de vinculación a mano."),
-        "cloudBackupPairInvalidTokenError": MessageLookupByLibrary.simpleMessage(
-            "Eso no parece un código de vinculación válido"),
-        "cloudBackupPairPasteHint": MessageLookupByLibrary.simpleMessage(
-            "Pega aquí el código de vinculación"),
-        "cloudBackupPairScreenTitle": MessageLookupByLibrary.simpleMessage(
-            "Vincular este dispositivo"),
-        "cloudBackupPairSuccessLabel": MessageLookupByLibrary.simpleMessage(
-            "Dispositivo vinculado"),
-        "cloudBackupTokenDialogTitle": MessageLookupByLibrary.simpleMessage(
-            "Código de vinculación de la copia en la nube"),
         "cmLabel": MessageLookupByLibrary.simpleMessage(
             "cm"),
         "codeCopiedLabel": MessageLookupByLibrary.simpleMessage(
@@ -1185,8 +1173,6 @@ class MessageLookup extends MessageLookupByLibrary {
             "No existe una referencia calórica publicada para personas no binarias, así que por defecto usamos la media de las fórmulas masculina y femenina: un punto de partida, no una estimación precisa. Puedes afinarlo cuando quieras en Ajustes → Cálculos."),
         "onboardingOverviewLabel": MessageLookupByLibrary.simpleMessage(
             "Resumen"),
-        "onboardingRestoreFromCloudLabel": MessageLookupByLibrary.simpleMessage(
-            "¿Ya tienes una copia en la nube? Restáurala"),
         "onboardingSaveUserError": MessageLookupByLibrary.simpleMessage(
             "Datos incorrectos, inténtalo de nuevo"),
         "onboardingTargetWeightHintOptional": MessageLookupByLibrary.simpleMessage(
@@ -1956,40 +1942,6 @@ class MessageLookup extends MessageLookupByLibrary {
             "Reduce el déficit diario de forma gradual para que los últimos kilos no se hagan cuesta arriba."),
         "settingsCaloriesTaperLabel": MessageLookupByLibrary.simpleMessage(
             "Ajustar el objetivo de calorías al acercarte a tu meta"),
-        "settingsCloudBackupActivateLabel": MessageLookupByLibrary.simpleMessage(
-            "Activar copia en la nube"),
-        "settingsCloudBackupActivateSubtitle": MessageLookupByLibrary.simpleMessage(
-            "Genera un código de vinculación para ver tus datos en otro dispositivo"),
-        "settingsCloudBackupLinkDeviceLabel": MessageLookupByLibrary.simpleMessage(
-            "Vincular este dispositivo"),
-        "settingsCloudBackupLinkDeviceSubtitle": MessageLookupByLibrary.simpleMessage(
-            "Escanea o pega un código de vinculación de otro dispositivo"),
-        "settingsCloudBackupNotPairedError": MessageLookupByLibrary.simpleMessage(
-            "Primero configura la copia en la nube"),
-        "settingsCloudBackupRestoreConfirmAction": MessageLookupByLibrary.simpleMessage(
-            "Restaurar"),
-        "settingsCloudBackupRestoreConfirmContent": MessageLookupByLibrary.simpleMessage(
-            "Esto sustituye todo lo que hay en este dispositivo (diario, perfil, ajustes, recetas y más) por la última copia en la nube. Esta acción no se puede deshacer."),
-        "settingsCloudBackupRestoreConfirmTitle": MessageLookupByLibrary.simpleMessage(
-            "¿Restaurar desde la nube?"),
-        "settingsCloudBackupRestoreErrorLabel": MessageLookupByLibrary.simpleMessage(
-            "Error al restaurar"),
-        "settingsCloudBackupRestoreLabel": MessageLookupByLibrary.simpleMessage(
-            "Restaurar desde la nube"),
-        "settingsCloudBackupRestoreSubtitle": MessageLookupByLibrary.simpleMessage(
-            "Descarga la copia de la nube y sobrescribe los datos de este dispositivo"),
-        "settingsCloudBackupRestoreSuccessLabel": MessageLookupByLibrary.simpleMessage(
-            "Datos restaurados. Reinicia la app para ver todos los cambios."),
-        "settingsCloudBackupSyncErrorLabel": MessageLookupByLibrary.simpleMessage(
-            "Error en la copia de seguridad"),
-        "settingsCloudBackupSyncLabel": MessageLookupByLibrary.simpleMessage(
-            "Hacer copia ahora"),
-        "settingsCloudBackupSyncSubtitle": MessageLookupByLibrary.simpleMessage(
-            "Sube a la nube los datos de este dispositivo"),
-        "settingsCloudBackupSyncSuccessLabel": MessageLookupByLibrary.simpleMessage(
-            "Copia subida"),
-        "settingsCloudBackupViewCodeLabel": MessageLookupByLibrary.simpleMessage(
-            "Ver código de vinculación"),
         "settingsCustomMealsLabel": MessageLookupByLibrary.simpleMessage(
             "Alimentos personalizados"),
         "settingsDayStartDescription": MessageLookupByLibrary.simpleMessage(
@@ -2294,45 +2246,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "syncStatusError": MessageLookupByLibrary.simpleMessage(
             "La última sincronización falló. Se volverá a intentar sola."),
         "syncStatusIdle": mSyncStatusIdle,
-        "syncExplanation": MessageLookupByLibrary.simpleMessage(
-            "Mantiene igual en el móvil y en la web de escritorio tu diario, peso, recetas, ayunos, objetivos y ajustes. Todo se cifra en este dispositivo antes de subirse, así que el servidor no puede leerlo. Las fotos no se sincronizan; van en la copia en la nube."),
-        "syncEnableTitle": MessageLookupByLibrary.simpleMessage(
-            "Activar con los datos de este dispositivo"),
-        "syncEnableSubtitle": MessageLookupByLibrary.simpleMessage(
-            "Hazlo en el móvil que tiene tus datos y luego vincula los demás dispositivos con su código."),
-        "syncLinkTitle": MessageLookupByLibrary.simpleMessage(
-            "Vincular este dispositivo"),
-        "syncLinkSubtitle": MessageLookupByLibrary.simpleMessage(
-            "Pega o escanea el código de un dispositivo con la sincronización activada."),
-        "syncLinkConfirmTitle": MessageLookupByLibrary.simpleMessage(
-            "¿Vincular este dispositivo?"),
-        "syncLinkConfirmBody": MessageLookupByLibrary.simpleMessage(
-            "Cuando los dos dispositivos tengan el mismo registro, como el perfil o los ajustes, la copia sincronizada sustituye a la de este dispositivo. Las entradas que solo existen aquí se conservan y se suben."),
-        "syncLinkAction": MessageLookupByLibrary.simpleMessage(
-            "Vincular"),
-        "syncLinkInvalid": MessageLookupByLibrary.simpleMessage(
-            "Eso no es un código de sincronización. Cópialo desde Ajustes > Sincronización entre dispositivos en el otro dispositivo."),
-        "syncLinked": MessageLookupByLibrary.simpleMessage(
-            "Dispositivo vinculado. Descargando tus datos…"),
-        "syncNowLabel": MessageLookupByLibrary.simpleMessage(
-            "Sincronizar ahora"),
-        "syncShowCodeTitle": MessageLookupByLibrary.simpleMessage(
-            "Mostrar el código para otro dispositivo"),
-        "syncShowCodeWarning": MessageLookupByLibrary.simpleMessage(
-            "Quien tenga este código puede leer y cambiar tus datos sincronizados. Úsalo solo en tus propios dispositivos."),
-        "syncCodeDialogTitle": MessageLookupByLibrary.simpleMessage(
-            "Código de sincronización"),
-        "syncDisableTitle": MessageLookupByLibrary.simpleMessage(
-            "Desactivar en este dispositivo"),
-        "syncDisableBody": MessageLookupByLibrary.simpleMessage(
-            "Este dispositivo deja de sincronizar y conserva sus datos. Tus otros dispositivos siguen sincronizando."),
-        "syncDisableAction": MessageLookupByLibrary.simpleMessage(
-            "Desactivar"),
-        "syncScanLabel": MessageLookupByLibrary.simpleMessage(
-            "Escanear QR"),
-        "syncPasteHint": MessageLookupByLibrary.simpleMessage(
-            "ontsync1:…"),
-        "syncDoneSnackbar": mSyncDoneSnackbar,
         "reviewTitle": MessageLookupByLibrary.simpleMessage(
             "Análisis"),
         "reviewTabWeight": MessageLookupByLibrary.simpleMessage(
@@ -2676,6 +2589,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "accDeleteFailed": MessageLookupByLibrary.simpleMessage("No se pudo eliminar la cuenta. Inténtalo de nuevo."),
         "accSyncSubtitle": mAccSyncSubtitle,
         "accSyncSignedOut": MessageLookupByLibrary.simpleMessage("sesión cerrada"),
+        "accSyncSignInPrompt": MessageLookupByLibrary.simpleMessage("Inicia sesión para sincronizar"),
         "accSyncNeedsRewrap": MessageLookupByLibrary.simpleMessage("falta la contraseña para desbloquear los datos"),
         "adminTitle": MessageLookupByLibrary.simpleMessage("Administración"),
         "adminSignupsOpen": MessageLookupByLibrary.simpleMessage("Registro abierto"),

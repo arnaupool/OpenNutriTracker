@@ -69,7 +69,6 @@ import 'package:opennutritracker/core/domain/usecase/save_recipe_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/send_open_router_chat_completion_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/update_intake_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/update_user_activity_usecase.dart';
-import 'package:opennutritracker/core/utils/cloud_backup_token_service.dart';
 import 'package:opennutritracker/core/account/account_admin_api.dart';
 import 'package:opennutritracker/core/account/account_auth_api.dart';
 import 'package:opennutritracker/core/account/account_key_remote.dart';
@@ -80,7 +79,6 @@ import 'package:opennutritracker/core/profiles/profile_store.dart';
 import 'package:opennutritracker/core/sync/sync_boxes.dart';
 import 'package:opennutritracker/core/sync/sync_day_totals.dart';
 import 'package:opennutritracker/core/sync/sync_engine.dart';
-import 'package:opennutritracker/core/sync/sync_pairing.dart';
 import 'package:opennutritracker/core/sync/sync_remote.dart';
 import 'package:opennutritracker/core/sync/sync_service.dart';
 import 'package:opennutritracker/core/utils/env.dart';
@@ -132,8 +130,6 @@ import 'package:opennutritracker/features/recipes/presentation/bloc/recipe_detai
 import 'package:opennutritracker/features/recipes/presentation/bloc/recipes_bloc.dart';
 import 'package:opennutritracker/features/scanner/domain/usecase/search_product_by_barcode_usecase.dart';
 import 'package:opennutritracker/features/scanner/presentation/scanner_bloc.dart';
-import 'package:opennutritracker/features/settings/domain/usecase/cloud_backup_usecase.dart';
-import 'package:opennutritracker/features/settings/domain/usecase/cloud_restore_usecase.dart';
 import 'package:opennutritracker/features/settings/domain/usecase/download_sample_csv_usecase.dart';
 import 'package:opennutritracker/features/settings/domain/usecase/download_sample_json_usecase.dart';
 import 'package:opennutritracker/features/settings/domain/usecase/import_recipes_json_usecase.dart';
@@ -145,7 +141,6 @@ import 'package:opennutritracker/features/settings/domain/usecase/import_recipes
 import 'package:opennutritracker/features/settings/presentation/bloc/custom_meals_bloc.dart';
 import 'package:opennutritracker/features/settings/presentation/bloc/export_import_bloc.dart';
 import 'package:opennutritracker/features/settings/presentation/bloc/settings_bloc.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 final locator = GetIt.instance;
 
@@ -156,17 +151,6 @@ Future<void> initLocator() async {
   await hiveDBProvider.initHiveDB(await secureAppStorageProvider.getHiveEncryptionKey());
   locator.registerLazySingleton<HiveDBProvider>(() => hiveDBProvider);
   locator.registerLazySingleton<DeleteAllUserDataUsecase>(() => DeleteAllUserDataUsecase(locator()));
-
-  // Backend (separate project for the cloud-backup feature -- see
-  // docs/cloud-backup-setup.md. Deliberately not the same client/project as
-  // the FDC search above: this one only ever sees the anon-scoped
-  // token-pattern RLS policies for the user's own private backup blob, not
-  // the shared food-search data other forks also read from.)
-  locator.registerLazySingleton<SupabaseClient>(
-    () => SupabaseClient(Env.backupSupabaseProjectUrl, Env.backupSupabaseProjectAnonKey),
-    instanceName: 'backupSupabase',
-  );
-  locator.registerLazySingleton<CloudBackupTokenService>(() => CloudBackupTokenService());
 
   // Notification service (#312)
   locator.registerLazySingleton<NotificationService>(() => NotificationService());
@@ -331,12 +315,6 @@ Future<void> initLocator() async {
       locator(),
     ),
   );
-  locator.registerLazySingleton(
-    () => CloudBackupUsecase(locator(), locator(), locator<SupabaseClient>(instanceName: 'backupSupabase')),
-  );
-  locator.registerLazySingleton(
-    () => CloudRestoreUsecase(locator(), locator(), locator<SupabaseClient>(instanceName: 'backupSupabase')),
-  );
   locator.registerLazySingleton(() => ImportMealsCsvUsecase(locator()));
   locator.registerLazySingleton(() => ImportRecipesCsvUsecase(locator()));
   locator.registerLazySingleton(() => DownloadSampleCsvUsecase());
@@ -423,20 +401,16 @@ Future<void> initLocator() async {
   );
 
   // FAS-01 and B6: record-level sync of the active profile through its
-  // account (or, until D11, through an old pairing code), on the same
-  // Supabase project.
+  // account, on the same Supabase project.
   final syncedBoxes = buildSyncedBoxes(hiveDBProvider);
-  locator.registerLazySingleton<SyncKeyService>(() => SyncKeyService(locator()));
   locator.registerLazySingleton<SyncEngine>(() => SyncEngine(boxes: syncedBoxes));
   locator.registerLazySingleton<SyncDayTotals>(() => SyncDayTotals(hiveDBProvider.intakeBox, locator(), locator()));
   locator.registerLazySingleton<SyncService>(
     () => SyncService(
       engine: locator(),
-      pairings: locator(),
       accounts: locator(),
       stateBox: hiveDBProvider.syncStateBox,
       boxes: syncedBoxes,
-      tokenRemote: (token) => TokenSyncRemote(Env.backupSupabaseProjectUrl, Env.backupSupabaseProjectAnonKey, token),
       accountRemote: (userId, accessToken) =>
           AccountSyncRemote(Env.backupSupabaseProjectUrl, Env.backupSupabaseProjectAnonKey, userId, accessToken),
       onApplied: _onSyncApplied,

@@ -48,7 +48,7 @@ The template carries placeholders that have no real-world effect — they exist 
 ```
 FDC_API_KEY="YOUR_KEY"        # USDA FoodData Central API key (generic-food search), https://fdc.nal.usda.gov/api-key-signup
 SENTRY_DNS="DNS_URL"
-BACKUP_SUPABASE_PROJECT_URL="PROJECT_URL"        # your own Supabase project for cloud backup (docs/cloud-backup-setup.md)
+BACKUP_SUPABASE_PROJECT_URL="PROJECT_URL"        # your own Supabase project for accounts and sync (docs/cuentas.md)
 BACKUP_SUPABASE_PROJECT_ANON_KEY="ANON_KEY"
 ```
 

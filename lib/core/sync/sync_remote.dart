@@ -3,8 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-/// One synced row: `public.account_records` for accounts, the token table
-/// `public.sync_records` (docs/desktop/sync_records.sql) for old pairings.
+/// One synced row of `public.account_records`.
 class SyncRow {
   final String box;
   final String id;
@@ -50,8 +49,7 @@ class SyncRow {
   };
 }
 
-/// The server side of sync for one set of rows (one account, or one old
-/// pairing token), kept behind an interface so the engine can be tested
+/// The server side of sync for one account's rows, kept behind an interface so the engine can be tested
 /// against an in-memory fake. Each instance carries its own credential.
 abstract class SyncRemote {
   /// Rows ordered by (`updated_at`, `box`, `id`), at most [limit]. The first
@@ -174,33 +172,6 @@ abstract class _PostgrestSyncRemote implements SyncRemote {
       throw SyncRemoteException(response.statusCode, response.body);
     }
   }
-}
-
-/// The old pairing-token table `public.sync_records`: no login, the token in
-/// the `x-sync-token` header is the credential checked by RLS. Only used for
-/// profiles that still have a pairing and no account, and to retire that
-/// pairing once the account holds the data (removed in task D11).
-class TokenSyncRemote extends _PostgrestSyncRemote {
-  final String token;
-
-  TokenSyncRemote(String projectUrl, String anonKey, this.token, {http.Client? client})
-    : super(projectUrl, anonKey, client);
-
-  @override
-  String get table => 'sync_records';
-
-  @override
-  String get conflictColumns => 'token,box,id';
-
-  @override
-  Future<Map<String, String>> get ownRowsFilter async => {'token': 'eq.$token'};
-
-  @override
-  Future<Map<String, dynamic>> rowJson(SyncRow row) async => {'token': token, ...row.toJson()};
-
-  @override
-  Future<http.Response> send(Future<http.Response> Function(Map<String, String> headers) request) =>
-      request({...baseHeaders(), 'x-sync-token': token});
 }
 
 /// The account was signed in as another user than the profile's link.

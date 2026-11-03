@@ -324,12 +324,6 @@
   "clearOffCacheConfirmTitle": "Vols esborrar els elements en memòria cau?",
   "clearOffCacheLabel": "Esborrar elements en memòria cau",
   "clearOffCacheSubtitle": "{count} element(s) · {size}",
-  "cloudBackupPairInstructionsLabel": "Escaneja el codi QR que apareix en l'altre dispositiu o apega el codi de vinculació a mà.",
-  "cloudBackupPairInvalidTokenError": "Això no pareix un codi de vinculació vàlid",
-  "cloudBackupPairPasteHint": "Apega ací el codi de vinculació",
-  "cloudBackupPairScreenTitle": "Vincular este dispositiu",
-  "cloudBackupPairSuccessLabel": "Dispositiu vinculat",
-  "cloudBackupTokenDialogTitle": "Codi de vinculació de la còpia en el núvol",
   "cmLabel": "cm",
   "codeCopiedLabel": "Codi copiat",
   "copyCodeLabel": "Copiar el codi",
@@ -656,7 +650,6 @@
   "onboardingKjPerDayLabel": "kJ al dia",
   "onboardingNonBinaryDisclaimer": "No hi ha cap referència calòrica publicada per a persones no binàries, així que per defecte usem la mitjana de les fórmules masculina i femenina: un punt de partida, no una estimació precisa. Pots afinar-ho quan vulgues en Configuració → Càlculs.",
   "onboardingOverviewLabel": "Resum",
-  "onboardingRestoreFromCloudLabel": "Ja tens una còpia en el núvol? Restaura-la",
   "onboardingSaveUserError": "Dades incorrectes, torna-ho a provar",
   "onboardingTargetWeightHintOptional": "Opcional",
   "onboardingTargetWeightSubtitle": "Tens un pes objectiu? Pots deixar-ho en blanc o canviar-ho més tard en Perfil.",
@@ -1036,23 +1029,6 @@
   "settingsCalciumGoalLabel": "Objectiu de calci",
   "settingsCaloriesTaperDescription": "Reduïx el dèficit diari de manera gradual perquè els últims quilos no es facen costa amunt.",
   "settingsCaloriesTaperLabel": "Ajustar l'objectiu de calories en acostar-te a la meta",
-  "settingsCloudBackupActivateLabel": "Activar la còpia en el núvol",
-  "settingsCloudBackupActivateSubtitle": "Genera un codi de vinculació per a vore les teues dades en un altre dispositiu",
-  "settingsCloudBackupLinkDeviceLabel": "Vincular este dispositiu",
-  "settingsCloudBackupLinkDeviceSubtitle": "Escaneja o apega un codi de vinculació d'un altre dispositiu",
-  "settingsCloudBackupNotPairedError": "Primer configura la còpia en el núvol",
-  "settingsCloudBackupRestoreConfirmAction": "Restaurar",
-  "settingsCloudBackupRestoreConfirmContent": "Açò substituïx tot el que hi ha en este dispositiu (diari, perfil, configuració, receptes i més) per l'última còpia en el núvol. Esta acció no es pot desfer.",
-  "settingsCloudBackupRestoreConfirmTitle": "Vols restaurar des del núvol?",
-  "settingsCloudBackupRestoreErrorLabel": "Error en restaurar",
-  "settingsCloudBackupRestoreLabel": "Restaurar des del núvol",
-  "settingsCloudBackupRestoreSubtitle": "Descarrega la còpia del núvol i sobreescriu les dades d'este dispositiu",
-  "settingsCloudBackupRestoreSuccessLabel": "Dades restaurades. Reinicia l'aplicació per a vore tots els canvis.",
-  "settingsCloudBackupSyncErrorLabel": "Error en la còpia de seguretat",
-  "settingsCloudBackupSyncLabel": "Fer una còpia ara",
-  "settingsCloudBackupSyncSubtitle": "Puja al núvol les dades d'este dispositiu",
-  "settingsCloudBackupSyncSuccessLabel": "Còpia pujada",
-  "settingsCloudBackupViewCodeLabel": "Vore el codi de vinculació",
   "settingsCustomMealsLabel": "Aliments personalitzats",
   "settingsDayStartDescription": "Tria l'hora a la qual comença el teu dia. Els àpats i les activitats registrats abans d'eixa hora compten per al dia anterior; útil si treballes de nit o sopes tard.",
   "settingsDayStartHourLabel": "{hour}:00",
@@ -1406,36 +1382,6 @@
   "@syncStatusIdle": {
     "placeholders": {
       "value": {
-        "type": "String"
-      }
-    }
-  },
-  "syncExplanation": "Manté igual en el mòbil i en la web d'escriptori el teu diari, pes, receptes, dejunis, objectius i configuració. Tot es xifra en este dispositiu abans de pujar-se, així que el servidor no ho pot llegir. Les fotos no se sincronitzen; van en la còpia en el núvol.",
-  "syncEnableTitle": "Activar amb les dades d'este dispositiu",
-  "syncEnableSubtitle": "Fes-ho en el mòbil que té les teues dades i després vincula els altres dispositius amb el seu codi.",
-  "syncLinkTitle": "Vincular este dispositiu",
-  "syncLinkSubtitle": "Apega o escaneja el codi d'un dispositiu amb la sincronització activada.",
-  "syncLinkConfirmTitle": "Vols vincular este dispositiu?",
-  "syncLinkConfirmBody": "Quan els dos dispositius tinguen el mateix registre, com el perfil o la configuració, la còpia sincronitzada substituïx la d'este dispositiu. Les entrades que només existixen ací es conserven i es pugen.",
-  "syncLinkAction": "Vincular",
-  "syncLinkInvalid": "Això no és un codi de sincronització. Copia'l des de Configuració > Sincronització entre dispositius en l'altre dispositiu.",
-  "syncLinked": "Dispositiu vinculat. Baixant les teues dades…",
-  "syncNowLabel": "Sincronitzar ara",
-  "syncShowCodeTitle": "Mostrar el codi per a un altre dispositiu",
-  "syncShowCodeWarning": "Qui tinga este codi pot llegir i canviar les teues dades sincronitzades. Usa'l només en els teus propis dispositius.",
-  "syncCodeDialogTitle": "Codi de sincronització",
-  "syncDisableTitle": "Desactivar en este dispositiu",
-  "syncDisableBody": "Este dispositiu deixa de sincronitzar i conserva les seues dades. Els teus altres dispositius continuen sincronitzant.",
-  "syncDisableAction": "Desactivar",
-  "syncScanLabel": "Escanejar QR",
-  "syncPasteHint": "ontsync1:…",
-  "syncDoneSnackbar": "Sincronitzat: {pulled} rebuts, {pushed} enviats",
-  "@syncDoneSnackbar": {
-    "placeholders": {
-      "pulled": {
-        "type": "String"
-      },
-      "pushed": {
         "type": "String"
       }
     }
@@ -1873,6 +1819,7 @@
     }
   },
   "accSyncSignedOut": "sessió tancada",
+  "accSyncSignInPrompt": "Inicia la sessió per sincronitzar",
   "accSyncNeedsRewrap": "cal la contrasenya per desbloquejar les dades",
   "adminTitle": "Administració",
   "adminSignupsOpen": "Registre obert",

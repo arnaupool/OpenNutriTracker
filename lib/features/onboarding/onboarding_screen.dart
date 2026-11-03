@@ -320,10 +320,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       // restart) — HomePage in particular only auto-loads once, the very
       // first time HomeBloc's state is HomeInitial. Without this, a second
       // onboarding pass in the same tab (after "Delete all my data", or
-      // any future skip-onboarding-to-restore flow) leaves Home/Profile/
+      // signing in to an account) leaves Home/Profile/
       // Diary showing the *previous* profile's numbers even though the
-      // new one just saved correctly underneath. Same refresh set
-      // SettingsScreen's cloud-restore flow already uses.
+      // new one just saved correctly underneath.
       locator<HomeBloc>().add(const LoadItemsEvent());
       locator<ProfileBloc>().add(LoadProfileEvent());
       locator<DiaryBloc>().add(const LoadDiaryYearEvent());

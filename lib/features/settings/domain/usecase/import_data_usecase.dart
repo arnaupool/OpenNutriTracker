@@ -104,10 +104,9 @@ class ImportDataUsecase {
     );
   }
 
-  /// The zip-decoding core of [importData], split out so the cloud-backup
-  /// feature ([CloudRestoreUsecase]) can restore from bytes downloaded off
-  /// Supabase Storage instead of a file-picker selection. Filenames default
-  /// to the same constants [ExportImportBloc] passes explicitly.
+  /// The zip-decoding core of [importData], split out so a zip can be
+  /// restored from bytes instead of a file-picker selection. Filenames
+  /// default to the same constants [ExportImportBloc] passes explicitly.
   Future<bool> importFromZipBytes(
     Uint8List zipBytes, {
     String userActivityJsonFileName = 'user_activity.json',
@@ -115,8 +114,7 @@ class ImportDataUsecase {
     String trackedDayJsonFileName = 'user_tracked_day.json',
     String recipeJsonFileName = 'user_recipes.json',
     String weightLogJsonFileName = 'weight_log.json',
-    String customActivityTemplateJsonFileName =
-        'custom_activity_templates.json',
+    String customActivityTemplateJsonFileName = 'custom_activity_templates.json',
     String bodyMeasurementJsonFileName = 'body_measurements.json',
     bool restoreProfile = false,
     String userProfileJsonFileName = 'user_profile.json',
@@ -127,15 +125,10 @@ class ImportDataUsecase {
     // Extract and process user activity data
     final userActivityFile = archive.findFile(userActivityJsonFileName);
     if (userActivityFile != null) {
-      final userActivityJsonString = utf8.decode(
-        userActivityFile.content as List<int>,
-      );
-      final userActivityList = (jsonDecode(userActivityJsonString) as List)
-          .cast<Map<String, dynamic>>();
+      final userActivityJsonString = utf8.decode(userActivityFile.content as List<int>);
+      final userActivityList = (jsonDecode(userActivityJsonString) as List).cast<Map<String, dynamic>>();
 
-      final userActivityDBOs = userActivityList
-          .map((json) => UserActivityDBO.fromJson(json))
-          .toList();
+      final userActivityDBOs = userActivityList.map((json) => UserActivityDBO.fromJson(json)).toList();
 
       await _userActivityRepository.addAllUserActivityDBOs(userActivityDBOs);
     } else {
@@ -146,12 +139,9 @@ class ImportDataUsecase {
     final intakeFile = archive.findFile(userIntakeJsonFileName);
     if (intakeFile != null) {
       final intakeJsonString = utf8.decode(intakeFile.content as List<int>);
-      final intakeList = (jsonDecode(intakeJsonString) as List)
-          .cast<Map<String, dynamic>>();
+      final intakeList = (jsonDecode(intakeJsonString) as List).cast<Map<String, dynamic>>();
 
-      final intakeDBOs = intakeList
-          .map((json) => IntakeDBO.fromJson(json))
-          .toList();
+      final intakeDBOs = intakeList.map((json) => IntakeDBO.fromJson(json)).toList();
 
       await _intakeRepository.addAllIntakeDBOs(intakeDBOs);
     } else {
@@ -161,15 +151,10 @@ class ImportDataUsecase {
     // Extract and process tracked day data
     final trackedDayFile = archive.findFile(trackedDayJsonFileName);
     if (trackedDayFile != null) {
-      final trackedDayJsonString = utf8.decode(
-        trackedDayFile.content as List<int>,
-      );
-      final trackedDayList = (jsonDecode(trackedDayJsonString) as List)
-          .cast<Map<String, dynamic>>();
+      final trackedDayJsonString = utf8.decode(trackedDayFile.content as List<int>);
+      final trackedDayList = (jsonDecode(trackedDayJsonString) as List).cast<Map<String, dynamic>>();
 
-      final trackedDayDBOs = trackedDayList
-          .map((json) => TrackedDayDBO.fromJson(json))
-          .toList();
+      final trackedDayDBOs = trackedDayList.map((json) => TrackedDayDBO.fromJson(json)).toList();
 
       await _trackedDayRepository.addAllTrackedDays(trackedDayDBOs);
     } else {
@@ -180,25 +165,17 @@ class ImportDataUsecase {
     final recipeFile = archive.findFile(recipeJsonFileName);
     if (recipeFile != null) {
       final recipeJsonString = utf8.decode(recipeFile.content as List<int>);
-      final recipeList = (jsonDecode(recipeJsonString) as List)
-          .cast<Map<String, dynamic>>();
-      final recipeDBOs = recipeList
-          .map((json) => RecipeDBO.fromJson(json))
-          .toList();
+      final recipeList = (jsonDecode(recipeJsonString) as List).cast<Map<String, dynamic>>();
+      final recipeDBOs = recipeList.map((json) => RecipeDBO.fromJson(json)).toList();
       await _recipeRepository.addAllRecipeDBOs(recipeDBOs);
     }
 
     // Extract and process weight log data — optional so older zips still import.
     final weightLogFile = archive.findFile(weightLogJsonFileName);
     if (weightLogFile != null) {
-      final weightLogJsonString = utf8.decode(
-        weightLogFile.content as List<int>,
-      );
-      final weightLogList = (jsonDecode(weightLogJsonString) as List)
-          .cast<Map<String, dynamic>>();
-      final weightLogDBOs = weightLogList
-          .map((json) => WeightLogDBO.fromJson(json))
-          .toList();
+      final weightLogJsonString = utf8.decode(weightLogFile.content as List<int>);
+      final weightLogList = (jsonDecode(weightLogJsonString) as List).cast<Map<String, dynamic>>();
+      final weightLogDBOs = weightLogList.map((json) => WeightLogDBO.fromJson(json)).toList();
       await _weightLogRepository.addAllEntries(weightLogDBOs);
     }
 
@@ -207,11 +184,8 @@ class ImportDataUsecase {
     final templateFile = archive.findFile(customActivityTemplateJsonFileName);
     if (templateFile != null) {
       final templateJsonString = utf8.decode(templateFile.content as List<int>);
-      final templateList = (jsonDecode(templateJsonString) as List)
-          .cast<Map<String, dynamic>>();
-      final templateDBOs = templateList
-          .map((json) => CustomActivityTemplateDBO.fromJson(json))
-          .toList();
+      final templateList = (jsonDecode(templateJsonString) as List).cast<Map<String, dynamic>>();
+      final templateDBOs = templateList.map((json) => CustomActivityTemplateDBO.fromJson(json)).toList();
       await _customActivityTemplateRepository.addAllTemplateDBOs(templateDBOs);
     }
 
@@ -219,15 +193,9 @@ class ImportDataUsecase {
     // so zips produced before this feature landed still import.
     final bodyMeasurementFile = archive.findFile(bodyMeasurementJsonFileName);
     if (bodyMeasurementFile != null) {
-      final bodyMeasurementJsonString = utf8.decode(
-        bodyMeasurementFile.content as List<int>,
-      );
-      final bodyMeasurementList =
-          (jsonDecode(bodyMeasurementJsonString) as List)
-              .cast<Map<String, dynamic>>();
-      final bodyMeasurementDBOs = bodyMeasurementList
-          .map((json) => BodyMeasurementDBO.fromJson(json))
-          .toList();
+      final bodyMeasurementJsonString = utf8.decode(bodyMeasurementFile.content as List<int>);
+      final bodyMeasurementList = (jsonDecode(bodyMeasurementJsonString) as List).cast<Map<String, dynamic>>();
+      final bodyMeasurementDBOs = bodyMeasurementList.map((json) => BodyMeasurementDBO.fromJson(json)).toList();
       await _bodyMeasurementRepository.addAllEntries(bodyMeasurementDBOs);
     }
 
@@ -239,17 +207,13 @@ class ImportDataUsecase {
     if (restoreProfile) {
       final userProfileFile = archive.findFile(userProfileJsonFileName);
       if (userProfileFile != null) {
-        final userJson =
-            jsonDecode(utf8.decode(userProfileFile.content as List<int>))
-                as Map<String, dynamic>;
+        final userJson = jsonDecode(utf8.decode(userProfileFile.content as List<int>)) as Map<String, dynamic>;
         await _userRepository.saveUserDBO(UserDBO.fromJson(userJson));
       }
 
       final userConfigFile = archive.findFile(userConfigJsonFileName);
       if (userConfigFile != null) {
-        final configJson =
-            jsonDecode(utf8.decode(userConfigFile.content as List<int>))
-                as Map<String, dynamic>;
+        final configJson = jsonDecode(utf8.decode(userConfigFile.content as List<int>)) as Map<String, dynamic>;
         await _configRepository.saveConfigDBO(ConfigDBO.fromJson(configJson));
       }
     }
@@ -266,10 +230,7 @@ class ImportDataUsecase {
       if (!entry.isFile) continue;
       final sanitized = UserImageStorage.sanitizeRelative(entry.name);
       if (sanitized == null) continue;
-      await UserImageStorage.writeBytes(
-        sanitized,
-        Uint8List.fromList(entry.content as List<int>),
-      );
+      await UserImageStorage.writeBytes(sanitized, Uint8List.fromList(entry.content as List<int>));
     }
 
     return true;
@@ -289,10 +250,7 @@ class ImportDataUsecase {
     String userIntakeCsvFileName = 'user_intake.csv',
     String trackedDayCsvFileName = 'user_tracked_day.csv',
   }) async {
-    final result = await FilePicker.pickFiles(
-      type: FileType.any,
-      withData: true,
-    );
+    final result = await FilePicker.pickFiles(type: FileType.any, withData: true);
     final zipBytes = result?.files.single.bytes;
     if (zipBytes == null) {
       throw Exception('No file selected');

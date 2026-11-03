@@ -49,45 +49,14 @@ class SyncKeyMismatchException implements Exception {
   String toString() => 'SyncKeyMismatchException: the account data key changed';
 }
 
-/// One set of rows to sync with: where ([remote]), what this device
+/// One account's rows to sync with: where ([remote]), what this device
 /// remembers about it ([state]) and the key that encrypts it.
 class SyncTarget {
   final SyncRemote remote;
   final SyncStateStore state;
   final Uint8List key;
 
-  /// Account mode (task B6): checks the key-check row before anything else,
-  /// and on the first sync with the account local records only win where
-  /// [seed] shows they are newer.
-  final bool account;
-
-  /// What the old pairing-token set knew, for the first account sync of a
-  /// profile that had a pairing.
-  final SyncSeed? seed;
-
-  const SyncTarget({required this.remote, required this.state, required this.key, this.account = false, this.seed})
-    : assert(seed == null || account);
-}
-
-/// The old pairing-token set as it stood right after a successful token sync:
-/// when each record was last changed there, which records it had deleted,
-/// and the token state's fingerprints. The first account sync pushes local
-/// records with these times, so "upload and merge" (docs/plan-cuentas.md,
-/// decision 6) keeps whichever copy was really changed last.
-class SyncSeed {
-  final SyncCrypto _crypto;
-  final Map<String, DateTime> _live;
-
-  /// box name → identity → `modified_at` of its deletion in the old set.
-  final Map<String, Map<String, DateTime>> deletions;
-
-  /// box name → identity → fingerprint, from the token state.
-  final Map<String, Map<String, String>> hashes;
-
-  SyncSeed._(this._crypto, this._live, this.deletions, this.hashes);
-
-  /// `modified_at` of the live record in the old set, or null.
-  DateTime? modifiedAt(String box, String identity) => _live[SyncEngine._rowId(_crypto, box, identity)];
+  const SyncTarget({required this.remote, required this.state, required this.key});
 }
 
 /// Record-level, two-way sync of the Hive boxes in [boxes] (FAS-01, B6).
@@ -111,8 +80,8 @@ class SyncEngine {
   static const int pageSize = 500;
   static const int pushBatchSize = 200;
 
-  /// `modified_at` of local records on a device that has just joined a sync
-  /// set: older than anything real, so the server's copy wins.
+  /// `modified_at` of local records on the first sync with an account: older
+  /// than anything real, so the account's copy wins.
   static final DateTime joiningEpoch = DateTime.utc(2000);
 
   /// The row that shows which data key encrypts an account's records. Its
@@ -140,20 +109,12 @@ class SyncEngine {
     final remote = target.remote;
     final state = target.state;
     final crypto = SyncCrypto(target.key);
-    if (target.account) await _checkKey(remote, crypto, clock);
+    await _checkKey(remote, crypto, clock);
 
-    final joining = state.joining;
-    // First sync with an account: the server's copy wins unless the old
-    // token set shows the local copy is newer.
-    final firstAccountSync = target.account && state.lastSync == null;
-    final seed = firstAccountSync ? target.seed : null;
-    DateTime stamp(String box, String identity, String fingerprint) {
-      if (joining) return joiningEpoch;
-      if (!firstAccountSync) return clock;
-      if (seed == null) return joiningEpoch;
-      if (seed.hashes[box]?[identity] != fingerprint) return clock;
-      return seed.modifiedAt(box, identity) ?? joiningEpoch;
-    }
+    // First sync with an account: the server's copy wins, local-only
+    // records go up.
+    final firstAccountSync = state.lastSync == null;
+    DateTime stamp() => firstAccountSync ? joiningEpoch : clock;
 
     // The server only ever sees keyed hashes of box names and record ids;
     // the real identity travels inside the encrypted payload.
@@ -174,24 +135,13 @@ class SyncEngine {
         final fingerprint = SyncCrypto.fingerprint(json);
         seen.add(entry.key);
         if (known[entry.key] != fingerprint) {
-          pending[rowId(b, entry.key)] = _LocalChange(b, entry.key, json, stamp(b.name, entry.key, fingerprint));
+          pending[rowId(b, entry.key)] = _LocalChange(b, entry.key, json, stamp());
         }
       }
       for (final identity in known.keys) {
         if (!seen.contains(identity)) {
           pending[rowId(b, identity)] = _LocalChange(b, identity, null, clock);
         }
-      }
-      if (seed != null) {
-        // Deleted here since the token sync, or deleted in the old set.
-        for (final identity in seed.hashes[b.name]?.keys ?? const <String>[]) {
-          if (!seen.contains(identity)) pending[rowId(b, identity)] = _LocalChange(b, identity, null, clock);
-        }
-        seed.deletions[b.name]?.forEach((identity, at) {
-          if (!seen.contains(identity)) {
-            pending.putIfAbsent(rowId(b, identity), () => _LocalChange(b, identity, null, at));
-          }
-        });
       }
     }
 
@@ -291,40 +241,8 @@ class SyncEngine {
       await state.setHashes(b.name, hashes[b.name]!);
     }
     if (newest != null) await state.setCursor(newest);
-    if (joining) await state.setJoining(false);
     await state.setLastSync(clock);
     return SyncResult(pulled: pulled, pushed: changes.length, unreadable: unreadable, applied: applied);
-  }
-
-  /// Reads the whole old token set for the first account sync. Call it
-  /// right after a successful token [sync] with [state], so the set and the
-  /// local boxes agree.
-  Future<SyncSeed> readSeed(SyncRemote remote, Uint8List key, SyncStateStore state) async {
-    final crypto = SyncCrypto(key);
-    final byOpaqueName = {for (final b in boxes) crypto.opaqueId('box:${b.name}'): b.name};
-    final live = <String, DateTime>{};
-    final deletions = <String, Map<String, DateTime>>{};
-    SyncRow? after;
-    while (true) {
-      final rows = await remote.pull(after: after, limit: pageSize);
-      for (final row in rows) {
-        final box = byOpaqueName[row.box];
-        if (box == null) continue;
-        if (!row.deleted) {
-          live[row.id] = row.modifiedAt;
-          continue;
-        }
-        try {
-          final identity = (jsonDecode(crypto.decrypt(row.payload!)) as Map<String, dynamic>)['i'] as String;
-          (deletions[box] ??= {})[identity] = row.modifiedAt;
-        } catch (e) {
-          _log.warning('Unreadable deletion in the old sync set', e);
-        }
-      }
-      if (rows.length < pageSize) break;
-      after = rows.last;
-    }
-    return SyncSeed._(crypto, live, deletions, {for (final b in boxes) b.name: state.hashes(b.name)});
   }
 
   /// Whether this device holds changes [state] has not synced: an edit, an

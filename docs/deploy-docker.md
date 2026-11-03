@@ -64,8 +64,8 @@ cambio de código, un botón en Portainer ("Pull and redeploy").
 - Un dominio apuntando a tu IP pública (Let's Encrypt no emite certificado
   para una IP pelada).
 - Los 4 valores reales de tu `.env` a mano: la clave de USDA FDC
-  (búsqueda de alimentos genéricos), Sentry, y Supabase del backup en la
-  nube (ver `docs/cloud-backup-setup.md`).
+  (búsqueda de alimentos genéricos), Sentry, y el proyecto de Supabase de las
+  cuentas y la sincronización (ver `docs/cuentas.md`).
 - Como tu fork es privado, un **Personal Access Token** de GitHub con
   permiso de lectura sobre el repo: GitHub → Settings → Developer settings →
   Personal access tokens → Generate new token (classic vale; scope `repo`

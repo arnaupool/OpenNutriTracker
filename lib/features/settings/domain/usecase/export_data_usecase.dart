@@ -112,20 +112,16 @@ class ExportDataUsecase {
     return result != null && result.isNotEmpty;
   }
 
-  /// The archive-building core of [exportData], split out so the
-  /// cloud-backup feature ([CloudBackupUsecase]) can get the same zip
-  /// bytes without going through a file-picker save dialog — it uploads
-  /// them to Supabase Storage instead. Every in-zip filename defaults to
-  /// the same constants [ExportImportBloc] passes explicitly, since a
-  /// caller like the cloud-backup usecase has no reason to care about them.
+  /// The archive-building core of [exportData], split out so the zip bytes
+  /// can be built without a file-picker save dialog. Every in-zip filename
+  /// defaults to the same constants [ExportImportBloc] passes explicitly.
   Future<Uint8List> buildZipBytes({
     String userActivityJsonFileName = 'user_activity.json',
     String userIntakeJsonFileName = 'user_intake.json',
     String trackedDayJsonFileName = 'user_tracked_day.json',
     String recipeJsonFileName = 'user_recipes.json',
     String weightLogJsonFileName = 'weight_log.json',
-    String customActivityTemplateJsonFileName =
-        'custom_activity_templates.json',
+    String customActivityTemplateJsonFileName = 'custom_activity_templates.json',
     String bodyMeasurementJsonFileName = 'body_measurements.json',
     ExportFormat format = ExportFormat.json,
     String userActivityCsvFileName = 'user_activity.csv',
@@ -139,30 +135,19 @@ class ExportDataUsecase {
     final archive = Archive();
 
     // Activity dataset
-    final fullUserActivity = await _userActivityRepository
-        .getAllUserActivityDBO();
+    final fullUserActivity = await _userActivityRepository.getAllUserActivityDBO();
     if (format == ExportFormat.json) {
-      final bytes = utf8.encode(
-        jsonEncode(fullUserActivity.map((a) => a.toJson()).toList()),
-      );
-      archive.addFile(
-        ArchiveFile(userActivityJsonFileName, bytes.length, bytes),
-      );
+      final bytes = utf8.encode(jsonEncode(fullUserActivity.map((a) => a.toJson()).toList()));
+      archive.addFile(ArchiveFile(userActivityJsonFileName, bytes.length, bytes));
     } else {
-      final bytes = utf8.encode(
-        CsvDataExporter.userActivitiesToCsv(fullUserActivity),
-      );
-      archive.addFile(
-        ArchiveFile(userActivityCsvFileName, bytes.length, bytes),
-      );
+      final bytes = utf8.encode(CsvDataExporter.userActivitiesToCsv(fullUserActivity));
+      archive.addFile(ArchiveFile(userActivityCsvFileName, bytes.length, bytes));
     }
 
     // Intake dataset
     final fullIntake = await _intakeRepository.getAllIntakesDBO();
     if (format == ExportFormat.json) {
-      final bytes = utf8.encode(
-        jsonEncode(fullIntake.map((i) => i.toJson()).toList()),
-      );
+      final bytes = utf8.encode(jsonEncode(fullIntake.map((i) => i.toJson()).toList()));
       archive.addFile(ArchiveFile(userIntakeJsonFileName, bytes.length, bytes));
     } else {
       final bytes = utf8.encode(CsvDataExporter.intakesToCsv(fullIntake));
@@ -172,14 +157,10 @@ class ExportDataUsecase {
     // Tracked day dataset
     final fullTrackedDay = await _trackedDayRepository.getAllTrackedDaysDBO();
     if (format == ExportFormat.json) {
-      final bytes = utf8.encode(
-        jsonEncode(fullTrackedDay.map((d) => d.toJson()).toList()),
-      );
+      final bytes = utf8.encode(jsonEncode(fullTrackedDay.map((d) => d.toJson()).toList()));
       archive.addFile(ArchiveFile(trackedDayJsonFileName, bytes.length, bytes));
     } else {
-      final bytes = utf8.encode(
-        CsvDataExporter.trackedDaysToCsv(fullTrackedDay),
-      );
+      final bytes = utf8.encode(CsvDataExporter.trackedDaysToCsv(fullTrackedDay));
       archive.addFile(ArchiveFile(trackedDayCsvFileName, bytes.length, bytes));
     }
 
@@ -192,12 +173,8 @@ class ExportDataUsecase {
     // CSV path under Import Custom Food Data.
     if (format == ExportFormat.json) {
       final fullRecipes = _recipeRepository.getAllRecipesDBO();
-      final recipeBytes = utf8.encode(
-        jsonEncode(fullRecipes.map((r) => r.toJson()).toList()),
-      );
-      archive.addFile(
-        ArchiveFile(recipeJsonFileName, recipeBytes.length, recipeBytes),
-      );
+      final recipeBytes = utf8.encode(jsonEncode(fullRecipes.map((r) => r.toJson()).toList()));
+      archive.addFile(ArchiveFile(recipeJsonFileName, recipeBytes.length, recipeBytes));
 
       // Include any user-attached recipe photos under their relative
       // slug (e.g. `recipe_images/<id>.webp`). The slug matches what
@@ -216,49 +193,23 @@ class ExportDataUsecase {
 
       // Weight-log dataset
       final fullWeightLog = await _weightLogRepository.getAllEntriesDBO();
-      final weightLogBytes = utf8.encode(
-        jsonEncode(fullWeightLog.map((entry) => entry.toJson()).toList()),
-      );
-      archive.addFile(
-        ArchiveFile(
-          weightLogJsonFileName,
-          weightLogBytes.length,
-          weightLogBytes,
-        ),
-      );
+      final weightLogBytes = utf8.encode(jsonEncode(fullWeightLog.map((entry) => entry.toJson()).toList()));
+      archive.addFile(ArchiveFile(weightLogJsonFileName, weightLogBytes.length, weightLogBytes));
 
       // Custom activity templates (#70 follow-up)
-      final fullTemplates = await _customActivityTemplateRepository
-          .allTemplateDBOs();
-      final templatesBytes = utf8.encode(
-        jsonEncode(fullTemplates.map((template) => template.toJson()).toList()),
-      );
-      archive.addFile(
-        ArchiveFile(
-          customActivityTemplateJsonFileName,
-          templatesBytes.length,
-          templatesBytes,
-        ),
-      );
+      final fullTemplates = await _customActivityTemplateRepository.allTemplateDBOs();
+      final templatesBytes = utf8.encode(jsonEncode(fullTemplates.map((template) => template.toJson()).toList()));
+      archive.addFile(ArchiveFile(customActivityTemplateJsonFileName, templatesBytes.length, templatesBytes));
 
       // Body measurements (FC-01/FC-02) — the numeric fields export the
       // same as weight log, unconditionally. Progress photos are the
       // sensitive part and only travel with the zip when the user
       // explicitly opted in from the Export dialog.
-      final fullBodyMeasurements = await _bodyMeasurementRepository
-          .getAllEntriesDBO();
+      final fullBodyMeasurements = await _bodyMeasurementRepository.getAllEntriesDBO();
       final bodyMeasurementBytes = utf8.encode(
-        jsonEncode(
-          fullBodyMeasurements.map((entry) => entry.toJson()).toList(),
-        ),
+        jsonEncode(fullBodyMeasurements.map((entry) => entry.toJson()).toList()),
       );
-      archive.addFile(
-        ArchiveFile(
-          bodyMeasurementJsonFileName,
-          bodyMeasurementBytes.length,
-          bodyMeasurementBytes,
-        ),
-      );
+      archive.addFile(ArchiveFile(bodyMeasurementJsonFileName, bodyMeasurementBytes.length, bodyMeasurementBytes));
       if (includeProgressPhotos) {
         for (final entry in fullBodyMeasurements) {
           await _addUserImageIfPresent(archive, entry.frontPhotoPath);
@@ -271,25 +222,18 @@ class ExportDataUsecase {
       if (includeProfile) {
         final userDBO = await _userRepository.getUserDBO();
         final userBytes = utf8.encode(jsonEncode(userDBO.toJson()));
-        archive.addFile(
-          ArchiveFile(userProfileJsonFileName, userBytes.length, userBytes),
-        );
+        archive.addFile(ArchiveFile(userProfileJsonFileName, userBytes.length, userBytes));
 
         final configDBO = await _configRepository.getConfigDBO();
         final configBytes = utf8.encode(jsonEncode(configDBO.toJson()));
-        archive.addFile(
-          ArchiveFile(userConfigJsonFileName, configBytes.length, configBytes),
-        );
+        archive.addFile(ArchiveFile(userConfigJsonFileName, configBytes.length, configBytes));
       }
     }
 
     return Uint8List.fromList(ZipEncoder().encode(archive));
   }
 
-  Future<void> _addUserImageIfPresent(
-    Archive archive,
-    String? relativePath,
-  ) async {
+  Future<void> _addUserImageIfPresent(Archive archive, String? relativePath) async {
     if (relativePath == null) return;
     final sanitized = UserImageStorage.sanitizeRelative(relativePath);
     if (sanitized == null) return;

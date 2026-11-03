@@ -7,8 +7,8 @@ import 'package:pointycastle/export.dart';
 /// End-to-end encryption for sync payloads (FAS-01).
 ///
 /// AES-256-GCM with a random 96-bit nonce per record. The key never leaves
-/// the devices: it travels only inside the pairing code, so the server
-/// stores ciphertext it cannot read, and GCM's tag makes any tampering fail
+/// the devices: the server only holds it wrapped with the account
+/// password, so it stores ciphertext it cannot read, and GCM's tag makes any tampering fail
 /// decryption instead of producing garbage records.
 ///
 /// Wire format: base64(nonce ‖ ciphertext ‖ tag).

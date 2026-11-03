@@ -446,18 +446,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "clearOffCacheLabel": MessageLookupByLibrary.simpleMessage(
             "Esborrar elements en memòria cau"),
         "clearOffCacheSubtitle": m2,
-        "cloudBackupPairInstructionsLabel": MessageLookupByLibrary.simpleMessage(
-            "Escaneja el codi QR que apareix en l\'altre dispositiu o apega el codi de vinculació a mà."),
-        "cloudBackupPairInvalidTokenError": MessageLookupByLibrary.simpleMessage(
-            "Això no pareix un codi de vinculació vàlid"),
-        "cloudBackupPairPasteHint": MessageLookupByLibrary.simpleMessage(
-            "Apega ací el codi de vinculació"),
-        "cloudBackupPairScreenTitle": MessageLookupByLibrary.simpleMessage(
-            "Vincular este dispositiu"),
-        "cloudBackupPairSuccessLabel": MessageLookupByLibrary.simpleMessage(
-            "Dispositiu vinculat"),
-        "cloudBackupTokenDialogTitle": MessageLookupByLibrary.simpleMessage(
-            "Codi de vinculació de la còpia en el núvol"),
         "cmLabel": MessageLookupByLibrary.simpleMessage(
             "cm"),
         "codeCopiedLabel": MessageLookupByLibrary.simpleMessage(
@@ -1185,8 +1173,6 @@ class MessageLookup extends MessageLookupByLibrary {
             "No hi ha cap referència calòrica publicada per a persones no binàries, així que per defecte usem la mitjana de les fórmules masculina i femenina: un punt de partida, no una estimació precisa. Pots afinar-ho quan vulgues en Configuració → Càlculs."),
         "onboardingOverviewLabel": MessageLookupByLibrary.simpleMessage(
             "Resum"),
-        "onboardingRestoreFromCloudLabel": MessageLookupByLibrary.simpleMessage(
-            "Ja tens una còpia en el núvol? Restaura-la"),
         "onboardingSaveUserError": MessageLookupByLibrary.simpleMessage(
             "Dades incorrectes, torna-ho a provar"),
         "onboardingTargetWeightHintOptional": MessageLookupByLibrary.simpleMessage(
@@ -1956,40 +1942,6 @@ class MessageLookup extends MessageLookupByLibrary {
             "Reduïx el dèficit diari de manera gradual perquè els últims quilos no es facen costa amunt."),
         "settingsCaloriesTaperLabel": MessageLookupByLibrary.simpleMessage(
             "Ajustar l\'objectiu de calories en acostar-te a la meta"),
-        "settingsCloudBackupActivateLabel": MessageLookupByLibrary.simpleMessage(
-            "Activar la còpia en el núvol"),
-        "settingsCloudBackupActivateSubtitle": MessageLookupByLibrary.simpleMessage(
-            "Genera un codi de vinculació per a vore les teues dades en un altre dispositiu"),
-        "settingsCloudBackupLinkDeviceLabel": MessageLookupByLibrary.simpleMessage(
-            "Vincular este dispositiu"),
-        "settingsCloudBackupLinkDeviceSubtitle": MessageLookupByLibrary.simpleMessage(
-            "Escaneja o apega un codi de vinculació d\'un altre dispositiu"),
-        "settingsCloudBackupNotPairedError": MessageLookupByLibrary.simpleMessage(
-            "Primer configura la còpia en el núvol"),
-        "settingsCloudBackupRestoreConfirmAction": MessageLookupByLibrary.simpleMessage(
-            "Restaurar"),
-        "settingsCloudBackupRestoreConfirmContent": MessageLookupByLibrary.simpleMessage(
-            "Açò substituïx tot el que hi ha en este dispositiu (diari, perfil, configuració, receptes i més) per l\'última còpia en el núvol. Esta acció no es pot desfer."),
-        "settingsCloudBackupRestoreConfirmTitle": MessageLookupByLibrary.simpleMessage(
-            "Vols restaurar des del núvol?"),
-        "settingsCloudBackupRestoreErrorLabel": MessageLookupByLibrary.simpleMessage(
-            "Error en restaurar"),
-        "settingsCloudBackupRestoreLabel": MessageLookupByLibrary.simpleMessage(
-            "Restaurar des del núvol"),
-        "settingsCloudBackupRestoreSubtitle": MessageLookupByLibrary.simpleMessage(
-            "Descarrega la còpia del núvol i sobreescriu les dades d\'este dispositiu"),
-        "settingsCloudBackupRestoreSuccessLabel": MessageLookupByLibrary.simpleMessage(
-            "Dades restaurades. Reinicia l\'aplicació per a vore tots els canvis."),
-        "settingsCloudBackupSyncErrorLabel": MessageLookupByLibrary.simpleMessage(
-            "Error en la còpia de seguretat"),
-        "settingsCloudBackupSyncLabel": MessageLookupByLibrary.simpleMessage(
-            "Fer una còpia ara"),
-        "settingsCloudBackupSyncSubtitle": MessageLookupByLibrary.simpleMessage(
-            "Puja al núvol les dades d\'este dispositiu"),
-        "settingsCloudBackupSyncSuccessLabel": MessageLookupByLibrary.simpleMessage(
-            "Còpia pujada"),
-        "settingsCloudBackupViewCodeLabel": MessageLookupByLibrary.simpleMessage(
-            "Vore el codi de vinculació"),
         "settingsCustomMealsLabel": MessageLookupByLibrary.simpleMessage(
             "Aliments personalitzats"),
         "settingsDayStartDescription": MessageLookupByLibrary.simpleMessage(
@@ -2294,45 +2246,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "syncStatusError": MessageLookupByLibrary.simpleMessage(
             "L'última sincronització ha fallat. Es tornarà a intentar sola."),
         "syncStatusIdle": mSyncStatusIdle,
-        "syncExplanation": MessageLookupByLibrary.simpleMessage(
-            "Manté igual en el mòbil i en la web d'escriptori el teu diari, pes, receptes, dejunis, objectius i configuració. Tot es xifra en este dispositiu abans de pujar-se, així que el servidor no ho pot llegir. Les fotos no se sincronitzen; van en la còpia en el núvol."),
-        "syncEnableTitle": MessageLookupByLibrary.simpleMessage(
-            "Activar amb les dades d'este dispositiu"),
-        "syncEnableSubtitle": MessageLookupByLibrary.simpleMessage(
-            "Fes-ho en el mòbil que té les teues dades i després vincula els altres dispositius amb el seu codi."),
-        "syncLinkTitle": MessageLookupByLibrary.simpleMessage(
-            "Vincular este dispositiu"),
-        "syncLinkSubtitle": MessageLookupByLibrary.simpleMessage(
-            "Apega o escaneja el codi d'un dispositiu amb la sincronització activada."),
-        "syncLinkConfirmTitle": MessageLookupByLibrary.simpleMessage(
-            "Vols vincular este dispositiu?"),
-        "syncLinkConfirmBody": MessageLookupByLibrary.simpleMessage(
-            "Quan els dos dispositius tinguen el mateix registre, com el perfil o la configuració, la còpia sincronitzada substituïx la d'este dispositiu. Les entrades que només existixen ací es conserven i es pugen."),
-        "syncLinkAction": MessageLookupByLibrary.simpleMessage(
-            "Vincular"),
-        "syncLinkInvalid": MessageLookupByLibrary.simpleMessage(
-            "Això no és un codi de sincronització. Copia'l des de Configuració > Sincronització entre dispositius en l'altre dispositiu."),
-        "syncLinked": MessageLookupByLibrary.simpleMessage(
-            "Dispositiu vinculat. Baixant les teues dades…"),
-        "syncNowLabel": MessageLookupByLibrary.simpleMessage(
-            "Sincronitzar ara"),
-        "syncShowCodeTitle": MessageLookupByLibrary.simpleMessage(
-            "Mostrar el codi per a un altre dispositiu"),
-        "syncShowCodeWarning": MessageLookupByLibrary.simpleMessage(
-            "Qui tinga este codi pot llegir i canviar les teues dades sincronitzades. Usa'l només en els teus propis dispositius."),
-        "syncCodeDialogTitle": MessageLookupByLibrary.simpleMessage(
-            "Codi de sincronització"),
-        "syncDisableTitle": MessageLookupByLibrary.simpleMessage(
-            "Desactivar en este dispositiu"),
-        "syncDisableBody": MessageLookupByLibrary.simpleMessage(
-            "Este dispositiu deixa de sincronitzar i conserva les seues dades. Els teus altres dispositius continuen sincronitzant."),
-        "syncDisableAction": MessageLookupByLibrary.simpleMessage(
-            "Desactivar"),
-        "syncScanLabel": MessageLookupByLibrary.simpleMessage(
-            "Escanejar QR"),
-        "syncPasteHint": MessageLookupByLibrary.simpleMessage(
-            "ontsync1:…"),
-        "syncDoneSnackbar": mSyncDoneSnackbar,
         "reviewTitle": MessageLookupByLibrary.simpleMessage(
             "Anàlisi"),
         "reviewTabWeight": MessageLookupByLibrary.simpleMessage(
@@ -2676,6 +2589,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "accDeleteFailed": MessageLookupByLibrary.simpleMessage("No s'ha pogut eliminar el compte. Torna-ho a provar."),
         "accSyncSubtitle": mAccSyncSubtitle,
         "accSyncSignedOut": MessageLookupByLibrary.simpleMessage("sessió tancada"),
+        "accSyncSignInPrompt": MessageLookupByLibrary.simpleMessage("Inicia la sessió per sincronitzar"),
         "accSyncNeedsRewrap": MessageLookupByLibrary.simpleMessage("cal la contrasenya per desbloquejar les dades"),
         "adminTitle": MessageLookupByLibrary.simpleMessage("Administració"),
         "adminSignupsOpen": MessageLookupByLibrary.simpleMessage("Registre obert"),

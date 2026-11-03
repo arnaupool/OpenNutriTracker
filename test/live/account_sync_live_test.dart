@@ -1,5 +1,5 @@
 // Live check of account sync (task B6) against the real Supabase project:
-// real Auth, real RLS on account_records and sync_records, real encryption.
+// real Auth, real RLS on account_records, real encryption.
 // Skipped unless these are set:
 //
 //   ACCOUNT_LIVE_URL       https://<ref>.supabase.co
@@ -7,9 +7,8 @@
 //   ACCOUNT_LIVE_EMAIL     a TEMPORARY confirmed user created for this run
 //   ACCOUNT_LIVE_PASSWORD  its password (Auth stores AccountAuthSecret of it)
 //
-// It signs two simulated devices in, creates the data key, migrates a token
-// pairing into the account (and deletes the token rows), syncs records both
-// ways and starts the account from scratch. Never point it at a real user:
+// It signs two simulated devices in, creates the data key, syncs records
+// both ways and starts the account from scratch. Never point it at a real user:
 // it deletes the account's records and key. Delete the user afterwards.
 //
 // The closed sign-up check runs only with ACCOUNT_LIVE_SIGNUP_FLAG set to a
@@ -35,13 +34,10 @@ import 'package:opennutritracker/core/data/dbo/meal_nutriments_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/weight_log_dbo.dart';
 import 'package:opennutritracker/core/profiles/profile_store.dart';
 import 'package:opennutritracker/core/sync/sync_boxes.dart';
-import 'package:opennutritracker/core/sync/sync_crypto.dart';
 import 'package:opennutritracker/core/sync/sync_engine.dart';
-import 'package:opennutritracker/core/sync/sync_pairing.dart';
 import 'package:opennutritracker/core/sync/sync_remote.dart';
 import 'package:opennutritracker/core/sync/sync_service.dart';
 import 'package:opennutritracker/core/sync/sync_state_store.dart';
-import 'package:opennutritracker/core/utils/cloud_backup_token_service.dart';
 import 'package:opennutritracker/core/utils/hive_db_provider.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dart';
 import 'package:opennutritracker/features/reminders/data/reminder_dbo.dart';
@@ -77,29 +73,6 @@ class _MemoryStorage implements FlutterSecureStorage {
   }
 }
 
-class _Pairings implements SyncKeyService {
-  SyncPairing? pairing;
-  bool forgotten = false;
-
-  @override
-  Future<SyncPairing?> read() async => pairing;
-
-  @override
-  Future<bool> isEnabled() async => pairing != null;
-
-  @override
-  Future<void> disable() async => pairing = null;
-
-  @override
-  Future<void> forget() async {
-    pairing = null;
-    forgotten = true;
-  }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError('${invocation.memberName}');
-}
-
 /// A closed sign-up that the app's first look at app_settings missed: the
 /// request reaches the server and the trigger refuses it.
 class _RacingApi extends AccountAuthApi {
@@ -117,7 +90,6 @@ class _Device {
   final HiveDBProvider db;
   final Box<dynamic> stateBox;
   final storage = _MemoryStorage();
-  final pairings = _Pairings();
   late final profiles = ProfileStore(storage: storage);
   late final accounts = AccountSessionService(
     api: AccountAuthApi(_url!, _key!),
@@ -128,11 +100,9 @@ class _Device {
   late final engine = SyncEngine(boxes: buildSyncedBoxes(db));
   late final service = SyncService(
     engine: engine,
-    pairings: pairings,
     accounts: accounts,
     stateBox: stateBox,
     boxes: engine.boxes,
-    tokenRemote: (token) => TokenSyncRemote(_url!, _key!, token),
     accountRemote: (userId, token) => AccountSyncRemote(_url!, _key!, userId, token),
     onApplied: (_) async {},
     activeProfile: () => AppProfile.defaultId,
@@ -213,16 +183,11 @@ void main() {
   test('account sync end to end', () async {
     const profile = AppProfile.defaultId;
 
-    // Phone: a profile that synced through an old pairing token.
+    // Phone: a local profile with some data.
     final phone = await _Device.create();
-    final pairing = SyncPairing(CloudBackupTokenService.generateToken(), SyncCrypto.generateKey());
-    _log('token ${pairing.token}');
-    phone.pairings.pairing = pairing;
     await phone.db.intakeBox.add(_intake('live-i1', 'Paella secreta', 180));
     await phone.db.weightLogBox.put('2026-11-03', WeightLogDBO(date: DateTime(2026, 11, 3), weightKg: 80.4));
-    final tokenRun = await phone.service.syncNow();
-    expect(tokenRun!.pushed, 2);
-    expect(await TokenSyncRemote(_url!, _key!, pairing.token).pull(), hasLength(2));
+    expect(await phone.service.syncNow(), isNull, reason: 'a local profile does not sync');
 
     // Signs in: first sign-in creates the data key.
     expect(await phone.accounts.signIn(profile, _email!, _password!), SignInResult.ready);
@@ -231,12 +196,10 @@ void main() {
     expect(await phone.accounts.status(profile), AccountStatus.ready);
     expect(await phone.service.hasPendingChanges(profile), isTrue);
 
-    // First account sync: upload and merge, then the token rows go.
-    final migration = await phone.service.syncNow();
-    expect(migration, isNotNull, reason: '${phone.service.status.value.error}');
-    expect(migration!.pushed, 2);
-    expect(await TokenSyncRemote(_url!, _key!, pairing.token).pull(), isEmpty, reason: 'token rows deleted');
-    expect(phone.pairings.forgotten, isTrue);
+    // First account sync uploads everything.
+    final first = await phone.service.syncNow();
+    expect(first, isNotNull, reason: '${phone.service.status.value.error}');
+    expect(first!.pushed, 2);
     expect(await phone.service.hasPendingChanges(profile), isFalse);
 
     // Laptop: same account, its own local data; merge both ways.
@@ -279,7 +242,6 @@ void main() {
         ),
         state: SyncStateStore.account(await Hive.openBox<dynamic>('acct_fresh_state', bytes: Uint8List(0)), 'x'),
         key: (await laptop.accounts.dataKey(profile))!,
-        account: true,
       ),
     );
     expect(fresh.pulled, 3, reason: 'two intakes and the weight, under the new key');

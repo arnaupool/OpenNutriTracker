@@ -1,14 +1,12 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:logging/logging.dart';
 import 'package:opennutritracker/core/domain/entity/app_theme_entity.dart';
 import 'package:opennutritracker/core/presentation/sources_screen.dart';
 import 'package:opennutritracker/core/presentation/widgets/app_banner_version.dart';
 import 'package:opennutritracker/core/presentation/widgets/disclaimer_dialog.dart';
 import 'package:opennutritracker/core/domain/usecase/delete_all_user_data_usecase.dart';
 import 'package:opennutritracker/core/utils/app_const.dart';
-import 'package:opennutritracker/core/utils/cloud_backup_token_service.dart';
 import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/core/utils/energy_unit_provider.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
@@ -20,14 +18,10 @@ import 'package:opennutritracker/features/diary/presentation/bloc/calendar_day_b
 import 'package:opennutritracker/features/diary/presentation/bloc/diary_bloc.dart';
 import 'package:opennutritracker/features/home/presentation/bloc/home_bloc.dart';
 import 'package:opennutritracker/features/profile/presentation/bloc/profile_bloc.dart';
-import 'package:opennutritracker/features/settings/domain/usecase/cloud_backup_usecase.dart';
 import 'package:opennutritracker/features/settings/presentation/bloc/settings_bloc.dart';
-import 'package:opennutritracker/features/settings/presentation/widgets/cloud_backup_restore_flow.dart';
-import 'package:opennutritracker/features/settings/presentation/widgets/cloud_backup_token_dialog.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/export_import_dialog.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/import_custom_food_data_dialog.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/nutrient_visibility_screen.dart';
-import 'package:opennutritracker/features/settings/presentation/widgets/pair_cloud_backup_screen.dart';
 import 'package:opennutritracker/features/off_contribution/presentation/off_account_dialog.dart';
 import 'package:opennutritracker/features/accounts/account_sync_tile.dart';
 import 'package:opennutritracker/features/accounts/accounts_screen.dart';
@@ -52,21 +46,11 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final _log = Logger('SettingsScreen');
   late SettingsBloc _settingsBloc;
   late ProfileBloc _profileBloc;
   late HomeBloc _homeBloc;
   late DiaryBloc _diaryBloc;
   late CalendarDayBloc _calendarDayBloc;
-  late final CloudBackupTokenService _cloudBackupTokenService = locator<CloudBackupTokenService>();
-
-  // Fase Cuenta: whether this device has a cloud-backup pairing token —
-  // decides which row (activate vs. sync/view-code/restore) the Cloud
-  // backup section shows. Kept as plain local state rather than routed
-  // through SettingsBloc: it's device-pairing state, not an app-wide
-  // reactive preference the rest of the screen's bloc-driven rows are.
-  bool _hasCloudBackupToken = false;
-  bool _cloudBackupBusy = false;
 
   @override
   void initState() {
@@ -84,13 +68,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // leaves stale values on the screen for the rest of the session.
     // Refresh on every entry instead.
     _settingsBloc.add(LoadSettingsEvent());
-    _refreshCloudBackupTokenState();
-  }
-
-  Future<void> _refreshCloudBackupTokenState() async {
-    final hasToken = await _cloudBackupTokenService.hasToken();
-    if (!mounted) return;
-    setState(() => _hasCloudBackupToken = hasToken);
   }
 
   @override
@@ -335,7 +312,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const ProfilesTile(),
                 const AccountSyncTile(),
                 const AdminPanel(),
-                ..._buildCloudBackupTiles(context),
                 const OffAccountTile(),
                 ListTile(
                   leading: const Icon(Icons.cached_outlined),
@@ -598,115 +574,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _showExportImportDialog(BuildContext context) {
     showDialog(context: context, builder: (context) => ExportImportDialog());
-  }
-
-  // Fase Cuenta (FA-13): a small view-your-own-data-elsewhere feature, not
-  // a full account system — see docs/cloud-backup-setup.md for the design
-  // (a private Storage bucket keyed by a locally generated pairing token,
-  // no login). Not activated: one row to turn it on. Activated: sync
-  // (push), view the pairing code again (to link another device), and
-  // restore (pull, destructive — always behind its own confirm dialog).
-  // "Link this device" is always shown since re-pairing to a different
-  // token is a legitimate action even when one is already set up.
-  List<Widget> _buildCloudBackupTiles(BuildContext context) {
-    final s = S.of(context);
-    return [
-      if (!_hasCloudBackupToken)
-        Semantics(
-          identifier: 'settings-cloud-backup-activate',
-          child: ListTile(
-            leading: const Icon(Icons.cloud_outlined),
-            title: Text(s.settingsCloudBackupActivateLabel),
-            subtitle: Text(s.settingsCloudBackupActivateSubtitle),
-            enabled: !_cloudBackupBusy,
-            onTap: () => _activateCloudBackup(context),
-          ),
-        )
-      else ...[
-        Semantics(
-          identifier: 'settings-cloud-backup-sync',
-          child: ListTile(
-            leading: const Icon(Icons.cloud_upload_outlined),
-            title: Text(s.settingsCloudBackupSyncLabel),
-            subtitle: Text(s.settingsCloudBackupSyncSubtitle),
-            trailing: _cloudBackupBusy
-                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                : null,
-            enabled: !_cloudBackupBusy,
-            onTap: () => _syncCloudBackup(context),
-          ),
-        ),
-        Semantics(
-          identifier: 'settings-cloud-backup-view-code',
-          child: ListTile(
-            leading: const Icon(Icons.qr_code_outlined),
-            title: Text(s.settingsCloudBackupViewCodeLabel),
-            enabled: !_cloudBackupBusy,
-            onTap: () => showCloudBackupTokenDialog(context),
-          ),
-        ),
-      ],
-      Semantics(
-        identifier: 'settings-cloud-backup-link-device',
-        child: ListTile(
-          leading: const Icon(Icons.link_outlined),
-          title: Text(s.settingsCloudBackupLinkDeviceLabel),
-          subtitle: Text(s.settingsCloudBackupLinkDeviceSubtitle),
-          enabled: !_cloudBackupBusy,
-          onTap: () => _openPairCloudBackupScreen(context),
-        ),
-      ),
-      if (_hasCloudBackupToken)
-        Semantics(
-          identifier: 'settings-cloud-backup-restore',
-          child: ListTile(
-            leading: Icon(Icons.cloud_download_outlined, color: Theme.of(context).colorScheme.error),
-            title: Text(
-              s.settingsCloudBackupRestoreLabel,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-            subtitle: Text(s.settingsCloudBackupRestoreSubtitle),
-            enabled: !_cloudBackupBusy,
-            onTap: () => _confirmAndRestoreCloudBackup(context),
-          ),
-        ),
-    ];
-  }
-
-  Future<void> _activateCloudBackup(BuildContext context) async {
-    await showCloudBackupTokenDialog(context);
-    await _refreshCloudBackupTokenState();
-  }
-
-  Future<void> _openPairCloudBackupScreen(BuildContext context) async {
-    await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const PairCloudBackupScreen()));
-    await _refreshCloudBackupTokenState();
-  }
-
-  Future<void> _syncCloudBackup(BuildContext context) async {
-    final s = S.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-    setState(() => _cloudBackupBusy = true);
-    try {
-      await locator<CloudBackupUsecase>().backup();
-      messenger.showSnackBar(SnackBar(content: Text(s.settingsCloudBackupSyncSuccessLabel)));
-    } on CloudBackupNotPairedException {
-      messenger.showSnackBar(SnackBar(content: Text(s.settingsCloudBackupNotPairedError)));
-    } catch (e, st) {
-      _log.warning('Cloud backup sync failed', e, st);
-      messenger.showSnackBar(SnackBar(content: Text(s.settingsCloudBackupSyncErrorLabel)));
-    } finally {
-      if (mounted) setState(() => _cloudBackupBusy = false);
-    }
-  }
-
-  Future<void> _confirmAndRestoreCloudBackup(BuildContext context) async {
-    setState(() => _cloudBackupBusy = true);
-    try {
-      await confirmAndRestoreCloudBackup(context);
-    } finally {
-      if (mounted) setState(() => _cloudBackupBusy = false);
-    }
   }
 
   void _showImportCustomFoodDataDialog(BuildContext context) {

@@ -6,9 +6,9 @@ import 'package:opennutritracker/core/sync/sync_remote.dart';
 import 'package:opennutritracker/core/sync/sync_state_store.dart';
 import 'package:opennutritracker/core/sync/synced_box.dart';
 
-/// In-memory stand-in for `public.sync_records` and `public.account_records`:
-/// the same rules as the SQL (one server clock per write statement, older
-/// `modified_at` ignored, rows scoped by token or user).
+/// In-memory stand-in for `public.account_records`: the same rules as the
+/// SQL (one server clock per write statement, older `modified_at` ignored,
+/// rows scoped by user).
 class FakeSyncServer {
   final Map<String, SyncRow> rows = {};
   var _tick = DateTime.utc(2026, 1, 1);
@@ -122,8 +122,6 @@ class FakeSyncDevice {
     );
     return FakeSyncDevice(diary, profile, stateBox, engine);
   }
-
-  SyncStateStore get tokenState => SyncStateStore(stateBox);
 
   SyncStateStore accountState(String userId) => SyncStateStore.account(stateBox, userId);
 

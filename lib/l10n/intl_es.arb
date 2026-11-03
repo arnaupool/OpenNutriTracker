@@ -324,12 +324,6 @@
   "clearOffCacheConfirmTitle": "¿Borrar elementos en caché?",
   "clearOffCacheLabel": "Borrar elementos en caché",
   "clearOffCacheSubtitle": "{count} elemento(s) · {size}",
-  "cloudBackupPairInstructionsLabel": "Escanea el código QR que aparece en tu otro dispositivo o pega el código de vinculación a mano.",
-  "cloudBackupPairInvalidTokenError": "Eso no parece un código de vinculación válido",
-  "cloudBackupPairPasteHint": "Pega aquí el código de vinculación",
-  "cloudBackupPairScreenTitle": "Vincular este dispositivo",
-  "cloudBackupPairSuccessLabel": "Dispositivo vinculado",
-  "cloudBackupTokenDialogTitle": "Código de vinculación de la copia en la nube",
   "cmLabel": "cm",
   "codeCopiedLabel": "Código copiado",
   "copyCodeLabel": "Copiar código",
@@ -656,7 +650,6 @@
   "onboardingKjPerDayLabel": "kJ al día",
   "onboardingNonBinaryDisclaimer": "No existe una referencia calórica publicada para personas no binarias, así que por defecto usamos la media de las fórmulas masculina y femenina: un punto de partida, no una estimación precisa. Puedes afinarlo cuando quieras en Ajustes → Cálculos.",
   "onboardingOverviewLabel": "Resumen",
-  "onboardingRestoreFromCloudLabel": "¿Ya tienes una copia en la nube? Restáurala",
   "onboardingSaveUserError": "Datos incorrectos, inténtalo de nuevo",
   "onboardingTargetWeightHintOptional": "Opcional",
   "onboardingTargetWeightSubtitle": "¿Tienes un peso objetivo? Puedes dejarlo en blanco o cambiarlo más tarde en Perfil.",
@@ -1036,23 +1029,6 @@
   "settingsCalciumGoalLabel": "Objetivo de calcio",
   "settingsCaloriesTaperDescription": "Reduce el déficit diario de forma gradual para que los últimos kilos no se hagan cuesta arriba.",
   "settingsCaloriesTaperLabel": "Ajustar el objetivo de calorías al acercarte a tu meta",
-  "settingsCloudBackupActivateLabel": "Activar copia en la nube",
-  "settingsCloudBackupActivateSubtitle": "Genera un código de vinculación para ver tus datos en otro dispositivo",
-  "settingsCloudBackupLinkDeviceLabel": "Vincular este dispositivo",
-  "settingsCloudBackupLinkDeviceSubtitle": "Escanea o pega un código de vinculación de otro dispositivo",
-  "settingsCloudBackupNotPairedError": "Primero configura la copia en la nube",
-  "settingsCloudBackupRestoreConfirmAction": "Restaurar",
-  "settingsCloudBackupRestoreConfirmContent": "Esto sustituye todo lo que hay en este dispositivo (diario, perfil, ajustes, recetas y más) por la última copia en la nube. Esta acción no se puede deshacer.",
-  "settingsCloudBackupRestoreConfirmTitle": "¿Restaurar desde la nube?",
-  "settingsCloudBackupRestoreErrorLabel": "Error al restaurar",
-  "settingsCloudBackupRestoreLabel": "Restaurar desde la nube",
-  "settingsCloudBackupRestoreSubtitle": "Descarga la copia de la nube y sobrescribe los datos de este dispositivo",
-  "settingsCloudBackupRestoreSuccessLabel": "Datos restaurados. Reinicia la app para ver todos los cambios.",
-  "settingsCloudBackupSyncErrorLabel": "Error en la copia de seguridad",
-  "settingsCloudBackupSyncLabel": "Hacer copia ahora",
-  "settingsCloudBackupSyncSubtitle": "Sube a la nube los datos de este dispositivo",
-  "settingsCloudBackupSyncSuccessLabel": "Copia subida",
-  "settingsCloudBackupViewCodeLabel": "Ver código de vinculación",
   "settingsCustomMealsLabel": "Alimentos personalizados",
   "settingsDayStartDescription": "Elige la hora a la que empieza tu día. Las comidas y actividades registradas antes de esa hora cuentan para el día anterior; útil si trabajas de noche o cenas tarde.",
   "settingsDayStartHourLabel": "{hour}:00",
@@ -1406,36 +1382,6 @@
   "@syncStatusIdle": {
     "placeholders": {
       "value": {
-        "type": "String"
-      }
-    }
-  },
-  "syncExplanation": "Mantiene igual en el móvil y en la web de escritorio tu diario, peso, recetas, ayunos, objetivos y ajustes. Todo se cifra en este dispositivo antes de subirse, así que el servidor no puede leerlo. Las fotos no se sincronizan; van en la copia en la nube.",
-  "syncEnableTitle": "Activar con los datos de este dispositivo",
-  "syncEnableSubtitle": "Hazlo en el móvil que tiene tus datos y luego vincula los demás dispositivos con su código.",
-  "syncLinkTitle": "Vincular este dispositivo",
-  "syncLinkSubtitle": "Pega o escanea el código de un dispositivo con la sincronización activada.",
-  "syncLinkConfirmTitle": "¿Vincular este dispositivo?",
-  "syncLinkConfirmBody": "Cuando los dos dispositivos tengan el mismo registro, como el perfil o los ajustes, la copia sincronizada sustituye a la de este dispositivo. Las entradas que solo existen aquí se conservan y se suben.",
-  "syncLinkAction": "Vincular",
-  "syncLinkInvalid": "Eso no es un código de sincronización. Cópialo desde Ajustes > Sincronización entre dispositivos en el otro dispositivo.",
-  "syncLinked": "Dispositivo vinculado. Descargando tus datos…",
-  "syncNowLabel": "Sincronizar ahora",
-  "syncShowCodeTitle": "Mostrar el código para otro dispositivo",
-  "syncShowCodeWarning": "Quien tenga este código puede leer y cambiar tus datos sincronizados. Úsalo solo en tus propios dispositivos.",
-  "syncCodeDialogTitle": "Código de sincronización",
-  "syncDisableTitle": "Desactivar en este dispositivo",
-  "syncDisableBody": "Este dispositivo deja de sincronizar y conserva sus datos. Tus otros dispositivos siguen sincronizando.",
-  "syncDisableAction": "Desactivar",
-  "syncScanLabel": "Escanear QR",
-  "syncPasteHint": "ontsync1:…",
-  "syncDoneSnackbar": "Sincronizado: {pulled} recibidos, {pushed} enviados",
-  "@syncDoneSnackbar": {
-    "placeholders": {
-      "pulled": {
-        "type": "String"
-      },
-      "pushed": {
         "type": "String"
       }
     }
@@ -1873,6 +1819,7 @@
     }
   },
   "accSyncSignedOut": "sesión cerrada",
+  "accSyncSignInPrompt": "Inicia sesión para sincronizar",
   "accSyncNeedsRewrap": "falta la contraseña para desbloquear los datos",
   "adminTitle": "Administración",
   "adminSignupsOpen": "Registro abierto",

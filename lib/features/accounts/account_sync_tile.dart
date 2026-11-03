@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:opennutritracker/core/account/account_session_service.dart';
 import 'package:opennutritracker/core/profiles/profile_store.dart';
 import 'package:opennutritracker/core/sync/sync_service.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/features/accounts/account_ui.dart';
 import 'package:opennutritracker/features/accounts/accounts_screen.dart';
-import 'package:opennutritracker/features/settings/presentation/widgets/device_sync_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
-/// Settings row that replaces the old "sync between devices" tile (C8). For
-/// an account it shows the account's email and sync state and opens the
-/// account picker. For a local profile it keeps the old tile and adds a way
-/// to link the profile to an account without losing its data.
+/// Settings row for sync (C8). For an account it shows the account's email
+/// and sync state and opens the account picker. For a local profile it asks
+/// to sign in and links the profile to an account without losing its data.
 class AccountSyncTile extends StatefulWidget {
   const AccountSyncTile({super.key});
 
@@ -63,23 +62,19 @@ class _AccountSyncTileState extends State<AccountSyncTile> {
     final s = S.of(context);
     final link = _link;
     if (!_loaded || link == null) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const DeviceSyncTile(),
-          if (_loaded)
-            Semantics(
-              identifier: 'settings-link-account',
-              child: ListTile(
-                leading: const Icon(Icons.account_circle_outlined),
-                title: Text(s.accountsLink),
-                onTap: () async {
+      return Semantics(
+        identifier: 'settings-link-account',
+        child: ListTile(
+          leading: const Icon(Icons.sync_outlined),
+          title: Text(s.syncTitle),
+          subtitle: Text(s.accSyncSignInPrompt),
+          onTap: !_loaded
+              ? null
+              : () async {
                   await linkProfileToAccount(context, ProfileScope.activeId);
                   await _load();
                 },
-              ),
-            ),
-        ],
+        ),
       );
     }
     return ValueListenableBuilder<SyncStatus>(
@@ -101,5 +96,23 @@ class _AccountSyncTileState extends State<AccountSyncTile> {
         );
       },
     );
+  }
+}
+
+/// One line describing how the last sync went.
+String syncStatusText(BuildContext context, SyncStatus status) {
+  final s = S.of(context);
+  switch (status.phase) {
+    case SyncPhase.off:
+      return s.syncStatusOff;
+    case SyncPhase.syncing:
+      return s.syncStatusSyncing;
+    case SyncPhase.error:
+      return s.syncStatusError;
+    case SyncPhase.idle:
+      final last = status.lastSync;
+      if (last == null) return s.syncStatusWaiting;
+      final locale = Localizations.localeOf(context).toLanguageTag();
+      return s.syncStatusIdle(DateFormat.MMMd(locale).add_Hm().format(last.toLocal()));
   }
 }
