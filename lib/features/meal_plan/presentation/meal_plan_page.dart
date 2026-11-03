@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -312,7 +312,7 @@ class _MealPlanPageState extends State<MealPlanPage> {
   Future<void> _addEntry(BuildContext context, DateTime day, IntakeTypeDBO type) async {
     final picked = await showDialog<({MealDBO meal, double amount})>(
       context: context,
-      builder: (_) => const _AddPlanEntryDialog(),
+      builder: (_) => const AddPlanEntryDialog(),
     );
     if (picked == null) return;
     await _plan.save(
@@ -369,14 +369,15 @@ class _Candidate {
 
 /// Picks what to plan from the user's own recipes, custom foods and recent
 /// intakes (searching online databases stays in the regular add flow).
-class _AddPlanEntryDialog extends StatefulWidget {
-  const _AddPlanEntryDialog();
+@visibleForTesting
+class AddPlanEntryDialog extends StatefulWidget {
+  const AddPlanEntryDialog({super.key});
 
   @override
-  State<_AddPlanEntryDialog> createState() => _AddPlanEntryDialogState();
+  State<AddPlanEntryDialog> createState() => _AddPlanEntryDialogState();
 }
 
-class _AddPlanEntryDialogState extends State<_AddPlanEntryDialog> {
+class _AddPlanEntryDialogState extends State<AddPlanEntryDialog> {
   final _search = TextEditingController();
   final _amount = TextEditingController();
   List<_Candidate> _candidates = [];
