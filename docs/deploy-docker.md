@@ -53,6 +53,18 @@ el aviso no vuelve tras actualizar.
 `tailscale serve` delante apuntando al puerto 8090, o deja tus
 `cert.pem` y `key.pem` en esa carpeta `certs`.
 
+**Caché de fotos y actualizaciones:** la web pide las fotos de producto de
+Open Food Facts a través del propio contenedor (`/off-images/`), que las guarda
+en disco (hasta 1 GB, 60 días) porque el servidor de imágenes de OFF tarda
+entre 13 y 25 s por foto. La caché vive dentro del contenedor y se pierde al
+actualizarlo; para conservarla, monta un volumen en
+`/var/cache/nginx/off-images` (la plantilla de Unraid trae la ruta opcional
+`/mnt/user/appdata/opennutritracker/image-cache`). El código de la app
+(`main.dart.js`, `.js`, `.css`, `.json`) se sirve con `Cache-Control: no-cache`,
+así que el navegador revalida en cada carga y recoge una versión nueva a la
+primera recarga (Flutter 3.41 ya no instala un service worker que cachee la
+app: su `flutter_service_worker.js` solo se desregistra).
+
 ## Opción alternativa: construir en Unraid con Portainer + Nginx Proxy Manager
 
 Portainer clona tu fork directamente de GitHub y construye la imagen él

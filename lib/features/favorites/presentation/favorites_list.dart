@@ -12,6 +12,7 @@ import 'package:opennutritracker/features/favorites/domain/favorite_food_reposit
 import 'package:opennutritracker/features/favorites/presentation/favorite_editor_screen.dart';
 import 'package:opennutritracker/features/meal_detail/meal_detail_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
+import 'package:opennutritracker/core/utils/off_image_url.dart';
 
 /// The "Favoritos" tab of the add-meal screen: a "New favorite" button and the
 /// favorites (filtered by the search text). Tapping one opens the regular meal
@@ -138,7 +139,7 @@ class _FavoriteTile extends StatelessWidget {
                   fit: BoxFit.cover,
                   width: 48,
                   height: 48,
-                  imageUrl: favorite.imageUrl!,
+                  imageUrl: displayImageUrl(favorite.imageUrl!),
                   errorWidget: (context, url, error) => const Icon(Icons.star, color: Colors.amber),
                 ),
               )

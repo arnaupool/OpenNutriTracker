@@ -13,6 +13,7 @@ import 'package:opennutritracker/features/add_meal/presentation/widgets/default_
 import 'package:opennutritracker/features/add_meal/presentation/widgets/meal_search_bar.dart';
 import 'package:opennutritracker/features/add_meal/presentation/widgets/no_results_widget.dart';
 import 'package:opennutritracker/generated/l10n.dart';
+import 'package:opennutritracker/core/utils/off_image_url.dart';
 
 /// Reusable 3-tab food search (Products / Food / Recently) that delegates the
 /// "selected" action to a callback rather than pushing MealDetailScreen.
@@ -280,7 +281,7 @@ class _PickableMealCard extends StatelessWidget {
                         fit: BoxFit.cover,
                         width: 60,
                         height: 60,
-                        imageUrl: meal.thumbnailImageUrl ?? '',
+                        imageUrl: displayImageUrl(meal.thumbnailImageUrl ?? ''),
                       ),
                     )
                   : ClipRRect(

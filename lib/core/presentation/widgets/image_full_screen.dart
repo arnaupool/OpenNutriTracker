@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/features/meal_detail/presentation/widgets/meal_placeholder.dart';
+import 'package:opennutritracker/core/utils/off_image_url.dart';
 
 class ImageFullScreen extends StatefulWidget {
   static const fullScreenHeroTag = 'fullScreenTag';
@@ -36,7 +37,7 @@ class _ImageFullScreenState extends State<ImageFullScreen> {
             width: double.infinity,
             height: double.infinity,
             cacheManager: locator<CacheManager>(),
-            imageUrl: imageUrl,
+            imageUrl: displayImageUrl(imageUrl),
             fit: BoxFit.cover,
             placeholder: (context, string) => const MealPlaceholder(),
             errorWidget: (context, url, error) => const MealPlaceholder(),

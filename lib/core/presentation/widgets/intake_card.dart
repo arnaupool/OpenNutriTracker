@@ -8,6 +8,7 @@ import 'package:opennutritracker/core/presentation/widgets/meal_value_unit_text.
 import 'package:opennutritracker/core/utils/energy_display.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/core/utils/user_image_storage.dart';
+import 'package:opennutritracker/core/utils/off_image_url.dart';
 
 class IntakeCard extends StatelessWidget {
   final IntakeEntity intake;
@@ -59,7 +60,7 @@ class IntakeCard extends StatelessWidget {
                   else if (intake.meal.mainImageUrl != null)
                     CachedNetworkImage(
                       cacheManager: locator<CacheManager>(),
-                      imageUrl: intake.meal.mainImageUrl ?? "",
+                      imageUrl: displayImageUrl(intake.meal.mainImageUrl ?? ""),
                       imageBuilder: (context, imageProvider) => Container(
                         decoration: BoxDecoration(
                           image: DecorationImage(

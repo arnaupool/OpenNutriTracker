@@ -27,6 +27,7 @@ import 'package:opennutritracker/features/meal_detail/meal_detail_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 import 'package:provider/provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:opennutritracker/core/utils/off_image_url.dart';
 
 class EditMealScreen extends StatefulWidget {
   const EditMealScreen({super.key});
@@ -898,7 +899,7 @@ class _EditMealScreenState extends State<EditMealScreen> {
         errorWidget: (context, exception, stacktrace) =>
             const DefaultMealImage(),
         fit: BoxFit.cover,
-        imageUrl: _mealEntity.mainImageUrl ?? "",
+        imageUrl: displayImageUrl(_mealEntity.mainImageUrl ?? ""),
       ),
     );
   }

@@ -27,6 +27,7 @@ import 'package:opennutritracker/features/meal_detail/presentation/widgets/off_d
 import 'package:opennutritracker/features/off_contribution/presentation/off_contribute_button.dart';
 import 'package:opennutritracker/features/scanner/domain/usecase/search_product_by_barcode_usecase.dart';
 import 'package:opennutritracker/generated/l10n.dart';
+import 'package:opennutritracker/core/utils/off_image_url.dart';
 
 class MealDetailScreen extends StatefulWidget {
   const MealDetailScreen({super.key});
@@ -281,7 +282,7 @@ class _MealDetailScreenState extends State<MealDetailScreen> {
                       width: 250,
                       height: 250,
                       cacheManager: locator<CacheManager>(),
-                      imageUrl: meal.mainImageUrl ?? "",
+                      imageUrl: displayImageUrl(meal.mainImageUrl ?? ""),
                       fit: BoxFit.cover,
                       placeholder: (context, string) => const MealPlaceholder(),
                       errorWidget: (context, url, error) => const MealPlaceholder(),

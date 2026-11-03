@@ -25,6 +25,7 @@ on:
       - 'Dockerfile'
       - 'nginx.default.conf'
       - 'nginx.app.conf'
+      - 'nginx.off-image-cache.conf'
       - 'docker/**'
       - '.github/workflows/docker-image.yml'
   workflow_dispatch:
@@ -84,6 +85,19 @@ jobs:
           curl -fsSk https://localhost:8443/ | grep -q flutter_bootstrap.js
           curl -fsSk -o /dev/null https://localhost:8443/main.dart.js
           docker logs ont 2>&1 | grep -q "generated a self-signed certificate"
+          # The app shell must revalidate on every load (no content hashes).
+          curl -fsSI http://localhost:8080/main.dart.js | grep -i '^cache-control: no-cache'
+          curl -fsSI http://localhost:8080/flutter_bootstrap.js | grep -i '^cache-control: no-cache'
+          # Photo proxy. Open Food Facts' image host can be very slow, so this
+          # only warns when it does not answer; the proxy route itself must
+          # exist (nginx answers 404 for an unknown path, never for a proxied one
+          # unless upstream does, so a status other than 000 means it is wired).
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60             http://localhost:8080/off-images/images/products/301/762/042/2003/front_en.1.100.jpg || true)
+          echo "off-images proxy status: $code"
+          case "$code" in
+            200|404) ;;
+            *) echo "::warning::off-images proxy returned $code (OFF slow or unreachable)" ;;
+          esac
           docker rm -f ont
 
       - uses: docker/build-push-action@v6

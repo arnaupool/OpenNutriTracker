@@ -7,6 +7,7 @@ import 'package:opennutritracker/core/utils/energy_display.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/core/utils/user_image_storage.dart';
 import 'package:opennutritracker/generated/l10n.dart';
+import 'package:opennutritracker/core/utils/off_image_url.dart';
 
 class RecipeListItem extends StatelessWidget {
   final RecipeEntity recipe;
@@ -60,7 +61,7 @@ class RecipeListItem extends StatelessWidget {
                   fit: BoxFit.cover,
                   width: 40,
                   height: 40,
-                  imageUrl: thumbnailUrl,
+                  imageUrl: displayImageUrl(thumbnailUrl),
                   errorWidget: (context, url, error) => CircleAvatar(
                     backgroundColor:
                         Theme.of(context).colorScheme.primaryContainer,

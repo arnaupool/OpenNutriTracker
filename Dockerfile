@@ -86,10 +86,12 @@ RUN apk add --no-cache openssl
 COPY --from=build /app/build/web /usr/share/nginx/html
 COPY nginx.default.conf /etc/nginx/conf.d/default.conf
 COPY nginx.app.conf /etc/nginx/ont/app.conf
+COPY nginx.off-image-cache.conf /etc/nginx/ont/off-image-cache.conf
 COPY --chmod=755 docker/40-ont-self-signed-cert.sh /docker-entrypoint.d/40-ont-self-signed-cert.sh
 # Port 80: plain HTTP for a reverse proxy that terminates TLS.
 # Port 443: HTTPS for opening the app directly on the LAN. Browsers need a
 # secure context for the Web Crypto API the app relies on, so plain
 # http://<lan-ip> can't run it.
 EXPOSE 80 443
+RUN mkdir -p /var/cache/nginx/off-images && chown -R nginx:nginx /var/cache/nginx
 VOLUME /certs
