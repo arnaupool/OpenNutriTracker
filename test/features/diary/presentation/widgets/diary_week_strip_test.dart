@@ -137,13 +137,18 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text(S.current.diaryWeekSummaryTitle), findsOneWidget);
-      expect(find.text('4000 kcal · 140 g fat · 220 g protein · 440 g carbs'), findsNothing);
+      expect(find.text('${S.current.diaryWeekSummaryTotal}: 4000 kcal'), findsNothing);
 
       await tester.tap(find.text(S.current.diaryWeekSummaryTitle));
       await tester.pumpAndSettle();
 
-      expect(find.text('4000 kcal · 140 g fat · 220 g protein · 440 g carbs'), findsOneWidget);
-      expect(find.text('2000 kcal · 70 g fat · 110 g protein · 220 g carbs'), findsOneWidget);
+      // Each macro has its own row with the week total and the average.
+      final total = S.current.diaryWeekSummaryTotal;
+      final average = S.current.diaryWeekSummaryAverage;
+      for (final (t, a) in [('4000 kcal', '2000 kcal'), ('140 g', '70 g'), ('220 g', '110 g'), ('440 g', '220 g')]) {
+        expect(find.text('$total: $t'), findsOneWidget);
+        expect(find.text('$average: $a'), findsOneWidget);
+      }
     });
   });
 }

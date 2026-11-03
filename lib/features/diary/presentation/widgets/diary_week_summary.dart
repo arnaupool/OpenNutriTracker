@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:opennutritracker/core/domain/entity/tracked_day_entity.dart';
 import 'package:opennutritracker/core/domain/usecase/get_tracked_day_usecase.dart';
 import 'package:opennutritracker/core/utils/extensions.dart';
+import 'package:opennutritracker/features/diary/presentation/widgets/diary_panel.dart';
 import 'package:opennutritracker/features/diary/presentation/widgets/diary_week_strip.dart';
 import 'package:opennutritracker/features/diary/presentation/widgets/weekly_nutrient_bars.dart';
 import 'package:opennutritracker/generated/l10n.dart';
@@ -11,6 +12,8 @@ import 'package:opennutritracker/generated/l10n.dart';
 /// macros of the week of [selectedDate] (computed from [trackedDaysMap], the
 /// same data the day markers use) followed by the weekly bar charts.
 class DiaryWeekSummary extends StatelessWidget {
+  static String _capitalize(String value) => value.isEmpty ? value : '${value[0].toUpperCase()}${value.substring(1)}';
+
   final DateTime selectedDate;
   final Map<String, TrackedDayEntity> trackedDaysMap;
   final GetTrackedDayUsecase? getTrackedDayUsecase;
@@ -39,16 +42,11 @@ class DiaryWeekSummary extends StatelessWidget {
       sum((t) => t.carbsTracked),
     ];
 
-    String line(List<double> v) =>
-        '${v[0].round()} ${s.kcalLabel} · ${v[1].round()} g ${s.fatLabel} · '
-        '${v[2].round()} g ${s.proteinLabel} · ${v[3].round()} g ${s.carbsLabel}';
-
     return Semantics(
       identifier: 'diary-week-summary',
       container: true,
-      child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 16.0),
-        clipBehavior: Clip.antiAlias,
+      child: DiaryPanel(
+        padding: EdgeInsets.zero,
         child: ExpansionTile(
           initiallyExpanded: false,
           shape: const Border(),
@@ -60,14 +58,34 @@ class DiaryWeekSummary extends StatelessWidget {
             if (count == 0)
               Text(s.diaryWeekSummaryEmpty)
             else ...[
-              Text(s.diaryWeekSummaryTotal, style: Theme.of(context).textTheme.labelLarge),
-              Text(line(totals)),
-              const SizedBox(height: 8),
-              Text(s.diaryWeekSummaryAverage, style: Theme.of(context).textTheme.labelLarge),
-              Text(line([for (final v in totals) v / count])),
+              for (final macro in [
+                (s.kcalLabel, s.kcalLabel, totals[0]),
+                (s.fatLabel, 'g', totals[1]),
+                (s.proteinLabel, 'g', totals[2]),
+                (s.carbsLabel, 'g', totals[3]),
+              ]) ...[
+                DiaryPanelRow(
+                  child: Row(
+                    children: [
+                      Expanded(child: Text(_capitalize(macro.$1), style: Theme.of(context).textTheme.labelLarge)),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text('${s.diaryWeekSummaryTotal}: ${macro.$3.round()} ${macro.$2}'),
+                          Text(
+                            '${s.diaryWeekSummaryAverage}: ${(macro.$3 / count).round()} ${macro.$2}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
             ],
             const SizedBox(height: 16),
-            WeeklyNutrientBars(selectedDate: selectedDate, getTrackedDayUsecase: getTrackedDayUsecase),
+            WeeklyNutrientBars(selectedDate: selectedDate, getTrackedDayUsecase: getTrackedDayUsecase, framed: false),
           ],
         ),
       ),

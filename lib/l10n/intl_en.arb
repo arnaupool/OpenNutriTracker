@@ -1812,5 +1812,6 @@
   "favoriteOriginalFailed": "Could not load the original product.",
   "searchSimilarResultsLabel": "Similar results",
   "planDatabaseColumn": "Database",
-  "planNewRecipe": "New recipe"
+  "planNewRecipe": "New recipe",
+  "activityHideLabel": "Hide"
 }

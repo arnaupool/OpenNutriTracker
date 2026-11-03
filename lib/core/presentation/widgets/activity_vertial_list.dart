@@ -8,7 +8,7 @@ import 'package:opennutritracker/features/add_activity/presentation/add_activity
 import 'package:opennutritracker/features/home/domain/entity/shared_activity_payload.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
-enum _ActivityPopupMenuSelection { onCopy, onShare, onImport }
+enum _ActivityPopupMenuSelection { onCopy, onShare, onImport, onHide }
 
 class ActivityVerticalList extends StatefulWidget {
   final DateTime day;
@@ -19,6 +19,10 @@ class ActivityVerticalList extends StatefulWidget {
   final Function(bool isDragging)? onItemDragCallback;
   final Function(UserActivityEntity)? onCopyActivityCallback;
 
+  /// Adds "Hide" to the menu: turns the activity section off. Settings has the
+  /// switch to bring it back.
+  final VoidCallback? onHide;
+
   const ActivityVerticalList({
     super.key,
     required this.day,
@@ -28,6 +32,7 @@ class ActivityVerticalList extends StatefulWidget {
     this.onItemTappedCallback,
     this.onItemDragCallback,
     this.onCopyActivityCallback,
+    this.onHide,
   });
 
   @override
@@ -44,17 +49,11 @@ class _ActivityVerticalListState extends State<ActivityVerticalList> {
           alignment: Alignment.centerLeft,
           child: Row(
             children: [
-              Icon(
-                UserActivityEntity.getIconData(),
-                size: 24,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
+              Icon(UserActivityEntity.getIconData(), size: 24, color: Theme.of(context).colorScheme.onSurface),
               const SizedBox(width: 4.0),
               Text(
                 widget.title,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Theme.of(context).colorScheme.onSurface),
               ),
               const Spacer(),
               PopupMenuButton<_ActivityPopupMenuSelection>(
@@ -66,9 +65,7 @@ class _ActivityVerticalListState extends State<ActivityVerticalList> {
                       }
                     case _ActivityPopupMenuSelection.onShare:
                       if (context.mounted) {
-                        final code = SharedActivityPayload
-                                .fromUserActivityList(widget.userActivityList)
-                            .toJsonString();
+                        final code = SharedActivityPayload.fromUserActivityList(widget.userActivityList).toJsonString();
                         await showDialog(
                           context: context,
                           builder: (_) => ShareQrDialog(
@@ -80,16 +77,14 @@ class _ActivityVerticalListState extends State<ActivityVerticalList> {
                       }
                     case _ActivityPopupMenuSelection.onImport:
                       if (context.mounted) {
-                        Navigator.of(context).pushNamed(
-                          NavigationOptions.importActivityScannerRoute,
-                        );
+                        Navigator.of(context).pushNamed(NavigationOptions.importActivityScannerRoute);
                       }
+                    case _ActivityPopupMenuSelection.onHide:
+                      widget.onHide?.call();
                   }
                 },
-                itemBuilder: (BuildContext context) =>
-                    <PopupMenuEntry<_ActivityPopupMenuSelection>>[
-                  if (widget.onCopyActivityCallback != null &&
-                      widget.userActivityList.isNotEmpty)
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<_ActivityPopupMenuSelection>>[
+                  if (widget.onCopyActivityCallback != null && widget.userActivityList.isNotEmpty)
                     PopupMenuItem<_ActivityPopupMenuSelection>(
                       value: _ActivityPopupMenuSelection.onCopy,
                       child: Text(S.of(context).dialogCopyLabel),
@@ -103,6 +98,11 @@ class _ActivityVerticalListState extends State<ActivityVerticalList> {
                     value: _ActivityPopupMenuSelection.onImport,
                     child: Text(S.of(context).importActivityLabel),
                   ),
+                  if (widget.onHide != null)
+                    PopupMenuItem<_ActivityPopupMenuSelection>(
+                      value: _ActivityPopupMenuSelection.onHide,
+                      child: Text(S.of(context).activityHideLabel),
+                    ),
                 ],
               ),
             ],
@@ -139,9 +139,8 @@ class _ActivityVerticalListState extends State<ActivityVerticalList> {
   }
 
   void _onPlaceholderCardTapped(BuildContext context) {
-    Navigator.of(context).pushNamed(
-      NavigationOptions.addActivityRoute,
-      arguments: AddActivityScreenArguments(day: widget.day),
-    );
+    Navigator.of(
+      context,
+    ).pushNamed(NavigationOptions.addActivityRoute, arguments: AddActivityScreenArguments(day: widget.day));
   }
 }

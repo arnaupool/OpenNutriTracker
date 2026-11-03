@@ -12748,6 +12748,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Hide`
+  String get activityHideLabel {
+    return Intl.message(
+      "Hide",
+      name: 'activityHideLabel',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

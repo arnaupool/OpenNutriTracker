@@ -1860,5 +1860,6 @@
   "favoriteOriginalFailed": "No s'ha pogut carregar el producte original.",
   "searchSimilarResultsLabel": "Resultats semblants",
   "planDatabaseColumn": "Base de dades",
-  "planNewRecipe": "Nova recepta"
+  "planNewRecipe": "Nova recepta",
+  "activityHideLabel": "Amaga"
 }

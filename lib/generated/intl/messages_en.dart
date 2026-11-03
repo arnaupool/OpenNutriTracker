@@ -1997,5 +1997,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "searchSimilarResultsLabel": MessageLookupByLibrary.simpleMessage("Similar results"),
         "planDatabaseColumn": MessageLookupByLibrary.simpleMessage("Database"),
         "planNewRecipe": MessageLookupByLibrary.simpleMessage("New recipe"),
+        "activityHideLabel": MessageLookupByLibrary.simpleMessage("Hide"),
       };
 }

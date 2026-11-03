@@ -2636,5 +2636,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "searchSimilarResultsLabel": MessageLookupByLibrary.simpleMessage("Resultats semblants"),
         "planDatabaseColumn": MessageLookupByLibrary.simpleMessage("Base de dades"),
         "planNewRecipe": MessageLookupByLibrary.simpleMessage("Nova recepta"),
+        "activityHideLabel": MessageLookupByLibrary.simpleMessage("Amaga"),
       };
 }

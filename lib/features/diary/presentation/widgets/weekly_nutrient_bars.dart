@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:opennutritracker/core/domain/entity/tracked_day_entity.dart';
 import 'package:opennutritracker/core/domain/usecase/get_tracked_day_usecase.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
+import 'package:opennutritracker/features/diary/presentation/widgets/diary_panel.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 /// FD-03: the calendar-week bar-chart overview (calories, carbs, fat,
@@ -23,19 +24,18 @@ class WeeklyNutrientBars extends StatefulWidget {
   final DateTime selectedDate;
   final GetTrackedDayUsecase? getTrackedDayUsecase;
 
-  const WeeklyNutrientBars({
-    super.key,
-    required this.selectedDate,
-    this.getTrackedDayUsecase,
-  });
+  /// Wraps the charts in their own titled container. Off when the charts sit
+  /// inside another container (the phone's weekly summary).
+  final bool framed;
+
+  const WeeklyNutrientBars({super.key, required this.selectedDate, this.getTrackedDayUsecase, this.framed = true});
 
   @override
   State<WeeklyNutrientBars> createState() => _WeeklyNutrientBarsState();
 }
 
 class _WeeklyNutrientBarsState extends State<WeeklyNutrientBars> {
-  late final GetTrackedDayUsecase _trackedDayUsecase =
-      widget.getTrackedDayUsecase ?? locator<GetTrackedDayUsecase>();
+  late final GetTrackedDayUsecase _trackedDayUsecase = widget.getTrackedDayUsecase ?? locator<GetTrackedDayUsecase>();
 
   Future<_WeekData>? _weekDataFuture;
   DateTime? _loadedFor;
@@ -70,17 +70,9 @@ class _WeeklyNutrientBarsState extends State<WeeklyNutrientBars> {
     // with), so an end-of-range bound of "Sunday at 00:00" would silently
     // drop today's entry whenever it carries a real time-of-day. Push the
     // bound to the last instant of Sunday instead.
-    final weekEnd = weekStart
-        .add(const Duration(days: 7))
-        .subtract(const Duration(milliseconds: 1));
-    final trackedDays = await _trackedDayUsecase.getTrackedDaysByRange(
-      weekStart,
-      weekEnd,
-    );
-    final trackedByDay = {
-      for (final t in trackedDays)
-        DateTime(t.day.year, t.day.month, t.day.day): t,
-    };
+    final weekEnd = weekStart.add(const Duration(days: 7)).subtract(const Duration(milliseconds: 1));
+    final trackedDays = await _trackedDayUsecase.getTrackedDaysByRange(weekStart, weekEnd);
+    final trackedByDay = {for (final t in trackedDays) DateTime(t.day.year, t.day.month, t.day.day): t};
 
     return _WeekData(trackedByDay: trackedByDay);
   }
@@ -88,11 +80,7 @@ class _WeeklyNutrientBarsState extends State<WeeklyNutrientBars> {
   @override
   Widget build(BuildContext context) {
     final weekStart = _weekStart(widget.selectedDate);
-    final selectedDay = DateTime(
-      widget.selectedDate.year,
-      widget.selectedDate.month,
-      widget.selectedDate.day,
-    );
+    final selectedDay = DateTime(widget.selectedDate.year, widget.selectedDate.month, widget.selectedDate.day);
     final days = [for (var i = 0; i < 7; i++) weekStart.add(Duration(days: i))];
 
     return FutureBuilder<_WeekData>(
@@ -104,76 +92,73 @@ class _WeeklyNutrientBarsState extends State<WeeklyNutrientBars> {
         final s = S.of(context);
         final theme = Theme.of(context);
 
-        return Semantics(
-          identifier: 'diary-weekly-nutrient-bars',
-          child: Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    s.diaryWeeklyBarsTitle,
-                    style: theme.textTheme.titleMedium,
-                  ),
-                  const SizedBox(height: 16),
-                  _MiniBarChart(
-                    label: s.caloriesLabel,
-                    unit: s.kcalLabel,
-                    days: days,
-                    selectedDay: selectedDay,
-                    values: [
-                      for (final d in days)
-                        trackedByDay[d]?.caloriesTracked ?? 0,
-                    ],
-                    goal: selectedTracked?.calorieGoal,
-                    color: theme.colorScheme.primary,
-                    showAxis: false,
-                  ),
-                  const SizedBox(height: 20),
-                  _MiniBarChart(
-                    label: s.fatLabel,
-                    unit: 'g',
-                    days: days,
-                    selectedDay: selectedDay,
-                    values: [
-                      for (final d in days) trackedByDay[d]?.fatTracked ?? 0,
-                    ],
-                    goal: selectedTracked?.fatGoal,
-                    color: theme.colorScheme.tertiary,
-                    showAxis: false,
-                  ),
-                  const SizedBox(height: 20),
-                  _MiniBarChart(
-                    label: s.proteinLabel,
-                    unit: 'g',
-                    days: days,
-                    selectedDay: selectedDay,
-                    values: [
-                      for (final d in days)
-                        trackedByDay[d]?.proteinTracked ?? 0,
-                    ],
-                    goal: selectedTracked?.proteinGoal,
-                    color: theme.colorScheme.secondary,
-                    showAxis: false,
-                  ),
-                  const SizedBox(height: 20),
-                  _MiniBarChart(
-                    label: s.carbsLabel,
-                    unit: 'g',
-                    days: days,
-                    selectedDay: selectedDay,
-                    values: [
-                      for (final d in days) trackedByDay[d]?.carbsTracked ?? 0,
-                    ],
-                    goal: selectedTracked?.carbsGoal,
-                    color: theme.colorScheme.outline,
-                    showAxis: true,
-                  ),
-                ],
+        final charts = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            DiaryPanelRow(
+              child: _MiniBarChart(
+                label: s.caloriesLabel,
+                unit: s.kcalLabel,
+                days: days,
+                selectedDay: selectedDay,
+                values: [for (final d in days) trackedByDay[d]?.caloriesTracked ?? 0],
+                goal: selectedTracked?.calorieGoal,
+                color: theme.colorScheme.primary,
+                showAxis: false,
               ),
             ),
-          ),
+            const SizedBox(height: 8),
+            DiaryPanelRow(
+              child: _MiniBarChart(
+                label: s.fatLabel,
+                unit: 'g',
+                days: days,
+                selectedDay: selectedDay,
+                values: [for (final d in days) trackedByDay[d]?.fatTracked ?? 0],
+                goal: selectedTracked?.fatGoal,
+                color: theme.colorScheme.tertiary,
+                showAxis: false,
+              ),
+            ),
+            const SizedBox(height: 8),
+            DiaryPanelRow(
+              child: _MiniBarChart(
+                label: s.proteinLabel,
+                unit: 'g',
+                days: days,
+                selectedDay: selectedDay,
+                values: [for (final d in days) trackedByDay[d]?.proteinTracked ?? 0],
+                goal: selectedTracked?.proteinGoal,
+                color: theme.colorScheme.secondary,
+                showAxis: false,
+              ),
+            ),
+            const SizedBox(height: 8),
+            DiaryPanelRow(
+              child: _MiniBarChart(
+                label: s.carbsLabel,
+                unit: 'g',
+                days: days,
+                selectedDay: selectedDay,
+                values: [for (final d in days) trackedByDay[d]?.carbsTracked ?? 0],
+                goal: selectedTracked?.carbsGoal,
+                color: theme.colorScheme.outline,
+                showAxis: true,
+              ),
+            ),
+          ],
+        );
+
+        return Semantics(
+          identifier: 'diary-weekly-nutrient-bars',
+          container: true,
+          child: widget.framed
+              ? DiaryPanel(
+                  margin: EdgeInsets.zero,
+                  title: Text(s.diaryWeeklyBarsTitle, style: theme.textTheme.titleMedium),
+                  child: charts,
+                )
+              : charts,
         );
       },
     );
@@ -213,9 +198,7 @@ class _MiniBarChart extends StatelessWidget {
   // The shared nutrient labels (caloriesLabel, fatLabel, ...) are lowercase
   // because most of their other call sites read them inline mid-sentence
   // ("106 / 316 g carbs"); this card's own header reads better title-cased.
-  static String _capitalize(String value) => value.isEmpty
-      ? value
-      : '${value[0].toUpperCase()}${value.substring(1)}';
+  static String _capitalize(String value) => value.isEmpty ? value : '${value[0].toUpperCase()}${value.substring(1)}';
 
   @override
   Widget build(BuildContext context) {
@@ -225,9 +208,7 @@ class _MiniBarChart extends StatelessWidget {
     final maxValue = values.fold<double>(0, (m, v) => v > m ? v : m);
     final maxY = [maxValue, goal ?? 0].reduce((a, b) => a > b ? a : b) * 1.2;
     final safeMaxY = maxY <= 0 ? 1.0 : maxY;
-    final selectedIndex = days.indexWhere(
-      (d) => DateUtils.isSameDay(d, selectedDay),
-    );
+    final selectedIndex = days.indexWhere((d) => DateUtils.isSameDay(d, selectedDay));
     final consumed = selectedIndex == -1 ? null : values[selectedIndex];
 
     return Column(
@@ -241,9 +222,7 @@ class _MiniBarChart extends StatelessWidget {
               Text(
                 '${consumed == null ? '' : '${consumed.round()} / '}'
                 '${goal!.round()} $unit',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
+                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withValues(alpha: 0.7)),
               ),
           ],
         ),
@@ -270,15 +249,9 @@ class _MiniBarChart extends StatelessWidget {
                       ],
                     ),
               titlesData: FlTitlesData(
-                topTitles: const AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-                rightTitles: const AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-                leftTitles: const AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
+                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 bottomTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: showAxis,
@@ -288,10 +261,7 @@ class _MiniBarChart extends StatelessWidget {
                       if (index < 0 || index >= days.length) {
                         return const SizedBox.shrink();
                       }
-                      final isSelected = DateUtils.isSameDay(
-                        days[index],
-                        selectedDay,
-                      );
+                      final isSelected = DateUtils.isSameDay(days[index], selectedDay);
                       return Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
@@ -299,12 +269,8 @@ class _MiniBarChart extends StatelessWidget {
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: isSelected
                                 ? theme.colorScheme.onSurface
-                                : theme.colorScheme.onSurface.withValues(
-                                    alpha: 0.6,
-                                  ),
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
+                                : theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                           ),
                         ),
                       );
@@ -319,13 +285,9 @@ class _MiniBarChart extends StatelessWidget {
                     barRods: [
                       BarChartRodData(
                         toY: values[i],
-                        color: DateUtils.isSameDay(days[i], selectedDay)
-                            ? color
-                            : color.withValues(alpha: 0.3),
+                        color: DateUtils.isSameDay(days[i], selectedDay) ? color : color.withValues(alpha: 0.3),
                         width: 12,
-                        borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(3),
-                        ),
+                        borderRadius: const BorderRadius.vertical(top: Radius.circular(3)),
                       ),
                     ],
                   ),
