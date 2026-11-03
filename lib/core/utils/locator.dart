@@ -70,6 +70,12 @@ import 'package:opennutritracker/core/domain/usecase/send_open_router_chat_compl
 import 'package:opennutritracker/core/domain/usecase/update_intake_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/update_user_activity_usecase.dart';
 import 'package:opennutritracker/core/utils/cloud_backup_token_service.dart';
+import 'package:opennutritracker/core/account/account_auth_api.dart';
+import 'package:opennutritracker/core/account/account_key_remote.dart';
+import 'package:opennutritracker/core/account/account_key_service.dart';
+import 'package:opennutritracker/core/account/account_session_service.dart';
+import 'package:opennutritracker/core/account/account_session_store.dart';
+import 'package:opennutritracker/core/profiles/profile_store.dart';
 import 'package:opennutritracker/core/sync/sync_boxes.dart';
 import 'package:opennutritracker/core/sync/sync_day_totals.dart';
 import 'package:opennutritracker/core/sync/sync_engine.dart';
@@ -572,6 +578,20 @@ Future<void> initLocator() async {
   locator.registerLazySingleton<MealPlanDataSource>(() => MealPlanDataSource(hiveDBProvider.mealPlanBox));
   locator.registerLazySingleton<LogMealPlanUsecase>(
     () => LogMealPlanUsecase(locator(), locator(), locator(), locator(), locator()),
+  );
+
+  // Accounts (docs/plan-cuentas.md): one Supabase Auth session and data key
+  // per profile, on the same project as sync and reminders.
+  locator.registerLazySingleton<AccountKeyService>(
+    () => AccountKeyService(AccountKeyRemote(Env.backupSupabaseProjectUrl, Env.backupSupabaseProjectAnonKey)),
+  );
+  locator.registerLazySingleton<AccountSessionService>(
+    () => AccountSessionService(
+      api: AccountAuthApi(Env.backupSupabaseProjectUrl, Env.backupSupabaseProjectAnonKey),
+      keys: locator(),
+      store: AccountSessionStore(),
+      profiles: ProfileStore(),
+    ),
   );
 
   // FAS-01: record-level sync between this device and the others linked to
