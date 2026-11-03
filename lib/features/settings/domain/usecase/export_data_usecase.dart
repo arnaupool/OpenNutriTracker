@@ -15,6 +15,7 @@ import 'package:opennutritracker/core/data/repository/user_repository.dart';
 import 'package:opennutritracker/core/data/repository/weight_log_repository.dart';
 import 'package:opennutritracker/core/utils/csv_data_exporter.dart';
 import 'package:opennutritracker/core/utils/user_image_storage.dart';
+import 'package:opennutritracker/features/favorites/domain/favorite_food_repository.dart';
 
 /// The two export shapes available from Settings → Export / Import App Data.
 /// JSON is the canonical backup-and-restore format the app re-imports from;
@@ -32,6 +33,7 @@ class ExportDataUsecase {
   final BodyMeasurementRepository _bodyMeasurementRepository;
   final UserRepository _userRepository;
   final ConfigRepository _configRepository;
+  final FavoriteFoodRepository _favoriteFoodRepository;
 
   ExportDataUsecase(
     this._userActivityRepository,
@@ -44,6 +46,7 @@ class ExportDataUsecase {
     this._bodyMeasurementRepository,
     this._userRepository,
     this._configRepository,
+    this._favoriteFoodRepository,
   );
 
   /// Exports user activity, intake, tracked day, recipe, weight-log and
@@ -65,6 +68,7 @@ class ExportDataUsecase {
     String weightLogJsonFileName,
     String customActivityTemplateJsonFileName,
     String bodyMeasurementJsonFileName, {
+    String favoriteFoodsJsonFileName = 'favorite_foods.json',
     ExportFormat format = ExportFormat.json,
     String userActivityCsvFileName = 'user_activity.csv',
     String userIntakeCsvFileName = 'user_intake.csv',
@@ -92,6 +96,7 @@ class ExportDataUsecase {
       weightLogJsonFileName: weightLogJsonFileName,
       customActivityTemplateJsonFileName: customActivityTemplateJsonFileName,
       bodyMeasurementJsonFileName: bodyMeasurementJsonFileName,
+      favoriteFoodsJsonFileName: favoriteFoodsJsonFileName,
       format: format,
       userActivityCsvFileName: userActivityCsvFileName,
       userIntakeCsvFileName: userIntakeCsvFileName,
@@ -123,6 +128,7 @@ class ExportDataUsecase {
     String weightLogJsonFileName = 'weight_log.json',
     String customActivityTemplateJsonFileName = 'custom_activity_templates.json',
     String bodyMeasurementJsonFileName = 'body_measurements.json',
+    String favoriteFoodsJsonFileName = 'favorite_foods.json',
     ExportFormat format = ExportFormat.json,
     String userActivityCsvFileName = 'user_activity.csv',
     String userIntakeCsvFileName = 'user_intake.csv',
@@ -217,6 +223,10 @@ class ExportDataUsecase {
           await _addUserImageIfPresent(archive, entry.backPhotoPath);
         }
       }
+
+      // Favorite foods (editable copies with portion and barcodes).
+      final favoriteBytes = utf8.encode(jsonEncode(_favoriteFoodRepository.exportJson()));
+      archive.addFile(ArchiveFile(favoriteFoodsJsonFileName, favoriteBytes.length, favoriteBytes));
 
       // Profile + settings — opt-in only, see the includeProfile doc above.
       if (includeProfile) {

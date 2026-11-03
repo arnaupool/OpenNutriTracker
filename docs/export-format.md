@@ -22,6 +22,7 @@ The export is a single `.zip` file (default filename
 | `user_tracked_day.json` | JSON | Canonical format the app re-imports from.                          |
 | `user_tracked_day.csv`  | CSV  | Flat companion to `user_tracked_day.json`.                         |
 | `user_recipes.json`   | JSON   | Recipes only. Nested-ingredient shape, no CSV counterpart.         |
+| `favorite_foods.json` | JSON   | Favorite foods (JSON export only). Optional on import.             |
 
 User profile (height, weight, birthday, PAL, goal) is intentionally **not**
 included — see `core/data/data_source/user_data_source.dart` for the box that
@@ -157,6 +158,37 @@ Array of recipe records, each holding an `ingredients` list referencing
 external food items by code. The nested-ingredient shape makes CSV a poor fit
 here, so recipes ship as JSON only. See `lib/core/data/dbo/recipe_dbo.dart`
 for the precise field list.
+
+### `favorite_foods.json`
+
+Array of favorite foods: editable local copies of foods, each with its own
+macros per 100 g or 100 ml, a default portion and its barcodes. The source of
+truth is `lib/features/favorites/data/favorite_food_dbo.dart`.
+
+```jsonc
+[
+  {
+    "id": "uuid-string",
+    "name": "Leche",
+    "brand": null,
+    "imageUrl": null,
+    "unit": "ml",                    // g | ml: the base of every nutriment
+    "portionName": "vaso",           // default portion; both null if none
+    "portionQuantity": 250.0,        // in `unit`
+    "barcodes": ["8410297112345"],   // any number of codes
+    "originSource": "off",           // off | fdc | bedca | custom | recipe | null (made by hand)
+    "originId": "8410297112345",     // id of the copied product, or null
+    "createdAt": "2026-11-03T09:00:00.000",
+    "modifiedAt": "2026-11-03T09:00:00.000",
+    "nutriments": { "energyKcal100": 47.0, "carbohydrates100": 4.8, "fat100": 1.6, "proteins100": 3.2 }
+  }
+]
+```
+
+Import merges by `id`: a record replaces the local favorite only when its
+`modifiedAt` is newer. The file is optional, so zips from older versions
+still import. Favorites also sync between devices of an account (box
+`FavoriteFoodBox`, record identity = `id`).
 
 ## CSV schema
 

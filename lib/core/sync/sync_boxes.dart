@@ -13,6 +13,7 @@ import 'package:opennutritracker/core/data/dbo/weight_log_dbo.dart';
 import 'package:opennutritracker/core/sync/synced_box.dart';
 import 'package:opennutritracker/core/utils/hive_db_provider.dart';
 import 'package:opennutritracker/features/diet_plan/data/diet_plan_dbo.dart';
+import 'package:opennutritracker/features/favorites/data/favorite_food_dbo.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dart';
 import 'package:opennutritracker/features/reminders/data/reminder_dbo.dart';
 
@@ -143,6 +144,14 @@ List<SyncedBox<dynamic>> buildSyncedBoxes(HiveDBProvider db) => [
     identityOf: (_, key) => key?.toString(),
     toJson: (v) => v.toSyncJson(),
     fromJson: ReminderSettingsDBO.fromJson,
+    naturalKey: true,
+  ),
+  SyncedBox<FavoriteFoodDBO>(
+    name: HiveDBProvider.favoriteFoodBoxName,
+    box: db.favoriteFoodBox,
+    identityOf: (_, key) => key?.toString(),
+    toJson: (v) => v.toJson(),
+    fromJson: FavoriteFoodDBO.fromJson,
     naturalKey: true,
   ),
 ];

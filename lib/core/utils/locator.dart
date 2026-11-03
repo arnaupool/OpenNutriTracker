@@ -84,6 +84,8 @@ import 'package:opennutritracker/core/sync/sync_service.dart';
 import 'package:opennutritracker/core/utils/env.dart';
 import 'package:opennutritracker/features/diet_plan/data/diet_plan_data_source.dart';
 import 'package:opennutritracker/features/diet_plan/domain/diet_plan_usecase.dart';
+import 'package:opennutritracker/features/favorites/data/favorite_food_data_source.dart';
+import 'package:opennutritracker/features/favorites/domain/favorite_food_repository.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_data_source.dart';
 import 'package:opennutritracker/features/meal_plan/domain/log_meal_plan_usecase.dart';
 import 'package:opennutritracker/core/utils/hive_db_provider.dart';
@@ -300,10 +302,12 @@ Future<void> initLocator() async {
       locator(),
       locator(),
       locator(),
+      locator(),
     ),
   );
   locator.registerLazySingleton(
     () => ImportDataUsecase(
+      locator(),
       locator(),
       locator(),
       locator(),
@@ -376,6 +380,10 @@ Future<void> initLocator() async {
       usesAccount: () async => (await locator<AccountSessionService>().link(ProfileScope.activeId)) != null,
     ),
   );
+
+  // Favorite foods (editable local copies of foods).
+  locator.registerLazySingleton<FavoriteFoodDataSource>(() => FavoriteFoodDataSource(hiveDBProvider.favoriteFoodBox));
+  locator.registerLazySingleton<FavoriteFoodRepository>(() => FavoriteFoodRepository(locator()));
 
   // FAS-04: meal planning.
   locator.registerLazySingleton<MealPlanDataSource>(() => MealPlanDataSource(hiveDBProvider.mealPlanBox));

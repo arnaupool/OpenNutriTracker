@@ -23,6 +23,7 @@ import 'package:opennutritracker/core/data/repository/user_repository.dart';
 import 'package:opennutritracker/core/data/repository/weight_log_repository.dart';
 import 'package:opennutritracker/core/utils/csv_data_exporter.dart';
 import 'package:opennutritracker/core/utils/user_image_storage.dart';
+import 'package:opennutritracker/features/favorites/domain/favorite_food_repository.dart';
 
 class ImportDataUsecase {
   final UserActivityRepository _userActivityRepository;
@@ -34,6 +35,7 @@ class ImportDataUsecase {
   final BodyMeasurementRepository _bodyMeasurementRepository;
   final UserRepository _userRepository;
   final ConfigRepository _configRepository;
+  final FavoriteFoodRepository _favoriteFoodRepository;
 
   ImportDataUsecase(
     this._userActivityRepository,
@@ -45,6 +47,7 @@ class ImportDataUsecase {
     this._bodyMeasurementRepository,
     this._userRepository,
     this._configRepository,
+    this._favoriteFoodRepository,
   );
 
   /// Imports user activity, intake, tracked day, and (optionally) recipe,
@@ -62,6 +65,7 @@ class ImportDataUsecase {
     String weightLogJsonFileName,
     String customActivityTemplateJsonFileName,
     String bodyMeasurementJsonFileName, {
+    String favoriteFoodsJsonFileName = 'favorite_foods.json',
     // Unlike the optional sections above (restored whenever the file is
     // present in the zip), profile/settings restoration requires this
     // explicit opt-in even if the files are present — overwriting a
@@ -98,6 +102,7 @@ class ImportDataUsecase {
       weightLogJsonFileName: weightLogJsonFileName,
       customActivityTemplateJsonFileName: customActivityTemplateJsonFileName,
       bodyMeasurementJsonFileName: bodyMeasurementJsonFileName,
+      favoriteFoodsJsonFileName: favoriteFoodsJsonFileName,
       restoreProfile: restoreProfile,
       userProfileJsonFileName: userProfileJsonFileName,
       userConfigJsonFileName: userConfigJsonFileName,
@@ -116,6 +121,7 @@ class ImportDataUsecase {
     String weightLogJsonFileName = 'weight_log.json',
     String customActivityTemplateJsonFileName = 'custom_activity_templates.json',
     String bodyMeasurementJsonFileName = 'body_measurements.json',
+    String favoriteFoodsJsonFileName = 'favorite_foods.json',
     bool restoreProfile = false,
     String userProfileJsonFileName = 'user_profile.json',
     String userConfigJsonFileName = 'user_config.json',
@@ -197,6 +203,15 @@ class ImportDataUsecase {
       final bodyMeasurementList = (jsonDecode(bodyMeasurementJsonString) as List).cast<Map<String, dynamic>>();
       final bodyMeasurementDBOs = bodyMeasurementList.map((json) => BodyMeasurementDBO.fromJson(json)).toList();
       await _bodyMeasurementRepository.addAllEntries(bodyMeasurementDBOs);
+    }
+
+    // Favorite foods — optional so older zips still import. A favorite with
+    // a known id is replaced only when the zip's copy is newer.
+    final favoriteFile = archive.findFile(favoriteFoodsJsonFileName);
+    if (favoriteFile != null) {
+      final favoriteList = (jsonDecode(utf8.decode(favoriteFile.content as List<int>)) as List)
+          .cast<Map<String, dynamic>>();
+      await _favoriteFoodRepository.importJson(favoriteList);
     }
 
     // Restore profile + settings — explicit opt-in, see restoreProfile doc

@@ -16,6 +16,7 @@ import 'package:opennutritracker/core/data/dbo/user_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/water_intake_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/weight_log_dbo.dart';
 import 'package:opennutritracker/features/diet_plan/data/diet_plan_dbo.dart';
+import 'package:opennutritracker/features/favorites/data/favorite_food_dbo.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dart';
 import 'package:opennutritracker/features/reminders/data/reminder_dbo.dart';
 import 'package:opennutritracker/hive_registrar.g.dart';
@@ -60,6 +61,8 @@ class HiveDBProvider extends ChangeNotifier {
   // Reminders (keyed by id) and their settings (single record); both synced.
   static const reminderBoxName = 'ReminderBox';
   static const reminderSettingsBoxName = 'ReminderSettingsBox';
+  // Favorite foods: editable local copies of foods, keyed by id (synced).
+  static const favoriteFoodBoxName = 'FavoriteFoodBox';
 
   late Box<ConfigDBO> configBox;
   late Box<IntakeDBO> intakeBox;
@@ -81,6 +84,7 @@ class HiveDBProvider extends ChangeNotifier {
   late Box<DietPlanDBO> dietPlanBox;
   late Box<ReminderDBO> reminderBox;
   late Box<ReminderSettingsDBO> reminderSettingsBox;
+  late Box<FavoriteFoodDBO> favoriteFoodBox;
 
   static bool _hiveReady = false;
 
@@ -106,6 +110,7 @@ class HiveDBProvider extends ChangeNotifier {
     dietPlanBoxName,
     reminderBoxName,
     reminderSettingsBoxName,
+    favoriteFoodBoxName,
   ];
 
   /// Opens the active profile's boxes ([ProfileScope]). Safe to call again
@@ -137,6 +142,9 @@ class HiveDBProvider extends ChangeNotifier {
     }
     if (!Hive.isAdapterRegistered(ReminderSettingsDBO.hiveTypeId)) {
       Hive.registerAdapter(ReminderSettingsDBOAdapter());
+    }
+    if (!Hive.isAdapterRegistered(FavoriteFoodDBO.hiveTypeId)) {
+      Hive.registerAdapter(FavoriteFoodDBOAdapter());
     }
     await _openBoxes(encryptionCypher);
   }
@@ -221,6 +229,10 @@ class HiveDBProvider extends ChangeNotifier {
     );
     reminderSettingsBox = await Hive.openBox(
       ProfileScope.box(reminderSettingsBoxName),
+      encryptionCipher: encryptionCypher,
+    );
+    favoriteFoodBox = await Hive.openBox(
+      ProfileScope.box(favoriteFoodBoxName),
       encryptionCipher: encryptionCypher,
     );
   }
