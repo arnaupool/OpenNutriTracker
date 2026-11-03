@@ -1,5 +1,4 @@
-import 'package:flutter/foundation.dart'
-    show TargetPlatform, defaultTargetPlatform, kIsWeb;
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform, kIsWeb;
 import 'package:package_info_plus/package_info_plus.dart';
 
 class AppConst {
@@ -8,8 +7,7 @@ class AppConst {
   static const platformNameIOS = "iOS";
   static const platformNameWeb = "Web";
   static const reportErrorEmail = "opennutritracker-dev@pm.me";
-  static const sourceCodeUrl =
-      "https://github.com/simonoppowa/OpenNutriTracker";
+  static const sourceCodeUrl = "https://github.com/simonoppowa/OpenNutriTracker";
 
   // Set at Docker build time (see Dockerfile) via `--dart-define`, a UTC
   // timestamp of when the image was actually built — unlike pubspec.yaml's
@@ -21,6 +19,14 @@ class AppConst {
   // method doesn't expose .git to the build stage at all. Empty outside a
   // Docker build (local `flutter run`), which AppBannerVersion hides.
   static const buildStamp = String.fromEnvironment('BUILD_STAMP');
+
+  // Short git commit of the CI image build (docker-image.yml passes it as the
+  // GIT_SHA build arg). Empty on other builds, e.g. Portainer, which has no
+  // .git; AppBannerVersion then shows only the stamp.
+  static const buildCommit = String.fromEnvironment('BUILD_COMMIT');
+
+  /// "48f57c14 · 2026-11-03T18:27:31Z", or whichever parts exist.
+  static String get buildLabel => [buildCommit, buildStamp].where((p) => p.isNotEmpty).join(' · ');
 
   static Future<String> getVersionNumber() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
@@ -55,8 +61,7 @@ class AppConst {
     if (cached != null) return cached;
     final versionNumber = await getVersionNumber();
     final platformVersion = getPlatformName();
-    final userAgentString =
-        '$userAgentAppName - $platformVersion - Version $versionNumber - $sourceCodeUrl';
+    final userAgentString = '$userAgentAppName - $platformVersion - Version $versionNumber - $sourceCodeUrl';
     _cachedUserAgentString = userAgentString;
     return userAgentString;
   }

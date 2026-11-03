@@ -22,25 +22,21 @@ class AppBannerVersion extends StatelessWidget {
         ),
         Text(
           S.of(context).appVersionName(versionNumber),
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: Theme.of(
-              context,
-            ).colorScheme.onSurface.withValues(alpha: 0.7),
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)),
         ),
         // Only set on Docker-built web deploys (see AppConst.buildStamp) —
         // absent on local `flutter run`/store builds, where the plain
         // version number above is already unambiguous.
-        if (AppConst.buildStamp.isNotEmpty)
+        if (AppConst.buildLabel.isNotEmpty)
           Semantics(
             identifier: 'settings-build-stamp',
             child: Text(
-              AppConst.buildStamp,
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onSurface.withValues(alpha: 0.5),
-              ),
+              AppConst.buildLabel,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5)),
             ),
           ),
       ],

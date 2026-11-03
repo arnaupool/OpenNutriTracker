@@ -77,8 +77,13 @@ RUN dart run build_runner build --delete-conflicting-outputs
 # `docker build`, `docker compose build`, Portainer). Shows up in Settings
 # (AppBannerVersion) so a redeploy is visually verifiable instead of
 # trusting a CDN/browser cache didn't quietly keep serving the old build.
+# The CI build also passes the commit (GIT_SHA build arg); it shows next to
+# the stamp so the running version can be matched to a commit. Optional:
+# empty on builds without it.
+ARG GIT_SHA=""
 RUN BUILD_STAMP="$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-    && flutter build web --release --dart-define=BUILD_STAMP="$BUILD_STAMP"
+    && BUILD_COMMIT="$(printf '%.8s' "$GIT_SHA")" \
+    && flutter build web --release --dart-define=BUILD_STAMP="$BUILD_STAMP" --dart-define=BUILD_COMMIT="$BUILD_COMMIT"
 
 FROM nginx:1.27-alpine AS serve
 # openssl for the first-start self-signed certificate (HTTPS on 443).

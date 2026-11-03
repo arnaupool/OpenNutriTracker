@@ -69,6 +69,7 @@ jobs:
           load: true
           tags: opennutritracker:test
           build-args: |
+            GIT_SHA=${{ github.sha }}
             FDC_API_KEY=${{ secrets.FDC_API_KEY }}
             SENTRY_DNS=${{ secrets.SENTRY_DNS }}
             BACKUP_SUPABASE_PROJECT_URL=${{ secrets.SUPABASE_BACKUP_URL }}
@@ -108,6 +109,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
+            GIT_SHA=${{ github.sha }}
             FDC_API_KEY=${{ secrets.FDC_API_KEY }}
             SENTRY_DNS=${{ secrets.SENTRY_DNS }}
             BACKUP_SUPABASE_PROJECT_URL=${{ secrets.SUPABASE_BACKUP_URL }}
