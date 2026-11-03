@@ -34,7 +34,7 @@ import 'package:opennutritracker/core/utils/search_match.dart';
 import 'package:opennutritracker/features/add_meal/domain/entity/meal_entity.dart';
 import 'package:opennutritracker/features/add_meal/domain/usecase/search_products_usecase.dart';
 import 'package:opennutritracker/features/add_meal/presentation/bloc/search_debounce.dart';
-import 'package:opennutritracker/features/favorites/presentation/favorite_editor_screen.dart';
+import 'package:opennutritracker/features/favorites/presentation/new_favorite_flow.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 /// Pushed on phones from the Diary app bar; on desktop the same
@@ -540,11 +540,8 @@ class _AddPlanEntryDialogState extends State<AddPlanEntryDialog> with TickerProv
   });
 
   Future<void> _createFavorite() async {
-    final result = await Navigator.of(
-      context,
-    ).pushNamed(NavigationOptions.favoriteEditorRoute, arguments: const FavoriteEditorArguments());
-    if (result is! String || !mounted) return;
-    final id = result;
+    final id = await startNewFavorite(context);
+    if (id == null || !mounted) return;
     await _loadCandidates();
     final favorite = locator<FavoriteFoodRepository>().getById(id);
     if (favorite == null || !mounted) return;

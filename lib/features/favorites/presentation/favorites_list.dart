@@ -10,6 +10,7 @@ import 'package:opennutritracker/features/add_meal/presentation/add_meal_type.da
 import 'package:opennutritracker/features/favorites/domain/favorite_food_entity.dart';
 import 'package:opennutritracker/features/favorites/domain/favorite_food_repository.dart';
 import 'package:opennutritracker/features/favorites/presentation/favorite_editor_screen.dart';
+import 'package:opennutritracker/features/favorites/presentation/new_favorite_flow.dart';
 import 'package:opennutritracker/features/meal_detail/meal_detail_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 import 'package:opennutritracker/core/utils/off_image_url.dart';
@@ -54,9 +55,7 @@ class _FavoritesListState extends State<FavoritesList> {
               child: FilledButton.tonalIcon(
                 icon: const Icon(Icons.star_border),
                 label: Text(s.favoriteNew),
-                onPressed: () => Navigator.of(
-                  context,
-                ).pushNamed(NavigationOptions.favoriteEditorRoute, arguments: const FavoriteEditorArguments()),
+                onPressed: () => startNewFavorite(context),
               ),
             ),
           ),

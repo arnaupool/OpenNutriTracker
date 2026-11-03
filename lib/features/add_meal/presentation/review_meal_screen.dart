@@ -33,11 +33,16 @@ class ReviewMealScreenArguments {
   final AddMealType mealType;
   final DateTime day;
 
+  /// Choose which of the foods to copy as favorites and return them as a
+  /// `List<MealEntity>`, instead of logging them or saving a preset.
+  final bool pickMode;
+
   const ReviewMealScreenArguments({
     required this.items,
     required this.imageBytes,
     required this.mealType,
     required this.day,
+    this.pickMode = false,
   });
 }
 
@@ -71,18 +76,13 @@ class ReviewMealScreen extends StatefulWidget {
 }
 
 class _ReviewMealScreenState extends State<ReviewMealScreen> {
-  late final AddIntakeUsecase _addIntakeUsecase =
-      widget.addIntakeUsecase ?? locator<AddIntakeUsecase>();
+  late final AddIntakeUsecase _addIntakeUsecase = widget.addIntakeUsecase ?? locator<AddIntakeUsecase>();
   late final AddTrackedDayUsecase _addTrackedDayUsecase =
       widget.addTrackedDayUsecase ?? locator<AddTrackedDayUsecase>();
-  late final GetKcalGoalUsecase _getKcalGoalUsecase =
-      widget.getKcalGoalUsecase ?? locator<GetKcalGoalUsecase>();
-  late final GetMacroGoalUsecase _getMacroGoalUsecase =
-      widget.getMacroGoalUsecase ?? locator<GetMacroGoalUsecase>();
-  late final SaveRecipeUseCase _saveRecipeUseCase =
-      widget.saveRecipeUseCase ?? locator<SaveRecipeUseCase>();
-  late final GetConfigUsecase _getConfigUsecase =
-      widget.getConfigUsecase ?? locator<GetConfigUsecase>();
+  late final GetKcalGoalUsecase _getKcalGoalUsecase = widget.getKcalGoalUsecase ?? locator<GetKcalGoalUsecase>();
+  late final GetMacroGoalUsecase _getMacroGoalUsecase = widget.getMacroGoalUsecase ?? locator<GetMacroGoalUsecase>();
+  late final SaveRecipeUseCase _saveRecipeUseCase = widget.saveRecipeUseCase ?? locator<SaveRecipeUseCase>();
+  late final GetConfigUsecase _getConfigUsecase = widget.getConfigUsecase ?? locator<GetConfigUsecase>();
   late final GenerateMealNameUsecase _generateMealNameUsecase =
       widget.generateMealNameUsecase ?? locator<GenerateMealNameUsecase>();
 
@@ -99,9 +99,7 @@ class _ReviewMealScreenState extends State<ReviewMealScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_argsLoaded) return;
-    _args =
-        ModalRoute.of(context)?.settings.arguments
-            as ReviewMealScreenArguments;
+    _args = ModalRoute.of(context)?.settings.arguments as ReviewMealScreenArguments;
     _items = _args.items.map(_ReviewItem.fromMagicItem).toList();
     _mealType = _args.mealType.getIntakeType();
     _argsLoaded = true;
@@ -115,8 +113,7 @@ class _ReviewMealScreenState extends State<ReviewMealScreen> {
     super.dispose();
   }
 
-  double get _totalKcal =>
-      _items.fold(0.0, (sum, item) => sum + item.currentKcal);
+  double get _totalKcal => _items.fold(0.0, (sum, item) => sum + item.currentKcal);
 
   Future<void> _onAddAllPressed() async {
     setState(() => _addingAll = true);
@@ -135,12 +132,31 @@ class _ReviewMealScreenState extends State<ReviewMealScreen> {
     }
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(S.of(context).magicAddedToDiarySnackbar)),
-    );
-    Navigator.of(
-      context,
-    ).popUntil(ModalRoute.withName(NavigationOptions.mainRoute));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).magicAddedToDiarySnackbar)));
+    Navigator.of(context).popUntil(ModalRoute.withName(NavigationOptions.mainRoute));
+  }
+
+  /// The foods ticked by the user, as meals with the AI's portion as the
+  /// serving, for the caller to copy as favorites.
+  void _onPickPressed() {
+    final picked = [
+      for (final item in _items)
+        if (item.selected && item.currentGrams > 0)
+          MealEntity(
+            code: IdGenerator.getUniqueID(),
+            name: item.name,
+            url: null,
+            mealQuantity: '100',
+            mealUnit: 'g',
+            servingQuantity: item.currentGrams,
+            servingUnit: 'g',
+            servingSize: '',
+            nutriments: item.nutrimentsPer100,
+            source: MealSourceEntity.custom,
+          ),
+    ];
+    if (picked.isEmpty) return;
+    Navigator.of(context).pop(picked);
   }
 
   Future<void> _persistIntake(_ReviewItem item) async {
@@ -177,10 +193,7 @@ class _ReviewMealScreenState extends State<ReviewMealScreen> {
         await _getMacroGoalUsecase.getProteinsGoal(kcalGoal),
       );
     }
-    await _addTrackedDayUsecase.addDayCaloriesTracked(
-      _args.day,
-      intake.totalKcal,
-    );
+    await _addTrackedDayUsecase.addDayCaloriesTracked(_args.day, intake.totalKcal);
     await _addTrackedDayUsecase.addDayMacrosTracked(
       _args.day,
       carbsTracked: intake.totalCarbsGram,
@@ -222,8 +235,7 @@ class _ReviewMealScreenState extends State<ReviewMealScreen> {
 
     final name = await showDialog<String>(
       context: context,
-      builder: (dialogContext) =>
-          _SavePresetNameDialog(defaultName: suggestedName),
+      builder: (dialogContext) => _SavePresetNameDialog(defaultName: suggestedName),
     );
     if (name == null || name.isEmpty) return;
 
@@ -267,15 +279,11 @@ class _ReviewMealScreenState extends State<ReviewMealScreen> {
 
       if (!mounted) return;
       setState(() => _savingPreset = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(s.reviewMealPresetSavedSnackbar)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(s.reviewMealPresetSavedSnackbar)));
     } catch (_) {
       if (!mounted) return;
       setState(() => _savingPreset = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(s.reviewMealPresetSaveFailedError)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(s.reviewMealPresetSaveFailedError)));
     }
   }
 
@@ -287,72 +295,76 @@ class _ReviewMealScreenState extends State<ReviewMealScreen> {
       appBar: AppBar(title: Text(s.reviewMealScreenTitle)),
       body: Column(
         children: [
-          _HeaderBanner(
-            imageBytes: _args.imageBytes,
-            totalKcalLabel: s.reviewMealTotalKcalLabel(_totalKcal.round()),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: MealTypeSelector(value: _mealType, onChanged: (type) => setState(() => _mealType = type)),
-          ),
+          _HeaderBanner(imageBytes: _args.imageBytes, totalKcalLabel: s.reviewMealTotalKcalLabel(_totalKcal.round())),
+          if (!_args.pickMode)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: MealTypeSelector(value: _mealType, onChanged: (type) => setState(() => _mealType = type)),
+            ),
           Expanded(
             child: Semantics(
               identifier: 'review-meal-items-list',
               child: ListView.builder(
                 padding: const EdgeInsets.all(16.0),
                 itemCount: _items.length,
-                itemBuilder: (context, index) => _ReviewItemCard(
-                  item: _items[index],
-                  onChanged: () => setState(() {}),
-                ),
+                itemBuilder: (context, index) =>
+                    _ReviewItemCard(item: _items[index], onChanged: () => setState(() {}), selectable: _args.pickMode),
               ),
             ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Column(
-              children: [
-                Semantics(
-                  identifier: 'review-meal-add-all-button',
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.icon(
-                      onPressed: busy ? null : _onAddAllPressed,
-                      icon: _addingAll
-                          ? const SizedBox(
-                              height: 16,
-                              width: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Icon(Icons.check),
-                      label: Text(s.reviewMealAddAllButton(_items.length)),
+            child: _args.pickMode
+                ? Semantics(
+                    identifier: 'review-meal-pick-button',
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        onPressed: _items.any((i) => i.selected && i.currentGrams > 0) ? _onPickPressed : null,
+                        icon: const Icon(Icons.star_border),
+                        label: Text(s.favoriteCreateSelected),
+                      ),
                     ),
+                  )
+                : Column(
+                    children: [
+                      Semantics(
+                        identifier: 'review-meal-add-all-button',
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: FilledButton.icon(
+                            onPressed: busy ? null : _onAddAllPressed,
+                            icon: _addingAll
+                                ? const SizedBox(
+                                    height: 16,
+                                    width: 16,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  )
+                                : const Icon(Icons.check),
+                            label: Text(s.reviewMealAddAllButton(_items.length)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Semantics(
+                        identifier: 'review-meal-save-preset-button',
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: busy ? null : _onSaveAsPresetPressed,
+                            icon: (_savingPreset || _generatingName)
+                                ? const SizedBox(
+                                    height: 16,
+                                    width: 16,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  )
+                                : const Icon(Icons.playlist_add),
+                            label: Text(s.reviewMealSaveAsPresetButton),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 8),
-                Semantics(
-                  identifier: 'review-meal-save-preset-button',
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: busy ? null : _onSaveAsPresetPressed,
-                      icon: (_savingPreset || _generatingName)
-                          ? const SizedBox(
-                              height: 16,
-                              width: 16,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                              ),
-                            )
-                          : const Icon(Icons.playlist_add),
-                      label: Text(s.reviewMealSaveAsPresetButton),
-                    ),
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),
@@ -375,9 +387,7 @@ class _SavePresetNameDialog extends StatefulWidget {
 }
 
 class _SavePresetNameDialogState extends State<_SavePresetNameDialog> {
-  late final TextEditingController _controller = TextEditingController(
-    text: widget.defaultName,
-  );
+  late final TextEditingController _controller = TextEditingController(text: widget.defaultName);
 
   @override
   void dispose() {
@@ -396,10 +406,7 @@ class _SavePresetNameDialogState extends State<_SavePresetNameDialog> {
         decoration: InputDecoration(hintText: s.reviewMealSavePresetNameHint),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(s.dialogCancelLabel),
-        ),
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(s.dialogCancelLabel)),
         Semantics(
           identifier: 'review-meal-save-preset-confirm',
           child: FilledButton(
@@ -462,8 +469,9 @@ class _HeaderBanner extends StatelessWidget {
 class _ReviewItemCard extends StatelessWidget {
   final _ReviewItem item;
   final VoidCallback onChanged;
+  final bool selectable;
 
-  const _ReviewItemCard({required this.item, required this.onChanged});
+  const _ReviewItemCard({required this.item, required this.onChanged, this.selectable = false});
 
   @override
   Widget build(BuildContext context) {
@@ -482,12 +490,18 @@ class _ReviewItemCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Expanded(
-                  child: Text(
-                    item.name,
-                    style: Theme.of(context).textTheme.titleMedium,
+                if (selectable)
+                  Semantics(
+                    identifier: 'review-meal-item-select',
+                    child: Checkbox(
+                      value: item.selected,
+                      onChanged: (value) {
+                        item.selected = value ?? false;
+                        onChanged();
+                      },
+                    ),
                   ),
-                ),
+                Expanded(child: Text(item.name, style: Theme.of(context).textTheme.titleMedium)),
                 _ConfidenceBadge(confidence: item.confidence),
               ],
             ),
@@ -498,14 +512,8 @@ class _ReviewItemCard extends StatelessWidget {
                   width: 90,
                   child: TextFormField(
                     controller: item.gramsController,
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                        RegExp(r'^\d+([.,]\d{0,2})?$'),
-                      ),
-                    ],
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'^\d+([.,]\d{0,2})?$'))],
                     decoration: InputDecoration(
                       isDense: true,
                       suffixText: s.reviewMealGramsUnit,
@@ -515,16 +523,10 @@ class _ReviewItemCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                Text(
-                  '${item.currentKcal.round()} ${s.kcalLabel}',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
+                Text('${item.currentKcal.round()} ${s.kcalLabel}', style: Theme.of(context).textTheme.bodyMedium),
                 if (macroParts.isNotEmpty) ...[
                   const Spacer(),
-                  Text(
-                    macroParts.join(' '),
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
+                  Text(macroParts.join(' '), style: Theme.of(context).textTheme.bodySmall),
                 ],
               ],
             ),
@@ -545,11 +547,7 @@ class _ConfidenceBadge extends StatelessWidget {
     final s = S.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final (background, foreground, label) = switch (confidence) {
-      MagicConfidence.low => (
-        colorScheme.errorContainer,
-        colorScheme.onErrorContainer,
-        s.reviewMealConfidenceLow,
-      ),
+      MagicConfidence.low => (colorScheme.errorContainer, colorScheme.onErrorContainer, s.reviewMealConfidenceLow),
       MagicConfidence.medium => (
         colorScheme.tertiaryContainer,
         colorScheme.onTertiaryContainer,
@@ -563,16 +561,8 @@ class _ConfidenceBadge extends StatelessWidget {
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(
-          context,
-        ).textTheme.labelSmall?.copyWith(color: foreground),
-      ),
+      decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(12)),
+      child: Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: foreground)),
     );
   }
 }
@@ -586,6 +576,9 @@ class _ReviewItem {
   final MealNutrimentsEntity nutrimentsPer100;
   final TextEditingController gramsController;
 
+  /// Ticked to be copied as a favorite (pick mode).
+  bool selected = true;
+
   _ReviewItem({
     required this.name,
     required this.confidence,
@@ -595,8 +588,7 @@ class _ReviewItem {
 
   factory _ReviewItem.fromMagicItem(MagicFoodItemEntity item) {
     final grams = item.grams > 0 ? item.grams : 100.0;
-    double? per100(double? total) =>
-        total == null ? null : total * 100 / grams;
+    double? per100(double? total) => total == null ? null : total * 100 / grams;
     return _ReviewItem(
       name: item.name,
       confidence: item.confidence,
@@ -618,20 +610,15 @@ class _ReviewItem {
     return double.tryParse(raw) ?? 0;
   }
 
-  double get currentKcal =>
-      (nutrimentsPer100.energyKcal100 ?? 0) * currentGrams / 100;
+  double get currentKcal => (nutrimentsPer100.energyKcal100 ?? 0) * currentGrams / 100;
 
-  double? get currentCarbs => nutrimentsPer100.carbohydrates100 == null
-      ? null
-      : nutrimentsPer100.carbohydrates100! * currentGrams / 100;
+  double? get currentCarbs =>
+      nutrimentsPer100.carbohydrates100 == null ? null : nutrimentsPer100.carbohydrates100! * currentGrams / 100;
 
-  double? get currentFat => nutrimentsPer100.fat100 == null
-      ? null
-      : nutrimentsPer100.fat100! * currentGrams / 100;
+  double? get currentFat => nutrimentsPer100.fat100 == null ? null : nutrimentsPer100.fat100! * currentGrams / 100;
 
-  double? get currentProtein => nutrimentsPer100.proteins100 == null
-      ? null
-      : nutrimentsPer100.proteins100! * currentGrams / 100;
+  double? get currentProtein =>
+      nutrimentsPer100.proteins100 == null ? null : nutrimentsPer100.proteins100! * currentGrams / 100;
 
   static String _formatGrams(double grams) {
     if (grams == grams.roundToDouble()) return grams.round().toString();

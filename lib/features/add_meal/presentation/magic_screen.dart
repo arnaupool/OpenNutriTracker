@@ -11,6 +11,7 @@ import 'package:opennutritracker/core/domain/usecase/get_open_router_models_usec
 import 'package:opennutritracker/core/presentation/widgets/photo_picker_card.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/core/utils/navigation_options.dart';
+import 'package:opennutritracker/features/add_meal/domain/entity/meal_entity.dart';
 import 'package:opennutritracker/features/add_meal/domain/usecase/analyze_meal_with_ai_usecase.dart';
 import 'package:opennutritracker/features/add_meal/presentation/add_meal_screen.dart';
 import 'package:opennutritracker/features/add_meal/presentation/review_meal_screen.dart';
@@ -48,10 +49,8 @@ class _MagicScreenState extends State<MagicScreen> {
   final _log = Logger('MagicScreen');
 
   late final GetOpenRouterModelsUsecase _getModelsUsecase =
-      widget.getOpenRouterModelsUsecase ??
-      locator<GetOpenRouterModelsUsecase>();
-  late final GetConfigUsecase _getConfigUsecase =
-      widget.getConfigUsecase ?? locator<GetConfigUsecase>();
+      widget.getOpenRouterModelsUsecase ?? locator<GetOpenRouterModelsUsecase>();
+  late final GetConfigUsecase _getConfigUsecase = widget.getConfigUsecase ?? locator<GetConfigUsecase>();
   late final AnalyzeMealWithAiUsecase _analyzeUsecase =
       widget.analyzeMealWithAiUsecase ?? locator<AnalyzeMealWithAiUsecase>();
   late final ImagePicker _imagePicker = widget.imagePicker ?? ImagePicker();
@@ -75,8 +74,7 @@ class _MagicScreenState extends State<MagicScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _args =
-        ModalRoute.of(context)?.settings.arguments as AddMealScreenArguments;
+    _args = ModalRoute.of(context)?.settings.arguments as AddMealScreenArguments;
   }
 
   @override
@@ -103,8 +101,7 @@ class _MagicScreenState extends State<MagicScreen> {
         final preselected = config.openRouterModelId != null
             ? models.where((m) => m.id == config.openRouterModelId).firstOrNull
             : null;
-        final initial =
-            preselected ?? (models.isNotEmpty ? models.first : null);
+        final initial = preselected ?? (models.isNotEmpty ? models.first : null);
         _selectedProvider = initial == null ? null : _providerOf(initial);
         _selectedModelId = initial?.id;
       });
@@ -124,19 +121,14 @@ class _MagicScreenState extends State<MagicScreen> {
     return idx == -1 ? model.name : model.name.substring(idx + 2);
   }
 
-  List<String> get _providers =>
-      _models.map(_providerOf).toSet().toList()..sort();
+  List<String> get _providers => _models.map(_providerOf).toSet().toList()..sort();
 
   List<OpenRouterModelEntity> get _modelsForSelectedProvider =>
       _models.where((m) => _providerOf(m) == _selectedProvider).toList();
 
   bool get _canAnalyze {
-    final hasInput =
-        _imageBytes != null || _descriptionController.text.trim().isNotEmpty;
-    return !_analyzing &&
-        hasInput &&
-        _selectedModelId != null &&
-        !_loadingModels;
+    final hasInput = _imageBytes != null || _descriptionController.text.trim().isNotEmpty;
+    return !_analyzing && hasInput && _selectedModelId != null && !_loadingModels;
   }
 
   Future<void> _onPickImage(ImageSource source) async {
@@ -194,15 +186,23 @@ class _MagicScreenState extends State<MagicScreen> {
         return;
       }
       setState(() => _analyzing = false);
-      Navigator.of(context).pushNamed(
+      final navigator = Navigator.of(context);
+      final review = navigator.pushNamed(
         NavigationOptions.reviewMealRoute,
         arguments: ReviewMealScreenArguments(
           items: items,
           imageBytes: _imageBytes,
           mealType: _args.mealType,
           day: _args.day,
+          pickMode: _args.pickMode,
         ),
       );
+      if (_args.pickMode) {
+        // Picking foods to copy as favorites: the review hands back the
+        // chosen foods, which go on to whoever opened this screen.
+        final picked = await review;
+        if (picked is List<MealEntity> && mounted) navigator.pop(picked);
+      }
     } catch (e, st) {
       _log.warning('Magic analysis failed', e, st);
       if (!mounted) return;
@@ -217,7 +217,7 @@ class _MagicScreenState extends State<MagicScreen> {
   Widget build(BuildContext context) {
     final s = S.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(s.magicScreenTitle)),
+      appBar: AppBar(title: Text(_args.pickMode ? s.favoriteSourceAi : s.magicScreenTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
@@ -260,10 +260,7 @@ class _MagicScreenState extends State<MagicScreen> {
               controller: _descriptionController,
               minLines: 2,
               maxLines: 4,
-              decoration: InputDecoration(
-                hintText: s.magicDescribeFoodHint,
-                border: const OutlineInputBorder(),
-              ),
+              decoration: InputDecoration(hintText: s.magicDescribeFoodHint, border: const OutlineInputBorder()),
               onChanged: (_) => setState(() {}),
             ),
           ),
@@ -272,18 +269,11 @@ class _MagicScreenState extends State<MagicScreen> {
             identifier: 'magic-breakdown-toggle',
             child: SegmentedButton<bool>(
               segments: [
-                ButtonSegment(
-                  value: false,
-                  label: Text(s.magicSingleItemLabel),
-                ),
-                ButtonSegment(
-                  value: true,
-                  label: Text(s.magicMealBreakdownLabel),
-                ),
+                ButtonSegment(value: false, label: Text(s.magicSingleItemLabel)),
+                ButtonSegment(value: true, label: Text(s.magicMealBreakdownLabel)),
               ],
               selected: {_mealBreakdown},
-              onSelectionChanged: (selection) =>
-                  setState(() => _mealBreakdown = selection.first),
+              onSelectionChanged: (selection) => setState(() => _mealBreakdown = selection.first),
             ),
           ),
           const SizedBox(height: 16),
@@ -298,26 +288,18 @@ class _MagicScreenState extends State<MagicScreen> {
                     identifier: 'magic-provider-dropdown',
                     child: DropdownButtonFormField<String>(
                       initialValue: _selectedProvider,
-                      decoration: InputDecoration(
-                        labelText: s.magicProviderLabel,
-                        border: const OutlineInputBorder(),
-                      ),
+                      decoration: InputDecoration(labelText: s.magicProviderLabel, border: const OutlineInputBorder()),
                       isExpanded: true,
                       items: [
                         for (final provider in _providers)
                           DropdownMenuItem(
                             value: provider,
-                            child: Text(
-                              provider,
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                            child: Text(provider, overflow: TextOverflow.ellipsis),
                           ),
                       ],
                       onChanged: (provider) {
                         if (provider == null) return;
-                        final firstModel = _models.firstWhere(
-                          (m) => _providerOf(m) == provider,
-                        );
+                        final firstModel = _models.firstWhere((m) => _providerOf(m) == provider);
                         setState(() {
                           _selectedProvider = provider;
                           _selectedModelId = firstModel.id;
@@ -332,23 +314,16 @@ class _MagicScreenState extends State<MagicScreen> {
                     identifier: 'magic-model-dropdown',
                     child: DropdownButtonFormField<String>(
                       initialValue: _selectedModelId,
-                      decoration: InputDecoration(
-                        labelText: s.magicModelLabel,
-                        border: const OutlineInputBorder(),
-                      ),
+                      decoration: InputDecoration(labelText: s.magicModelLabel, border: const OutlineInputBorder()),
                       isExpanded: true,
                       items: [
                         for (final model in _modelsForSelectedProvider)
                           DropdownMenuItem(
                             value: model.id,
-                            child: Text(
-                              _modelLabelOf(model),
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                            child: Text(_modelLabelOf(model), overflow: TextOverflow.ellipsis),
                           ),
                       ],
-                      onChanged: (modelId) =>
-                          setState(() => _selectedModelId = modelId),
+                      onChanged: (modelId) => setState(() => _selectedModelId = modelId),
                     ),
                   ),
                 ),
@@ -360,28 +335,17 @@ class _MagicScreenState extends State<MagicScreen> {
             child: FilledButton.icon(
               onPressed: _canAnalyze ? _onAnalyzePressed : null,
               icon: _analyzing
-                  ? const SizedBox(
-                      height: 16,
-                      width: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
+                  ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2))
                   : const Icon(Icons.auto_awesome_outlined),
-              label: Text(
-                _analyzing ? s.magicAnalyzingLabel : s.magicAnalyzeButton,
-              ),
+              label: Text(_analyzing ? s.magicAnalyzingLabel : s.magicAnalyzeButton),
             ),
           ),
           if (_errorMessage != null) ...[
             const SizedBox(height: 12),
-            Text(
-              _errorMessage!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
+            Text(_errorMessage!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
           ],
         ],
       ),
     );
   }
 }
-
-

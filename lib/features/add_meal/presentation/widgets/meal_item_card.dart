@@ -23,6 +23,10 @@ class MealItemCard extends StatelessWidget {
   /// opens the detail with the favorite's default portion.
   final FavoriteFoodEntity? favorite;
 
+  /// When set, tapping the card hands the food to this callback instead of
+  /// opening its detail (choosing a food to copy as a favorite).
+  final void Function(MealEntity meal)? onPick;
+
   const MealItemCard({
     super.key,
     required this.day,
@@ -30,6 +34,7 @@ class MealItemCard extends StatelessWidget {
     required this.addMealType,
     required this.usesImperialUnits,
     this.favorite,
+    this.onPick,
   });
 
   @override
@@ -181,6 +186,11 @@ class MealItemCard extends StatelessWidget {
   }
 
   void _onItemPressed(BuildContext context) {
+    final onPick = this.onPick;
+    if (onPick != null) {
+      onPick(mealEntity);
+      return;
+    }
     Navigator.of(context).pushNamed(
       NavigationOptions.mealDetailRoute,
       arguments: MealDetailScreenArguments(

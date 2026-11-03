@@ -12469,6 +12469,66 @@ class S {
     );
   }
 
+  /// `Create a favorite from`
+  String get favoriteSourceTitle {
+    return Intl.message(
+      "Create a favorite from",
+      name: 'favoriteSourceTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Search the food database`
+  String get favoriteSourceSearch {
+    return Intl.message(
+      "Search the food database",
+      name: 'favoriteSourceSearch',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Scan a barcode`
+  String get favoriteSourceScan {
+    return Intl.message(
+      "Scan a barcode",
+      name: 'favoriteSourceScan',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `With AI (photo or text)`
+  String get favoriteSourceAi {
+    return Intl.message(
+      "With AI (photo or text)",
+      name: 'favoriteSourceAi',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create favorites`
+  String get favoriteCreateSelected {
+    return Intl.message(
+      "Create favorites",
+      name: 'favoriteCreateSelected',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Favorites created`
+  String get favoritesCreated {
+    return Intl.message(
+      "Favorites created",
+      name: 'favoritesCreated',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Edit favorite`
   String get favoriteEditTitle {
     return Intl.message(
@@ -12679,10 +12739,10 @@ class S {
     );
   }
 
-  /// `No favorites yet. Tap the star on any food to save a copy, or create one by hand.`
+  /// `No favorites yet. Tap the star on any food to save a copy, or use New favorite to search, scan or ask the AI.`
   String get favoritesEmpty {
     return Intl.message(
-      "No favorites yet. Tap the star on any food to save a copy, or create one by hand.",
+      "No favorites yet. Tap the star on any food to save a copy, or use New favorite to search, scan or ask the AI.",
       name: 'favoritesEmpty',
       desc: '',
       args: [],

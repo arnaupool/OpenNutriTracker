@@ -48,18 +48,15 @@ class _AddMealScreenState extends State<AddMealScreen> with SingleTickerProvider
   late TabController _tabController;
   bool _initialTabApplied = false;
 
+  /// Returns the tapped food to the caller instead of opening its detail.
+  bool _pickMode = false;
+
   @override
   void initState() {
     _productsBloc = locator<ProductsBloc>();
     _foodBloc = locator<FoodBloc>();
     // Favorites first; start there when there are any, otherwise on the
     // product search.
-    final hasFavorites = locator<FavoriteFoodRepository>().getAll().isNotEmpty;
-    _tabController = TabController(length: 3, vsync: this, initialIndex: hasFavorites ? 0 : 1);
-    _tabController.addListener(() {
-      // Update search results when tab changes
-      _onSearchSubmit(_searchStringListener.value);
-    });
     super.initState();
   }
 
@@ -70,11 +67,24 @@ class _AddMealScreenState extends State<AddMealScreen> with SingleTickerProvider
     _day = args.day;
     if (!_initialTabApplied) {
       _initialTabApplied = true;
+      _pickMode = args.pickMode;
+      // Picking a food to copy as a favorite searches the databases only, so
+      // the favorites tab is left out.
+      final hasFavorites = !_pickMode && locator<FavoriteFoodRepository>().getAll().isNotEmpty;
+      _tabController = TabController(length: _pickMode ? 2 : 3, vsync: this, initialIndex: hasFavorites ? 0 : 1);
+      if (_pickMode) _tabController.index = 0;
+      _tabController.addListener(() {
+        // Update search results when tab changes
+        _onSearchSubmit(_searchStringListener.value);
+      });
       final tab = args.initialTab;
       if (tab != null && tab >= 0 && tab < _tabController.length) _tabController.index = tab;
     }
     super.didChangeDependencies();
   }
+
+  /// Index of the current tab in the full (favorites, products, food) layout.
+  int get _logicalTab => _tabController.index + (_pickMode ? 1 : 0);
 
   @override
   void dispose() {
@@ -86,24 +96,26 @@ class _AddMealScreenState extends State<AddMealScreen> with SingleTickerProvider
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_mealType.getTypeName(context)),
+        title: Text(_pickMode ? S.of(context).favoriteSourceSearch : _mealType.getTypeName(context)),
         actions: [
-          Semantics(
-            identifier: 'add-meal-quick-add',
-            child: TextButton(onPressed: _onQuickAddPressed, child: Text(S.of(context).quickAddCardLabel)),
-          ),
-          BlocBuilder<AddMealBloc, AddMealState>(
-            bloc: locator<AddMealBloc>()..add(InitializeAddMealEvent()),
-            builder: (BuildContext context, AddMealState state) {
-              if (state is AddMealLoadedState) {
-                return IconButton(
-                  onPressed: () => _onCustomAddButtonPressed(state.usesImperialUnits),
-                  icon: const Icon(Icons.add_circle_outline),
-                );
-              }
-              return const SizedBox();
-            },
-          ),
+          if (!_pickMode) ...[
+            Semantics(
+              identifier: 'add-meal-quick-add',
+              child: TextButton(onPressed: _onQuickAddPressed, child: Text(S.of(context).quickAddCardLabel)),
+            ),
+            BlocBuilder<AddMealBloc, AddMealState>(
+              bloc: locator<AddMealBloc>()..add(InitializeAddMealEvent()),
+              builder: (BuildContext context, AddMealState state) {
+                if (state is AddMealLoadedState) {
+                  return IconButton(
+                    onPressed: () => _onCustomAddButtonPressed(state.usesImperialUnits),
+                    icon: const Icon(Icons.add_circle_outline),
+                  );
+                }
+                return const SizedBox();
+              },
+            ),
+          ],
         ],
       ),
       body: SafeArea(
@@ -121,7 +133,7 @@ class _AddMealScreenState extends State<AddMealScreen> with SingleTickerProvider
               const SizedBox(height: 16.0),
               TabBar(
                 tabs: [
-                  Tab(text: S.of(context).favoritesTitle),
+                  if (!_pickMode) Tab(text: S.of(context).favoritesTitle),
                   Tab(text: S.of(context).searchProductsPage),
                   Tab(text: S.of(context).searchFoodPage),
                 ],
@@ -133,7 +145,7 @@ class _AddMealScreenState extends State<AddMealScreen> with SingleTickerProvider
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    FavoritesList(query: _searchStringListener, day: _day, mealType: _mealType),
+                    if (!_pickMode) FavoritesList(query: _searchStringListener, day: _day, mealType: _mealType),
                     Column(
                       children: [
                         Container(
@@ -236,12 +248,13 @@ class _AddMealScreenState extends State<AddMealScreen> with SingleTickerProvider
   /// Search results: the matching favorites first (with a star), then the
   /// products found.
   Widget _resultsList(
-    List<FavoriteFoodEntity> favorites,
+    List<FavoriteFoodEntity> allFavorites,
     List<MealEntity> meals,
     bool remoteSourceEmpty,
     bool usesImperialUnits, {
     List<MealEntity> similar = const [],
   }) {
+    final favorites = _pickMode ? const <FavoriteFoodEntity>[] : allFavorites;
     final similarCount = similar.isEmpty ? 0 : similar.length + 1;
     return Semantics(
       identifier: 'add-meal-results',
@@ -254,6 +267,7 @@ class _AddMealScreenState extends State<AddMealScreen> with SingleTickerProvider
               day: _day,
               mealEntity: favorite.toMealEntity(),
               addMealType: _mealType,
+              onPick: _onPick,
               usesImperialUnits: usesImperialUnits,
               favorite: favorite,
             );
@@ -276,6 +290,7 @@ class _AddMealScreenState extends State<AddMealScreen> with SingleTickerProvider
                 day: _day,
                 mealEntity: similar[similarIndex - 1],
                 addMealType: _mealType,
+                onPick: _onPick,
                 usesImperialUnits: usesImperialUnits,
               );
             }
@@ -286,12 +301,15 @@ class _AddMealScreenState extends State<AddMealScreen> with SingleTickerProvider
             day: _day,
             mealEntity: meals[mealIndex],
             addMealType: _mealType,
+            onPick: _onPick,
             usesImperialUnits: usesImperialUnits,
           );
         },
       ),
     );
   }
+
+  void Function(MealEntity)? get _onPick => _pickMode ? (meal) => Navigator.of(context).pop(meal) : null;
 
   void _onProductsRefreshButtonPressed() {
     _productsBloc.add(const RefreshProductsEvent());
@@ -302,13 +320,13 @@ class _AddMealScreenState extends State<AddMealScreen> with SingleTickerProvider
   }
 
   void _onSearchSubmit(String inputText) {
-    switch (_tabController.index) {
+    switch (_logicalTab) {
       case 0:
         // Favorites filter locally as the text changes.
         break;
       case 1:
         final trimmed = inputText.trim();
-        if (isValidBarcodeCheckDigit(trimmed)) {
+        if (!_pickMode && isValidBarcodeCheckDigit(trimmed)) {
           Navigator.of(context).pushNamed(
             NavigationOptions.scannerRoute,
             arguments: ScannerScreenArguments(_day, _mealType.getIntakeType(), initialBarcode: trimmed),
@@ -323,7 +341,7 @@ class _AddMealScreenState extends State<AddMealScreen> with SingleTickerProvider
 
   /// Debounced search-as-you-type.
   void _onSearchChanged(String inputText) {
-    switch (_tabController.index) {
+    switch (_logicalTab) {
       case 1:
         _productsBloc.add(SearchInputChangedEvent(searchString: inputText));
       case 2:
@@ -380,5 +398,9 @@ class AddMealScreenArguments {
   /// Tab to open on instead of the default one (see [AddMealScreen.favoritesTab]).
   final int? initialTab;
 
-  AddMealScreenArguments(this.mealType, this.day, {this.initialTab});
+  /// Choose a food and return it as a [MealEntity] (popping the route)
+  /// instead of opening its detail to log it.
+  final bool pickMode;
+
+  AddMealScreenArguments(this.mealType, this.day, {this.initialTab, this.pickMode = false});
 }

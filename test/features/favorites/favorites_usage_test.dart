@@ -25,6 +25,7 @@ import 'package:opennutritracker/features/add_meal/presentation/widgets/meal_ite
 import 'package:opennutritracker/features/favorites/domain/favorite_food_entity.dart';
 import 'package:opennutritracker/features/favorites/domain/favorite_food_repository.dart';
 import 'package:opennutritracker/features/favorites/presentation/favorites_list.dart';
+import 'package:opennutritracker/features/favorites/presentation/new_favorite_flow.dart';
 import 'package:opennutritracker/features/meal_detail/meal_detail_screen.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dart';
 import 'package:opennutritracker/features/meal_plan/presentation/meal_plan_page.dart';
@@ -291,12 +292,17 @@ void main() {
       expect(opened!.mealEntity.servingQuantity, 250);
     });
 
-    testWidgets('the new-favorite button opens the editor', (tester) async {
+    testWidgets('the new-favorite button asks where the food comes from instead of opening a blank editor', (
+      tester,
+    ) async {
       await pump(tester, ValueNotifier(''));
       await tester.pumpAndSettle();
       await tester.tap(find.text(S.current.favoriteNew));
       await tester.pumpAndSettle();
-      expect(find.text('editor'), findsOneWidget);
+      expect(find.text(S.current.favoriteSourceSearch), findsOneWidget);
+      expect(find.text(S.current.favoriteSourceScan), findsOneWidget);
+      expect(find.text(S.current.favoriteSourceAi), findsOneWidget);
+      expect(find.text('editor'), findsNothing);
     });
   });
 
@@ -390,26 +396,45 @@ void main() {
       expect(calls, 0);
     });
 
-    testWidgets('New favorite opens the editor and comes back with the favorite ready to add', (tester) async {
+    testWidgets('New favorite copies the chosen food, opens the editor and comes back with it ready to add', (
+      tester,
+    ) async {
+      Future<List<MealEntity>?> none(BuildContext context) async => null;
+      debugNewFavoritePickers = NewFavoritePickers(
+        search: (context) async => [
+          MealEntity(
+            code: '8410297112345',
+            name: 'Leche',
+            url: null,
+            mealQuantity: '1000',
+            mealUnit: 'ml',
+            servingQuantity: 250,
+            servingUnit: 'ml',
+            servingSize: 'vaso',
+            nutriments: _nutriments,
+            source: MealSourceEntity.off,
+            detailed: true,
+          ),
+        ],
+        scan: none,
+        ai: none,
+      );
+      addTearDown(() => debugNewFavoritePickers = null);
       await pumpDialog(
         tester,
         const Size(1400, 900),
         routes: {
           NavigationOptions.favoriteEditorRoute: (context) => Scaffold(
-            body: TextButton(
-              onPressed: () async {
-                await repo.save(_leche());
-                if (context.mounted) Navigator.of(context).pop('f1');
-              },
-              child: const Text('save favorite'),
-            ),
+            body: TextButton(onPressed: () => Navigator.of(context).pop('done'), child: const Text('close editor')),
           ),
         },
       );
       expect(find.text('Leche'), findsNothing);
       await tester.tap(find.text(S.current.favoriteNew));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('save favorite'));
+      await tester.tap(find.text(S.current.favoriteSourceSearch));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('close editor'));
       await tester.pumpAndSettle();
       // Back in the dialog, the new favorite is selected with its portion.
       expect(find.text('Leche'), findsOneWidget);

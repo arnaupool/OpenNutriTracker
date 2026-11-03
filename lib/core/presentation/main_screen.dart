@@ -12,7 +12,7 @@ import 'package:opennutritracker/features/profile/profile_page.dart';
 import 'package:opennutritracker/core/domain/entity/intake_type_entity.dart';
 import 'package:opennutritracker/features/add_meal/domain/entity/meal_entity.dart';
 import 'package:opennutritracker/features/edit_meal/presentation/edit_meal_screen.dart';
-import 'package:opennutritracker/features/favorites/presentation/favorite_editor_screen.dart';
+import 'package:opennutritracker/features/favorites/presentation/new_favorite_flow.dart';
 import 'package:opennutritracker/features/recipes/presentation/bloc/recipes_bloc.dart';
 import 'package:opennutritracker/features/recipes/presentation/screens/recipes_page.dart';
 import 'package:opennutritracker/features/settings/presentation/bloc/custom_meals_bloc.dart';
@@ -289,9 +289,7 @@ class _MainScreenState extends State<MainScreen> {
         );
         locator<CustomMealsBloc>().add(LoadCustomMealsEvent());
       case _RecipesAction.newFavorite:
-        await Navigator.of(
-          context,
-        ).pushNamed(NavigationOptions.favoriteEditorRoute, arguments: const FavoriteEditorArguments());
+        await startNewFavorite(context);
     }
   }
 
