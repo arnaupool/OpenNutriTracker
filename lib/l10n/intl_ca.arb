@@ -255,6 +255,8 @@
   "addItemMenuRecentlySubtitle": "Tornar a registrar",
   "addItemMenuPresetsLabel": "Plantilles",
   "addItemMenuPresetsSubtitle": "Àpats guardats",
+  "addItemMenuQuickAddSubtitle": "Calories i macros",
+  "addItemMenuFavoritesSubtitle": "Els teus aliments guardats",
   "addLabel": "Afegir",
   "additionalInfoLabelCompendium2011": "Informació proporcionada\n pel \n'2024 Compendium\n of Physical Activities'",
   "additionalInfoLabelCustom": "Aliment personalitzat",

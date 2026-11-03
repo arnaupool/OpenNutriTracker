@@ -279,6 +279,10 @@ class MessageLookup extends MessageLookupByLibrary {
             "Plantillas"),
         "addItemMenuPresetsSubtitle": MessageLookupByLibrary.simpleMessage(
             "Comidas guardadas"),
+        "addItemMenuQuickAddSubtitle": MessageLookupByLibrary.simpleMessage(
+            "Calorías y macros"),
+        "addItemMenuFavoritesSubtitle": MessageLookupByLibrary.simpleMessage(
+            "Tus alimentos guardados"),
         "addItemMenuRecentlyLabel": MessageLookupByLibrary.simpleMessage(
             "Recientes"),
         "addItemMenuRecentlySubtitle": MessageLookupByLibrary.simpleMessage(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/features/add_meal/presentation/add_meal_screen.dart';
 import 'package:opennutritracker/features/add_meal/presentation/add_meal_type.dart';
+import 'package:opennutritracker/features/add_meal/presentation/widgets/quick_add_bottom_sheet.dart';
 import 'package:opennutritracker/features/scanner/scanner_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
@@ -15,8 +16,7 @@ class AddItemMenuScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final args =
-        ModalRoute.of(context)?.settings.arguments as AddMealScreenArguments;
+    final args = ModalRoute.of(context)?.settings.arguments as AddMealScreenArguments;
     final s = S.of(context);
 
     return Scaffold(
@@ -28,9 +28,7 @@ class AddItemMenuScreen extends StatelessWidget {
             icon: Icons.auto_awesome_outlined,
             title: s.addItemMenuMagicLabel,
             subtitle: s.addItemMenuMagicSubtitle,
-            onTap: () => Navigator.of(
-              context,
-            ).pushNamed(NavigationOptions.magicRoute, arguments: args),
+            onTap: () => Navigator.of(context).pushNamed(NavigationOptions.magicRoute, arguments: args),
           ),
           const Divider(indent: 16, endIndent: 16),
           _MenuTile(
@@ -38,9 +36,7 @@ class AddItemMenuScreen extends StatelessWidget {
             icon: Icons.search_outlined,
             title: s.addItemMenuSearchLabel,
             subtitle: s.addItemMenuSearchSubtitle,
-            onTap: () => Navigator.of(
-              context,
-            ).pushNamed(NavigationOptions.addMealRoute, arguments: args),
+            onTap: () => Navigator.of(context).pushNamed(NavigationOptions.addMealRoute, arguments: args),
           ),
           _MenuTile(
             identifier: 'add-item-menu-scan-product',
@@ -49,10 +45,7 @@ class AddItemMenuScreen extends StatelessWidget {
             subtitle: s.addItemMenuScanProductSubtitle,
             onTap: () => Navigator.of(context).pushNamed(
               NavigationOptions.scannerRoute,
-              arguments: ScannerScreenArguments(
-                args.day,
-                args.mealType.getIntakeType(),
-              ),
+              arguments: ScannerScreenArguments(args.day, args.mealType.getIntakeType()),
             ),
           ),
           _MenuTile(
@@ -60,18 +53,36 @@ class AddItemMenuScreen extends StatelessWidget {
             icon: Icons.history_outlined,
             title: s.addItemMenuRecentlyLabel,
             subtitle: s.addItemMenuRecentlySubtitle,
-            onTap: () => Navigator.of(
-              context,
-            ).pushNamed(NavigationOptions.recentlyRoute, arguments: args),
+            onTap: () => Navigator.of(context).pushNamed(NavigationOptions.recentlyRoute, arguments: args),
           ),
           _MenuTile(
             identifier: 'add-item-menu-presets',
             icon: Icons.playlist_add_check_outlined,
             title: s.addItemMenuPresetsLabel,
             subtitle: s.addItemMenuPresetsSubtitle,
-            onTap: () => Navigator.of(
-              context,
-            ).pushNamed(NavigationOptions.presetsRoute, arguments: args),
+            onTap: () => Navigator.of(context).pushNamed(NavigationOptions.presetsRoute, arguments: args),
+          ),
+          _MenuTile(
+            identifier: 'add-item-menu-favorites',
+            icon: Icons.star_outline,
+            title: s.favoritesTitle,
+            subtitle: s.addItemMenuFavoritesSubtitle,
+            onTap: () => Navigator.of(context).pushNamed(
+              NavigationOptions.addMealRoute,
+              arguments: AddMealScreenArguments(args.mealType, args.day, initialTab: AddMealScreen.favoritesTab),
+            ),
+          ),
+          _MenuTile(
+            identifier: 'add-item-menu-quick-add',
+            icon: Icons.bolt_outlined,
+            title: s.quickAddCardLabel,
+            subtitle: s.addItemMenuQuickAddSubtitle,
+            onTap: () => showModalBottomSheet<void>(
+              context: context,
+              isScrollControlled: true,
+              showDragHandle: true,
+              builder: (_) => QuickAddBottomSheet(intakeType: args.mealType.getIntakeType(), day: args.day),
+            ),
           ),
         ],
       ),

@@ -3923,6 +3923,26 @@ class S {
     );
   }
 
+  /// `Calories and macros`
+  String get addItemMenuQuickAddSubtitle {
+    return Intl.message(
+      'Calories and macros',
+      name: 'addItemMenuQuickAddSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your saved foods`
+  String get addItemMenuFavoritesSubtitle {
+    return Intl.message(
+      'Your saved foods',
+      name: 'addItemMenuFavoritesSubtitle',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Activity`
   String get activityLabel {
     return Intl.message('Activity', name: 'activityLabel', desc: '', args: []);

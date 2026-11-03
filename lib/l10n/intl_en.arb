@@ -255,6 +255,8 @@
   "addItemMenuRecentlySubtitle": "Quick re-log",
   "addItemMenuPresetsLabel": "Presets",
   "addItemMenuPresetsSubtitle": "Saved meals",
+  "addItemMenuQuickAddSubtitle": "Calories and macros",
+  "addItemMenuFavoritesSubtitle": "Your saved foods",
   "addLabel": "Add",
   "additionalInfoLabelCompendium2011": "Information provided\n by the \n'2024 Compendium\n of Physical Activities'",
   "additionalInfoLabelCustom": "Custom Meal Item",

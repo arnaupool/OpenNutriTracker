@@ -29,6 +29,9 @@ import 'package:opennutritracker/generated/l10n.dart';
 class AddMealScreen extends StatefulWidget {
   const AddMealScreen({super.key});
 
+  /// Tab indexes of the add-meal screen.
+  static const favoritesTab = 0;
+
   @override
   State<AddMealScreen> createState() => _AddMealScreenState();
 }
@@ -44,6 +47,7 @@ class _AddMealScreenState extends State<AddMealScreen>
   late FoodBloc _foodBloc;
 
   late TabController _tabController;
+  bool _initialTabApplied = false;
 
   @override
   void initState() {
@@ -66,6 +70,11 @@ class _AddMealScreenState extends State<AddMealScreen>
         ModalRoute.of(context)?.settings.arguments as AddMealScreenArguments;
     _mealType = args.mealType;
     _day = args.day;
+    if (!_initialTabApplied) {
+      _initialTabApplied = true;
+      final tab = args.initialTab;
+      if (tab != null && tab >= 0 && tab < _tabController.length) _tabController.index = tab;
+    }
     super.didChangeDependencies();
   }
 
@@ -370,5 +379,8 @@ class AddMealScreenArguments {
   final AddMealType mealType;
   final DateTime day;
 
-  AddMealScreenArguments(this.mealType, this.day);
+  /// Tab to open on instead of the default one (see [AddMealScreen.favoritesTab]).
+  final int? initialTab;
+
+  AddMealScreenArguments(this.mealType, this.day, {this.initialTab});
 }

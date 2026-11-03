@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:opennutritracker/core/utils/energy_unit_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:opennutritracker/core/domain/entity/intake_type_entity.dart';
 import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/features/add_meal/presentation/add_item_menu_screen.dart';
 import 'package:opennutritracker/features/add_meal/presentation/add_meal_screen.dart';
 import 'package:opennutritracker/features/add_meal/presentation/add_meal_type.dart';
+import 'package:opennutritracker/features/add_meal/presentation/widgets/quick_add_bottom_sheet.dart';
 import 'package:opennutritracker/features/scanner/scanner_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
@@ -19,34 +22,34 @@ class _SpyNavigatorObserver extends NavigatorObserver {
 }
 
 Widget _wrap(_SpyNavigatorObserver observer) {
-  final args = AddMealScreenArguments(
-    AddMealType.breakfastType,
-    DateTime(2026, 1, 1),
-  );
-  return MaterialApp(
-    localizationsDelegates: const [
-      S.delegate,
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
-    ],
-    supportedLocales: S.delegate.supportedLocales,
-    navigatorObservers: [observer],
-    onGenerateRoute: (settings) {
-      if (settings.name == '/') {
+  final args = AddMealScreenArguments(AddMealType.breakfastType, DateTime(2026, 1, 1));
+  return ChangeNotifierProvider(
+    create: (_) => EnergyUnitProvider(),
+    child: MaterialApp(
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.delegate.supportedLocales,
+      navigatorObservers: [observer],
+      onGenerateRoute: (settings) {
+        if (settings.name == '/') {
+          return MaterialPageRoute(
+            settings: RouteSettings(name: '/', arguments: args),
+            builder: (_) => const AddItemMenuScreen(),
+          );
+        }
+        // Every destination route just renders a placeholder — this test only
+        // cares about which route name and arguments got pushed.
         return MaterialPageRoute(
-          settings: RouteSettings(name: '/', arguments: args),
-          builder: (_) => const AddItemMenuScreen(),
+          settings: settings,
+          builder: (_) => Scaffold(body: Text('dest:${settings.name}')),
         );
-      }
-      // Every destination route just renders a placeholder — this test only
-      // cares about which route name and arguments got pushed.
-      return MaterialPageRoute(
-        settings: settings,
-        builder: (_) => Scaffold(body: Text('dest:${settings.name}')),
-      );
-    },
-    initialRoute: '/',
+      },
+      initialRoute: '/',
+    ),
   );
 }
 
@@ -63,9 +66,7 @@ void main() {
       expect(find.text(S.current.addItemMenuPresetsLabel), findsOneWidget);
     });
 
-    testWidgets('tapping Magic pushes the magic route with the same args', (
-      tester,
-    ) async {
+    testWidgets('tapping Magic pushes the magic route with the same args', (tester) async {
       final observer = _SpyNavigatorObserver();
       await tester.pumpWidget(_wrap(observer));
       await tester.pumpAndSettle();
@@ -75,15 +76,10 @@ void main() {
 
       final pushed = observer.pushed.last.settings;
       expect(pushed.name, NavigationOptions.magicRoute);
-      expect(
-        (pushed.arguments as AddMealScreenArguments).mealType,
-        AddMealType.breakfastType,
-      );
+      expect((pushed.arguments as AddMealScreenArguments).mealType, AddMealType.breakfastType);
     });
 
-    testWidgets('tapping Search pushes the existing addMeal search route', (
-      tester,
-    ) async {
+    testWidgets('tapping Search pushes the existing addMeal search route', (tester) async {
       final observer = _SpyNavigatorObserver();
       await tester.pumpWidget(_wrap(observer));
       await tester.pumpAndSettle();
@@ -91,30 +87,21 @@ void main() {
       await tester.tap(find.text(S.current.addItemMenuSearchLabel));
       await tester.pumpAndSettle();
 
-      expect(
-        observer.pushed.last.settings.name,
-        NavigationOptions.addMealRoute,
-      );
+      expect(observer.pushed.last.settings.name, NavigationOptions.addMealRoute);
     });
 
-    testWidgets(
-      'tapping Scan Product pushes the scanner route with barcode args',
-      (tester) async {
-        final observer = _SpyNavigatorObserver();
-        await tester.pumpWidget(_wrap(observer));
-        await tester.pumpAndSettle();
+    testWidgets('tapping Scan Product pushes the scanner route with barcode args', (tester) async {
+      final observer = _SpyNavigatorObserver();
+      await tester.pumpWidget(_wrap(observer));
+      await tester.pumpAndSettle();
 
-        await tester.tap(find.text(S.current.addItemMenuScanProductLabel));
-        await tester.pumpAndSettle();
+      await tester.tap(find.text(S.current.addItemMenuScanProductLabel));
+      await tester.pumpAndSettle();
 
-        final pushed = observer.pushed.last.settings;
-        expect(pushed.name, NavigationOptions.scannerRoute);
-        expect(
-          (pushed.arguments as ScannerScreenArguments).intakeTypeEntity,
-          IntakeTypeEntity.breakfast,
-        );
-      },
-    );
+      final pushed = observer.pushed.last.settings;
+      expect(pushed.name, NavigationOptions.scannerRoute);
+      expect((pushed.arguments as ScannerScreenArguments).intakeTypeEntity, IntakeTypeEntity.breakfast);
+    });
 
     testWidgets('tapping Recently pushes the recently route', (tester) async {
       final observer = _SpyNavigatorObserver();
@@ -124,10 +111,7 @@ void main() {
       await tester.tap(find.text(S.current.addItemMenuRecentlyLabel));
       await tester.pumpAndSettle();
 
-      expect(
-        observer.pushed.last.settings.name,
-        NavigationOptions.recentlyRoute,
-      );
+      expect(observer.pushed.last.settings.name, NavigationOptions.recentlyRoute);
     });
 
     testWidgets('tapping Presets pushes the presets route', (tester) async {
@@ -138,10 +122,37 @@ void main() {
       await tester.tap(find.text(S.current.addItemMenuPresetsLabel));
       await tester.pumpAndSettle();
 
-      expect(
-        observer.pushed.last.settings.name,
-        NavigationOptions.presetsRoute,
-      );
+      expect(observer.pushed.last.settings.name, NavigationOptions.presetsRoute);
+    });
+
+    testWidgets('tapping Favorites opens the add-meal screen on the favorites tab for the meal', (tester) async {
+      final observer = _SpyNavigatorObserver();
+      await tester.pumpWidget(_wrap(observer));
+      await tester.pumpAndSettle();
+
+      expect(find.text(S.current.addItemMenuFavoritesSubtitle), findsOneWidget);
+      await tester.tap(find.text(S.current.favoritesTitle));
+      await tester.pumpAndSettle();
+
+      final pushed = observer.pushed.last.settings;
+      expect(pushed.name, NavigationOptions.addMealRoute);
+      final args = pushed.arguments as AddMealScreenArguments;
+      expect(args.mealType, AddMealType.breakfastType);
+      expect(args.day, DateTime(2026, 1, 1));
+      expect(args.initialTab, AddMealScreen.favoritesTab);
+    });
+
+    testWidgets('tapping Quick add opens the quick add sheet for the meal and day', (tester) async {
+      await tester.pumpWidget(_wrap(_SpyNavigatorObserver()));
+      await tester.pumpAndSettle();
+
+      expect(find.text(S.current.addItemMenuQuickAddSubtitle), findsOneWidget);
+      await tester.tap(find.text(S.current.quickAddCardLabel));
+      await tester.pumpAndSettle();
+
+      final sheet = tester.widget<QuickAddBottomSheet>(find.byType(QuickAddBottomSheet));
+      expect(sheet.intakeType, IntakeTypeEntity.breakfast);
+      expect(sheet.day, DateTime(2026, 1, 1));
     });
   });
 }
