@@ -27,10 +27,12 @@ import 'package:opennutritracker/features/settings/presentation/widgets/cloud_ba
 import 'package:opennutritracker/features/settings/presentation/widgets/export_import_dialog.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/import_custom_food_data_dialog.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/nutrient_visibility_screen.dart';
-import 'package:opennutritracker/features/settings/presentation/widgets/device_sync_screen.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/pair_cloud_backup_screen.dart';
 import 'package:opennutritracker/features/off_contribution/presentation/off_account_dialog.dart';
-import 'package:opennutritracker/features/profiles/profiles_screen.dart';
+import 'package:opennutritracker/features/accounts/account_sync_tile.dart';
+import 'package:opennutritracker/features/accounts/accounts_screen.dart';
+import 'package:opennutritracker/features/accounts/admin_panel.dart';
+import 'package:opennutritracker/features/accounts/rewrap_dialog.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
@@ -56,8 +58,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late HomeBloc _homeBloc;
   late DiaryBloc _diaryBloc;
   late CalendarDayBloc _calendarDayBloc;
-  late final CloudBackupTokenService _cloudBackupTokenService =
-      locator<CloudBackupTokenService>();
+  late final CloudBackupTokenService _cloudBackupTokenService = locator<CloudBackupTokenService>();
 
   // Fase Cuenta: whether this device has a cloud-backup pairing token —
   // decides which row (activate vs. sync/view-code/restore) the Cloud
@@ -126,8 +127,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ListTile(
                   leading: const Icon(Icons.ac_unit_outlined),
                   title: Text(S.of(context).settingsUnitsLabel),
-                  onTap: () =>
-                      _showUnitsDialog(context, state.usesImperialUnits),
+                  onTap: () => _showUnitsDialog(context, state.usesImperialUnits),
                 ),
                 Semantics(
                   identifier: 'settings-energy-unit',
@@ -135,12 +135,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     leading: const Icon(Icons.local_fire_department_outlined),
                     title: Text(S.of(context).settingsEnergyUnitLabel),
                     subtitle: Text(
-                      state.usesKilojoules
-                          ? S.of(context).energyUnitKjLabel
-                          : S.of(context).energyUnitKcalLabel,
+                      state.usesKilojoules ? S.of(context).energyUnitKjLabel : S.of(context).energyUnitKcalLabel,
                     ),
-                    onTap: () =>
-                        _showEnergyUnitDialog(context, state.usesKilojoules),
+                    onTap: () => _showEnergyUnitDialog(context, state.usesKilojoules),
                   ),
                 ),
                 // The old Calculations dialog had grown into a wall of
@@ -249,30 +246,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     leading: const Icon(Icons.palette_outlined),
                     title: Text(S.of(context).settingsAccentColourTitle),
                     subtitle: Text(
-                      _accentSubtitle(
-                        context,
-                        useMaterialYou: state.useMaterialYou,
-                        accentColor: state.accentColor,
-                      ),
+                      _accentSubtitle(context, useMaterialYou: state.useMaterialYou, accentColor: state.accentColor),
                     ),
                     trailing: _AccentTrailingSwatch(
                       useMaterialYou: state.useMaterialYou,
                       accentColor: state.accentColor,
                     ),
-                    onTap: () => Navigator.of(
-                      context,
-                    ).pushNamed(NavigationOptions.accentColourRoute),
+                    onTap: () => Navigator.of(context).pushNamed(NavigationOptions.accentColourRoute),
                   ),
                 ),
                 ListTile(
                   leading: const Icon(Icons.language_outlined),
                   title: Text(S.of(context).settingsLanguageLabel),
                   subtitle: Text(
-                    _localeDisplayName(state.selectedLocale) ??
-                        S.of(context).settingsThemeSystemDefaultLabel,
+                    _localeDisplayName(state.selectedLocale) ?? S.of(context).settingsThemeSystemDefaultLabel,
                   ),
-                  onTap: () =>
-                      _showLanguageDialog(context, state.selectedLocale),
+                  onTap: () => _showLanguageDialog(context, state.selectedLocale),
                 ),
                 // FW-04: flutter_local_notifications has no web
                 // implementation — show a disabled, explanatory tile
@@ -281,9 +270,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ListTile(
                     leading: const Icon(Icons.notifications_off_outlined),
                     title: Text(S.of(context).settingsNotificationsLabel),
-                    subtitle: Text(
-                      S.of(context).settingsNotificationsUnavailableWebLabel,
-                    ),
+                    subtitle: Text(S.of(context).settingsNotificationsUnavailableWebLabel),
                     enabled: false,
                   )
                 else ...[
@@ -295,16 +282,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             S
                                 .of(context)
                                 .settingsNotificationsTimeLabel(
-                                  _formatNotificationTime(
-                                    state.notificationHour,
-                                    state.notificationMinute,
-                                  ),
+                                  _formatNotificationTime(state.notificationHour, state.notificationMinute),
                                 ),
                           )
                         : null,
                     value: state.notificationsEnabled,
-                    onChanged: (bool value) =>
-                        _onNotificationToggled(context, value, state),
+                    onChanged: (bool value) => _onNotificationToggled(context, value, state),
                   ),
                   if (state.notificationsEnabled)
                     ListTile(
@@ -313,18 +296,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         S
                             .of(context)
                             .settingsNotificationsTimeLabel(
-                              _formatNotificationTime(
-                                state.notificationHour,
-                                state.notificationMinute,
-                              ),
+                              _formatNotificationTime(state.notificationHour, state.notificationMinute),
                             ),
                       ),
                       onTap: () => _pickNotificationTime(
                         context,
-                        TimeOfDay(
-                          hour: state.notificationHour,
-                          minute: state.notificationMinute,
-                        ),
+                        TimeOfDay(hour: state.notificationHour, minute: state.notificationMinute),
                       ),
                     ),
                 ],
@@ -336,9 +313,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     leading: const Icon(Icons.smart_toy_outlined),
                     title: Text(S.of(context).settingsOpenRouterLabel),
                     subtitle: Text(S.of(context).settingsOpenRouterSubtitle),
-                    onTap: () => Navigator.of(
-                      context,
-                    ).pushNamed(NavigationOptions.openRouterSettingsRoute),
+                    onTap: () => Navigator.of(context).pushNamed(NavigationOptions.openRouterSettingsRoute),
                   ),
                 ),
                 const Divider(),
@@ -356,20 +331,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: Text(S.of(context).exportImportAppDataLabel),
                   onTap: () => _showExportImportDialog(context),
                 ),
+                const AccountRewrapBanner(),
                 const ProfilesTile(),
-                const DeviceSyncTile(),
+                const AccountSyncTile(),
+                const AdminPanel(),
                 ..._buildCloudBackupTiles(context),
                 const OffAccountTile(),
                 ListTile(
                   leading: const Icon(Icons.cached_outlined),
                   title: Text(S.of(context).clearOffCacheLabel),
                   subtitle: Text(
-                    S
-                        .of(context)
-                        .clearOffCacheSubtitle(
-                          state.offCacheCount,
-                          _formatBytes(state.offCacheSizeBytes),
-                        ),
+                    S.of(context).clearOffCacheSubtitle(state.offCacheCount, _formatBytes(state.offCacheSizeBytes)),
                   ),
                   enabled: state.offCacheCount > 0,
                   onTap: () => _confirmClearOffCache(context),
@@ -377,15 +349,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Semantics(
                   identifier: 'settings-delete-all-data',
                   child: ListTile(
-                    leading: Icon(
-                      Icons.delete_forever_outlined,
-                      color: Theme.of(context).colorScheme.error,
-                    ),
+                    leading: Icon(Icons.delete_forever_outlined, color: Theme.of(context).colorScheme.error),
                     title: Text(
                       S.of(context).settingsDeleteAllDataLabel,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
+                      style: TextStyle(color: Theme.of(context).colorScheme.error),
                     ),
                     subtitle: Text(S.of(context).settingsDeleteAllDataSubtitle),
                     onTap: () => _confirmDeleteAllData(context),
@@ -396,8 +363,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ListTile(
                   leading: const Icon(Icons.policy_outlined),
                   title: Text(S.of(context).settingsPrivacySettings),
-                  onTap: () =>
-                      _showPrivacyDialog(context, state.sendAnonymousData),
+                  onTap: () => _showPrivacyDialog(context, state.sendAnonymousData),
                 ),
                 ListTile(
                   leading: const Icon(Icons.description_outlined),
@@ -407,9 +373,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ListTile(
                   leading: const Icon(Icons.menu_book_outlined),
                   title: Text(S.of(context).settingsSourcesLabel),
-                  onTap: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const SourcesScreen()),
-                  ),
+                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SourcesScreen())),
                 ),
                 ListTile(
                   leading: const Icon(Icons.bug_report_outlined),
@@ -438,11 +402,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return '$h:$m';
   }
 
-  Future<void> _onNotificationToggled(
-    BuildContext context,
-    bool enabled,
-    SettingsLoadedState state,
-  ) async {
+  Future<void> _onNotificationToggled(BuildContext context, bool enabled, SettingsLoadedState state) async {
     final l10n = S.of(context);
     final notificationService = locator<NotificationService>();
     await notificationService.initialize();
@@ -450,9 +410,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       final granted = await notificationService.requestPermission();
       if (!granted) {
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(l10n.notificationsPermissionDeniedSnack)),
-          );
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.notificationsPermissionDeniedSnack)));
         }
         return;
       }
@@ -471,10 +429,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _settingsBloc.add(LoadSettingsEvent());
   }
 
-  Future<void> _pickNotificationTime(
-    BuildContext context,
-    TimeOfDay current,
-  ) async {
+  Future<void> _pickNotificationTime(BuildContext context, TimeOfDay current) async {
     final l10n = S.of(context);
     final picked = await showTimePicker(context: context, initialTime: current);
     if (picked == null) return;
@@ -492,9 +447,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showUnitsDialog(BuildContext context, bool usesImperialUnits) async {
-    SystemDropDownType selectedUnit = usesImperialUnits
-        ? SystemDropDownType.imperial
-        : SystemDropDownType.metric;
+    SystemDropDownType selectedUnit = usesImperialUnits ? SystemDropDownType.imperial : SystemDropDownType.metric;
     final shouldUpdate = await showDialog<bool?>(
       context: context,
       builder: (context) {
@@ -542,9 +495,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       },
     );
     if (shouldUpdate == true) {
-      _settingsBloc.setUsesImperialUnits(
-        selectedUnit == SystemDropDownType.imperial,
-      );
+      _settingsBloc.setUsesImperialUnits(selectedUnit == SystemDropDownType.imperial);
       _settingsBloc.add(LoadSettingsEvent());
 
       // Update blocs
@@ -557,10 +508,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // #177: Pick between kilocalories (default) and kilojoules for the
   // energy display unit. Internal storage stays in kcal; this only
   // toggles how energy is rendered everywhere it appears.
-  void _showEnergyUnitDialog(
-    BuildContext context,
-    bool currentUsesKilojoules,
-  ) async {
+  void _showEnergyUnitDialog(BuildContext context, bool currentUsesKilojoules) async {
     bool selectedUsesKilojoules = currentUsesKilojoules;
     final shouldUpdate = await showDialog<bool?>(
       context: context,
@@ -569,43 +517,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
           contentPadding: EdgeInsets.zero,
           title: Text(S.of(context).settingsEnergyUnitLabel),
           content: StatefulBuilder(
-            builder:
-                (
-                  BuildContext context,
-                  void Function(void Function()) setState,
-                ) {
-                  return RadioGroup<bool>(
-                    groupValue: selectedUsesKilojoules,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedUsesKilojoules = value ?? false;
-                      });
-                    },
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        RadioListTile<bool>(
-                          title: Text(S.of(context).energyUnitKcalLabel),
-                          value: false,
-                        ),
-                        RadioListTile<bool>(
-                          title: Text(S.of(context).energyUnitKjLabel),
-                          value: true,
-                        ),
-                      ],
-                    ),
-                  );
+            builder: (BuildContext context, void Function(void Function()) setState) {
+              return RadioGroup<bool>(
+                groupValue: selectedUsesKilojoules,
+                onChanged: (value) {
+                  setState(() {
+                    selectedUsesKilojoules = value ?? false;
+                  });
                 },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    RadioListTile<bool>(title: Text(S.of(context).energyUnitKcalLabel), value: false),
+                    RadioListTile<bool>(title: Text(S.of(context).energyUnitKjLabel), value: true),
+                  ],
+                ),
+              );
+            },
           ),
           actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(S.of(context).dialogCancelLabel),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: Text(S.of(context).dialogOKLabel),
-            ),
+            TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(S.of(context).dialogCancelLabel)),
+            TextButton(onPressed: () => Navigator.of(context).pop(true), child: Text(S.of(context).dialogOKLabel)),
           ],
         );
       },
@@ -614,10 +546,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _settingsBloc.setUsesKilojoules(selectedUsesKilojoules);
       _settingsBloc.add(LoadSettingsEvent());
       if (context.mounted) {
-        Provider.of<EnergyUnitProvider>(
-          context,
-          listen: false,
-        ).updateUsesKilojoules(selectedUsesKilojoules);
+        Provider.of<EnergyUnitProvider>(context, listen: false).updateUsesKilojoules(selectedUsesKilojoules);
       }
     }
   }
@@ -625,30 +554,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _showKcalAdjustmentDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => KcalAdjustmentDialog(
-        settingsBloc: _settingsBloc,
-        profileBloc: _profileBloc,
-        homeBloc: _homeBloc,
-      ),
+      builder: (context) =>
+          KcalAdjustmentDialog(settingsBloc: _settingsBloc, profileBloc: _profileBloc, homeBloc: _homeBloc),
     );
   }
 
   void _showMacroSplitDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) =>
-          MacroSplitDialog(settingsBloc: _settingsBloc, homeBloc: _homeBloc),
+      builder: (context) => MacroSplitDialog(settingsBloc: _settingsBloc, homeBloc: _homeBloc),
     );
   }
 
   void _showPerMealKcalShareDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => PerMealKcalShareDialog(
-        settingsBloc: _settingsBloc,
-        homeBloc: _homeBloc,
-        calendarDayBloc: _calendarDayBloc,
-      ),
+      builder: (context) =>
+          PerMealKcalShareDialog(settingsBloc: _settingsBloc, homeBloc: _homeBloc, calendarDayBloc: _calendarDayBloc),
     );
   }
 
@@ -669,11 +591,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void _showDayBoundaryDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => DiaryDayBoundaryDialog(
-        settingsBloc: _settingsBloc,
-        homeBloc: _homeBloc,
-        calendarDayBloc: _calendarDayBloc,
-      ),
+      builder: (context) =>
+          DiaryDayBoundaryDialog(settingsBloc: _settingsBloc, homeBloc: _homeBloc, calendarDayBloc: _calendarDayBloc),
     );
   }
 
@@ -711,11 +630,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: Text(s.settingsCloudBackupSyncLabel),
             subtitle: Text(s.settingsCloudBackupSyncSubtitle),
             trailing: _cloudBackupBusy
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
+                ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
                 : null,
             enabled: !_cloudBackupBusy,
             onTap: () => _syncCloudBackup(context),
@@ -745,10 +660,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Semantics(
           identifier: 'settings-cloud-backup-restore',
           child: ListTile(
-            leading: Icon(
-              Icons.cloud_download_outlined,
-              color: Theme.of(context).colorScheme.error,
-            ),
+            leading: Icon(Icons.cloud_download_outlined, color: Theme.of(context).colorScheme.error),
             title: Text(
               s.settingsCloudBackupRestoreLabel,
               style: TextStyle(color: Theme.of(context).colorScheme.error),
@@ -767,9 +679,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _openPairCloudBackupScreen(BuildContext context) async {
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const PairCloudBackupScreen()),
-    );
+    await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const PairCloudBackupScreen()));
     await _refreshCloudBackupTokenState();
   }
 
@@ -779,18 +689,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() => _cloudBackupBusy = true);
     try {
       await locator<CloudBackupUsecase>().backup();
-      messenger.showSnackBar(
-        SnackBar(content: Text(s.settingsCloudBackupSyncSuccessLabel)),
-      );
+      messenger.showSnackBar(SnackBar(content: Text(s.settingsCloudBackupSyncSuccessLabel)));
     } on CloudBackupNotPairedException {
-      messenger.showSnackBar(
-        SnackBar(content: Text(s.settingsCloudBackupNotPairedError)),
-      );
+      messenger.showSnackBar(SnackBar(content: Text(s.settingsCloudBackupNotPairedError)));
     } catch (e, st) {
       _log.warning('Cloud backup sync failed', e, st);
-      messenger.showSnackBar(
-        SnackBar(content: Text(s.settingsCloudBackupSyncErrorLabel)),
-      );
+      messenger.showSnackBar(SnackBar(content: Text(s.settingsCloudBackupSyncErrorLabel)));
     } finally {
       if (mounted) setState(() => _cloudBackupBusy = false);
     }
@@ -806,16 +710,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _showImportCustomFoodDataDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => ImportCustomFoodDataDialog(),
-    );
+    showDialog(context: context, builder: (context) => ImportCustomFoodDataDialog());
   }
 
   void _openNutrientVisibilityScreen(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const NutrientVisibilityScreen()),
-    );
+    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const NutrientVisibilityScreen()));
   }
 
   Future<void> _confirmClearOffCache(BuildContext context) async {
@@ -825,14 +724,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: Text(S.of(context).clearOffCacheConfirmTitle),
         content: Text(S.of(context).clearOffCacheConfirmContent),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(S.of(context).dialogCancelLabel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(true),
-            child: Text(S.of(context).dialogOKLabel),
-          ),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(S.of(context).dialogCancelLabel)),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(S.of(context).dialogOKLabel)),
         ],
       ),
     );
@@ -850,14 +743,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: Text(l10n.settingsDeleteAllDataConfirmTitle),
         content: Text(l10n.settingsDeleteAllDataConfirmContent),
         actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.dialogCancelLabel)),
           TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(l10n.dialogCancelLabel),
-          ),
-          TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(ctx).colorScheme.error,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Theme.of(ctx).colorScheme.error),
             onPressed: () => Navigator.of(ctx).pop(true),
             child: Text(l10n.settingsDeleteAllDataConfirmAction),
           ),
@@ -867,10 +755,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (confirmed != true) return;
     await locator<DeleteAllUserDataUsecase>().deleteAll();
     if (!mounted) return;
-    navigator.pushNamedAndRemoveUntil(
-      NavigationOptions.onboardingRoute,
-      (_) => false,
-    );
+    navigator.pushNamedAndRemoveUntil(NavigationOptions.onboardingRoute, (_) => false);
   }
 
   /// Format a byte count for display in the cache-clear tile subtitle.
@@ -890,39 +775,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
           contentPadding: EdgeInsets.zero,
           title: Text(S.of(context).settingsThemeLabel),
           content: StatefulBuilder(
-            builder:
-                (
-                  BuildContext context,
-                  void Function(void Function()) setState,
-                ) {
-                  return RadioGroup(
-                    groupValue: selectedTheme,
-                    onChanged: (value) {
-                      setState(() {
-                        selectedTheme = value as AppThemeEntity;
-                      });
-                    },
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        RadioListTile(
-                          title: Text(
-                            S.of(context).settingsThemeSystemDefaultLabel,
-                          ),
-                          value: AppThemeEntity.system,
-                        ),
-                        RadioListTile(
-                          title: Text(S.of(context).settingsThemeLightLabel),
-                          value: AppThemeEntity.light,
-                        ),
-                        RadioListTile(
-                          title: Text(S.of(context).settingsThemeDarkLabel),
-                          value: AppThemeEntity.dark,
-                        ),
-                      ],
-                    ),
-                  );
+            builder: (BuildContext context, void Function(void Function()) setState) {
+              return RadioGroup(
+                groupValue: selectedTheme,
+                onChanged: (value) {
+                  setState(() {
+                    selectedTheme = value as AppThemeEntity;
+                  });
                 },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    RadioListTile(
+                      title: Text(S.of(context).settingsThemeSystemDefaultLabel),
+                      value: AppThemeEntity.system,
+                    ),
+                    RadioListTile(title: Text(S.of(context).settingsThemeLightLabel), value: AppThemeEntity.light),
+                    RadioListTile(title: Text(S.of(context).settingsThemeDarkLabel), value: AppThemeEntity.dark),
+                  ],
+                ),
+              );
+            },
           ),
           actions: [
             TextButton(
@@ -937,10 +810,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _settingsBloc.add(LoadSettingsEvent());
                 setState(() {
                   // Update Theme
-                  Provider.of<ThemeModeProvider>(
-                    context,
-                    listen: false,
-                  ).updateTheme(selectedTheme);
+                  Provider.of<ThemeModeProvider>(context, listen: false).updateTheme(selectedTheme);
                 });
                 Navigator.of(context).pop();
               },
@@ -980,45 +850,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
           contentPadding: EdgeInsets.zero,
           title: Text(S.of(context).settingsLanguageLabel),
           content: StatefulBuilder(
-            builder:
-                (
-                  BuildContext context,
-                  void Function(void Function()) setState,
-                ) {
-                  // Scrolls: with 11 languages the list is taller than
-                  // the dialog on a short window, and the last entries
-                  // ended up under the action buttons.
-                  return RadioGroup<String>(
-                    groupValue: selectedCode,
-                    onChanged: (v) =>
-                        setState(() => selectedCode = v as String),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          RadioListTile<String>(
-                            title: Text(
-                              S.of(context).settingsThemeSystemDefaultLabel,
-                            ),
-                            value: _systemLocale,
-                          ),
-                          ..._supportedLocales.entries.map(
-                            (e) => RadioListTile<String>(
-                              title: Text(e.value),
-                              value: e.key,
-                            ),
-                          ),
-                        ],
+            builder: (BuildContext context, void Function(void Function()) setState) {
+              // Scrolls: with 11 languages the list is taller than
+              // the dialog on a short window, and the last entries
+              // ended up under the action buttons.
+              return RadioGroup<String>(
+                groupValue: selectedCode,
+                onChanged: (v) => setState(() => selectedCode = v as String),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      RadioListTile<String>(
+                        title: Text(S.of(context).settingsThemeSystemDefaultLabel),
+                        value: _systemLocale,
                       ),
-                    ),
-                  );
-                },
+                      ..._supportedLocales.entries.map(
+                        (e) => RadioListTile<String>(title: Text(e.value), value: e.key),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(S.of(context).dialogCancelLabel),
-            ),
+            TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(S.of(context).dialogCancelLabel)),
             TextButton(
               onPressed: () {
                 final locale = selectedCode.isEmpty ? null : selectedCode;
@@ -1075,26 +932,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _reportError(BuildContext context) async {
-    final reportUri = Uri.parse(
-      "mailto:${AppConst.reportErrorEmail}?subject=Report_Error",
-    );
+    final reportUri = Uri.parse("mailto:${AppConst.reportErrorEmail}?subject=Report_Error");
 
     if (await canLaunchUrl(reportUri)) {
       launchUrl(reportUri);
     } else {
       // Cannot open email app, show error snackbar
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.of(context).errorOpeningEmail)),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).errorOpeningEmail)));
       }
     }
   }
 
-  void _showPrivacyDialog(
-    BuildContext context,
-    bool hasAcceptedAnonymousData,
-  ) async {
+  void _showPrivacyDialog(BuildContext context, bool hasAcceptedAnonymousData) async {
     bool switchActive = hasAcceptedAnonymousData;
     showDialog(
       context: context,
@@ -1102,21 +952,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
         return AlertDialog(
           title: Text(S.of(context).settingsPrivacySettings),
           content: StatefulBuilder(
-            builder:
-                (
-                  BuildContext context,
-                  void Function(void Function()) setState,
-                ) {
-                  return SwitchListTile(
-                    title: Text(S.of(context).sendAnonymousUserData),
-                    value: switchActive,
-                    onChanged: (bool value) {
-                      setState(() {
-                        switchActive = value;
-                      });
-                    },
-                  );
+            builder: (BuildContext context, void Function(void Function()) setState) {
+              return SwitchListTile(
+                title: Text(S.of(context).sendAnonymousUserData),
+                value: switchActive,
+                onChanged: (bool value) {
+                  setState(() {
+                    switchActive = value;
+                  });
                 },
+              );
+            },
           ),
           actions: [
             TextButton(
@@ -1202,19 +1048,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     } else {
       // Cannot open browser app, show error snackbar
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.of(context).errorOpeningBrowser)),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).errorOpeningBrowser)));
       }
     }
   }
 }
 
-String _accentSubtitle(
-  BuildContext context, {
-  required bool useMaterialYou,
-  required int? accentColor,
-}) {
+String _accentSubtitle(BuildContext context, {required bool useMaterialYou, required int? accentColor}) {
   final isAndroid = Theme.of(context).platform == TargetPlatform.android;
   if (isAndroid && useMaterialYou) {
     return S.of(context).settingsAccentSubtitleMaterialYou;
@@ -1229,10 +1069,7 @@ class _AccentTrailingSwatch extends StatelessWidget {
   final bool useMaterialYou;
   final int? accentColor;
 
-  const _AccentTrailingSwatch({
-    required this.useMaterialYou,
-    required this.accentColor,
-  });
+  const _AccentTrailingSwatch({required this.useMaterialYou, required this.accentColor});
 
   @override
   Widget build(BuildContext context) {
@@ -1256,9 +1093,7 @@ class _AccentTrailingSwatch extends StatelessWidget {
         ),
       );
     }
-    final color = accentColor != null
-        ? Color(accentColor!)
-        : const Color(0xFF43A047); // default green disc preview
+    final color = accentColor != null ? Color(accentColor!) : const Color(0xFF43A047); // default green disc preview
     return Container(
       width: 24,
       height: 24,

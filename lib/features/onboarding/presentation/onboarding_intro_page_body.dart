@@ -5,6 +5,7 @@ import 'package:opennutritracker/core/presentation/widgets/app_banner_version.da
 import 'package:opennutritracker/core/utils/app_const.dart';
 import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/core/utils/url_const.dart';
+import 'package:opennutritracker/features/accounts/first_run_account_buttons.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/cloud_backup_restore_flow.dart';
 import 'package:opennutritracker/features/settings/presentation/widgets/pair_cloud_backup_screen.dart';
 import 'package:opennutritracker/generated/l10n.dart';
@@ -16,15 +17,18 @@ class OnboardingIntroPageBody extends StatefulWidget {
     required this.setPageContent,
     this.initialAcceptedPolicy = false,
     this.initialAcceptedDataCollection = false,
+    this.onUseWithoutAccount,
   });
+
+  /// Continues with the local onboarding (no account).
+  final VoidCallback? onUseWithoutAccount;
 
   final Function(bool active, bool acceptedDataCollection) setPageContent;
   final bool initialAcceptedPolicy;
   final bool initialAcceptedDataCollection;
 
   @override
-  State<OnboardingIntroPageBody> createState() =>
-      _OnboardingIntroPageBodyState();
+  State<OnboardingIntroPageBody> createState() => _OnboardingIntroPageBodyState();
 }
 
 class _OnboardingIntroPageBodyState extends State<OnboardingIntroPageBody> {
@@ -38,94 +42,88 @@ class _OnboardingIntroPageBodyState extends State<OnboardingIntroPageBody> {
       future: AppConst.getVersionNumber(),
       builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.hasData) {
-          return Column(
-            children: [
-              AppBannerVersion(versionNumber: snapshot.requireData),
-              const SizedBox(height: 32.0),
-              Text(
-                S.of(context).appDescription,
-                style: Theme.of(context).textTheme.bodyLarge,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 32.0),
-              Text(
-                S.of(context).onboardingIntroDescription,
-                style: Theme.of(context).textTheme.bodyLarge,
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 16.0),
-              ListTile(
-                onTap: () => _togglePolicy(),
-                title: Text.rich(
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                AppBannerVersion(versionNumber: snapshot.requireData),
+                const SizedBox(height: 32.0),
+                Text(
+                  S.of(context).appDescription,
+                  style: Theme.of(context).textTheme.bodyLarge,
                   textAlign: TextAlign.center,
-                  TextSpan(
-                    text: S.of(context).readLabel,
-                    style: Theme.of(context).textTheme.bodySmall,
-                    children: [
-                      TextSpan(
-                        text: ' ${S.of(context).privacyPolicyLabel}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.primary,
-                          decoration: TextDecoration.underline,
+                ),
+                const SizedBox(height: 32.0),
+                Text(
+                  S.of(context).onboardingIntroDescription,
+                  style: Theme.of(context).textTheme.bodyLarge,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16.0),
+                ListTile(
+                  onTap: () => _togglePolicy(),
+                  title: Text.rich(
+                    textAlign: TextAlign.center,
+                    TextSpan(
+                      text: S.of(context).readLabel,
+                      style: Theme.of(context).textTheme.bodySmall,
+                      children: [
+                        TextSpan(
+                          text: ' ${S.of(context).privacyPolicyLabel}',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            decoration: TextDecoration.underline,
+                          ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              _launchUrl();
+                            },
                         ),
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            _launchUrl();
-                          },
-                      ),
-                    ],
+                      ],
+                    ),
+                  ),
+                  leading: Semantics(
+                    identifier: 'onboarding-checkbox-privacy',
+                    child: Checkbox(
+                      value: _acceptedPolicy,
+                      onChanged: (value) {
+                        if (value != null) {
+                          _togglePolicy();
+                        }
+                      },
+                    ),
                   ),
                 ),
-                leading: Semantics(
-                  identifier: 'onboarding-checkbox-privacy',
-                  child: Checkbox(
-                    value: _acceptedPolicy,
-                    onChanged: (value) {
-                      if (value != null) {
-                        _togglePolicy();
-                      }
-                    },
+                ListTile(
+                  onTap: () => _toggleDataCollection(),
+                  title: Text(
+                    S.of(context).dataCollectionLabel,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  leading: Semantics(
+                    identifier: 'onboarding-checkbox-data',
+                    child: Checkbox(value: _acceptedDataCollection, onChanged: (value) => _toggleDataCollection()),
                   ),
                 ),
-              ),
-              ListTile(
-                onTap: () => _toggleDataCollection(),
-                title: Text(
-                  S.of(context).dataCollectionLabel,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall,
+                const SizedBox(height: 8.0),
+                TextButton.icon(
+                  onPressed: () => _openSources(context),
+                  icon: const Icon(Icons.menu_book_outlined),
+                  label: Text(S.of(context).onboardingIntroSourcesLinkLabel),
                 ),
-                leading: Semantics(
-                  identifier: 'onboarding-checkbox-data',
-                  child: Checkbox(
-                    value: _acceptedDataCollection,
-                    onChanged: (value) => _toggleDataCollection(),
+                FirstRunAccountButtons(onUseWithoutAccount: widget.onUseWithoutAccount),
+                Semantics(
+                  identifier: 'onboarding-restore-from-cloud',
+                  child: TextButton.icon(
+                    onPressed: _restoringFromCloud ? null : () => _restoreFromCloud(context),
+                    icon: _restoringFromCloud
+                        ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Icon(Icons.cloud_download_outlined),
+                    label: Text(S.of(context).onboardingRestoreFromCloudLabel),
                   ),
                 ),
-              ),
-              const SizedBox(height: 8.0),
-              TextButton.icon(
-                onPressed: () => _openSources(context),
-                icon: const Icon(Icons.menu_book_outlined),
-                label: Text(S.of(context).onboardingIntroSourcesLinkLabel),
-              ),
-              Semantics(
-                identifier: 'onboarding-restore-from-cloud',
-                child: TextButton.icon(
-                  onPressed: _restoringFromCloud
-                      ? null
-                      : () => _restoreFromCloud(context),
-                  icon: _restoringFromCloud
-                      ? const SizedBox(
-                          height: 16,
-                          width: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.cloud_download_outlined),
-                  label: Text(S.of(context).onboardingRestoreFromCloudLabel),
-                ),
-              ),
-            ],
+              ],
+            ),
           );
         } else {
           return const SizedBox();
@@ -149,9 +147,7 @@ class _OnboardingIntroPageBodyState extends State<OnboardingIntroPageBody> {
   }
 
   void _openSources(BuildContext context) {
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (_) => const SourcesScreen()));
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SourcesScreen()));
   }
 
   /// FA-16: lets someone who already has a cloud backup (Fase Cuenta) skip
@@ -163,9 +159,9 @@ class _OnboardingIntroPageBodyState extends State<OnboardingIntroPageBody> {
   Future<void> _restoreFromCloud(BuildContext context) async {
     setState(() => _restoringFromCloud = true);
     try {
-      final paired = await Navigator.of(context).push<bool>(
-        MaterialPageRoute<bool>(builder: (_) => const PairCloudBackupScreen()),
-      );
+      final paired = await Navigator.of(
+        context,
+      ).push<bool>(MaterialPageRoute<bool>(builder: (_) => const PairCloudBackupScreen()));
       if (paired != true || !context.mounted) return;
 
       final restored = await confirmAndRestoreCloudBackup(context);
@@ -178,9 +174,6 @@ class _OnboardingIntroPageBodyState extends State<OnboardingIntroPageBody> {
   }
 
   Future<void> _launchUrl() async {
-    if (!await launchUrl(
-      Uri.parse(URLConst.privacyPolicyURLEn),
-      mode: LaunchMode.externalApplication,
-    )) {}
+    if (!await launchUrl(Uri.parse(URLConst.privacyPolicyURLEn), mode: LaunchMode.externalApplication)) {}
   }
 }

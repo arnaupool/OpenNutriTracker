@@ -11868,6 +11868,966 @@ class S {
       args: [],
     );
   }
+
+  /// `Email`
+  String get accEmailLabel {
+    return Intl.message(
+      "Email",
+      name: 'accEmailLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password`
+  String get accPasswordLabel {
+    return Intl.message(
+      "Password",
+      name: 'accPasswordLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Repeat the password`
+  String get accPasswordConfirmLabel {
+    return Intl.message(
+      "Repeat the password",
+      name: 'accPasswordConfirmLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This password also protects your data and cannot be recovered by email alone.`
+  String get accPasswordHelp {
+    return Intl.message(
+      "This password also protects your data and cannot be recovered by email alone.",
+      name: 'accPasswordHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter a valid email address.`
+  String get accEmailInvalid {
+    return Intl.message(
+      "Enter a valid email address.",
+      name: 'accEmailInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter your password.`
+  String get accPasswordRequired {
+    return Intl.message(
+      "Enter your password.",
+      name: 'accPasswordRequired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use at least 10 characters.`
+  String get accPasswordTooShort {
+    return Intl.message(
+      "Use at least 10 characters.",
+      name: 'accPasswordTooShort',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The passwords do not match.`
+  String get accPasswordMismatch {
+    return Intl.message(
+      "The passwords do not match.",
+      name: 'accPasswordMismatch',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign in`
+  String get accSignInTitle {
+    return Intl.message(
+      "Sign in",
+      name: 'accSignInTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign in`
+  String get accSignInAction {
+    return Intl.message(
+      "Sign in",
+      name: 'accSignInAction',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create account`
+  String get accCreateTitle {
+    return Intl.message(
+      "Create account",
+      name: 'accCreateTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create account`
+  String get accCreateAction {
+    return Intl.message(
+      "Create account",
+      name: 'accCreateAction',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Forgot your password?`
+  String get accForgotPassword {
+    return Intl.message(
+      "Forgot your password?",
+      name: 'accForgotPassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Use without an account`
+  String get accUseWithoutAccount {
+    return Intl.message(
+      "Use without an account",
+      name: 'accUseWithoutAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `I already have an account`
+  String get accHaveAccount {
+    return Intl.message(
+      "I already have an account",
+      name: 'accHaveAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Create an account`
+  String get accNoAccountYet {
+    return Intl.message(
+      "Create an account",
+      name: 'accNoAccountYet',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign-ups closed`
+  String get accSignupsClosed {
+    return Intl.message(
+      "Sign-ups closed",
+      name: 'accSignupsClosed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New accounts cannot be created right now. If you already have an account, sign in.`
+  String get accSignupsClosedBody {
+    return Intl.message(
+      "New accounts cannot be created right now. If you already have an account, sign in.",
+      name: 'accSignupsClosedBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Wrong email or password.`
+  String get accErrorInvalidCredentials {
+    return Intl.message(
+      "Wrong email or password.",
+      name: 'accErrorInvalidCredentials',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not reach the server. Check your connection.`
+  String get accErrorNetwork {
+    return Intl.message(
+      "Could not reach the server. Check your connection.",
+      name: 'accErrorNetwork',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Too many attempts. Wait a few minutes and try again.`
+  String get accErrorRateLimited {
+    return Intl.message(
+      "Too many attempts. Wait a few minutes and try again.",
+      name: 'accErrorRateLimited',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The code is wrong or has expired.`
+  String get accErrorInvalidCode {
+    return Intl.message(
+      "The code is wrong or has expired.",
+      name: 'accErrorInvalidCode',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This account is already on this device. Switch to it from the account list.`
+  String get accErrorAlreadyOnDevice {
+    return Intl.message(
+      "This account is already on this device. Switch to it from the account list.",
+      name: 'accErrorAlreadyOnDevice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This profile belongs to {email}.`
+  String accErrorOtherAccount(String email) {
+    return Intl.message(
+      "This profile belongs to $email.",
+      name: 'accErrorOtherAccount',
+      desc: '',
+      args: [email],
+    );
+  }
+
+  /// `Something went wrong. Try again.`
+  String get accErrorGeneric {
+    return Intl.message(
+      "Something went wrong. Try again.",
+      name: 'accErrorGeneric',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your session has expired. Sign in again.`
+  String get accErrorSessionExpired {
+    return Intl.message(
+      "Your session has expired. Sign in again.",
+      name: 'accErrorSessionExpired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `That recovery key does not open this account.`
+  String get accErrorWrongRecoveryKey {
+    return Intl.message(
+      "That recovery key does not open this account.",
+      name: 'accErrorWrongRecoveryKey',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The recovery key format is not valid.`
+  String get accErrorRecoveryKeyFormat {
+    return Intl.message(
+      "The recovery key format is not valid.",
+      name: 'accErrorRecoveryKeyFormat',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This account has no recovery key.`
+  String get accErrorNoRecoveryKey {
+    return Intl.message(
+      "This account has no recovery key.",
+      name: 'accErrorNoRecoveryKey',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter the code`
+  String get accCodeTitle {
+    return Intl.message(
+      "Enter the code",
+      name: 'accCodeTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `We sent a 6-digit code to {email}.`
+  String accCodeBody(String email) {
+    return Intl.message(
+      "We sent a 6-digit code to $email.",
+      name: 'accCodeBody',
+      desc: '',
+      args: [email],
+    );
+  }
+
+  /// `Code`
+  String get accCodeLabel {
+    return Intl.message(
+      "Code",
+      name: 'accCodeLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter the 6 digits.`
+  String get accCodeInvalid {
+    return Intl.message(
+      "Enter the 6 digits.",
+      name: 'accCodeInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Verify`
+  String get accCodeVerify {
+    return Intl.message(
+      "Verify",
+      name: 'accCodeVerify',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Resend code`
+  String get accCodeResend {
+    return Intl.message(
+      "Resend code",
+      name: 'accCodeResend',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Code sent again.`
+  String get accCodeResent {
+    return Intl.message(
+      "Code sent again.",
+      name: 'accCodeResent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Reset password`
+  String get accForgotTitle {
+    return Intl.message(
+      "Reset password",
+      name: 'accForgotTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter your account email and we will send you a code.`
+  String get accForgotBody {
+    return Intl.message(
+      "Enter your account email and we will send you a code.",
+      name: 'accForgotBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Send code`
+  String get accForgotSend {
+    return Intl.message(
+      "Send code",
+      name: 'accForgotSend',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New password`
+  String get accNewPasswordTitle {
+    return Intl.message(
+      "New password",
+      name: 'accNewPasswordTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Set password`
+  String get accNewPasswordAction {
+    return Intl.message(
+      "Set password",
+      name: 'accNewPasswordAction',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password updated. Sign in with the new password.`
+  String get accResetDone {
+    return Intl.message(
+      "Password updated. Sign in with the new password.",
+      name: 'accResetDone',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password updated. No device holds your data key, so signing in will ask for your recovery key.`
+  String get accResetNeedsRewrap {
+    return Intl.message(
+      "Password updated. No device holds your data key, so signing in will ask for your recovery key.",
+      name: 'accResetNeedsRewrap',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recover your data`
+  String get accRecoverTitle {
+    return Intl.message(
+      "Recover your data",
+      name: 'accRecoverTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your password signs in, but your cloud data is locked with an older password. Paste your recovery key to open it.`
+  String get accRecoverBody {
+    return Intl.message(
+      "Your password signs in, but your cloud data is locked with an older password. Paste your recovery key to open it.",
+      name: 'accRecoverBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recovery key`
+  String get accRecoverKeyLabel {
+    return Intl.message(
+      "Recovery key",
+      name: 'accRecoverKeyLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Paste your recovery key.`
+  String get accRecoverKeyRequired {
+    return Intl.message(
+      "Paste your recovery key.",
+      name: 'accRecoverKeyRequired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recover`
+  String get accRecoverAction {
+    return Intl.message(
+      "Recover",
+      name: 'accRecoverAction',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start from scratch`
+  String get accStartFreshAction {
+    return Intl.message(
+      "Start from scratch",
+      name: 'accStartFreshAction',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Start from scratch?`
+  String get accStartFreshTitle {
+    return Intl.message(
+      "Start from scratch?",
+      name: 'accStartFreshTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The cloud data of this account will be erased and cannot be recovered. The data on this device is kept and uploaded to the account.`
+  String get accStartFreshBody {
+    return Intl.message(
+      "The cloud data of this account will be erased and cannot be recovered. The data on this device is kept and uploaded to the account.",
+      name: 'accStartFreshBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Erase cloud data`
+  String get accStartFreshConfirm {
+    return Intl.message(
+      "Erase cloud data",
+      name: 'accStartFreshConfirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your password was reset on another device. Enter it to unlock your data.`
+  String get accRewrapBanner {
+    return Intl.message(
+      "Your password was reset on another device. Enter it to unlock your data.",
+      name: 'accRewrapBanner',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unlock`
+  String get accRewrapAction {
+    return Intl.message(
+      "Unlock",
+      name: 'accRewrapAction',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Unlock your data`
+  String get accRewrapTitle {
+    return Intl.message(
+      "Unlock your data",
+      name: 'accRewrapTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Data unlocked.`
+  String get accRewrapDone {
+    return Intl.message(
+      "Data unlocked.",
+      name: 'accRewrapDone',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Accounts`
+  String get accountsTitle {
+    return Intl.message(
+      "Accounts",
+      name: 'accountsTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Switch between accounts and local profiles. Each has its own diary, goals and settings.`
+  String get accountsExplanation {
+    return Intl.message(
+      "Switch between accounts and local profiles. Each has its own diary, goals and settings.",
+      name: 'accountsExplanation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add`
+  String get accountsAdd {
+    return Intl.message(
+      "Add",
+      name: 'accountsAdd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Local profile, not synced`
+  String get accountsLocal {
+    return Intl.message(
+      "Local profile, not synced",
+      name: 'accountsLocal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Signed out. Tap to sign in.`
+  String get accountsSignedOut {
+    return Intl.message(
+      "Signed out. Tap to sign in.",
+      name: 'accountsSignedOut',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter your password to unlock your data`
+  String get accountsNeedsRewrap {
+    return Intl.message(
+      "Enter your password to unlock your data",
+      name: 'accountsNeedsRewrap',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Active`
+  String get accountsActive {
+    return Intl.message(
+      "Active",
+      name: 'accountsActive',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `New profile without an account`
+  String get accountsAddLocal {
+    return Intl.message(
+      "New profile without an account",
+      name: 'accountsAddLocal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Link to an account`
+  String get accountsLink {
+    return Intl.message(
+      "Link to an account",
+      name: 'accountsLink',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Your data on this device is kept and uploaded to the account.`
+  String get accountsLinkBody {
+    return Intl.message(
+      "Your data on this device is kept and uploaded to the account.",
+      name: 'accountsLinkBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Switch to this account first.`
+  String get accountsSwitchFirst {
+    return Intl.message(
+      "Switch to this account first.",
+      name: 'accountsSwitchFirst',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Change password`
+  String get accChangePassword {
+    return Intl.message(
+      "Change password",
+      name: 'accChangePassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Current password`
+  String get accCurrentPassword {
+    return Intl.message(
+      "Current password",
+      name: 'accCurrentPassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Password changed.`
+  String get accChangePasswordDone {
+    return Intl.message(
+      "Password changed.",
+      name: 'accChangePasswordDone',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Recovery key`
+  String get accRecoveryKeyMenu {
+    return Intl.message(
+      "Recovery key",
+      name: 'accRecoveryKeyMenu',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `A recovery key opens your data if you reset the password on a device that does not hold it. Generating a new one replaces the previous key.`
+  String get accRecoveryKeyBody {
+    return Intl.message(
+      "A recovery key opens your data if you reset the password on a device that does not hold it. Generating a new one replaces the previous key.",
+      name: 'accRecoveryKeyBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Generate`
+  String get accRecoveryKeyGenerate {
+    return Intl.message(
+      "Generate",
+      name: 'accRecoveryKeyGenerate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Store this key in a password manager. It will not be shown again.`
+  String get accRecoveryKeyShown {
+    return Intl.message(
+      "Store this key in a password manager. It will not be shown again.",
+      name: 'accRecoveryKeyShown',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copy`
+  String get accCopy {
+    return Intl.message(
+      "Copy",
+      name: 'accCopy',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Copied.`
+  String get accCopied {
+    return Intl.message(
+      "Copied.",
+      name: 'accCopied',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Close`
+  String get accClose {
+    return Intl.message(
+      "Close",
+      name: 'accClose',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign out`
+  String get accSignOut {
+    return Intl.message(
+      "Sign out",
+      name: 'accSignOut',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This removes the account and its data from this device. Your data stays in the cloud.`
+  String get accSignOutBody {
+    return Intl.message(
+      "This removes the account and its data from this device. Your data stays in the cloud.",
+      name: 'accSignOutBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Syncing before signing out…`
+  String get accSignOutSyncing {
+    return Intl.message(
+      "Syncing before signing out…",
+      name: 'accSignOutSyncing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Changes not uploaded`
+  String get accSignOutPendingTitle {
+    return Intl.message(
+      "Changes not uploaded",
+      name: 'accSignOutPendingTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Some changes could not be uploaded to the cloud. If you sign out now, they will be lost.`
+  String get accSignOutPendingBody {
+    return Intl.message(
+      "Some changes could not be uploaded to the cloud. If you sign out now, they will be lost.",
+      name: 'accSignOutPendingBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Sign out and lose changes`
+  String get accSignOutAnyway {
+    return Intl.message(
+      "Sign out and lose changes",
+      name: 'accSignOutAnyway',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Delete account`
+  String get accDeleteAccount {
+    return Intl.message(
+      "Delete account",
+      name: 'accDeleteAccount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `This permanently deletes the account and all its data in the cloud, and removes it from this device. It cannot be undone.`
+  String get accDeleteBody {
+    return Intl.message(
+      "This permanently deletes the account and all its data in the cloud, and removes it from this device. It cannot be undone.",
+      name: 'accDeleteBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Type {email} to confirm.`
+  String accDeleteTypeEmail(String email) {
+    return Intl.message(
+      "Type $email to confirm.",
+      name: 'accDeleteTypeEmail',
+      desc: '',
+      args: [email],
+    );
+  }
+
+  /// `Account email`
+  String get accDeleteConfirmField {
+    return Intl.message(
+      "Account email",
+      name: 'accDeleteConfirmField',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The account could not be deleted. Try again.`
+  String get accDeleteFailed {
+    return Intl.message(
+      "The account could not be deleted. Try again.",
+      name: 'accDeleteFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{email}: {status}`
+  String accSyncSubtitle(String email, String status) {
+    return Intl.message(
+      "$email: $status",
+      name: 'accSyncSubtitle',
+      desc: '',
+      args: [email, status],
+    );
+  }
+
+  /// `signed out`
+  String get accSyncSignedOut {
+    return Intl.message(
+      "signed out",
+      name: 'accSyncSignedOut',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `password needed to unlock the data`
+  String get accSyncNeedsRewrap {
+    return Intl.message(
+      "password needed to unlock the data",
+      name: 'accSyncNeedsRewrap',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Administration`
+  String get adminTitle {
+    return Intl.message(
+      "Administration",
+      name: 'adminTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Open sign-ups`
+  String get adminSignupsOpen {
+    return Intl.message(
+      "Open sign-ups",
+      name: 'adminSignupsOpen',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `When off, nobody can create a new account.`
+  String get adminSignupsHelp {
+    return Intl.message(
+      "When off, nobody can create a new account.",
+      name: 'adminSignupsHelp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not read the sign-up setting.`
+  String get adminLoadFailed {
+    return Intl.message(
+      "Could not read the sign-up setting.",
+      name: 'adminLoadFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Could not save the change.`
+  String get adminSaveFailed {
+    return Intl.message(
+      "Could not save the change.",
+      name: 'adminSaveFailed',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

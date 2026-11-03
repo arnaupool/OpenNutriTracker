@@ -61,16 +61,35 @@ class RemindersApi {
   final Future<String> Function() _deviceToken;
   final http.Client _client;
 
-  /// [baseUrl] is the project URL; `/functions/v1` is added here.
-  RemindersApi(String projectUrl, this.anonKey, this._deviceToken, {http.Client? client})
-    : baseUrl = '${projectUrl.replaceAll(RegExp(r'/+$'), '')}/functions/v1',
-      _client = client ?? http.Client();
+  /// Access token of the active profile's account, or null for a profile
+  /// without one. With a token every call is made in account mode
+  /// (`Authorization: Bearer`); without it, in device mode. Throws when the
+  /// profile has an account but no usable session: such calls must not fall
+  /// back to the device, so the sync fails and retries later.
+  final Future<String?> Function()? _accountToken;
 
-  Future<Map<String, dynamic>> _post(String function, Map<String, dynamic> body) async {
+  /// [baseUrl] is the project URL; `/functions/v1` is added here.
+  RemindersApi(
+    String projectUrl,
+    this.anonKey,
+    this._deviceToken, {
+    http.Client? client,
+    Future<String?> Function()? accountToken,
+  }) : _accountToken = accountToken,
+       baseUrl = '${projectUrl.replaceAll(RegExp(r'/+$'), '')}/functions/v1',
+       _client = client ?? http.Client();
+
+  Future<Map<String, dynamic>> _post(String function, Map<String, dynamic> body, {bool asAccount = true}) async {
+    final token = asAccount ? await _accountToken?.call() : null;
     final response = await _client
         .post(
           Uri.parse('$baseUrl/$function'),
-          headers: {'Content-Type': 'application/json', 'apikey': anonKey, 'x-reminder-device': await _deviceToken()},
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': anonKey,
+            'x-reminder-device': await _deviceToken(),
+            if (token != null) 'Authorization': 'Bearer $token',
+          },
           body: jsonEncode(body),
         )
         .timeout(const Duration(seconds: 20));
@@ -90,6 +109,12 @@ class RemindersApi {
   /// Sends whatever keys are present in [body] (see the contract) and returns the server state.
   Future<ReminderSyncResponse> sync(Map<String, dynamic> body) async =>
       ReminderSyncResponse.fromJson(await _post('reminders-sync', body));
+
+  /// Sign-out: this device stops belonging to the account and loses its push
+  /// subscription. Sent without the account token, as the contract says.
+  Future<void> detachAccount() async {
+    await _post('reminders-sync', {'detachAccount': true}, asAccount: false);
+  }
 
   /// Sends reminder [reminderId] now. Returns the channel used.
   Future<String?> test(String reminderId) async =>

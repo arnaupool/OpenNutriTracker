@@ -186,6 +186,12 @@ class ReminderSettingsDBO extends HiveObject {
     'emailVerified': emailVerified,
     'telegramLinked': telegramLinked,
   };
+
+  /// What account sync carries: the settings every device shares. The state
+  /// of the email and Telegram channels is not among them: it belongs to the
+  /// device (local profiles) or comes from the account response, never from
+  /// another device's copy (C10).
+  Map<String, dynamic> toSyncJson() => {'timezone': timezone, 'quietStart': quietStart, 'quietEnd': quietEnd};
 }
 
 /// Hand-written in the generator's format (field ids are stable; add new

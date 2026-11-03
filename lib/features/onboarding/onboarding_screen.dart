@@ -34,11 +34,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   late OnboardingBloc _onboardingBloc;
   final _introKey = GlobalKey<IntroductionScreenState>();
 
-  final _pageDecoration = const PageDecoration(
-    safeArea: 0,
-    bodyAlignment: Alignment.topCenter,
-    bodyFlex: 6,
-  );
+  final _pageDecoration = const PageDecoration(safeArea: 0, bodyAlignment: Alignment.topCenter, bodyFlex: 6);
 
   final _defaultImageWidget = null;
 
@@ -95,9 +91,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         size: const Size(10.0, 10.0),
         activeColor: Theme.of(context).colorScheme.primary,
         activeSize: const Size(22.0, 10.0),
-        activeShape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(25.0)),
-        ),
+        activeShape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(25.0))),
       ),
       onChange: onPageChanged,
       pages: _getPageViewModels(),
@@ -115,6 +109,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           setPageContent: _setIntroPageData,
           initialAcceptedPolicy: _introPageButtonActive,
           initialAcceptedDataCollection: selection.acceptDataCollection,
+          onUseWithoutAccount: () {
+            if (_introPageButtonActive) _scrollToPage(1);
+          },
         ),
         footer: HighlightButton(
           buttonLabel: S.of(context).buttonStartLabel,
@@ -162,10 +159,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         // empty
         decoration: _pageDecoration,
         image: _defaultImageWidget,
-        bodyWidget: OnboardingThirdPageBody(
-          setButtonContent: _setThirdPageButton,
-          initialActivity: selection.activity,
-        ),
+        bodyWidget: OnboardingThirdPageBody(setButtonContent: _setThirdPageButton, initialActivity: selection.activity),
         footer: HighlightButton(
           buttonLabel: S.of(context).buttonNextLabel,
           onButtonPressed: () => _scrollToPage(4),
@@ -177,10 +171,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         // empty
         decoration: _pageDecoration,
         image: _defaultImageWidget,
-        bodyWidget: OnboardingFourthPageBody(
-          setButtonContent: _setFourthPageButton,
-          initialGoal: selection.goal,
-        ),
+        bodyWidget: OnboardingFourthPageBody(setButtonContent: _setFourthPageButton, initialGoal: selection.goal),
         footer: HighlightButton(
           buttonLabel: S.of(context).buttonNextLabel,
           onButtonPressed: () => _scrollToPage(5),
@@ -213,21 +204,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         decoration: _pageDecoration,
         image: _defaultImageWidget,
         bodyWidget: OnboardingOverviewPageBody(
-          calorieGoalDayString:
-              _onboardingBloc.getOverviewCalorieGoal()?.round().toString() ??
-              "?",
-          carbsGoalString:
-              _onboardingBloc.getOverviewCarbsGoal()?.round().toString() ?? "?",
-          fatGoalString:
-              _onboardingBloc.getOverviewFatGoal()?.round().toString() ?? "?",
-          proteinGoalString:
-              _onboardingBloc.getOverviewProteinGoal()?.round().toString() ??
-              "?",
+          calorieGoalDayString: _onboardingBloc.getOverviewCalorieGoal()?.round().toString() ?? "?",
+          carbsGoalString: _onboardingBloc.getOverviewCarbsGoal()?.round().toString() ?? "?",
+          fatGoalString: _onboardingBloc.getOverviewFatGoal()?.round().toString() ?? "?",
+          proteinGoalString: _onboardingBloc.getOverviewProteinGoal()?.round().toString() ?? "?",
           setButtonActive: _setOverviewPageContent,
-          showLowKcalWarning: _onboardingBloc
-              .isOverviewBelowRecommendedKcalFloor(),
-          lowKcalWarningThreshold: _onboardingBloc
-              .getOverviewRecommendedKcalFloor(),
+          showLowKcalWarning: _onboardingBloc.isOverviewBelowRecommendedKcalFloor(),
+          lowKcalWarningThreshold: _onboardingBloc.getOverviewRecommendedKcalFloor(),
           planEnd: _onboardingBloc.getOverviewPlanEnd()?.end,
           planDays: _onboardingBloc.getOverviewPlanEnd()?.days ?? 0,
           showCountdown: selection.showCountdown,
@@ -256,8 +239,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _setIntroPageData(bool active, bool acceptedDataCollection) {
     setState(() {
-      _onboardingBloc.userSelection.acceptDataCollection =
-          acceptedDataCollection;
+      _onboardingBloc.userSelection.acceptDataCollection = acceptedDataCollection;
 
       _introPageButtonActive = active;
     });
@@ -295,10 +277,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     });
   }
 
-  void _setThirdPageButton(
-    bool active,
-    UserActivitySelectionEntity? selectedActivity,
-  ) {
+  void _setThirdPageButton(bool active, UserActivitySelectionEntity? selectedActivity) {
     setState(() {
       _onboardingBloc.userSelection.activity = selectedActivity;
 
@@ -306,10 +285,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     });
   }
 
-  void _setFourthPageButton(
-    bool active,
-    UserGoalSelectionEntity? selectedGoal,
-  ) {
+  void _setFourthPageButton(bool active, UserGoalSelectionEntity? selectedGoal) {
     setState(() {
       _onboardingBloc.userSelection.goal = selectedGoal;
 
@@ -322,9 +298,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void checkUserDataProvided() {
-    _onboardingBloc.userSelection.checkDataProvided()
-        ? _setOverviewPageContent(true)
-        : _setOverviewPageContent(false);
+    _onboardingBloc.userSelection.checkDataProvided() ? _setOverviewPageContent(true) : _setOverviewPageContent(false);
   }
 
   void _setOverviewPageContent(bool active) {
@@ -335,15 +309,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _onOverviewStartButtonPressed(BuildContext context) async {
     final userEntity = _onboardingBloc.userSelection.toUserEntity();
-    final hasAcceptedDataCollection =
-        _onboardingBloc.userSelection.acceptDataCollection;
+    final hasAcceptedDataCollection = _onboardingBloc.userSelection.acceptDataCollection;
     final usesImperialUnits = _onboardingBloc.userSelection.usesImperialUnits;
     if (userEntity != null) {
-      await _onboardingBloc.saveOnboardingData(
-        userEntity,
-        hasAcceptedDataCollection,
-        usesImperialUnits,
-      );
+      await _onboardingBloc.saveOnboardingData(userEntity, hasAcceptedDataCollection, usesImperialUnits);
       if (!context.mounted) return;
 
       // HomeBloc/ProfileBloc/DiaryBloc/CalendarDayBloc are lazy singletons
@@ -363,9 +332,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       Navigator.pushReplacementNamed(context, NavigationOptions.mainRoute);
     } else {
       // Error with user input
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(S.of(context).onboardingSaveUserError)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).onboardingSaveUserError)));
       _scrollToPage(1);
     }
   }

@@ -23,6 +23,7 @@ import 'package:opennutritracker/core/utils/navigation_options.dart';
 import 'package:opennutritracker/core/utils/energy_unit_provider.dart';
 import 'package:opennutritracker/core/utils/locale_provider.dart';
 import 'package:opennutritracker/core/profiles/profile_store.dart';
+import 'package:opennutritracker/core/account/account_session_service.dart';
 import 'package:opennutritracker/core/sync/sync_service.dart';
 import 'package:opennutritracker/core/utils/theme_mode_provider.dart';
 import 'package:opennutritracker/features/activity_detail/activity_detail_screen.dart';
@@ -70,13 +71,10 @@ Future<void> main() async {
   // sentry enabled, else run without it
   if (kReleaseMode && boot.hasAcceptedAnonymousData) {
     log.info('Starting App with Sentry enabled ...');
-    await SentryFlutter.init(
-      (options) {
-        options.dsn = Env.sentryDns;
-        options.tracesSampleRate = 1.0;
-      },
-      appRunner: () => runApp(AppRestarter(initial: boot)),
-    );
+    await SentryFlutter.init((options) {
+      options.dsn = Env.sentryDns;
+      options.tracesSampleRate = 1.0;
+    }, appRunner: () => runApp(AppRestarter(initial: boot)));
   } else {
     log.info('Starting App ...');
     runApp(AppRestarter(initial: boot));
@@ -104,6 +102,19 @@ class AppBoot {
   });
 }
 
+/// A profile just signed in to an existing account has no data yet: pulls it
+/// before deciding between onboarding and the main screen. True when the
+/// profile has user data afterwards.
+Future<bool> _pullAccountData() async {
+  try {
+    if (await locator<AccountSessionService>().link(ProfileScope.activeId) == null) return false;
+    await locator<SyncService>().syncNow().timeout(const Duration(seconds: 30));
+  } on Object catch (e) {
+    Logger('main').warning('Could not pull the account data at start: $e');
+  }
+  return locator<UserDataSource>().hasUserData();
+}
+
 /// Opens the active profile's data and reads what the app starts with. Runs
 /// at launch and again after switching profile.
 Future<AppBoot> _bootstrap() async {
@@ -111,11 +122,10 @@ Future<AppBoot> _bootstrap() async {
 
   // Drop cached remote-search results that haven't been touched in 90
   // days. Done once per app start; no need to schedule a recurring task.
-  unawaited(
-    locator<RemoteSearchCacheDataSource>().pruneStale(const Duration(days: 90)),
-  );
+  unawaited(locator<RemoteSearchCacheDataSource>().pruneStale(const Duration(days: 90)));
 
-  final isUserInitialized = await locator<UserDataSource>().hasUserData();
+  var isUserInitialized = await locator<UserDataSource>().hasUserData();
+  if (!isUserInitialized) isUserInitialized = await _pullAccountData();
   // FAS-01: starts syncing if this device is linked; a no-op otherwise.
   if (isUserInitialized) {
     unawaited(locator<SyncService>().start());
@@ -135,9 +145,7 @@ Future<AppBoot> _bootstrap() async {
   // in the OS settings, so this keeps them in the user's language instead of
   // reverting to English on each launch.
   if (config.notificationsEnabled) {
-    await S.load(
-      savedLocale ?? WidgetsBinding.instance.platformDispatcher.locale,
-    );
+    await S.load(savedLocale ?? WidgetsBinding.instance.platformDispatcher.locale);
     final s = S.current;
     final notificationService = locator<NotificationService>();
     await notificationService.initialize();
@@ -170,9 +178,17 @@ class AppRestarter extends StatefulWidget {
   const AppRestarter({super.key, required this.initial});
 
   /// Makes [profileId] active and reloads the app on its data.
-  static Future<void> switchProfile(BuildContext context, String profileId) async {
+  ///
+  /// [afterSwitch] runs once the previous profile is closed and [profileId]
+  /// is active, before the app reloads (used to delete the profile left
+  /// behind, which is only allowed when it is not the active one).
+  static Future<void> switchProfile(
+    BuildContext context,
+    String profileId, {
+    Future<void> Function()? afterSwitch,
+  }) async {
     final state = context.findAncestorStateOfType<_AppRestarterState>();
-    await state?._switchTo(profileId);
+    await state?._switchTo(profileId, afterSwitch);
   }
 
   @override
@@ -184,7 +200,7 @@ class _AppRestarterState extends State<AppRestarter> {
   Key _key = UniqueKey();
   bool _switching = false;
 
-  Future<void> _switchTo(String profileId) async {
+  Future<void> _switchTo(String profileId, [Future<void> Function()? afterSwitch]) async {
     setState(() => _switching = true);
     await locator<SyncService>().stop();
     await locator<RemindersService>().stop();
@@ -192,6 +208,7 @@ class _AppRestarterState extends State<AppRestarter> {
     await locator.reset();
     await ProfileStore().setActive(profileId);
     ProfileScope.activate(profileId);
+    if (afterSwitch != null) await afterSwitch();
     final boot = await _bootstrap();
     if (!mounted) return;
     setState(() {
@@ -206,7 +223,10 @@ class _AppRestarterState extends State<AppRestarter> {
     if (_switching) {
       return const Directionality(
         textDirection: TextDirection.ltr,
-        child: ColoredBox(color: Colors.black, child: Center(child: CircularProgressIndicator())),
+        child: ColoredBox(
+          color: Colors.black,
+          child: Center(child: CircularProgressIndicator()),
+        ),
       );
     }
     return KeyedSubtree(
@@ -252,9 +272,7 @@ class OpenNutriTrackerApp extends StatelessWidget {
         } else if (accentColor != null) {
           final seed = Color(accentColor);
           lightScheme = withNeutralSurfaces(ColorScheme.fromSeed(seedColor: seed));
-          darkScheme = withNeutralSurfaces(
-            ColorScheme.fromSeed(seedColor: seed, brightness: Brightness.dark),
-          );
+          darkScheme = withNeutralSurfaces(ColorScheme.fromSeed(seedColor: seed, brightness: Brightness.dark));
         } else {
           lightScheme = withNeutralSurfaces(lightColorScheme);
           darkScheme = withNeutralSurfaces(darkColorScheme);
@@ -264,24 +282,12 @@ class OpenNutriTrackerApp extends StatelessWidget {
     );
   }
 
-  Widget _buildMaterialApp(
-    BuildContext context,
-    ColorScheme lightScheme,
-    ColorScheme darkScheme,
-  ) {
+  Widget _buildMaterialApp(BuildContext context, ColorScheme lightScheme, ColorScheme darkScheme) {
     return MaterialApp(
       onGenerateTitle: (context) => S.of(context).appTitle,
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: lightScheme,
-        textTheme: appTextTheme,
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: darkScheme,
-        textTheme: appTextTheme,
-      ),
+      theme: ThemeData(useMaterial3: true, colorScheme: lightScheme, textTheme: appTextTheme),
+      darkTheme: ThemeData(useMaterial3: true, colorScheme: darkScheme, textTheme: appTextTheme),
       themeMode: Provider.of<ThemeModeProvider>(context).themeMode,
       locale: Provider.of<LocaleProvider>(context).locale,
       localizationsDelegates: const [
@@ -291,70 +297,44 @@ class OpenNutriTrackerApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
       ],
       supportedLocales: S.delegate.supportedLocales,
-      initialRoute: userInitialized
-          ? NavigationOptions.mainRoute
-          : NavigationOptions.onboardingRoute,
+      initialRoute: userInitialized ? NavigationOptions.mainRoute : NavigationOptions.onboardingRoute,
       routes: {
         NavigationOptions.mainRoute: (context) => const MainScreen(),
-        NavigationOptions.onboardingRoute: (context) =>
-            DesktopRouteFrame(child: const OnboardingScreen()),
-        NavigationOptions.settingsRoute: (context) =>
-            DesktopRouteFrame(child: const SettingsScreen()),
-        NavigationOptions.accentColourRoute: (context) =>
-            DesktopRouteFrame(child: const AccentColourScreen()),
+        NavigationOptions.onboardingRoute: (context) => DesktopRouteFrame(child: const OnboardingScreen()),
+        NavigationOptions.settingsRoute: (context) => DesktopRouteFrame(child: const SettingsScreen()),
+        NavigationOptions.accentColourRoute: (context) => DesktopRouteFrame(child: const AccentColourScreen()),
         NavigationOptions.openRouterSettingsRoute: (context) =>
             DesktopRouteFrame(child: const OpenRouterSettingsScreen()),
-        NavigationOptions.addMealRoute: (context) =>
-            DesktopRouteFrame(child: const AddMealScreen()),
-        NavigationOptions.addItemMenuRoute: (context) =>
-            DesktopRouteFrame(child: const AddItemMenuScreen()),
-        NavigationOptions.recentlyRoute: (context) =>
-            DesktopRouteFrame(child: const RecentlyScreen()),
-        NavigationOptions.presetsRoute: (context) =>
-            DesktopRouteFrame(child: const PresetsScreen()),
-        NavigationOptions.magicRoute: (context) =>
-            DesktopRouteFrame(child: const MagicScreen()),
-        NavigationOptions.reviewMealRoute: (context) =>
-            DesktopRouteFrame(child: const ReviewMealScreen()),
-        NavigationOptions.scannerRoute: (context) =>
-            DesktopRouteFrame(child: const ScannerScreen()),
-        NavigationOptions.scanLabelRoute: (context) =>
-            DesktopRouteFrame(child: const ScanLabelScreen()),
-        NavigationOptions.mealDetailRoute: (context) =>
-            DesktopRouteFrame(child: const MealDetailScreen()),
-        NavigationOptions.editMealRoute: (context) =>
-            DesktopRouteFrame(child: const EditMealScreen()),
-        NavigationOptions.addActivityRoute: (context) =>
-            DesktopRouteFrame(child: const AddActivityScreen()),
-        NavigationOptions.activityDetailRoute: (context) =>
-            DesktopRouteFrame(child: const ActivityDetailScreen()),
-        NavigationOptions.imageFullScreenRoute: (context) =>
-            const ImageFullScreen(),
+        NavigationOptions.addMealRoute: (context) => DesktopRouteFrame(child: const AddMealScreen()),
+        NavigationOptions.addItemMenuRoute: (context) => DesktopRouteFrame(child: const AddItemMenuScreen()),
+        NavigationOptions.recentlyRoute: (context) => DesktopRouteFrame(child: const RecentlyScreen()),
+        NavigationOptions.presetsRoute: (context) => DesktopRouteFrame(child: const PresetsScreen()),
+        NavigationOptions.magicRoute: (context) => DesktopRouteFrame(child: const MagicScreen()),
+        NavigationOptions.reviewMealRoute: (context) => DesktopRouteFrame(child: const ReviewMealScreen()),
+        NavigationOptions.scannerRoute: (context) => DesktopRouteFrame(child: const ScannerScreen()),
+        NavigationOptions.scanLabelRoute: (context) => DesktopRouteFrame(child: const ScanLabelScreen()),
+        NavigationOptions.mealDetailRoute: (context) => DesktopRouteFrame(child: const MealDetailScreen()),
+        NavigationOptions.editMealRoute: (context) => DesktopRouteFrame(child: const EditMealScreen()),
+        NavigationOptions.addActivityRoute: (context) => DesktopRouteFrame(child: const AddActivityScreen()),
+        NavigationOptions.activityDetailRoute: (context) => DesktopRouteFrame(child: const ActivityDetailScreen()),
+        NavigationOptions.imageFullScreenRoute: (context) => const ImageFullScreen(),
         NavigationOptions.importMealScannerRoute: (context) =>
             DesktopRouteFrame(child: const ImportMealScannerScreen()),
         NavigationOptions.importActivityScannerRoute: (context) =>
             DesktopRouteFrame(child: const ImportActivityScannerScreen()),
-        NavigationOptions.recipesRoute: (context) =>
-            DesktopRouteFrame(child: const RecipesPage()),
-        NavigationOptions.recipeBuilderRoute: (context) =>
-            DesktopRouteFrame(child: const RecipeBuilderScreen()),
-        NavigationOptions.recipeDetailRoute: (context) =>
-            DesktopRouteFrame(child: const RecipeDetailScreen()),
+        NavigationOptions.recipesRoute: (context) => DesktopRouteFrame(child: const RecipesPage()),
+        NavigationOptions.recipeBuilderRoute: (context) => DesktopRouteFrame(child: const RecipeBuilderScreen()),
+        NavigationOptions.recipeDetailRoute: (context) => DesktopRouteFrame(child: const RecipeDetailScreen()),
         NavigationOptions.importRecipeScannerRoute: (context) =>
             DesktopRouteFrame(child: const ImportRecipeScannerScreen()),
-        NavigationOptions.weightHistoryRoute: (context) =>
-            DesktopRouteFrame(child: const WeightHistoryScreen()),
-        NavigationOptions.bodyMeasurementsRoute: (context) =>
-            DesktopRouteFrame(child: const BodyMeasurementsScreen()),
+        NavigationOptions.weightHistoryRoute: (context) => DesktopRouteFrame(child: const WeightHistoryScreen()),
+        NavigationOptions.bodyMeasurementsRoute: (context) => DesktopRouteFrame(child: const BodyMeasurementsScreen()),
         // FAS-03: full width on desktop, the tables need the room.
         NavigationOptions.reviewRoute: (context) => const ReviewScreen(),
         NavigationOptions.mealPlanRoute: (context) => const MealPlanScreen(),
-        NavigationOptions.myPlanRoute: (context) =>
-            DesktopRouteFrame(child: const MyPlanScreen()),
-        NavigationOptions.remindersRoute: (context) =>
-            DesktopRouteFrame(child: const RemindersScreen()),
-        NavigationOptions.fastingRoute: (context) =>
-            DesktopRouteFrame(child: const FastingScreen()),
+        NavigationOptions.myPlanRoute: (context) => DesktopRouteFrame(child: const MyPlanScreen()),
+        NavigationOptions.remindersRoute: (context) => DesktopRouteFrame(child: const RemindersScreen()),
+        NavigationOptions.fastingRoute: (context) => DesktopRouteFrame(child: const FastingScreen()),
       },
     );
   }

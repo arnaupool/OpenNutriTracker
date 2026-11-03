@@ -12,6 +12,26 @@ import 'package:uuid/uuid.dart';
 
 enum ReminderSyncStatus { idle, syncing, error }
 
+/// Whether Telegram is linked and the email verified, as the backend last
+/// said (for an account) or as stored on this device (local profile).
+class ReminderChannelState {
+  final bool telegramLinked;
+  final bool emailVerified;
+  final String? email;
+
+  const ReminderChannelState({this.telegramLinked = false, this.emailVerified = false, this.email});
+
+  @override
+  bool operator ==(Object other) =>
+      other is ReminderChannelState &&
+      other.telegramLinked == telegramLinked &&
+      other.emailVerified == emailVerified &&
+      other.email == email;
+
+  @override
+  int get hashCode => Object.hash(telegramLinked, emailVerified, email);
+}
+
 /// Outcome of trying to turn web push on.
 enum PushSetupResult { active, unsupported, denied, failed }
 
@@ -27,11 +47,19 @@ class RemindersService {
   final DateTime Function() _now;
   final String Function() _newId;
 
+  /// Whether the active profile has an account (reminders then live in the
+  /// account and the channel state comes from the backend, C10).
+  final Future<bool> Function()? _usesAccount;
+  bool _accountMode = false;
+
   /// Whether the last sync reached the backend.
   final ValueNotifier<ReminderSyncStatus> status = ValueNotifier(ReminderSyncStatus.idle);
 
   /// Whether the server holds a push subscription for this device.
   final ValueNotifier<bool> pushActive = ValueNotifier(false);
+
+  /// The last channel state the backend reported; see [channelState].
+  final ValueNotifier<ReminderChannelState> channels = ValueNotifier(const ReminderChannelState());
 
   StreamSubscription<dynamic>? _watcher;
   Timer? _timer;
@@ -45,7 +73,9 @@ class RemindersService {
     Duration debounce = const Duration(seconds: 2),
     DateTime Function()? now,
     String Function()? newId,
-  }) : _debounce = debounce,
+    Future<bool> Function()? usesAccount,
+  }) : _usesAccount = usesAccount,
+       _debounce = debounce,
        _now = now ?? DateTime.now,
        _newId = newId ?? (() => const Uuid().v4());
 
@@ -56,6 +86,33 @@ class RemindersService {
   List<ReminderDBO> get reminders => _data.reminders();
 
   ReminderSettingsDBO get settings => _data.settings();
+
+  /// Telegram and email channel state. For an account it is what the backend
+  /// reported (nothing is read from the synced settings); for a local profile
+  /// it is the device's own settings.
+  ReminderChannelState get channelState {
+    if (_accountMode) return channels.value;
+    final s = _data.settings();
+    return ReminderChannelState(telegramLinked: s.telegramLinked, emailVerified: s.emailVerified, email: s.email);
+  }
+
+  Future<void> _detectMode() async {
+    final check = _usesAccount;
+    final now = check == null ? false : await check();
+    if (now != _accountMode) {
+      _accountMode = now;
+      channels.value = const ReminderChannelState();
+    }
+  }
+
+  /// Tells the backend this device left its account (sign-out). Best effort.
+  Future<void> detachAccount() async {
+    try {
+      await _api.detachAccount();
+    } catch (e) {
+      _log.warning('could not detach the device from the account: $e');
+    }
+  }
 
   /// Starts mirroring changes to the backend. Reminders that already exist
   /// are sent once (the device may be new to the backend or on a new time zone).
@@ -78,6 +135,7 @@ class RemindersService {
   /// Creates the five built-in reminders the first time, and the settings
   /// with the device time zone.
   Future<void> ensureDefaults() async {
+    await _detectMode();
     if (!_data.hasSettings) {
       await _data.saveSettings(ReminderSettingsDBO(timezone: await _platform.detectTimezone() ?? 'UTC'));
     } else {
@@ -88,10 +146,10 @@ class RemindersService {
   }
 
   ReminderChannel _defaultChannel() {
-    final s = _data.settings();
+    final c = channelState;
     return ReminderRules.defaultChannel(
-      telegramLinked: s.telegramLinked,
-      emailVerified: s.emailVerified,
+      telegramLinked: c.telegramLinked,
+      emailVerified: c.emailVerified,
       pushSupported: _platform.pushSupport == PushSupport.supported,
     );
   }
@@ -176,6 +234,7 @@ class RemindersService {
   }
 
   Future<ReminderSyncResponse?> _syncOnce({bool telegramLink = false}) async {
+    await _detectMode();
     status.value = ReminderSyncStatus.syncing;
     final sent = _data.reminders();
     final s = _data.settings();
@@ -199,6 +258,7 @@ class RemindersService {
 
   /// Reads the server state without changing anything there.
   Future<ReminderSyncResponse?> refreshStatus() async {
+    await _detectMode();
     try {
       final response = await _api.sync({});
       await _adopt(response, null);
@@ -221,6 +281,15 @@ class RemindersService {
         if (server == null || now == null || server == was.channel || now.channel != was.channel) continue;
         await _data.save(now.copyWith(channel: server));
       }
+    }
+    if (_accountMode) {
+      // The account owns these: kept in memory, never in the (synced) settings.
+      channels.value = ReminderChannelState(
+        telegramLinked: response.telegramLinked,
+        emailVerified: response.emailVerified,
+        email: response.emailVerified ? response.emailAddress : null,
+      );
+      return;
     }
     final s = _data.settings();
     final email = response.emailVerified ? (response.emailAddress ?? s.email) : s.email;
@@ -258,6 +327,15 @@ class RemindersService {
   /// Confirms the 6-digit [code]; stores the verified address.
   Future<void> confirmEmail(String code) async {
     final email = await _api.confirmEmail(code.trim());
+    await _detectMode();
+    if (_accountMode) {
+      channels.value = ReminderChannelState(
+        telegramLinked: channels.value.telegramLinked,
+        emailVerified: true,
+        email: email,
+      );
+      return;
+    }
     await _data.saveSettings(_data.settings().copyWith(email: email, emailVerified: true));
   }
 

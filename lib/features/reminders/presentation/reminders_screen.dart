@@ -296,7 +296,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
     final email = await _askText(
       title: s.remindersChannelEmail,
       label: s.remindersEmailAddress,
-      initial: _service.settings.email,
+      initial: _service.channelState.email,
       keyboard: TextInputType.emailAddress,
       confirm: s.remindersEmailSendCode,
       validator: (v) => RegExp(r'^[^@\s]{1,64}@[^@\s]+\.[^@\s]+$').hasMatch(v.trim()),
@@ -368,7 +368,12 @@ class _RemindersScreenState extends State<RemindersScreen> {
       body: !_ready
           ? const Center(child: CircularProgressIndicator())
           : ListenableBuilder(
-              listenable: Listenable.merge([_service.data.listenable, _service.status, _service.pushActive]),
+              listenable: Listenable.merge([
+                _service.data.listenable,
+                _service.status,
+                _service.pushActive,
+                _service.channels,
+              ]),
               builder: (context, _) => _body(context),
             ),
     );
@@ -423,8 +428,8 @@ class _RemindersScreenState extends State<RemindersScreen> {
           ),
         const Divider(),
         _sectionTitle(context, s.remindersChannelsTitle),
-        _telegramTile(context, settings),
-        _emailTile(context, settings),
+        _telegramTile(context, _service.channelState),
+        _emailTile(context, _service.channelState),
         if (kIsWeb || _platform.pushSupport != PushSupport.notSupported) _pushTile(context),
         Padding(
           padding: const EdgeInsets.all(16),
@@ -466,7 +471,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
     );
   }
 
-  Widget _telegramTile(BuildContext context, ReminderSettingsDBO settings) {
+  Widget _telegramTile(BuildContext context, ReminderChannelState settings) {
     final s = S.of(context);
     return ListTile(
       leading: const Icon(Icons.send_outlined),
@@ -485,7 +490,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
     );
   }
 
-  Widget _emailTile(BuildContext context, ReminderSettingsDBO settings) {
+  Widget _emailTile(BuildContext context, ReminderChannelState settings) {
     final s = S.of(context);
     return Semantics(
       identifier: 'reminders-email',

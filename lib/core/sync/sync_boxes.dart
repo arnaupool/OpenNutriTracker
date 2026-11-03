@@ -141,7 +141,7 @@ List<SyncedBox<dynamic>> buildSyncedBoxes(HiveDBProvider db) => [
     name: HiveDBProvider.reminderSettingsBoxName,
     box: db.reminderSettingsBox,
     identityOf: (_, key) => key?.toString(),
-    toJson: (v) => v.toJson(),
+    toJson: (v) => v.toSyncJson(),
     fromJson: ReminderSettingsDBO.fromJson,
     naturalKey: true,
   ),
