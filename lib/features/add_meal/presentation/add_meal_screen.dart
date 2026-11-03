@@ -36,8 +36,7 @@ class AddMealScreen extends StatefulWidget {
   State<AddMealScreen> createState() => _AddMealScreenState();
 }
 
-class _AddMealScreenState extends State<AddMealScreen>
-    with SingleTickerProviderStateMixin {
+class _AddMealScreenState extends State<AddMealScreen> with SingleTickerProviderStateMixin {
   final ValueNotifier<String> _searchStringListener = ValueNotifier('');
 
   late AddMealType _mealType;
@@ -66,8 +65,7 @@ class _AddMealScreenState extends State<AddMealScreen>
 
   @override
   void didChangeDependencies() {
-    final args =
-        ModalRoute.of(context)?.settings.arguments as AddMealScreenArguments;
+    final args = ModalRoute.of(context)?.settings.arguments as AddMealScreenArguments;
     _mealType = args.mealType;
     _day = args.day;
     if (!_initialTabApplied) {
@@ -92,18 +90,14 @@ class _AddMealScreenState extends State<AddMealScreen>
         actions: [
           Semantics(
             identifier: 'add-meal-quick-add',
-            child: TextButton(
-              onPressed: _onQuickAddPressed,
-              child: Text(S.of(context).quickAddCardLabel),
-            ),
+            child: TextButton(onPressed: _onQuickAddPressed, child: Text(S.of(context).quickAddCardLabel)),
           ),
           BlocBuilder<AddMealBloc, AddMealState>(
             bloc: locator<AddMealBloc>()..add(InitializeAddMealEvent()),
             builder: (BuildContext context, AddMealState state) {
               if (state is AddMealLoadedState) {
                 return IconButton(
-                  onPressed: () =>
-                      _onCustomAddButtonPressed(state.usesImperialUnits),
+                  onPressed: () => _onCustomAddButtonPressed(state.usesImperialUnits),
                   icon: const Icon(Icons.add_circle_outline),
                 );
               }
@@ -139,11 +133,7 @@ class _AddMealScreenState extends State<AddMealScreen>
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    FavoritesList(
-                      query: _searchStringListener,
-                      day: _day,
-                      mealType: _mealType,
-                    ),
+                    FavoritesList(query: _searchStringListener, day: _day, mealType: _mealType),
                     Column(
                       children: [
                         Container(
@@ -165,8 +155,7 @@ class _AddMealScreenState extends State<AddMealScreen>
                                 child: CircularProgressIndicator(),
                               );
                             } else if (state is ProductsLoadedState) {
-                              if (state.products.isEmpty &&
-                                  state.favorites.isEmpty) {
+                              if (state.products.isEmpty && state.similar.isEmpty && state.favorites.isEmpty) {
                                 return const NoResultsWidget();
                               }
                               return Flexible(
@@ -175,15 +164,13 @@ class _AddMealScreenState extends State<AddMealScreen>
                                   state.products,
                                   state.remoteSourceEmpty,
                                   state.usesImperialUnits,
+                                  similar: state.similar,
                                 ),
                               );
                             } else if (state is ProductsFailedState) {
                               return ErrorDialog(
-                                errorText: S
-                                    .of(context)
-                                    .errorFetchingProductData,
-                                onRefreshPressed:
-                                    _onProductsRefreshButtonPressed,
+                                errorText: S.of(context).errorFetchingProductData,
+                                onRefreshPressed: _onProductsRefreshButtonPressed,
                               );
                             } else {
                               return const SizedBox();
@@ -213,8 +200,7 @@ class _AddMealScreenState extends State<AddMealScreen>
                                 child: CircularProgressIndicator(),
                               );
                             } else if (state is FoodLoadedState) {
-                              if (state.food.isEmpty &&
-                                  state.favorites.isEmpty) {
+                              if (state.food.isEmpty && state.favorites.isEmpty) {
                                 return const NoResultsWidget();
                               }
                               return Flexible(
@@ -227,9 +213,7 @@ class _AddMealScreenState extends State<AddMealScreen>
                               );
                             } else if (state is FoodFailedState) {
                               return ErrorDialog(
-                                errorText: S
-                                    .of(context)
-                                    .errorFetchingProductData,
+                                errorText: S.of(context).errorFetchingProductData,
                                 onRefreshPressed: _onFoodRefreshButtonPressed,
                               );
                             } else {
@@ -255,12 +239,14 @@ class _AddMealScreenState extends State<AddMealScreen>
     List<FavoriteFoodEntity> favorites,
     List<MealEntity> meals,
     bool remoteSourceEmpty,
-    bool usesImperialUnits,
-  ) {
+    bool usesImperialUnits, {
+    List<MealEntity> similar = const [],
+  }) {
+    final similarCount = similar.isEmpty ? 0 : similar.length + 1;
     return Semantics(
       identifier: 'add-meal-results',
       child: ListView.builder(
-        itemCount: favorites.length + meals.length + (remoteSourceEmpty ? 1 : 0),
+        itemCount: favorites.length + meals.length + similarCount + (remoteSourceEmpty ? 1 : 0),
         itemBuilder: (context, index) {
           if (index < favorites.length) {
             final favorite = favorites[index];
@@ -273,6 +259,28 @@ class _AddMealScreenState extends State<AddMealScreen>
             );
           }
           final mealIndex = index - favorites.length;
+          if (mealIndex >= meals.length && similarCount > 0) {
+            final similarIndex = mealIndex - meals.length;
+            if (similarIndex == 0) {
+              return Semantics(
+                identifier: 'add-meal-similar-results',
+                header: true,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(8, 12, 8, 4),
+                  child: Text(S.of(context).searchSimilarResultsLabel, style: Theme.of(context).textTheme.titleMedium),
+                ),
+              );
+            }
+            if (similarIndex <= similar.length) {
+              return MealItemCard(
+                day: _day,
+                mealEntity: similar[similarIndex - 1],
+                addMealType: _mealType,
+                usesImperialUnits: usesImperialUnits,
+              );
+            }
+            return const NoResultsWidget();
+          }
           if (mealIndex == meals.length) return const NoResultsWidget();
           return MealItemCard(
             day: _day,
@@ -303,11 +311,7 @@ class _AddMealScreenState extends State<AddMealScreen>
         if (isValidBarcodeCheckDigit(trimmed)) {
           Navigator.of(context).pushNamed(
             NavigationOptions.scannerRoute,
-            arguments: ScannerScreenArguments(
-              _day,
-              _mealType.getIntakeType(),
-              initialBarcode: trimmed,
-            ),
+            arguments: ScannerScreenArguments(_day, _mealType.getIntakeType(), initialBarcode: trimmed),
           );
           return;
         }
@@ -332,8 +336,7 @@ class _AddMealScreenState extends State<AddMealScreen>
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (sheetContext) =>
-          QuickAddBottomSheet(intakeType: _mealType.getIntakeType(), day: _day),
+      builder: (sheetContext) => QuickAddBottomSheet(intakeType: _mealType.getIntakeType(), day: _day),
     );
   }
 
@@ -365,12 +368,7 @@ class _AddMealScreenState extends State<AddMealScreen>
   void _openEditMealScreen(bool usesImperialUnits) {
     Navigator.of(context).pushNamed(
       NavigationOptions.editMealRoute,
-      arguments: EditMealScreenArguments(
-        _day,
-        MealEntity.empty(),
-        _mealType.getIntakeType(),
-        usesImperialUnits,
-      ),
+      arguments: EditMealScreenArguments(_day, MealEntity.empty(), _mealType.getIntakeType(), usesImperialUnits),
     );
   }
 }

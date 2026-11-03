@@ -15,7 +15,7 @@ class OFFConst {
   // We fetch a larger relevance-ordered candidate pool than we display so the
   // repository can re-rank it (fusing relevance position with popularity_key)
   // before trimming to the shown results (25, see
-  // ProductsRepository._searchResultLimit). A bare relevance page buries
+  // ProductsRepository.searchPoolLimit). A bare relevance page buries
   // popular, well-maintained products under near-duplicate and sparse
   // entries. 2x the shown limit is enough headroom for that re-rank to
   // matter — the fusion score's relevance term makes it very unlikely for a

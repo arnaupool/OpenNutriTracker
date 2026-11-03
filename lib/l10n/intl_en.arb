@@ -1809,5 +1809,6 @@
   "favoritesEmpty": "No favorites yet. Tap the star on any food to save a copy, or create one by hand.",
   "favoritesNoMatch": "No favorites match your search.",
   "favoriteViewOriginal": "View original product",
-  "favoriteOriginalFailed": "Could not load the original product."
+  "favoriteOriginalFailed": "Could not load the original product.",
+  "searchSimilarResultsLabel": "Similar results"
 }

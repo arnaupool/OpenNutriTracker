@@ -2633,5 +2633,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "favoritesNoMatch": MessageLookupByLibrary.simpleMessage("Ningún favorito coincide con la búsqueda."),
         "favoriteViewOriginal": MessageLookupByLibrary.simpleMessage("Ver producto original"),
         "favoriteOriginalFailed": MessageLookupByLibrary.simpleMessage("No se pudo cargar el producto original."),
+        "searchSimilarResultsLabel": MessageLookupByLibrary.simpleMessage("Resultados parecidos"),
       };
 }

@@ -14,12 +14,7 @@ import 'package:opennutritracker/features/add_meal/data/repository/products_repo
 // [atwaterConsistent] false declares 100 kcal against macros that imply ~33,
 // which is physically plausible (passes _keepIfConsistent) but Atwater-
 // incoherent (>25% energy gap), so it should be demoted in ranking.
-OFFProductDTO _p(
-  String name, {
-  num? popularity,
-  bool atwaterConsistent = true,
-  List<String>? countries,
-}) =>
+OFFProductDTO _p(String name, {num? popularity, bool atwaterConsistent = true, List<String>? countries}) =>
     OFFProductDTO(
       code: name,
       product_name: name,
@@ -64,8 +59,7 @@ class _FakeOffDataSource extends OFFDataSource {
   final OFFWordResponseDTO response;
   _FakeOffDataSource(this.response);
   @override
-  Future<OFFWordResponseDTO> fetchSearchWordResults(String searchString) async =>
-      response;
+  Future<OFFWordResponseDTO> fetchSearchWordResults(String searchString) async => response;
 }
 
 ProductsRepository _repoReturning(List<OFFProductDTO> productsInRelevanceOrder) {
@@ -80,10 +74,8 @@ ProductsRepository _repoReturning(List<OFFProductDTO> productsInRelevanceOrder) 
 }
 
 void main() {
-  group('ProductsRepository OFF search ranking (relevance + popularity fusion)',
-      () {
-    test(
-        'a popular product ranked low by relevance floats above a more-relevant '
+  group('ProductsRepository OFF search ranking (relevance + popularity fusion)', () {
+    test('a popular product ranked low by relevance floats above a more-relevant '
         'but unpopular one', () async {
       final repo = _repoReturning([
         _p('rel0-unpopular', popularity: 0),
@@ -99,7 +91,8 @@ void main() {
       expect(
         names.indexOf('rel3-very-popular'),
         lessThan(names.indexOf('rel2-unpopular')),
-        reason: 'popularity should lift the popular item above a more-relevant '
+        reason:
+            'popularity should lift the popular item above a more-relevant '
             'but unpopular one',
       );
     });
@@ -118,8 +111,7 @@ void main() {
       expect(names.indexOf('top-relevance'), lessThan(2));
     });
 
-    test('null popularity_key (sparse entries) sinks below scanned products',
-        () async {
+    test('null popularity_key (sparse entries) sinks below scanned products', () async {
       final repo = _repoReturning([
         _p('sparse-a'), // null popularity
         _p('sparse-b'), // null popularity
@@ -134,8 +126,7 @@ void main() {
       );
     });
 
-    test(
-        'an Atwater-incoherent product is demoted below coherent ones even '
+    test('an Atwater-incoherent product is demoted below coherent ones even '
         'when it is popular and highly relevant', () async {
       final repo = _repoReturning([
         _p('incoherent-but-popular', popularity: 9000, atwaterConsistent: false),
@@ -149,16 +140,26 @@ void main() {
       // Despite top relevance and the highest popularity, the incoherent entry
       // sinks to the bottom because its declared kcal doesn't match its macros.
       expect(names.last, 'incoherent-but-popular');
-      expect(names.indexOf('coherent-a'),
-          lessThan(names.indexOf('incoherent-but-popular')));
+      expect(names.indexOf('coherent-a'), lessThan(names.indexOf('incoherent-but-popular')));
     });
 
-    test('result list is trimmed to the display limit', () async {
-      final many = List.generate(60, (i) => _p('item$i', popularity: i));
+    test('result list is trimmed to the candidate pool limit', () async {
+      final many = List.generate(150, (i) => _p('item$i', popularity: i));
       final repo = _repoReturning(many);
 
       final result = await repo.getOFFProductsByString('q');
-      expect(result.length, lessThanOrEqualTo(25));
+      expect(result.length, ProductsRepository.searchPoolLimit);
+    });
+
+    test('multi-word queries also ask for each word as a brand', () {
+      expect(ProductsRepository.brandQueries('chocolate mercadona'), [
+        'chocolate mercadona',
+        'mercadona AND brands:chocolate',
+        'chocolate AND brands:mercadona',
+      ]);
+      expect(ProductsRepository.brandQueries('tofu'), ['tofu']);
+      expect(ProductsRepository.brandQueries('a b c d'), ['a b c d']);
+      expect(ProductsRepository.brandQueries('x "y"'), ['x "y"']);
     });
 
     // The repository derives the user's country from Platform.localeName; these

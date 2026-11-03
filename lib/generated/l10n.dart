@@ -12718,6 +12718,16 @@ class S {
       args: [],
     );
   }
+
+  /// `Similar results`
+  String get searchSimilarResultsLabel {
+    return Intl.message(
+      "Similar results",
+      name: 'searchSimilarResultsLabel',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

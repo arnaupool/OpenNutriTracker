@@ -1857,5 +1857,6 @@
   "favoritesEmpty": "Encara no tens preferits. Toca l'estrella en qualsevol aliment per a desar-ne una còpia, o crea'n un a mà.",
   "favoritesNoMatch": "Cap preferit coincideix amb la cerca.",
   "favoriteViewOriginal": "Veure el producte original",
-  "favoriteOriginalFailed": "No s'ha pogut carregar el producte original."
+  "favoriteOriginalFailed": "No s'ha pogut carregar el producte original.",
+  "searchSimilarResultsLabel": "Resultats semblants"
 }

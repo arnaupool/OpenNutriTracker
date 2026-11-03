@@ -32,9 +32,7 @@ class _FakeProductsRepository implements ProductsRepository {
   }
 
   @override
-  Future<List<MealEntity>> getFDCFoodsByString(
-    String searchString,
-  ) async {
+  Future<List<MealEntity>> getFDCFoodsByString(String searchString) async {
     if (fdcThrowOn.contains(searchString)) {
       throw Exception('FDC HTTP 429');
     }
@@ -45,9 +43,7 @@ class _FakeProductsRepository implements ProductsRepository {
   // noSuchMethod if anything unexpectedly hits them.
   @override
   dynamic noSuchMethod(Invocation invocation) {
-    throw UnimplementedError(
-      'Unexpected call: ${invocation.memberName}',
-    );
+    throw UnimplementedError('Unexpected call: ${invocation.memberName}');
   }
 }
 
@@ -64,9 +60,7 @@ class _FakeGetIntakeUsecase implements GetIntakeUsecase {
   // Stub everything else — only getRecentIntake is exercised here.
   @override
   dynamic noSuchMethod(Invocation invocation) {
-    throw UnimplementedError(
-      'Unexpected call: ${invocation.memberName}',
-    );
+    throw UnimplementedError('Unexpected call: ${invocation.memberName}');
   }
 }
 
@@ -77,8 +71,7 @@ class _FakeCustomMealDataSource implements CustomMealDataSource {
   List<MealDBO> getAllCustomMeals() => meals;
 
   @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError('Unexpected call: ${invocation.memberName}');
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError('Unexpected call: ${invocation.memberName}');
 }
 
 class _FakeRecipeDataSource implements RecipeDataSource {
@@ -88,8 +81,7 @@ class _FakeRecipeDataSource implements RecipeDataSource {
   List<RecipeDBO> getAllRecipes() => recipes;
 
   @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError('Unexpected call: ${invocation.memberName}');
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError('Unexpected call: ${invocation.memberName}');
 }
 
 class _FakeRemoteSearchCacheDataSource implements RemoteSearchCacheDataSource {
@@ -138,10 +130,11 @@ class _FakeRemoteSearchCacheDataSource implements RemoteSearchCacheDataSource {
 
   @override
   Future<void> cacheFromSearch(Iterable<MealDBO> incoming) async {
+    // One timestamp per page, like the real data source, so the page keeps its order.
+    final pageTs = ++_nextTs;
     for (final m in incoming) {
       final key = m.code ?? m.name;
-      final existingIndex = meals.indexWhere(
-          (e) => e.code == m.code || (m.code == null && e.name == m.name));
+      final existingIndex = meals.indexWhere((e) => e.code == m.code || (m.code == null && e.name == m.name));
       if (existingIndex >= 0) {
         // Refresh data, preserve existing timestamp.
         meals[existingIndex] = m;
@@ -150,15 +143,14 @@ class _FakeRemoteSearchCacheDataSource implements RemoteSearchCacheDataSource {
         meals.add(m);
         cached.add(m);
         if (key != null) {
-          timestamps[key] = ++_nextTs;
+          timestamps[key] = pageTs;
         }
       }
     }
   }
 
   @override
-  MealDBO? getByBarcode(String barcode) =>
-      meals.where((m) => m.code == barcode).firstOrNull;
+  MealDBO? getByBarcode(String barcode) => meals.where((m) => m.code == barcode).firstOrNull;
 
   @override
   Future<void> touch(String code) async {
@@ -167,8 +159,7 @@ class _FakeRemoteSearchCacheDataSource implements RemoteSearchCacheDataSource {
   }
 
   @override
-  dynamic noSuchMethod(Invocation invocation) =>
-      throw UnimplementedError('Unexpected call: ${invocation.memberName}');
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError('Unexpected call: ${invocation.memberName}');
 }
 
 void main() {
@@ -197,18 +188,10 @@ void main() {
     });
 
     test('prepends matching custom meals for OFF search', () async {
-      final customMatch = _meal(
-          code: 'custom-1', name: 'Tofu Bowl', source: MealSourceEntity.custom);
-      final customNoMatch = _meal(
-          code: 'custom-2',
-          name: 'Lentil Soup',
-          source: MealSourceEntity.custom);
-      final offMatchFromHistory = _meal(
-          code: 'off-history',
-          name: 'Tofu Snack',
-          source: MealSourceEntity.off);
-      final offApiResult = _meal(
-          code: 'off-api', name: 'Tofu Product', source: MealSourceEntity.off);
+      final customMatch = _meal(code: 'custom-1', name: 'Tofu Bowl', source: MealSourceEntity.custom);
+      final customNoMatch = _meal(code: 'custom-2', name: 'Lentil Soup', source: MealSourceEntity.custom);
+      final offMatchFromHistory = _meal(code: 'off-history', name: 'Tofu Snack', source: MealSourceEntity.off);
+      final offApiResult = _meal(code: 'off-api', name: 'Tofu Product', source: MealSourceEntity.off);
 
       productsRepository.offResults['tofu'] = [offApiResult];
       getIntakeUsecase.recentIntake = [
@@ -224,20 +207,11 @@ void main() {
     });
 
     test('deduplicates repeated custom meals for FDC search', () async {
-      final customMatch = _meal(
-          code: 'custom-apple',
-          name: 'Apple Mix',
-          source: MealSourceEntity.custom);
-      final fdcApiResult = _meal(
-          code: 'fdc-api',
-          name: 'Apple Nutrition',
-          source: MealSourceEntity.fdc);
+      final customMatch = _meal(code: 'custom-apple', name: 'Apple Mix', source: MealSourceEntity.custom);
+      final fdcApiResult = _meal(code: 'fdc-api', name: 'Apple Nutrition', source: MealSourceEntity.fdc);
 
       productsRepository.fdcResults['apple'] = [fdcApiResult];
-      getIntakeUsecase.recentIntake = [
-        _intake('i1', customMatch),
-        _intake('i2', customMatch),
-      ];
+      getIntakeUsecase.recentIntake = [_intake('i1', customMatch), _intake('i2', customMatch)];
 
       final result = await useCase.searchFDCFoodByString('apple');
 
@@ -246,8 +220,7 @@ void main() {
     });
 
     test('does not query recent intake for blank search strings', () async {
-      final offApiResult = _meal(
-          code: 'off-api', name: 'Any Product', source: MealSourceEntity.off);
+      final offApiResult = _meal(code: 'off-api', name: 'Any Product', source: MealSourceEntity.off);
 
       productsRepository.offResults['   '] = [offApiResult];
 
@@ -259,23 +232,21 @@ void main() {
 
     test('matches custom meals by brand case-insensitively', () async {
       final customBrandMatch = MealEntity(
-          code: 'custom-brand',
-          name: 'Snack',
-          brands: 'Almond Co',
-          thumbnailImageUrl: null,
-          mainImageUrl: null,
-          url: null,
-          mealQuantity: null,
-          mealUnit: 'g',
-          servingQuantity: null,
-          servingUnit: 'g',
-          servingSize: null,
-          nutriments: MealNutrimentsEntity.empty(),
-          source: MealSourceEntity.custom);
-      final fdcApiResult = _meal(
-          code: 'fdc-api',
-          name: 'Almond Product',
-          source: MealSourceEntity.fdc);
+        code: 'custom-brand',
+        name: 'Snack',
+        brands: 'Almond Co',
+        thumbnailImageUrl: null,
+        mainImageUrl: null,
+        url: null,
+        mealQuantity: null,
+        mealUnit: 'g',
+        servingQuantity: null,
+        servingUnit: 'g',
+        servingSize: null,
+        nutriments: MealNutrimentsEntity.empty(),
+        source: MealSourceEntity.custom,
+      );
+      final fdcApiResult = _meal(code: 'fdc-api', name: 'Almond Product', source: MealSourceEntity.fdc);
 
       productsRepository.fdcResults['ALMOND'] = [fdcApiResult];
       getIntakeUsecase.recentIntake = [_intake('i1', customBrandMatch)];
@@ -286,32 +257,26 @@ void main() {
       expect(result.remoteSourceEmpty, isFalse);
     });
 
-    test('deduplicates custom meals when code is missing by fallback name key',
-        () async {
+    test('deduplicates custom meals when code is missing by fallback name key', () async {
       final customNoCode = MealEntity(
-          code: null,
-          name: 'Peanut Butter',
-          brands: null,
-          thumbnailImageUrl: null,
-          mainImageUrl: null,
-          url: null,
-          mealQuantity: null,
-          mealUnit: 'g',
-          servingQuantity: null,
-          servingUnit: 'g',
-          servingSize: null,
-          nutriments: MealNutrimentsEntity.empty(),
-          source: MealSourceEntity.custom);
-      final offApiResult = _meal(
-          code: 'off-api',
-          name: 'Peanut Product',
-          source: MealSourceEntity.off);
+        code: null,
+        name: 'Peanut Butter',
+        brands: null,
+        thumbnailImageUrl: null,
+        mainImageUrl: null,
+        url: null,
+        mealQuantity: null,
+        mealUnit: 'g',
+        servingQuantity: null,
+        servingUnit: 'g',
+        servingSize: null,
+        nutriments: MealNutrimentsEntity.empty(),
+        source: MealSourceEntity.custom,
+      );
+      final offApiResult = _meal(code: 'off-api', name: 'Peanut Product', source: MealSourceEntity.off);
 
       productsRepository.offResults['peanut'] = [offApiResult];
-      getIntakeUsecase.recentIntake = [
-        _intake('i1', customNoCode),
-        _intake('i2', customNoCode),
-      ];
+      getIntakeUsecase.recentIntake = [_intake('i1', customNoCode), _intake('i2', customNoCode)];
 
       final result = await useCase.searchOFFProductsByString('peanut');
 
@@ -319,182 +284,125 @@ void main() {
       expect(result.remoteSourceEmpty, isFalse);
     });
 
-    test(
-      'returns custom meals + remoteSourceEmpty=true when OFF rate-limits',
-      () async {
-        final customMatch = _meal(
-            code: 'custom-tofu',
-            name: 'Tofu Bowl',
-            source: MealSourceEntity.custom);
+    test('returns custom meals + remoteSourceEmpty=true when OFF rate-limits', () async {
+      final customMatch = _meal(code: 'custom-tofu', name: 'Tofu Bowl', source: MealSourceEntity.custom);
 
-        productsRepository.offThrowOn.add('tofu');
-        getIntakeUsecase.recentIntake = [_intake('i1', customMatch)];
+      productsRepository.offThrowOn.add('tofu');
+      getIntakeUsecase.recentIntake = [_intake('i1', customMatch)];
 
-        final result = await useCase.searchOFFProductsByString('tofu');
+      final result = await useCase.searchOFFProductsByString('tofu');
 
-        expect(result.meals, [customMatch]);
-        expect(result.remoteSourceEmpty, isTrue);
-      },
-    );
+      expect(result.meals, [customMatch]);
+      expect(result.remoteSourceEmpty, isTrue);
+    });
 
-    test(
-      'returns custom meals + remoteSourceEmpty=true when FDC rate-limits',
-      () async {
-        final customMatch = _meal(
-            code: 'custom-apple',
-            name: 'Apple Mix',
-            source: MealSourceEntity.custom);
+    test('returns custom meals + remoteSourceEmpty=true when FDC rate-limits', () async {
+      final customMatch = _meal(code: 'custom-apple', name: 'Apple Mix', source: MealSourceEntity.custom);
 
-        productsRepository.fdcThrowOn.add('apple');
-        getIntakeUsecase.recentIntake = [_intake('i1', customMatch)];
+      productsRepository.fdcThrowOn.add('apple');
+      getIntakeUsecase.recentIntake = [_intake('i1', customMatch)];
 
-        final result = await useCase.searchFDCFoodByString('apple');
+      final result = await useCase.searchFDCFoodByString('apple');
 
-        expect(result.meals, [customMatch]);
-        expect(result.remoteSourceEmpty, isTrue);
-      },
-    );
+      expect(result.meals, [customMatch]);
+      expect(result.remoteSourceEmpty, isTrue);
+    });
 
-    test(
-      'returns empty meals + remoteSourceEmpty=true when remote fails and no '
-      'custom meals match',
-      () async {
-        productsRepository.offThrowOn.add('xyzzy');
-        getIntakeUsecase.recentIntake = const [];
+    test('returns empty meals + remoteSourceEmpty=true when remote fails and no '
+        'custom meals match', () async {
+      productsRepository.offThrowOn.add('xyzzy');
+      getIntakeUsecase.recentIntake = const [];
 
-        final result = await useCase.searchOFFProductsByString('xyzzy');
+      final result = await useCase.searchOFFProductsByString('xyzzy');
 
-        expect(result.meals, isEmpty);
-        expect(result.remoteSourceEmpty, isTrue);
-      },
-    );
+      expect(result.meals, isEmpty);
+      expect(result.remoteSourceEmpty, isTrue);
+    });
 
-    test(
-      'remoteSourceEmpty=true when remote returns an empty list (not just on '
-      'failure)',
-      () async {
-        final customMatch = _meal(
-            code: 'custom-tofu',
-            name: 'Tofu Bowl',
-            source: MealSourceEntity.custom);
+    test('remoteSourceEmpty=true when remote returns an empty list (not just on '
+        'failure)', () async {
+      final customMatch = _meal(code: 'custom-tofu', name: 'Tofu Bowl', source: MealSourceEntity.custom);
 
-        // No offResults entry for 'tofu' → fake returns []
-        getIntakeUsecase.recentIntake = [_intake('i1', customMatch)];
+      // No offResults entry for 'tofu' → fake returns []
+      getIntakeUsecase.recentIntake = [_intake('i1', customMatch)];
 
-        final result = await useCase.searchOFFProductsByString('tofu');
+      final result = await useCase.searchOFFProductsByString('tofu');
 
-        expect(result.meals, [customMatch]);
-        expect(result.remoteSourceEmpty, isTrue);
-      },
-    );
+      expect(result.meals, [customMatch]);
+      expect(result.remoteSourceEmpty, isTrue);
+    });
 
-    test(
-      'surfaces custom meals from the box even when never logged as intake '
-      '(regression: CSV-imported meals must appear in search before being '
-      'logged for the first time)',
-      () async {
-        // Imported via CSV — sits in the custom-meal box, never logged.
-        customMealDataSource.meals.add(_customMealDbo(
-          code: 'custom-banana',
-          name: 'Banana',
-        ));
-        // Intake history is empty (e.g. fresh app or airplane mode).
-        getIntakeUsecase.recentIntake = const [];
-        // Remote unavailable too — covers the airplane-mode case explicitly.
-        productsRepository.offThrowOn.add('banana');
+    test('surfaces custom meals from the box even when never logged as intake '
+        '(regression: CSV-imported meals must appear in search before being '
+        'logged for the first time)', () async {
+      // Imported via CSV — sits in the custom-meal box, never logged.
+      customMealDataSource.meals.add(_customMealDbo(code: 'custom-banana', name: 'Banana'));
+      // Intake history is empty (e.g. fresh app or airplane mode).
+      getIntakeUsecase.recentIntake = const [];
+      // Remote unavailable too — covers the airplane-mode case explicitly.
+      productsRepository.offThrowOn.add('banana');
 
-        final result = await useCase.searchOFFProductsByString('banana');
+      final result = await useCase.searchOFFProductsByString('banana');
 
-        expect(result.meals, hasLength(1));
-        expect(result.meals.single.name, 'Banana');
-        expect(result.meals.single.source, MealSourceEntity.custom);
-        expect(result.remoteSourceEmpty, isTrue);
-      },
-    );
+      expect(result.meals, hasLength(1));
+      expect(result.meals.single.name, 'Banana');
+      expect(result.meals.single.source, MealSourceEntity.custom);
+      expect(result.remoteSourceEmpty, isTrue);
+    });
 
-    test(
-      'deduplicates a custom meal that appears in both the box and intake '
-      'history',
-      () async {
-        final inBoth = _meal(
-            code: 'shared-1',
-            name: 'Tofu Bowl',
-            source: MealSourceEntity.custom);
-        customMealDataSource.meals.add(_customMealDbo(
-          code: 'shared-1',
-          name: 'Tofu Bowl',
-        ));
-        getIntakeUsecase.recentIntake = [_intake('i1', inBoth)];
+    test('deduplicates a custom meal that appears in both the box and intake '
+        'history', () async {
+      final inBoth = _meal(code: 'shared-1', name: 'Tofu Bowl', source: MealSourceEntity.custom);
+      customMealDataSource.meals.add(_customMealDbo(code: 'shared-1', name: 'Tofu Bowl'));
+      getIntakeUsecase.recentIntake = [_intake('i1', inBoth)];
 
-        final result = await useCase.searchOFFProductsByString('tofu');
+      final result = await useCase.searchOFFProductsByString('tofu');
 
-        expect(result.meals, hasLength(1));
-        expect(result.meals.single.code, 'shared-1');
-      },
-    );
+      expect(result.meals, hasLength(1));
+      expect(result.meals.single.code, 'shared-1');
+    });
 
     // Cache: read-side
-    test(
-      'surfaces cached OFF results when the remote source is empty',
-      () async {
-        cachedOffMealDataSource.meals.add(_offCacheDbo(
-          code: 'off-cached-1',
-          name: 'Cached Banana',
-        ));
-        // No remote results, no failure.
-        productsRepository.offResults['banana'] = const [];
+    test('surfaces cached OFF results when the remote source is empty', () async {
+      cachedOffMealDataSource.meals.add(_offCacheDbo(code: 'off-cached-1', name: 'Cached Banana'));
+      // No remote results, no failure.
+      productsRepository.offResults['banana'] = const [];
 
-        final result = await useCase.searchOFFProductsByString('banana');
+      final result = await useCase.searchOFFProductsByString('banana');
 
-        expect(result.meals, hasLength(1));
-        expect(result.meals.single.name, 'Cached Banana');
-        expect(result.meals.single.source, MealSourceEntity.off);
-        expect(result.remoteSourceEmpty, isTrue);
-      },
-    );
+      expect(result.meals, hasLength(1));
+      expect(result.meals.single.name, 'Cached Banana');
+      expect(result.meals.single.source, MealSourceEntity.off);
+      expect(result.remoteSourceEmpty, isTrue);
+    });
 
-    test(
-      'surfaces cached OFF results in airplane mode (remote throws)',
-      () async {
-        cachedOffMealDataSource.meals.add(_offCacheDbo(
-          code: 'off-cached-1',
-          name: 'Cached Banana',
-        ));
-        productsRepository.offThrowOn.add('banana');
+    test('surfaces cached OFF results in airplane mode (remote throws)', () async {
+      cachedOffMealDataSource.meals.add(_offCacheDbo(code: 'off-cached-1', name: 'Cached Banana'));
+      productsRepository.offThrowOn.add('banana');
 
-        final result = await useCase.searchOFFProductsByString('banana');
+      final result = await useCase.searchOFFProductsByString('banana');
 
-        expect(result.meals.map((m) => m.name), contains('Cached Banana'));
-        expect(result.remoteSourceEmpty, isTrue);
-      },
-    );
+      expect(result.meals.map((m) => m.name), contains('Cached Banana'));
+      expect(result.remoteSourceEmpty, isTrue);
+    });
 
-    test(
-      'cache-first ordering deduplicates cached + remote entries with the '
-      'same code (only one entry surfaces, position determined by the cache)',
-      () async {
-        cachedOffMealDataSource.meals.add(_offCacheDbo(
-          code: 'off-1',
-          name: 'Tofu',
-        ));
-        productsRepository.offResults['tofu'] = [
-          _meal(
-              code: 'off-1',
-              name: 'Tofu Fresh Name',
-              source: MealSourceEntity.off),
-        ];
+    test('cache-first ordering deduplicates cached + remote entries with the '
+        'same code (only one entry surfaces, position determined by the cache)', () async {
+      cachedOffMealDataSource.meals.add(_offCacheDbo(code: 'off-1', name: 'Tofu'));
+      productsRepository.offResults['tofu'] = [
+        _meal(code: 'off-1', name: 'Tofu Fresh Name', source: MealSourceEntity.off),
+      ];
 
-        final result = await useCase.searchOFFProductsByString('tofu');
+      final result = await useCase.searchOFFProductsByString('tofu');
 
-        // Single entry, identified by code (dedup worked). The data
-        // surfaced is whatever cacheFromSearch left in the cache box —
-        // by design it refreshes data on existing entries while
-        // preserving the timestamp, so the user sees the freshest
-        // information without losing their position-in-list.
-        expect(result.meals, hasLength(1));
-        expect(result.meals.single.code, 'off-1');
-      },
-    );
+      // Single entry, identified by code (dedup worked). The data
+      // surfaced is whatever cacheFromSearch left in the cache box —
+      // by design it refreshes data on existing entries while
+      // preserving the timestamp, so the user sees the freshest
+      // information without losing their position-in-list.
+      expect(result.meals, hasLength(1));
+      expect(result.meals.single.code, 'off-1');
+    });
 
     // Cache write-side: search results ARE cached. The 90-day TTL handles
     // unbounded growth — entries the user never selects age out, while
@@ -507,14 +415,11 @@ void main() {
 
       await useCase.searchOFFProductsByString('tofu');
 
-      expect(cachedOffMealDataSource.cached.map((m) => m.code).toList(),
-          ['off-1', 'off-2']);
+      expect(cachedOffMealDataSource.cached.map((m) => m.code).toList(), ['off-1', 'off-2']);
     });
 
     test('successful FDC search results are written to the cache', () async {
-      productsRepository.fdcResults['apple'] = [
-        _meal(code: 'fdc-1', name: 'Apple', source: MealSourceEntity.fdc),
-      ];
+      productsRepository.fdcResults['apple'] = [_meal(code: 'fdc-1', name: 'Apple', source: MealSourceEntity.fdc)];
 
       await useCase.searchFDCFoodByString('apple');
 
@@ -538,115 +443,89 @@ void main() {
       expect(cachedOffMealDataSource.cached, isEmpty);
     });
 
-    test(
-      'a re-search does NOT reset timestamps of items already in the cache '
-      '(regression: previously, bulk-caching wiped the timestamp of a just-'
-      'logged item, breaking the promote-recent ordering)',
-      () async {
-        // User selected banana-b earlier, so its timestamp is high.
-        cachedOffMealDataSource.meals.addAll([
-          _offCacheDbo(code: 'banana-a', name: 'Banana A'),
-          _offCacheDbo(code: 'banana-b', name: 'Banana B'),
-        ]);
-        cachedOffMealDataSource.setTimestamp('banana-a', 100);
-        cachedOffMealDataSource.setTimestamp('banana-b', 999);
+    test('a re-search does NOT reset timestamps of items already in the cache '
+        '(regression: previously, bulk-caching wiped the timestamp of a just-'
+        'logged item, breaking the promote-recent ordering)', () async {
+      // User selected banana-b earlier, so its timestamp is high.
+      cachedOffMealDataSource.meals.addAll([
+        _offCacheDbo(code: 'banana-a', name: 'Banana A'),
+        _offCacheDbo(code: 'banana-b', name: 'Banana B'),
+      ]);
+      cachedOffMealDataSource.setTimestamp('banana-a', 100);
+      cachedOffMealDataSource.setTimestamp('banana-b', 999);
 
-        // Now the user searches "banana" again. Remote returns the same
-        // products. cacheFromSearch must NOT reset banana-b's high
-        // timestamp — it should stay at the top of the cached list.
-        productsRepository.offResults['banana'] = [
-          _meal(code: 'banana-a', name: 'Banana A', source: MealSourceEntity.off),
-          _meal(code: 'banana-b', name: 'Banana B', source: MealSourceEntity.off),
-        ];
+      // Now the user searches "banana" again. Remote returns the same
+      // products. cacheFromSearch must NOT reset banana-b's high
+      // timestamp — it should stay at the top of the cached list.
+      productsRepository.offResults['banana'] = [
+        _meal(code: 'banana-a', name: 'Banana A', source: MealSourceEntity.off),
+        _meal(code: 'banana-b', name: 'Banana B', source: MealSourceEntity.off),
+      ];
 
-        final result = await useCase.searchOFFProductsByString('banana');
+      final result = await useCase.searchOFFProductsByString('banana');
 
-        expect(result.meals.first.code, 'banana-b',
-            reason:
-                'banana-b should still rank first because its timestamp '
-                'was not reset by the new search');
-      },
-    );
+      expect(
+        result.meals.first.code,
+        'banana-b',
+        reason:
+            'banana-b should still rank first because its timestamp '
+            'was not reset by the new search',
+      );
+    });
 
-    test(
-      'recently-touched cached entry sorts above other cached entries '
-      '(simulates the user logging a specific result and seeing it at the '
-      'top of the same search next time)',
-      () async {
-        // Three banana variants in the cache from a previous bulk-search.
-        cachedOffMealDataSource.meals.addAll([
-          _offCacheDbo(code: 'banana-a', name: 'Banana A'),
-          _offCacheDbo(code: 'banana-b', name: 'Banana B'),
-          _offCacheDbo(code: 'banana-c', name: 'Banana C'),
-        ]);
-        // All bulk-cached at the same epoch; user then explicitly logged
-        // banana-b later (touch fires with a higher timestamp).
-        cachedOffMealDataSource.setTimestamp('banana-a', 100);
-        cachedOffMealDataSource.setTimestamp('banana-b', 999);
-        cachedOffMealDataSource.setTimestamp('banana-c', 100);
+    test('recently-touched cached entry sorts above other cached entries '
+        '(simulates the user logging a specific result and seeing it at the '
+        'top of the same search next time)', () async {
+      // Three banana variants in the cache from a previous bulk-search.
+      cachedOffMealDataSource.meals.addAll([
+        _offCacheDbo(code: 'banana-a', name: 'Banana A'),
+        _offCacheDbo(code: 'banana-b', name: 'Banana B'),
+        _offCacheDbo(code: 'banana-c', name: 'Banana C'),
+      ]);
+      // All bulk-cached at the same epoch; user then explicitly logged
+      // banana-b later (touch fires with a higher timestamp).
+      cachedOffMealDataSource.setTimestamp('banana-a', 100);
+      cachedOffMealDataSource.setTimestamp('banana-b', 999);
+      cachedOffMealDataSource.setTimestamp('banana-c', 100);
 
-        // Remote returns nothing different — keeps the test focused on
-        // ordering of the cached entries.
-        productsRepository.offResults['banana'] = const [];
+      // Remote returns nothing different — keeps the test focused on
+      // ordering of the cached entries.
+      productsRepository.offResults['banana'] = const [];
 
-        final result = await useCase.searchOFFProductsByString('banana');
+      final result = await useCase.searchOFFProductsByString('banana');
 
-        // banana-b (the user-selected one) should be first.
-        expect(result.meals.map((m) => m.code).toList(),
-            ['banana-b', 'banana-a', 'banana-c']);
-      },
-    );
+      // banana-b (the user-selected one) should be first.
+      expect(result.meals.map((m) => m.code).toList(), ['banana-b', 'banana-a', 'banana-c']);
+    });
 
     // The cache box holds both OFF and FDC entries. Each tab must only
     // surface cached entries from its own source, otherwise a prior search
     // on one tab leaks results into the other (e.g. branded OFF products
     // appearing in the FDC "Food" tab).
-    test(
-      'cached OFF product does not leak into the FDC search',
-      () async {
-        cachedOffMealDataSource.meals.add(
-          _offCacheDbo(code: 'off-cached', name: 'Branded Chicken Pie'),
-        );
-        // FDC remote returns its own match for the same query.
-        productsRepository.fdcResults['chicken'] = [
-          _meal(
-              code: 'fdc-1',
-              name: 'Chicken, raw',
-              source: MealSourceEntity.fdc),
-        ];
+    test('cached OFF product does not leak into the FDC search', () async {
+      cachedOffMealDataSource.meals.add(_offCacheDbo(code: 'off-cached', name: 'Branded Chicken Pie'));
+      // FDC remote returns its own match for the same query.
+      productsRepository.fdcResults['chicken'] = [
+        _meal(code: 'fdc-1', name: 'Chicken, raw', source: MealSourceEntity.fdc),
+      ];
 
-        final result = await useCase.searchFDCFoodByString('chicken');
+      final result = await useCase.searchFDCFoodByString('chicken');
 
-        expect(result.meals.map((m) => m.code), ['fdc-1']);
-        expect(
-          result.meals.every((m) => m.source != MealSourceEntity.off),
-          isTrue,
-        );
-      },
-    );
+      expect(result.meals.map((m) => m.code), ['fdc-1']);
+      expect(result.meals.every((m) => m.source != MealSourceEntity.off), isTrue);
+    });
 
-    test(
-      'cached FDC food does not leak into the OFF products search',
-      () async {
-        cachedOffMealDataSource.meals.add(
-          _fdcCacheDbo(code: 'fdc-cached', name: 'Chicken, raw'),
-        );
-        productsRepository.offResults['chicken'] = [
-          _meal(
-              code: 'off-1',
-              name: 'Chicken Pie',
-              source: MealSourceEntity.off),
-        ];
+    test('cached FDC food does not leak into the OFF products search', () async {
+      cachedOffMealDataSource.meals.add(_fdcCacheDbo(code: 'fdc-cached', name: 'Chicken, raw'));
+      productsRepository.offResults['chicken'] = [
+        _meal(code: 'off-1', name: 'Chicken Pie', source: MealSourceEntity.off),
+      ];
 
-        final result = await useCase.searchOFFProductsByString('chicken');
+      final result = await useCase.searchOFFProductsByString('chicken');
 
-        expect(result.meals.map((m) => m.code), ['off-1']);
-        expect(
-          result.meals.every((m) => m.source != MealSourceEntity.fdc),
-          isTrue,
-        );
-      },
-    );
+      expect(result.meals.map((m) => m.code), ['off-1']);
+      expect(result.meals.every((m) => m.source != MealSourceEntity.fdc), isTrue);
+    });
   });
 
   group('SearchProductsUseCase recipes integration', () {
@@ -673,10 +552,8 @@ void main() {
       );
     });
 
-    test('saved recipe matching the search appears with recipe source',
-        () async {
-      recipeDataSource.recipes
-          .add(_recipeDbo(id: 'r-1', name: 'Vanilla Cake'));
+    test('saved recipe matching the search appears with recipe source', () async {
+      recipeDataSource.recipes.add(_recipeDbo(id: 'r-1', name: 'Vanilla Cake'));
       productsRepository.offResults['cake'] = const [];
 
       final result = await useCase.searchOFFProductsByString('cake');
@@ -687,12 +564,9 @@ void main() {
       expect(result.meals.first.code, 'r-1');
     });
 
-    test('recipe and custom meal with the same name do not dedup-collide',
-        () async {
-      recipeDataSource.recipes
-          .add(_recipeDbo(id: 'r-1', name: 'Banana Bread'));
-      customMealDataSource.meals
-          .add(_customMealDbo(code: 'cm-1', name: 'Banana Bread'));
+    test('recipe and custom meal with the same name do not dedup-collide', () async {
+      recipeDataSource.recipes.add(_recipeDbo(id: 'r-1', name: 'Banana Bread'));
+      customMealDataSource.meals.add(_customMealDbo(code: 'cm-1', name: 'Banana Bread'));
       productsRepository.offResults['banana'] = const [];
 
       final result = await useCase.searchOFFProductsByString('banana');
@@ -700,16 +574,12 @@ void main() {
       // Both appear because dedup is namespaced by source.
       expect(result.meals, hasLength(2));
       final sources = result.meals.map((m) => m.source).toSet();
-      expect(sources,
-          containsAll([MealSourceEntity.custom, MealSourceEntity.recipe]));
+      expect(sources, containsAll([MealSourceEntity.custom, MealSourceEntity.recipe]));
     });
 
     test('recipe outranks OFF cache hit for the same search string', () async {
-      recipeDataSource.recipes
-          .add(_recipeDbo(id: 'r-1', name: 'Tomato Soup'));
-      cachedOffMealDataSource.meals.add(
-        _offCacheDbo(code: 'off-1', name: 'Tomato Soup canned'),
-      );
+      recipeDataSource.recipes.add(_recipeDbo(id: 'r-1', name: 'Tomato Soup'));
+      cachedOffMealDataSource.meals.add(_offCacheDbo(code: 'off-1', name: 'Tomato Soup canned'));
       productsRepository.offResults['tomato'] = const [];
 
       final result = await useCase.searchOFFProductsByString('tomato');
@@ -735,8 +605,7 @@ void main() {
         _FakeRemoteSearchCacheDataSource(),
         _FakeRecipeDataSource(),
         BedcaDataSource(
-          loader: () async =>
-              '{"foods":[{"id":7,"es":"Lentejas, secas","en":"Lentil, dried","n":{"kcal":314}}]}',
+          loader: () async => '{"foods":[{"id":7,"es":"Lentejas, secas","en":"Lentil, dried","n":{"kcal":314}}]}',
         ),
       );
     });
@@ -766,13 +635,112 @@ void main() {
       final result = await useCase.searchOFFProductsByString('lentejas');
       expect(result.meals, isEmpty);
     });
+
+    group('all-words matching', () {
+      late _FakeGetIntakeUsecase getIntakeUsecase;
+
+      setUp(() {
+        getIntakeUsecase = _FakeGetIntakeUsecase();
+        useCase = SearchProductsUseCase(
+          productsRepository,
+          getIntakeUsecase,
+          _FakeCustomMealDataSource(),
+          _FakeRemoteSearchCacheDataSource(),
+          _FakeRecipeDataSource(),
+          BedcaDataSource(loader: () async => '{"foods":[]}'),
+        );
+      });
+      MealEntity off(String code, String name, {String? brands}) => MealEntity(
+        code: code,
+        name: name,
+        brands: brands,
+        thumbnailImageUrl: null,
+        mainImageUrl: null,
+        url: null,
+        mealQuantity: null,
+        mealUnit: 'g',
+        servingQuantity: null,
+        servingUnit: 'g',
+        servingSize: null,
+        nutriments: MealNutrimentsEntity.empty(),
+        source: MealSourceEntity.off,
+      );
+
+      test('"chocolate mercadona" never ranks non-chocolate items in the main section', () async {
+        final byName = off('1', 'Madalenas chocolate mercadona');
+        final byBrand = off('2', 'Chocolate 85%', brands: 'Mercadona');
+        final noChocolate = off('3', 'Langostino mercadona');
+        final noChocolate2 = off('4', 'Palmera de cacao', brands: 'Mercadona');
+        final onlyChocolate = off('5', 'Chocolate negro', brands: 'Lindt');
+        productsRepository.offResults['chocolate mercadona'] = [
+          noChocolate,
+          byBrand,
+          noChocolate2,
+          onlyChocolate,
+          byName,
+        ];
+
+        final result = await useCase.searchOFFProductsByString('chocolate mercadona');
+
+        // Name with every word first, then name and brand; the rest is out.
+        expect(result.meals, [byName, byBrand]);
+        expect(result.similar, isEmpty);
+      });
+
+      test('ignores accents and case', () async {
+        final platano = off('1', 'PLÁTANO de Canarias');
+        productsRepository.offResults['platano canarias'] = [platano];
+        final result = await useCase.searchOFFProductsByString('platano canarias');
+        expect(result.meals, [platano]);
+      });
+
+      test('keeps the repository order inside each group', () async {
+        final a = off('a', 'Leche entera');
+        final b = off('b', 'Leche', brands: 'Entera SA');
+        final c = off('c', 'Leche entera ecologica');
+        productsRepository.offResults['leche entera'] = [b, a, c];
+        final result = await useCase.searchOFFProductsByString('leche entera');
+        expect(result.meals, [a, c, b]);
+      });
+
+      test('custom meals come before the OFF results', () async {
+        final custom = _meal(code: 'c', name: 'Chocolate casero mercadona', source: MealSourceEntity.custom);
+        final remote = off('1', 'Chocolate mercadona');
+        productsRepository.offResults['chocolate mercadona'] = [remote];
+        getIntakeUsecase.recentIntake = [_intake('i1', custom)];
+        final result = await useCase.searchOFFProductsByString('chocolate mercadona');
+        expect(result.meals, [custom, remote]);
+      });
+
+      test('offers partial matches as similar results when no product has every word', () async {
+        final one = off('1', 'Langostino mercadona');
+        final two = off('2', 'Chocolate negro', brands: 'Lindt');
+        final other = off('3', 'Pan integral');
+        productsRepository.offResults['chocolate mercadona'] = [one, other, two];
+        final result = await useCase.searchOFFProductsByString('chocolate mercadona');
+        expect(result.meals, isEmpty);
+        expect(result.similar, [one, two]);
+      });
+
+      test('the number of results is limited', () async {
+        productsRepository.offResults['tofu'] = List.generate(40, (i) => off('t$i', 'Tofu $i'));
+        final result = await useCase.searchOFFProductsByString('tofu');
+        expect(result.meals.length, SearchProductsUseCase.displayLimit);
+      });
+
+      test('USDA keeps its own order and is not filtered by words', () async {
+        final first = _meal(code: 'f1', name: 'Milk, whole', source: MealSourceEntity.fdc);
+        final second = _meal(code: 'f2', name: 'Cream', source: MealSourceEntity.fdc);
+        productsRepository.fdcResults['leche milk'] = [first, second];
+        final result = await useCase.searchFDCFoodByString('leche milk');
+        expect(result.meals, [first, second]);
+        expect(result.similar, isEmpty);
+      });
+    });
   });
 }
 
-RecipeDBO _recipeDbo({
-  required String id,
-  required String name,
-}) {
+RecipeDBO _recipeDbo({required String id, required String name}) {
   return RecipeDBO(
     id: id,
     name: name,
@@ -805,11 +773,7 @@ MealDBO _offCacheDbo({required String code, required String name}) =>
 MealDBO _fdcCacheDbo({required String code, required String name}) =>
     _meaDboWithSource(code: code, name: name, source: MealSourceDBO.fdc);
 
-MealDBO _meaDboWithSource({
-  required String code,
-  required String name,
-  required MealSourceDBO source,
-}) {
+MealDBO _meaDboWithSource({required String code, required String name, required MealSourceDBO source}) {
   return MealDBO(
     code: code,
     name: name,
@@ -835,11 +799,7 @@ MealDBO _meaDboWithSource({
   );
 }
 
-MealEntity _meal({
-  required String code,
-  required String name,
-  required MealSourceEntity source,
-}) {
+MealEntity _meal({required String code, required String name, required MealSourceEntity source}) {
   return MealEntity(
     code: code,
     name: name,

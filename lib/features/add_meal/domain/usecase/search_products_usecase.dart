@@ -1,4 +1,5 @@
 import 'package:logging/logging.dart';
+import 'package:opennutritracker/core/utils/search_match.dart';
 import 'package:opennutritracker/core/data/data_source/remote_search_cache_data_source.dart';
 import 'package:opennutritracker/core/data/data_source/custom_meal_data_source.dart';
 import 'package:opennutritracker/core/data/data_source/recipe_data_source.dart';
@@ -19,13 +20,21 @@ class SearchProductsResult {
   final List<MealEntity> meals;
   final bool remoteSourceEmpty;
 
-  const SearchProductsResult({
-    required this.meals,
-    required this.remoteSourceEmpty,
-  });
+  /// Open Food Facts products that match only some of the query words, for
+  /// the "similar results" section. Filled only when no remote or cached
+  /// product contains every word.
+  final List<MealEntity> similar;
+
+  const SearchProductsResult({required this.meals, required this.remoteSourceEmpty, this.similar = const []});
 }
 
 class SearchProductsUseCase {
+  /// Open Food Facts products shown in the main section.
+  static const displayLimit = 25;
+
+  /// Partial matches shown under "similar results".
+  static const similarLimit = 10;
+
   final _log = Logger('SearchProductsUseCase');
 
   final ProductsRepository _productsRepository;
@@ -47,52 +56,34 @@ class SearchProductsUseCase {
   /// [skipRemote] limits the search to local matches (custom meals, recipes,
   /// recent intake, cached results) and does not touch the network — used for
   /// short as-you-type queries.
-  Future<SearchProductsResult> searchOFFProductsByString(
-    String searchString, {
-    bool skipRemote = false,
-  }) async {
+  Future<SearchProductsResult> searchOFFProductsByString(String searchString, {bool skipRemote = false}) async {
     if (skipRemote) {
-      return _buildResult(searchString, const [],
-          remoteSkipped: true, cacheSource: MealSourceEntity.off);
+      return _buildResult(searchString, const [], remoteSkipped: true, cacheSource: MealSourceEntity.off);
     }
-    final remote = await _safeRemoteCall(
-      'OFF',
-      () => _productsRepository.getOFFProductsByString(searchString),
-    );
+    final remote = await _safeRemoteCall('OFF', () => _productsRepository.getOFFProductsByString(searchString));
     // Cache the result page. Untouched entries age out after 90 days
     // (RemoteSearchCacheDataSource.pruneStale), so this can't grow
     // unbounded. Items the user actually selects (logs an intake of)
     // get their timestamp refreshed and stay until 90 days after the
     // last selection.
     await _cacheRemoteResults(remote);
-    return _buildResult(searchString, remote,
-        cacheSource: MealSourceEntity.off);
+    return _buildResult(searchString, remote, cacheSource: MealSourceEntity.off);
   }
 
-  Future<SearchProductsResult> searchFDCFoodByString(
-    String searchString, {
-    bool skipRemote = false,
-  }) async {
+  Future<SearchProductsResult> searchFDCFoodByString(String searchString, {bool skipRemote = false}) async {
     // BEDCA (Spanish generic foods) ships with the app, so it is searched
     // even for short as-you-type queries and when FDC is unreachable. Its
     // matches go ahead of the USDA ones: Spanish names for Spanish foods.
     final bedca = await _safeRemoteCall(
       'BEDCA',
-      () async => (await _bedcaDataSource.search(searchString))
-          .map(MealEntity.fromBedcaFood)
-          .toList(),
+      () async => (await _bedcaDataSource.search(searchString)).map(MealEntity.fromBedcaFood).toList(),
     );
     if (skipRemote) {
-      return _buildResult(searchString, bedca,
-          remoteSkipped: bedca.isEmpty, cacheSource: MealSourceEntity.fdc);
+      return _buildResult(searchString, bedca, remoteSkipped: bedca.isEmpty, cacheSource: MealSourceEntity.fdc);
     }
-    final remote = await _safeRemoteCall(
-      'FDC',
-      () => _productsRepository.getFDCFoodsByString(searchString),
-    );
+    final remote = await _safeRemoteCall('FDC', () => _productsRepository.getFDCFoodsByString(searchString));
     await _cacheRemoteResults(remote);
-    return _buildResult(searchString, [...bedca, ...remote],
-        cacheSource: MealSourceEntity.fdc);
+    return _buildResult(searchString, [...bedca, ...remote], cacheSource: MealSourceEntity.fdc);
   }
 
   Future<void> _cacheRemoteResults(List<MealEntity> remote) async {
@@ -102,26 +93,18 @@ class SearchProductsUseCase {
     // earlier (its timestamp got bumped via the intent path) keeps that
     // newer timestamp even when a subsequent search re-includes it,
     // letting it remain at the top of the cache-sorted list.
-    await _cachedOffMealDataSource
-        .cacheFromSearch(remote.map(MealDBO.fromMealEntity));
+    await _cachedOffMealDataSource.cacheFromSearch(remote.map(MealDBO.fromMealEntity));
   }
 
   /// Run a remote search and fall back to an empty list when the source
   /// throws (rate limit, timeout, network failure, etc). The caller still
   /// receives matching custom meals from local intake history even when the
   /// remote API is unavailable.
-  Future<List<MealEntity>> _safeRemoteCall(
-    String sourceLabel,
-    Future<List<MealEntity>> Function() call,
-  ) async {
+  Future<List<MealEntity>> _safeRemoteCall(String sourceLabel, Future<List<MealEntity>> Function() call) async {
     try {
       return await call();
     } catch (exception, stack) {
-      _log.warning(
-        '$sourceLabel search failed; falling back to custom-meal results only',
-        exception,
-        stack,
-      );
+      _log.warning('$sourceLabel search failed; falling back to custom-meal results only', exception, stack);
       return const [];
     }
   }
@@ -137,12 +120,9 @@ class SearchProductsUseCase {
     // hint while the user is still typing.
     final remoteSourceEmpty = !remoteSkipped && remoteResults.isEmpty;
 
-    final normalizedSearchString = searchString.trim().toLowerCase();
-    if (normalizedSearchString.isEmpty) {
-      return SearchProductsResult(
-        meals: remoteResults,
-        remoteSourceEmpty: remoteSourceEmpty,
-      );
+    final words = searchWords(searchString);
+    if (words.isEmpty) {
+      return SearchProductsResult(meals: remoteResults, remoteSourceEmpty: remoteSourceEmpty);
     }
 
     // Local sources of matches, in priority order:
@@ -164,20 +144,20 @@ class SearchProductsUseCase {
     final fromCustomMealBox = _customMealDataSource
         .getAllCustomMeals()
         .map(MealEntity.fromMealDBO)
-        .where((meal) => _mealMatchesSearch(meal, normalizedSearchString))
+        .where((meal) => mealContainsAllWords(meal, words))
         .toList();
 
     final fromRecipes = _recipeDataSource
         .getAllRecipes()
         .map((dbo) => RecipeEntity.fromDBO(dbo).toMealEntity())
-        .where((meal) => _mealMatchesSearch(meal, normalizedSearchString))
+        .where((meal) => mealContainsAllWords(meal, words))
         .toList();
 
     final recentIntake = await _getIntakeUsecase.getRecentIntake();
     final fromIntakeHistory = recentIntake
         .map((intake) => intake.meal)
         .where((meal) => meal.source == MealSourceEntity.custom)
-        .where((meal) => _mealMatchesSearch(meal, normalizedSearchString))
+        .where((meal) => mealContainsAllWords(meal, words))
         .toList();
 
     // Sorted with the most recently touched entries first so an item the
@@ -194,15 +174,24 @@ class SearchProductsUseCase {
         .getAllByMostRecentlyTouched()
         .map(MealEntity.fromMealDBO)
         .where((meal) => meal.source == cacheSource)
-        .where((meal) => _mealMatchesSearch(meal, normalizedSearchString))
+        .where((meal) => mealContainsAllWords(meal, words))
         .toList();
 
-    // Cache-first ordering: cached entries appear before fresh remote
-    // results. The dedup helper takes the first occurrence, so a cached
-    // entry wins when its code matches a fresh remote one — keeps the
-    // search list stable from the user's perspective ("the version I
-    // saw yesterday is still at the top"). Fresh remote data still
-    // wins on the per-item refresh path triggered by intake-add.
+    // Open Food Facts: a product must contain every word, in the name or the
+    // brand. Cached and fresh results are ordered together: name with all the
+    // words, then name and brand, keeping the cache-first / fused order
+    // inside each group. USDA keeps its own order (English names).
+    if (cacheSource == MealSourceEntity.off) {
+      final candidates = _deduplicateMeals([...fromCache, ...remoteResults]);
+      final main = rankByMatch(candidates, words).take(displayLimit).toList();
+      final similar = main.isEmpty ? _similar(candidates, words) : const <MealEntity>[];
+      return SearchProductsResult(
+        meals: _deduplicateMeals([...fromCustomMealBox, ...fromRecipes, ...fromIntakeHistory, ...main]),
+        remoteSourceEmpty: remoteSourceEmpty,
+        similar: similar,
+      );
+    }
+
     return SearchProductsResult(
       meals: _deduplicateMeals([
         ...fromCustomMealBox,
@@ -215,10 +204,20 @@ class SearchProductsUseCase {
     );
   }
 
-  bool _mealMatchesSearch(MealEntity meal, String normalizedSearchString) {
-    return (meal.name?.toLowerCase().contains(normalizedSearchString) ??
-            false) ||
-        (meal.brands?.toLowerCase().contains(normalizedSearchString) ?? false);
+  /// Products that contain some of the [words], the ones with more words first.
+  List<MealEntity> _similar(List<MealEntity> candidates, List<String> words) {
+    final scored = <(MealEntity, int)>[];
+    for (final meal in candidates) {
+      final result = matchMeal(meal, words);
+      if (result.match == SearchMatch.partial) scored.add((meal, result.matchedWords));
+    }
+    // List.sort is not stable, so the original index breaks ties.
+    final indexed = scored.indexed.toList()
+      ..sort((a, b) {
+        final byWords = b.$2.$2.compareTo(a.$2.$2);
+        return byWords != 0 ? byWords : a.$1.compareTo(b.$1);
+      });
+    return indexed.take(similarLimit).map((e) => e.$2.$1).toList();
   }
 
   List<MealEntity> _deduplicateMeals(List<MealEntity> meals) {

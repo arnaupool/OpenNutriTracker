@@ -1994,5 +1994,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "favoritesNoMatch": MessageLookupByLibrary.simpleMessage("No favorites match your search."),
         "favoriteViewOriginal": MessageLookupByLibrary.simpleMessage("View original product"),
         "favoriteOriginalFailed": MessageLookupByLibrary.simpleMessage("Could not load the original product."),
+        "searchSimilarResultsLabel": MessageLookupByLibrary.simpleMessage("Similar results"),
       };
 }

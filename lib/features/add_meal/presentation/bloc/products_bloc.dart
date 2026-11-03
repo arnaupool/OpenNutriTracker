@@ -21,32 +21,26 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
 
   String _searchString = "";
 
-  ProductsBloc(this._searchProductUseCase, this._getConfigUsecase, [this._favorites])
-      : super(ProductsInitial()) {
-    on<LoadProductsEvent>(
-      (event, emit) =>
-          _loadProducts(event.searchString, emit, skipRemote: false, force: true),
-    );
+  ProductsBloc(this._searchProductUseCase, this._getConfigUsecase, [this._favorites]) : super(ProductsInitial()) {
+    on<LoadProductsEvent>((event, emit) => _loadProducts(event.searchString, emit, skipRemote: false, force: true));
     on<SearchInputChangedEvent>(
-      (event, emit) => _loadProducts(
-        event.searchString,
-        emit,
-        skipRemote: event.searchString.trim().length < minRemoteQueryLength,
-      ),
+      (event, emit) =>
+          _loadProducts(event.searchString, emit, skipRemote: event.searchString.trim().length < minRemoteQueryLength),
       transformer: debounceRestartable(searchDebounceDuration),
     );
     on<RefreshProductsEvent>((event, emit) async {
       emit(ProductsLoadingState());
       try {
-        final result = await _searchProductUseCase.searchOFFProductsByString(
-          _searchString,
-        );
+        final result = await _searchProductUseCase.searchOFFProductsByString(_searchString);
         final favorites = _matchingFavorites(_searchString);
-        emit(ProductsLoadedState(
-          products: _without(favorites, result.meals),
-          favorites: favorites,
-          remoteSourceEmpty: result.remoteSourceEmpty,
-        ));
+        emit(
+          ProductsLoadedState(
+            products: _without(favorites, result.meals),
+            similar: _without(favorites, result.similar),
+            favorites: favorites,
+            remoteSourceEmpty: result.remoteSourceEmpty,
+          ),
+        );
       } catch (error) {
         log.severe(error);
         emit(ProductsFailedState());
@@ -74,15 +68,13 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
       emit(ProductsLoadingState());
     }
     try {
-      final result = await _searchProductUseCase.searchOFFProductsByString(
-        searchString,
-        skipRemote: skipRemote,
-      );
+      final result = await _searchProductUseCase.searchOFFProductsByString(searchString, skipRemote: skipRemote);
       final config = await _getConfigUsecase.getConfig();
       final favorites = _matchingFavorites(searchString);
       emit(
         ProductsLoadedState(
           products: _without(favorites, result.meals),
+          similar: _without(favorites, result.similar),
           favorites: favorites,
           usesImperialUnits: config.usesImperialUnits,
           remoteSourceEmpty: result.remoteSourceEmpty,
@@ -98,7 +90,6 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
   List<FavoriteFoodEntity> _matchingFavorites(String query) => _favorites?.search(query) ?? const [];
 
   /// [meals] without the products the [favorites] stand for.
-  List<MealEntity> _without(List<FavoriteFoodEntity> favorites, List<MealEntity> meals) => favorites.isEmpty
-      ? meals
-      : meals.where((m) => !favorites.any((f) => favoriteCoversMeal(f, m))).toList();
+  List<MealEntity> _without(List<FavoriteFoodEntity> favorites, List<MealEntity> meals) =>
+      favorites.isEmpty ? meals : meals.where((m) => !favorites.any((f) => favoriteCoversMeal(f, m))).toList();
 }

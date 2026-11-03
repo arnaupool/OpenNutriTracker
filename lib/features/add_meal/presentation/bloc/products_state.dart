@@ -17,6 +17,10 @@ class ProductsLoadingState extends ProductsState {
 class ProductsLoadedState extends ProductsState {
   final List<MealEntity> products;
 
+  /// Products that match only some of the words, shown under "Similar
+  /// results" when none matches them all.
+  final List<MealEntity> similar;
+
   /// Favorites matching the search, shown first with a star.
   final List<FavoriteFoodEntity> favorites;
   final bool usesImperialUnits;
@@ -28,13 +32,14 @@ class ProductsLoadedState extends ProductsState {
 
   const ProductsLoadedState({
     required this.products,
+    this.similar = const [],
     this.favorites = const [],
     this.usesImperialUnits = false,
     this.remoteSourceEmpty = false,
   });
 
   @override
-  List<Object?> get props => [products, favorites, remoteSourceEmpty];
+  List<Object?> get props => [products, similar, favorites, remoteSourceEmpty];
 }
 
 class ProductsFailedState extends ProductsState {
