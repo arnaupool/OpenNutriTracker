@@ -13,6 +13,15 @@
 # never touches and which has been known to exhaust small Docker storage
 # allocations (e.g. Unraid's default docker vDisk) for no reason.
 
+# Photo service (photos-service/): a static Go binary, tested here so a
+# failing test fails the image build.
+FROM golang:1.23-alpine AS photos
+ENV CGO_ENABLED=0
+WORKDIR /src
+COPY photos-service/ ./
+RUN go vet ./... && go test ./... \
+    && go build -trimpath -ldflags="-s -w" -o /out/ont-photos .
+
 FROM debian:bookworm-slim AS build
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -100,3 +109,20 @@ COPY --chmod=755 docker/40-ont-self-signed-cert.sh /docker-entrypoint.d/40-ont-s
 EXPOSE 80 443
 RUN mkdir -p /var/cache/nginx/off-images && chown -R nginx:nginx /var/cache/nginx
 VOLUME /certs
+
+# Account photo storage (photos-service/): nginx proxies /photos-api/ to it
+# on 127.0.0.1:8081. It checks each access token with Supabase Auth, so it
+# gets the same project as the app; both can be overridden at run time with
+# -e SUPABASE_URL=... -e SUPABASE_ANON_KEY=... (the anon key is public: the
+# app bundle carries it too). Photos arrive already encrypted by the app.
+ARG BACKUP_SUPABASE_PROJECT_URL
+ARG BACKUP_SUPABASE_PROJECT_ANON_KEY
+ENV SUPABASE_URL=${BACKUP_SUPABASE_PROJECT_URL} \
+    SUPABASE_ANON_KEY=${BACKUP_SUPABASE_PROJECT_ANON_KEY} \
+    PHOTOS_DIR=/data/photos
+COPY --from=photos /out/ont-photos /usr/local/bin/ont-photos
+COPY --chmod=755 docker/50-ont-photos.sh /docker-entrypoint.d/50-ont-photos.sh
+RUN mkdir -p /data/photos && chmod 700 /data/photos
+# Map this to the host (Unraid: /mnt/user/appdata/opennutritracker/photos),
+# or the photos live only inside the container and an update loses them.
+VOLUME /data/photos

@@ -13,3 +13,7 @@ services:
     restart: unless-stopped
     ports:
       - "8090:80"
+    volumes:
+      # Account photos (encrypted by the app). Without it they live only
+      # inside the container and an update loses them.
+      - /mnt/user/appdata/opennutritracker/photos:/data/photos

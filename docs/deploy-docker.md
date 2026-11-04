@@ -65,6 +65,25 @@ así que el navegador revalida en cada carga y recoge una versión nueva a la
 primera recarga (Flutter 3.41 ya no instala un service worker que cachee la
 app: su `flutter_service_worker.js` solo se desregistra).
 
+**Fotos de las cuentas (importante):** las fotos que añades a comidas
+propias, recetas y fotos de progreso se sincronizan entre los dispositivos de
+una misma cuenta a través de este contenedor, no de Supabase. La app las cifra
+en el dispositivo antes de subirlas (AES-GCM con una clave derivada de la clave
+de datos de la cuenta) y les pone un nombre opaco, así que el contenedor solo
+guarda texto cifrado en `/data/photos/<id de usuario>/`. Un servicio pequeño
+dentro de la imagen (`photos-service/`, detrás de nginx en `/photos-api/`)
+comprueba el token de sesión de cada petición con Supabase Auth y solo deja a
+cada usuario leer y escribir sus propias fotos. **Sin mapear `/data/photos`
+las fotos viven solo dentro del contenedor y se pierden al actualizarlo.** La
+plantilla de Unraid trae la ruta `/mnt/user/appdata/opennutritracker/photos`;
+si añadiste el contenedor con una plantilla anterior, edítalo y añade un *Path*
+con *Container Path* `/data/photos` y *Host Path*
+`/mnt/user/appdata/opennutritracker/photos`. El servicio usa el mismo proyecto
+de Supabase con el que se construyó la imagen; para otro, pasa
+`SUPABASE_URL` y `SUPABASE_ANON_KEY` como variables del contenedor. Por ahora
+solo la versión web sube y descarga estas fotos (la app nativa no conoce la
+dirección del contenedor).
+
 ## Opción alternativa: construir en Unraid con Portainer + Nginx Proxy Manager
 
 Portainer clona tu fork directamente de GitHub y construye la imagen él
