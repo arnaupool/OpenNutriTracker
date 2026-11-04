@@ -19,6 +19,7 @@ import 'package:opennutritracker/core/domain/usecase/get_tracked_day_usecase.dar
 import 'package:opennutritracker/core/domain/usecase/get_user_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_weight_log_usecase.dart';
 import 'package:opennutritracker/features/strategy/presentation/strategy_page.dart';
+import 'package:opennutritracker/features/strategy/presentation/weight_chart_format.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 class _FakeGetWeightLogUsecase extends Fake implements GetWeightLogUsecase {
@@ -158,6 +159,63 @@ Widget _buildScreen({
 
 void main() {
   group('StrategyPage', () {
+    testWidgets('the selected-point tooltip shows 2 decimals in the locale format and the axis has no repeats', (
+      tester,
+    ) async {
+      final today = DateTime.now();
+      DateTime day(int daysAgo) {
+        final d = today.subtract(Duration(days: daysAgo));
+        return DateTime(d.year, d.month, d.day);
+      }
+
+      tester.view.physicalSize = const Size(1080, 3000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          locale: const Locale('es'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.delegate.supportedLocales,
+          home: Scaffold(
+            body: ChangeNotifierProvider<EnergyUnitProvider>(
+              create: (_) => EnergyUnitProvider(),
+              child: _buildScreen(
+                weightEntries: [
+                  WeightLogEntity(date: day(20), weightKg: 103.9),
+                  WeightLogEntity(date: day(10), weightKg: 103.4),
+                  WeightLogEntity(date: day(0), weightKg: 103.1858866892),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final chart = tester.widget<LineChart>(find.byType(LineChart));
+      final bar = chart.data.lineBarsData.first;
+      final item = chart.data.lineTouchData.touchTooltipData.getTooltipItems([
+        LineBarSpot(bar, 0, FlSpot(0, 103.1858866892)),
+      ]).single!;
+      expect(item.text, '103,19 kg');
+
+      final interval = chart.data.titlesData.leftTitles.sideTitles.interval!;
+      final labels = <String>{};
+      var count = 0;
+      for (var v = chart.data.minY; v <= chart.data.maxY + 1e-9; v += interval) {
+        labels.add(formatChartWeight(v, 'es', decimals: interval % 1 == 0 ? 0 : 1));
+        count++;
+      }
+      expect(labels.length, count);
+    });
+
     testWidgets('shows the empty-state copy with fewer than two weigh-ins', (
       tester,
     ) async {

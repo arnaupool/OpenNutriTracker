@@ -22,6 +22,7 @@ import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/features/home/presentation/bloc/home_bloc.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 import 'package:opennutritracker/core/utils/calc/calendar_day_calc.dart';
+import 'package:opennutritracker/features/strategy/presentation/weight_chart_format.dart';
 
 enum _ChartRange {
   oneMonth(30),
@@ -468,7 +469,8 @@ class _WeightChart extends StatelessWidget {
     final allY = [...scaleSpots.map((s) => s.y), ...trendSpots.map((s) => s.y)];
     final minY = allY.reduce((a, b) => a < b ? a : b);
     final maxY = allY.reduce((a, b) => a > b ? a : b);
-    final yPadding = ((maxY - minY) * 0.15).clamp(0.5, 5.0);
+    final yScale = WeightAxisScale.compute(minY, maxY);
+    final unitLabel = usesImperialUnits ? S.of(context).lbsLabel : S.of(context).kgLabel;
 
     final localeTag = Localizations.localeOf(context).toLanguageTag();
     // Beyond ~13 months a bare "Jan 5" label is ambiguous across years, so
@@ -486,8 +488,23 @@ class _WeightChart extends StatelessWidget {
           LineChartData(
             minX: 0,
             maxX: effectiveRangeDays.toDouble(),
-            minY: minY - yPadding,
-            maxY: maxY + yPadding,
+            minY: yScale.minY,
+            maxY: yScale.maxY,
+            lineTouchData: LineTouchData(
+              touchTooltipData: LineTouchTooltipData(
+                getTooltipItems: (spots) => [
+                  for (final spot in spots)
+                    LineTooltipItem(
+                      '${formatChartWeight(spot.y, localeTag)} $unitLabel',
+                      TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                ],
+              ),
+            ),
             gridData: const FlGridData(show: false),
             borderData: FlBorderData(show: false),
             titlesData: FlTitlesData(
@@ -501,8 +518,9 @@ class _WeightChart extends StatelessWidget {
                 sideTitles: SideTitles(
                   showTitles: true,
                   reservedSize: 40,
+                  interval: yScale.interval,
                   getTitlesWidget: (value, meta) => Text(
-                    value.toStringAsFixed(0),
+                    formatChartWeight(value, localeTag, decimals: yScale.decimals),
                     style: theme.textTheme.labelSmall,
                   ),
                 ),
@@ -744,6 +762,7 @@ class _TodayGoalCard extends StatelessWidget {
     final theme = Theme.of(context);
     final s = S.of(context);
     final weightUnit = usesImperialUnits ? s.lbsLabel : s.kgLabel;
+    final localeTag = Localizations.localeOf(context).toLanguageTag();
     final displayTrendWeight = trendWeightKg == null
         ? null
         : (usesImperialUnits
@@ -816,7 +835,7 @@ class _TodayGoalCard extends StatelessWidget {
                       label: s.strategyTrendWeightLabel,
                       value: displayTrendWeight == null
                           ? '—'
-                          : '${displayTrendWeight.toStringAsFixed(1)} $weightUnit',
+                          : '${formatChartWeight(displayTrendWeight, localeTag, decimals: 1)} $weightUnit',
                     ),
                   ),
                 ],
