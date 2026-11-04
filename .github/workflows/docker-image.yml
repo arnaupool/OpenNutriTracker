@@ -113,8 +113,10 @@ jobs:
           test "$(photos_status https://localhost:8443/photos-api/v1/)" = 401
           test "$(photos_status -X PUT --data x http://localhost:8080/photos-api/v1/$(printf '%064d' 0))" = 401
           # grep -q on a pipe would SIGPIPE docker logs and fail under pipefail.
-          docker logs ont > ont.log 2>&1; grep -q "ont-photos: listening" ont.log
-          docker exec ont pkill -x ont-photos
+          docker logs ont > ont.log 2>&1; grep -q "listening on 127.0.0.1:8081" ont.log
+          echo "photo service log line found; killing it"
+          # By /proc rather than pkill, which the image's busybox may lack.
+          docker exec ont sh -c 'for p in /proc/[0-9]*; do [ "$(cat "$p/comm" 2>/dev/null)" = ont-photos ] && kill "${p#/proc/}"; done; true'
           sleep 1
           for i in $(seq 1 20); do [ "$(photos_status http://localhost:8080/photos-api/)" = 401 ] && break; sleep 1; done
           test "$(photos_status http://localhost:8080/photos-api/)" = 401
