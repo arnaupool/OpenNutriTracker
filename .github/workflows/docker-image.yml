@@ -104,7 +104,9 @@ jobs:
           # Supabase token, so this checks that requests without one are
           # refused on both ports, and that the service comes back after it
           # dies (docker/50-ont-photos.sh restarts it).
+          trap 'echo "--- container log ---"; docker logs ont 2>&1 | tail -40' ERR
           photos_status() { curl -sk -o /dev/null -w '%{http_code}' "$@" || true; }
+          echo "photos-api status: $(photos_status http://localhost:8080/photos-api/)"
           for i in $(seq 1 20); do [ "$(photos_status http://localhost:8080/photos-api/)" = 401 ] && break; sleep 1; done
           test "$(photos_status http://localhost:8080/photos-api/)" = 401
           test "$(photos_status http://localhost:8080/photos-api/v1/)" = 401
