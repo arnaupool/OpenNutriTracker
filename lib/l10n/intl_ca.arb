@@ -513,6 +513,9 @@
       }
     }
   },
+  "planDiaryPlannedLabel": "Planificat",
+  "planDiaryConfirm": "Confirmar",
+  "planDiaryDiscard": "Descartar",
   "homeBodyMetricsCardTitle": "Mesures corporals",
   "homeBodyMetricsInsufficientData": "Registra una mesura corporal en Perfil per a vore les teues proporcions.",
   "importAction": "Importar",

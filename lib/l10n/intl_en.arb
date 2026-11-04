@@ -513,6 +513,9 @@
       }
     }
   },
+  "planDiaryPlannedLabel": "Planned",
+  "planDiaryConfirm": "Confirm",
+  "planDiaryDiscard": "Discard",
   "homeBodyMetricsCardTitle": "Body Metrics",
   "homeBodyMetricsInsufficientData": "Log a body measurement in Profile to see your ratios.",
   "importAction": "Import",

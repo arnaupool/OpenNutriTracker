@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dart';
 
@@ -6,6 +7,11 @@ class MealPlanDataSource {
   final Box<MealPlanEntryDBO> _box;
 
   MealPlanDataSource(this._box);
+
+  MealPlanEntryDBO? get(String id) => _box.get(id);
+
+  /// Notifies when any entry changes (local edits and synced ones).
+  Listenable listenable() => _box.listenable();
 
   Future<void> save(MealPlanEntryDBO entry) => _box.put(entry.id, entry);
 

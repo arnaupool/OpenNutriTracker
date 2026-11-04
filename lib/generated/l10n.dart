@@ -12865,6 +12865,21 @@ class S {
       args: [count],
     );
   }
+
+  /// `Planned`
+  String get planDiaryPlannedLabel {
+    return Intl.message('Planned', name: 'planDiaryPlannedLabel', desc: '', args: []);
+  }
+
+  /// `Confirm`
+  String get planDiaryConfirm {
+    return Intl.message('Confirm', name: 'planDiaryConfirm', desc: '', args: []);
+  }
+
+  /// `Discard`
+  String get planDiaryDiscard {
+    return Intl.message('Discard', name: 'planDiaryDiscard', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

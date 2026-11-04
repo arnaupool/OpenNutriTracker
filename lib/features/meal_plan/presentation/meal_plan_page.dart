@@ -211,7 +211,7 @@ class _MealPlanPageState extends State<MealPlanPage> {
     final entries = _entries.where((e) => DateUtils.isSameDay(e.day, day)).toList();
     final totals = MealPlanCalc.totals(entries);
     final goal = _goals[day] ?? _defaultGoal;
-    final pending = entries.where((e) => e.loggedAt == null).length;
+    final pending = entries.where((e) => e.isPending).length;
     final today = DateUtils.dateOnly(DateTime.now());
     final isToday = DateUtils.isSameDay(day, today);
     return Card(
@@ -290,7 +290,11 @@ class _MealPlanPageState extends State<MealPlanPage> {
         Row(
           children: [
             Icon(
-              e.loggedAt != null ? Icons.check_circle : Icons.radio_button_unchecked,
+              e.loggedAt != null
+                  ? Icons.check_circle
+                  : e.discardedAt != null
+                  ? Icons.remove_circle_outline
+                  : Icons.radio_button_unchecked,
               size: 16,
               color: e.loggedAt != null ? theme.colorScheme.primary : theme.colorScheme.outline,
             ),

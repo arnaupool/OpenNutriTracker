@@ -4,8 +4,11 @@ import 'package:opennutritracker/core/data/dbo/meal_dbo.dart';
 
 /// One planned food or recipe for a day and meal slot (FAS-04). The meal is
 /// a snapshot, like an intake's, so the plan survives the source food or
-/// recipe being edited or deleted. [loggedAt] is set once "Log plan" has
-/// turned the entry into a diary intake.
+/// recipe being edited or deleted. An entry is one planned item on one day,
+/// so its confirmation state is per entry and day: [loggedAt] is set once the
+/// entry has turned into a diary intake (the Diary's "Confirm" or "Log plan"),
+/// [discardedAt] once the owner dismissed it from the Diary. Both live in the
+/// entry, so they survive restarts and travel with the synced plan.
 class MealPlanEntryDBO extends HiveObject {
   static const int hiveTypeId = 23;
 
@@ -18,6 +21,9 @@ class MealPlanEntryDBO extends HiveObject {
   final double amount;
   final String unit;
   final DateTime? loggedAt;
+  final DateTime? discardedAt;
+
+  bool get isPending => loggedAt == null && discardedAt == null;
 
   MealPlanEntryDBO({
     required this.id,
@@ -27,9 +33,10 @@ class MealPlanEntryDBO extends HiveObject {
     required this.amount,
     required this.unit,
     this.loggedAt,
+    this.discardedAt,
   });
 
-  MealPlanEntryDBO copyWith({double? amount, DateTime? loggedAt}) => MealPlanEntryDBO(
+  MealPlanEntryDBO copyWith({double? amount, DateTime? loggedAt, DateTime? discardedAt}) => MealPlanEntryDBO(
     id: id,
     day: day,
     type: type,
@@ -37,6 +44,7 @@ class MealPlanEntryDBO extends HiveObject {
     amount: amount ?? this.amount,
     unit: unit,
     loggedAt: loggedAt ?? this.loggedAt,
+    discardedAt: discardedAt ?? this.discardedAt,
   );
 
   factory MealPlanEntryDBO.fromJson(Map<String, dynamic> json) => MealPlanEntryDBO(
@@ -47,6 +55,7 @@ class MealPlanEntryDBO extends HiveObject {
     amount: (json['amount'] as num).toDouble(),
     unit: json['unit'] as String,
     loggedAt: json['loggedAt'] == null ? null : DateTime.parse(json['loggedAt'] as String),
+    discardedAt: json['discardedAt'] == null ? null : DateTime.parse(json['discardedAt'] as String),
   );
 
   Map<String, dynamic> toJson() => {
@@ -57,6 +66,7 @@ class MealPlanEntryDBO extends HiveObject {
     'amount': amount,
     'unit': unit,
     'loggedAt': loggedAt?.toIso8601String(),
+    'discardedAt': discardedAt?.toIso8601String(),
   };
 }
 
@@ -78,13 +88,14 @@ class MealPlanEntryDBOAdapter extends TypeAdapter<MealPlanEntryDBO> {
       amount: (fields[4] as num).toDouble(),
       unit: fields[5] as String,
       loggedAt: fields[6] as DateTime?,
+      discardedAt: fields[7] as DateTime?,
     );
   }
 
   @override
   void write(BinaryWriter writer, MealPlanEntryDBO obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -98,7 +109,9 @@ class MealPlanEntryDBOAdapter extends TypeAdapter<MealPlanEntryDBO> {
       ..writeByte(5)
       ..write(obj.unit)
       ..writeByte(6)
-      ..write(obj.loggedAt);
+      ..write(obj.loggedAt)
+      ..writeByte(7)
+      ..write(obj.discardedAt);
   }
 
   @override

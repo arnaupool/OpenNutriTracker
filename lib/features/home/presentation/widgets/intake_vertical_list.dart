@@ -61,6 +61,10 @@ class IntakeVerticalList extends StatefulWidget {
   /// When null, the sort menu is hidden.
   final ValueChanged<DiarySortType>? onSortTypeChanged;
 
+  /// Planned (not yet logged) items shown after the intake cards. They are
+  /// not intakes and never enter this section's totals.
+  final List<Widget> plannedCards;
+
   const IntakeVerticalList({
     super.key,
     required this.day,
@@ -79,6 +83,7 @@ class IntakeVerticalList extends StatefulWidget {
     this.mealKcalTarget,
     this.sortType,
     this.onSortTypeChanged,
+    this.plannedCards = const [],
   });
 
   @override
@@ -292,7 +297,7 @@ class _IntakeVerticalListState extends State<IntakeVerticalList> {
               height: 120,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                itemCount: widget.intakeList.length + 1,
+                itemCount: widget.intakeList.length + 1 + widget.plannedCards.length,
                 // index 0 = + button (always visible), 1..n = intake cards
                 itemBuilder: (BuildContext context, int index) {
                   if (index == 0) {
@@ -301,6 +306,9 @@ class _IntakeVerticalListState extends State<IntakeVerticalList> {
                       onTap: () => _onPlaceholderCardTapped(context),
                       firstListElement: true,
                     );
+                  }
+                  if (index - 1 >= widget.intakeList.length) {
+                    return widget.plannedCards[index - 1 - widget.intakeList.length];
                   }
                   final intakeEntity = widget.intakeList[index - 1];
                   return LongPressDraggable<IntakeEntity>(

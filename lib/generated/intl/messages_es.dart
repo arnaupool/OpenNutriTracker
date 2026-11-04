@@ -853,6 +853,9 @@ class MessageLookup extends MessageLookupByLibrary {
         "homeHabitLoggingLabel": MessageLookupByLibrary.simpleMessage("Registro"),
         "homeHabitWeighInLabel": MessageLookupByLibrary.simpleMessage("Pesaje"),
         "homeHabitDaysCount": mHomeHabitDaysCount,
+        "planDiaryPlannedLabel": MessageLookupByLibrary.simpleMessage("Planificado"),
+        "planDiaryConfirm": MessageLookupByLibrary.simpleMessage("Confirmar"),
+        "planDiaryDiscard": MessageLookupByLibrary.simpleMessage("Descartar"),
         "homeLabel": MessageLookupByLibrary.simpleMessage(
             "Inicio"),
         "homeWeightTrendLabel": MessageLookupByLibrary.simpleMessage(
