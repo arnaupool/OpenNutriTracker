@@ -502,8 +502,17 @@
   "homeExpenditureInsufficientData": "Registra al menos una semana de pesajes y comidas para ver tu gasto semanal.",
   "homeGoalProgressCardTitle": "Progreso del objetivo",
   "homeGoalProgressInsufficientData": "Registra al menos una semana de pesajes para ver el progreso de tu objetivo.",
-  "homeWeighInHabitCardTitle": "Hábito de pesaje",
-  "homeLoggingHabitCardTitle": "Hábito de registro",
+  "homeHabitsCardTitle": "Hábitos",
+  "homeHabitLoggingLabel": "Registro",
+  "homeHabitWeighInLabel": "Pesaje",
+  "homeHabitDaysCount": "{count, plural, =1{{count} día} other{{count} días}}",
+  "@homeHabitDaysCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "homeBodyMetricsCardTitle": "Medidas corporales",
   "homeBodyMetricsInsufficientData": "Registra una medida corporal en Perfil para ver tus proporciones.",
   "importAction": "Importar",

@@ -226,6 +226,8 @@ class MessageLookup extends MessageLookupByLibrary {
   static String mRemindersEmailCodeSent(email) =>
       "We sent a code to ${email}";
 
+  static String mHomeHabitDaysCount(count) => Intl.plural(count, one: "${count} day", other: "${count} days");
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "nutrientPanelLimitLabel": MessageLookupByLibrary.simpleMessage("limit"),
@@ -589,13 +591,11 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage(
               "Log at least a week of weigh-ins to see your goal progress.",
             ),
+        "homeHabitsCardTitle": MessageLookupByLibrary.simpleMessage("Habits"),
+        "homeHabitLoggingLabel": MessageLookupByLibrary.simpleMessage("Logging"),
+        "homeHabitWeighInLabel": MessageLookupByLibrary.simpleMessage("Weigh-in"),
+        "homeHabitDaysCount": mHomeHabitDaysCount,
         "homeLabel": MessageLookupByLibrary.simpleMessage("Home"),
-        "homeLoggingHabitCardTitle": MessageLookupByLibrary.simpleMessage(
-          "Logging Habit",
-        ),
-        "homeWeighInHabitCardTitle": MessageLookupByLibrary.simpleMessage(
-          "Weigh-in Habit",
-        ),
         "homeWeightTrendLabel":
             MessageLookupByLibrary.simpleMessage("Trend Weight"),
         "homeWeightTrendRate": mWeightTrendRate,

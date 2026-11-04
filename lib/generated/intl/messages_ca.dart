@@ -261,6 +261,8 @@ class MessageLookup extends MessageLookupByLibrary {
   static String mRemindersEmailCodeSent(email) =>
       "Hem enviat un codi a ${email}";
 
+  static String mHomeHabitDaysCount(count) => Intl.plural(count, one: "${count} dia", other: "${count} dies");
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "activityExample": MessageLookupByLibrary.simpleMessage(
@@ -847,12 +849,12 @@ class MessageLookup extends MessageLookupByLibrary {
             "Progrés de l\'objectiu"),
         "homeGoalProgressInsufficientData": MessageLookupByLibrary.simpleMessage(
             "Registra almenys una setmana de pesades per a vore el progrés del teu objectiu."),
+        "homeHabitsCardTitle": MessageLookupByLibrary.simpleMessage("Hàbits"),
+        "homeHabitLoggingLabel": MessageLookupByLibrary.simpleMessage("Registre"),
+        "homeHabitWeighInLabel": MessageLookupByLibrary.simpleMessage("Pesada"),
+        "homeHabitDaysCount": mHomeHabitDaysCount,
         "homeLabel": MessageLookupByLibrary.simpleMessage(
             "Inici"),
-        "homeLoggingHabitCardTitle": MessageLookupByLibrary.simpleMessage(
-            "Hàbit de registre"),
-        "homeWeighInHabitCardTitle": MessageLookupByLibrary.simpleMessage(
-            "Hàbit de pesada"),
         "homeWeightTrendLabel": MessageLookupByLibrary.simpleMessage(
             "Pes de tendència"),
         "homeWeightTrendNoRecentData": MessageLookupByLibrary.simpleMessage(

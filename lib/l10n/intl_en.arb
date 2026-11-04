@@ -502,8 +502,17 @@
   "homeExpenditureInsufficientData": "Log at least a week of weigh-ins and meals to see your weekly expenditure.",
   "homeGoalProgressCardTitle": "Goal Progress",
   "homeGoalProgressInsufficientData": "Log at least a week of weigh-ins to see your goal progress.",
-  "homeWeighInHabitCardTitle": "Weigh-in Habit",
-  "homeLoggingHabitCardTitle": "Logging Habit",
+  "homeHabitsCardTitle": "Habits",
+  "homeHabitLoggingLabel": "Logging",
+  "homeHabitWeighInLabel": "Weigh-in",
+  "homeHabitDaysCount": "{count, plural, =1{{count} day} other{{count} days}}",
+  "@homeHabitDaysCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "homeBodyMetricsCardTitle": "Body Metrics",
   "homeBodyMetricsInsufficientData": "Log a body measurement in Profile to see your ratios.",
   "importAction": "Import",

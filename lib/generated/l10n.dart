@@ -250,26 +250,6 @@ class S {
     );
   }
 
-  /// `Weigh-in Habit`
-  String get homeWeighInHabitCardTitle {
-    return Intl.message(
-      'Weigh-in Habit',
-      name: 'homeWeighInHabitCardTitle',
-      desc: '',
-      args: [],
-    );
-  }
-
-  /// `Logging Habit`
-  String get homeLoggingHabitCardTitle {
-    return Intl.message(
-      'Logging Habit',
-      name: 'homeLoggingHabitCardTitle',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `Body Metrics`
   String get homeBodyMetricsCardTitle {
     return Intl.message(
@@ -12856,6 +12836,33 @@ class S {
       name: 'weeklyNoteDone',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `Habits`
+  String get homeHabitsCardTitle {
+    return Intl.message('Habits', name: 'homeHabitsCardTitle', desc: '', args: []);
+  }
+
+  /// `Logging`
+  String get homeHabitLoggingLabel {
+    return Intl.message('Logging', name: 'homeHabitLoggingLabel', desc: '', args: []);
+  }
+
+  /// `Weigh-in`
+  String get homeHabitWeighInLabel {
+    return Intl.message('Weigh-in', name: 'homeHabitWeighInLabel', desc: '', args: []);
+  }
+
+  /// `{count, plural, =1{{count} day} other{{count} days}}`
+  String homeHabitDaysCount(int count) {
+    return Intl.plural(
+      count,
+      one: '$count day',
+      other: '$count days',
+      name: 'homeHabitDaysCount',
+      desc: '',
+      args: [count],
     );
   }
 }

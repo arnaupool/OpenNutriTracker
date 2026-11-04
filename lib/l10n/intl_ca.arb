@@ -502,8 +502,17 @@
   "homeExpenditureInsufficientData": "Registra almenys una setmana de pesades i àpats per a vore la teua despesa setmanal.",
   "homeGoalProgressCardTitle": "Progrés de l'objectiu",
   "homeGoalProgressInsufficientData": "Registra almenys una setmana de pesades per a vore el progrés del teu objectiu.",
-  "homeWeighInHabitCardTitle": "Hàbit de pesada",
-  "homeLoggingHabitCardTitle": "Hàbit de registre",
+  "homeHabitsCardTitle": "Hàbits",
+  "homeHabitLoggingLabel": "Registre",
+  "homeHabitWeighInLabel": "Pesada",
+  "homeHabitDaysCount": "{count, plural, =1{{count} dia} other{{count} dies}}",
+  "@homeHabitDaysCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "homeBodyMetricsCardTitle": "Mesures corporals",
   "homeBodyMetricsInsufficientData": "Registra una mesura corporal en Perfil per a vore les teues proporcions.",
   "importAction": "Importar",
