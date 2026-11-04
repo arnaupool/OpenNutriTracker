@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:opennutritracker/core/domain/entity/body_measurement_entity.dart';
@@ -13,19 +12,13 @@ class ProgressPhotoViewerScreen extends StatefulWidget {
   final BodyMeasurementEntity entry;
   final ProgressPhotoAngle initialAngle;
 
-  const ProgressPhotoViewerScreen({
-    super.key,
-    required this.entry,
-    required this.initialAngle,
-  });
+  const ProgressPhotoViewerScreen({super.key, required this.entry, required this.initialAngle});
 
   @override
-  State<ProgressPhotoViewerScreen> createState() =>
-      _ProgressPhotoViewerScreenState();
+  State<ProgressPhotoViewerScreen> createState() => _ProgressPhotoViewerScreenState();
 }
 
-class _ProgressPhotoViewerScreenState
-    extends State<ProgressPhotoViewerScreen> {
+class _ProgressPhotoViewerScreenState extends State<ProgressPhotoViewerScreen> {
   late final List<ProgressPhotoAngle> _angles = [
     for (final angle in ProgressPhotoAngle.values)
       if (angle.pathFor(widget.entry) != null) angle,
@@ -67,36 +60,28 @@ class _ProgressPhotoViewerScreenState
           onPageChanged: (index) => setState(() => _currentIndex = index),
           itemBuilder: (context, index) {
             final path = _angles[index].pathFor(widget.entry)!;
-            return FutureBuilder<ImageProvider?>(
-              future: UserImageStorage.imageProvider(path),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
-                  );
-                }
-                if (snapshot.data == null) {
-                  return const Center(
-                    child: Icon(
-                      Icons.broken_image_outlined,
-                      color: Colors.white54,
-                      size: 64,
-                    ),
-                  );
-                }
-                return InteractiveViewer(
-                  child: Center(
-                    child: Image(
-                      image: snapshot.data!,
-                      errorBuilder: (_, error, stack) => const Icon(
-                        Icons.broken_image_outlined,
-                        color: Colors.white54,
-                        size: 64,
+            return ValueListenableBuilder<int>(
+              valueListenable: UserImageStorage.changes,
+              builder: (context, _, _) => FutureBuilder<ImageProvider?>(
+                future: UserImageStorage.imageProvider(path),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator(color: Colors.white));
+                  }
+                  if (snapshot.data == null) {
+                    return const Center(child: Icon(Icons.broken_image_outlined, color: Colors.white54, size: 64));
+                  }
+                  return InteractiveViewer(
+                    child: Center(
+                      child: Image(
+                        image: snapshot.data!,
+                        errorBuilder: (_, error, stack) =>
+                            const Icon(Icons.broken_image_outlined, color: Colors.white54, size: 64),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             );
           },
         ),

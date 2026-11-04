@@ -104,6 +104,8 @@ class _Harness {
   final FakeSyncDevice device;
   final accounts = _FakeAccounts();
   final accountSets = <String>[];
+  final photoSyncs = <String>[];
+  bool photoSyncFails = false;
   late final SyncService service = SyncService(
     engine: device.engine,
     accounts: accounts,
@@ -114,6 +116,10 @@ class _Harness {
       return _GuardedRemote(server.remote(userId), token);
     },
     onApplied: (_) async {},
+    afterAccountSync: (profileId, userId, key, accessToken) async {
+      photoSyncs.add('$profileId/$userId');
+      if (photoSyncFails) throw StateError('photo service down');
+    },
     activeProfile: () => _profile,
   );
 
@@ -171,6 +177,19 @@ void main() {
       expect(h.accountRecords().keys, ['m1']);
       expect(h.service.status.value.phase, SyncPhase.idle);
       expect(h.service.status.value.lastSync, isNotNull);
+    });
+
+    test('photo sync runs after an account sync only, and its failure is not a sync error', () async {
+      final local = await _Harness.create(server);
+      await local.service.syncNow();
+      expect(local.photoSyncs, isEmpty);
+
+      final h = await _Harness.create(server);
+      h.link();
+      h.photoSyncFails = true;
+      expect(await h.service.syncNow(), isNotNull);
+      expect(h.photoSyncs, ['$_profile/$_userId']);
+      expect(h.service.status.value.phase, SyncPhase.idle);
     });
 
     test('an account that is not ready sends nothing and reports why', () async {

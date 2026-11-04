@@ -76,7 +76,10 @@ import 'package:opennutritracker/core/account/account_key_service.dart';
 import 'package:opennutritracker/core/account/account_session_service.dart';
 import 'package:opennutritracker/core/account/account_session_store.dart';
 import 'package:opennutritracker/core/profiles/profile_store.dart';
+import 'package:opennutritracker/core/sync/photo_sync/photo_remote.dart';
+import 'package:opennutritracker/core/sync/photo_sync/photo_sync_service.dart';
 import 'package:opennutritracker/core/sync/sync_boxes.dart';
+import 'package:opennutritracker/core/utils/user_image_storage.dart';
 import 'package:opennutritracker/core/sync/sync_day_totals.dart';
 import 'package:opennutritracker/core/sync/sync_engine.dart';
 import 'package:opennutritracker/core/sync/sync_remote.dart';
@@ -429,8 +432,25 @@ Future<void> initLocator() async {
       accountRemote: (userId, accessToken) =>
           AccountSyncRemote(Env.backupSupabaseProjectUrl, Env.backupSupabaseProjectAnonKey, userId, accessToken),
       onApplied: _onSyncApplied,
+      afterAccountSync: (profileId, userId, key, accessToken) =>
+          locator<PhotoSyncService>().sync(profileId, userId, key, accessToken),
     ),
   );
+
+  // Account photos (photos-service/ in the web image): encrypted on the
+  // device, stored in the owner's container. Web only for now: native
+  // builds have no address for that container.
+  final photoBase = photoServiceBaseUri();
+  locator.registerLazySingleton<PhotoSyncService>(
+    () => PhotoSyncService(
+      accounts: locator(),
+      stateBox: hiveDBProvider.syncStateBox,
+      referencedSlugs: () => _referencedPhotoSlugs(hiveDBProvider),
+      remote: photoBase == null ? null : (userId, accessToken) => HttpPhotoRemote(photoBase, userId, accessToken),
+      onDownloaded: _onPhotosDownloaded,
+    ),
+  );
+  UserImageStorage.listener = photoBase == null ? null : locator<PhotoSyncService>();
 
   // DataSources
   locator.registerLazySingleton(() => ConfigDataSource(hiveDBProvider.configBox));
@@ -479,6 +499,32 @@ Future<void> _onSyncApplied(List<SyncAppliedChange> applied) async {
   locator<DiaryBloc>().add(const LoadDiaryYearEvent());
   locator<CalendarDayBloc>().add(RefreshCalendarDayEvent());
 }
+
+/// Every photo slug a synced record points at: custom meals, recipes,
+/// progress photos, and the meal copies inside intakes and the meal plan.
+Iterable<String?> _referencedPhotoSlugs(HiveDBProvider db) sync* {
+  for (final m in db.customMealBox.values) {
+    yield m.localImagePath;
+  }
+  for (final r in db.recipeBox.values) {
+    yield r.imagePath;
+  }
+  for (final b in db.bodyMeasurementBox.values) {
+    yield b.frontPhotoPath;
+    yield b.sidePhotoPath;
+    yield b.backPhotoPath;
+  }
+  for (final i in db.intakeBox.values) {
+    yield i.meal.localImagePath;
+  }
+  for (final e in db.mealPlanBox.values) {
+    yield e.meal.localImagePath;
+  }
+}
+
+/// After account photos were downloaded: every widget showing a photo
+/// reloads it.
+void _onPhotosDownloaded() => UserImageStorage.changes.value++;
 
 /// Access token for reminder calls of the active profile: null for a local
 /// profile, the account's token otherwise (throws when it cannot be had, so

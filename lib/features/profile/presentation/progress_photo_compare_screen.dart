@@ -25,14 +25,11 @@ class ProgressPhotoCompareScreen extends StatefulWidget {
   const ProgressPhotoCompareScreen({super.key, this.getUsecase});
 
   @override
-  State<ProgressPhotoCompareScreen> createState() =>
-      _ProgressPhotoCompareScreenState();
+  State<ProgressPhotoCompareScreen> createState() => _ProgressPhotoCompareScreenState();
 }
 
-class _ProgressPhotoCompareScreenState
-    extends State<ProgressPhotoCompareScreen> {
-  late final GetBodyMeasurementUsecase _getUsecase =
-      widget.getUsecase ?? locator<GetBodyMeasurementUsecase>();
+class _ProgressPhotoCompareScreenState extends State<ProgressPhotoCompareScreen> {
+  late final GetBodyMeasurementUsecase _getUsecase = widget.getUsecase ?? locator<GetBodyMeasurementUsecase>();
 
   final GlobalKey _captureKey = GlobalKey();
 
@@ -59,8 +56,7 @@ class _ProgressPhotoCompareScreenState
     });
   }
 
-  List<BodyMeasurementEntity> get _entriesForAngle =>
-      _entries.where((e) => _angle.pathFor(e) != null).toList();
+  List<BodyMeasurementEntity> get _entriesForAngle => _entries.where((e) => _angle.pathFor(e) != null).toList();
 
   BodyMeasurementEntity? _entryForDate(DateTime? date) {
     if (date == null) return null;
@@ -93,10 +89,7 @@ class _ProgressPhotoCompareScreenState
           children: [
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Text(
-                s.bodyMeasurementsCompareSelectDateLabel,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+              child: Text(s.bodyMeasurementsCompareSelectDateLabel, style: Theme.of(context).textTheme.titleMedium),
             ),
             for (final entry in options)
               ListTile(
@@ -120,9 +113,7 @@ class _ProgressPhotoCompareScreenState
 
   Future<void> _share() async {
     try {
-      final boundary =
-          _captureKey.currentContext?.findRenderObject()
-              as RenderRepaintBoundary?;
+      final boundary = _captureKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
       if (boundary == null) return;
       final image = await boundary.toImage(pixelRatio: 2.0);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -133,9 +124,7 @@ class _ProgressPhotoCompareScreenState
       await Share.shareXFiles([XFile(file.path)]);
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(S.of(context).exportImportErrorLabel)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(S.of(context).exportImportErrorLabel)));
     }
   }
 
@@ -187,10 +176,7 @@ class _ProgressPhotoCompareScreenState
                     child: Center(
                       child: Padding(
                         padding: const EdgeInsets.all(24),
-                        child: Text(
-                          s.bodyMeasurementsCompareEmptyLabel,
-                          textAlign: TextAlign.center,
-                        ),
+                        child: Text(s.bodyMeasurementsCompareEmptyLabel, textAlign: TextAlign.center),
                       ),
                     ),
                   )
@@ -228,20 +214,15 @@ class _ProgressPhotoCompareScreenState
                         segments: [
                           ButtonSegment(
                             value: _CompareBackground.white,
-                            label: Text(
-                              s.bodyMeasurementsCompareBackgroundWhiteLabel,
-                            ),
+                            label: Text(s.bodyMeasurementsCompareBackgroundWhiteLabel),
                           ),
                           ButtonSegment(
                             value: _CompareBackground.dark,
-                            label: Text(
-                              s.bodyMeasurementsCompareBackgroundDarkLabel,
-                            ),
+                            label: Text(s.bodyMeasurementsCompareBackgroundDarkLabel),
                           ),
                         ],
                         selected: {_background},
-                        onSelectionChanged: (next) =>
-                            setState(() => _background = next.first),
+                        onSelectionChanged: (next) => setState(() => _background = next.first),
                       ),
                     ),
                   ),
@@ -251,9 +232,7 @@ class _ProgressPhotoCompareScreenState
                       child: RepaintBoundary(
                         key: _captureKey,
                         child: Container(
-                          color: _background == _CompareBackground.white
-                              ? Colors.white
-                              : Colors.black,
+                          color: _background == _CompareBackground.white ? Colors.white : Colors.black,
                           padding: const EdgeInsets.all(16),
                           child: Column(
                             children: [
@@ -279,12 +258,7 @@ class _DateSelectorButton extends StatelessWidget {
   final DateTime? date;
   final VoidCallback onTap;
 
-  const _DateSelectorButton({
-    required this.identifier,
-    required this.label,
-    required this.date,
-    required this.onTap,
-  });
+  const _DateSelectorButton({required this.identifier, required this.label, required this.date, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -318,28 +292,27 @@ class _ComparePhoto extends StatelessWidget {
     if (path == null) {
       return AspectRatio(
         aspectRatio: 3 / 4,
-        child: Container(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        ),
+        child: Container(color: Theme.of(context).colorScheme.surfaceContainerHighest),
       );
     }
-    return FutureBuilder<ImageProvider?>(
-      future: UserImageStorage.imageProvider(path),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data == null) {
-          return const AspectRatio(aspectRatio: 3 / 4, child: SizedBox());
-        }
-        return Image(
-          image: snapshot.data!,
-          fit: BoxFit.contain,
-          errorBuilder: (_, error, stack) => AspectRatio(
-            aspectRatio: 3 / 4,
-            child: Container(
-              color: Theme.of(context).colorScheme.surfaceContainerHighest,
+    return ValueListenableBuilder<int>(
+      valueListenable: UserImageStorage.changes,
+      builder: (context, _, _) => FutureBuilder<ImageProvider?>(
+        future: UserImageStorage.imageProvider(path),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData || snapshot.data == null) {
+            return const AspectRatio(aspectRatio: 3 / 4, child: SizedBox());
+          }
+          return Image(
+            image: snapshot.data!,
+            fit: BoxFit.contain,
+            errorBuilder: (_, error, stack) => AspectRatio(
+              aspectRatio: 3 / 4,
+              child: Container(color: Theme.of(context).colorScheme.surfaceContainerHighest),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
@@ -351,26 +324,26 @@ class _Thumb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<ImageProvider?>(
-      future: UserImageStorage.imageProvider(path),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data == null) {
-          return const SizedBox(width: 40, height: 40);
-        }
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: Image(
-            image: snapshot.data!,
-            width: 40,
-            height: 40,
-            fit: BoxFit.cover,
-            errorBuilder: (_, error, stack) => const SizedBox(
+    return ValueListenableBuilder<int>(
+      valueListenable: UserImageStorage.changes,
+      builder: (context, _, _) => FutureBuilder<ImageProvider?>(
+        future: UserImageStorage.imageProvider(path),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData || snapshot.data == null) {
+            return const SizedBox(width: 40, height: 40);
+          }
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(6),
+            child: Image(
+              image: snapshot.data!,
               width: 40,
               height: 40,
+              fit: BoxFit.cover,
+              errorBuilder: (_, error, stack) => const SizedBox(width: 40, height: 40),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

@@ -83,6 +83,12 @@ class SyncService with WidgetsBindingObserver {
   /// recompute derived data and refresh the screens.
   final Future<void> Function(List<SyncAppliedChange> applied) onApplied;
 
+  /// Runs after each successful account sync, with the records already
+  /// pulled (account photo sync). Its failures are logged and do not turn
+  /// the sync into an error: the records are in step either way.
+  final Future<void> Function(String profileId, String userId, Uint8List key, AccessTokenSource accessToken)?
+  afterAccountSync;
+
   final ValueNotifier<SyncStatus> status = ValueNotifier(const SyncStatus(SyncPhase.off));
 
   final List<StreamSubscription<dynamic>> _watchers = [];
@@ -102,6 +108,7 @@ class SyncService with WidgetsBindingObserver {
     required List<SyncedBox<dynamic>> boxes,
     required SyncRemote Function(String userId, AccessTokenSource accessToken) accountRemote,
     required this.onApplied,
+    this.afterAccountSync,
     String Function()? activeProfile,
   }) : _engine = engine,
        _accounts = accounts,
@@ -272,6 +279,14 @@ class SyncService with WidgetsBindingObserver {
       SyncTarget(remote: _accountRemote(mode.link.userId, _tokenSource(mode.profileId)), state: state, key: mode.key),
     );
     if (result.applied.isNotEmpty) await onApplied(result.applied);
+    final after = afterAccountSync;
+    if (after != null) {
+      try {
+        await after(mode.profileId, mode.link.userId, mode.key, _tokenSource(mode.profileId));
+      } on Object catch (e, st) {
+        _log.warning('Photo sync failed; retried with the next sync', e, st);
+      }
+    }
     status.value = SyncStatus(SyncPhase.idle, lastSync: state.lastSync);
     _log.fine('Account sync: pulled ${result.pulled}, pushed ${result.pushed}, unreadable ${result.unreadable}');
     return result;

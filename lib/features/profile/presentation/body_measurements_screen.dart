@@ -1,4 +1,3 @@
-
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -117,24 +116,17 @@ class BodyMeasurementsScreen extends StatefulWidget {
   });
 
   @override
-  State<BodyMeasurementsScreen> createState() =>
-      _BodyMeasurementsScreenState();
+  State<BodyMeasurementsScreen> createState() => _BodyMeasurementsScreenState();
 }
 
 class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
-  late final GetBodyMeasurementUsecase _getUsecase =
-      widget.getUsecase ?? locator<GetBodyMeasurementUsecase>();
-  late final AddBodyMeasurementUsecase _addUsecase =
-      widget.addUsecase ?? locator<AddBodyMeasurementUsecase>();
+  late final GetBodyMeasurementUsecase _getUsecase = widget.getUsecase ?? locator<GetBodyMeasurementUsecase>();
+  late final AddBodyMeasurementUsecase _addUsecase = widget.addUsecase ?? locator<AddBodyMeasurementUsecase>();
   late final DeleteBodyMeasurementUsecase _deleteUsecase =
       widget.deleteUsecase ?? locator<DeleteBodyMeasurementUsecase>();
-  late final ConfigRepository _configRepository =
-      widget.configRepository ?? locator<ConfigRepository>();
+  late final ConfigRepository _configRepository = widget.configRepository ?? locator<ConfigRepository>();
   late final GetUserUsecase? _getUserUsecase =
-      widget.getUserUsecase ??
-      (locator.isRegistered<GetUserUsecase>()
-          ? locator<GetUserUsecase>()
-          : null);
+      widget.getUserUsecase ?? (locator.isRegistered<GetUserUsecase>() ? locator<GetUserUsecase>() : null);
 
   bool _loading = true;
   bool _usesImperialUnits = false;
@@ -196,13 +188,9 @@ class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
               child: IconButton(
                 tooltip: S.of(context).bodyMeasurementsCompareTooltip,
                 icon: const Icon(Icons.compare_outlined),
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => ProgressPhotoCompareScreen(
-                      getUsecase: _getUsecase,
-                    ),
-                  ),
-                ),
+                onPressed: () => Navigator.of(
+                  context,
+                ).push(MaterialPageRoute(builder: (context) => ProgressPhotoCompareScreen(getUsecase: _getUsecase))),
               ),
             ),
         ],
@@ -240,10 +228,7 @@ class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      _MetricChips(
-                        selected: _selectedMetric,
-                        onSelected: (m) => setState(() => _selectedMetric = m),
-                      ),
+                      _MetricChips(selected: _selectedMetric, onSelected: (m) => setState(() => _selectedMetric = m)),
                       const SizedBox(height: 8),
                       _MeasurementTrendChart(
                         entries: _entries,
@@ -251,10 +236,7 @@ class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
                         usesImperialUnits: _usesImperialUnits,
                       ),
                       const SizedBox(height: 12),
-                      _RatioCards(
-                        latest: _entries.first,
-                        userHeightCm: _userHeightCm,
-                      ),
+                      _RatioCards(latest: _entries.first, userHeightCm: _userHeightCm),
                       const SizedBox(height: 8),
                     ],
                   );
@@ -266,9 +248,7 @@ class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
   }
 
   Widget _buildEntryTile(BodyMeasurementEntity entry) {
-    final dateLabel = DateFormat.yMMMd(
-      Localizations.localeOf(context).toLanguageTag(),
-    ).format(entry.date);
+    final dateLabel = DateFormat.yMMMd(Localizations.localeOf(context).toLanguageTag()).format(entry.date);
     final s = S.of(context);
     final unit = _usesImperialUnits ? s.inLabel : s.cmLabel;
 
@@ -279,24 +259,14 @@ class _BodyMeasurementsScreenState extends State<BodyMeasurementsScreen> {
 
     final parts = <String>[
       for (final metric in BodyMeasurementMetric.values)
-        if (metric.valueCm(entry) != null)
-          '${metric.label(context)} ${displayValue(metric.valueCm(entry)!)} $unit',
+        if (metric.valueCm(entry) != null) '${metric.label(context)} ${displayValue(metric.valueCm(entry)!)} $unit',
     ];
 
     return ListTile(
       leading: entry.hasAnyPhoto ? _EntryThumbnails(entry: entry) : null,
-      title: Text(
-        parts.isEmpty ? dateLabel : parts.join(' · '),
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Text(
-        entry.note?.isNotEmpty == true ? '$dateLabel  •  ${entry.note}' : dateLabel,
-      ),
-      trailing: IconButton(
-        icon: const Icon(Icons.delete_outline),
-        onPressed: () => _onDelete(entry),
-      ),
+      title: Text(parts.isEmpty ? dateLabel : parts.join(' · '), maxLines: 2, overflow: TextOverflow.ellipsis),
+      subtitle: Text(entry.note?.isNotEmpty == true ? '$dateLabel  •  ${entry.note}' : dateLabel),
+      trailing: IconButton(icon: const Icon(Icons.delete_outline), onPressed: () => _onDelete(entry)),
     );
   }
 }
@@ -325,38 +295,33 @@ class _EntryThumbnails extends StatelessWidget {
             Positioned(
               left: i * 6.0,
               child: GestureDetector(
-                key: ValueKey(
-                  'body-measurements-thumbnail-${entry.date.toIso8601String()}-${angles[i].name}',
-                ),
+                key: ValueKey('body-measurements-thumbnail-${entry.date.toIso8601String()}-${angles[i].name}'),
                 behavior: HitTestBehavior.opaque,
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => ProgressPhotoViewerScreen(
-                      entry: entry,
-                      initialAngle: angles[i],
-                    ),
+                    builder: (context) => ProgressPhotoViewerScreen(entry: entry, initialAngle: angles[i]),
                   ),
                 ),
-                child: FutureBuilder<ImageProvider?>(
-                  future: UserImageStorage.imageProvider(angles[i].pathFor(entry)!),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData || snapshot.data == null) {
-                      return const SizedBox(width: 24, height: 40);
-                    }
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: Image(
-                        image: snapshot.data!,
-                        width: 24,
-                        height: 40,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, error, stack) => const SizedBox(
+                child: ValueListenableBuilder<int>(
+                  valueListenable: UserImageStorage.changes,
+                  builder: (context, _, _) => FutureBuilder<ImageProvider?>(
+                    future: UserImageStorage.imageProvider(angles[i].pathFor(entry)!),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData || snapshot.data == null) {
+                        return const SizedBox(width: 24, height: 40);
+                      }
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: Image(
+                          image: snapshot.data!,
                           width: 24,
                           height: 40,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, error, stack) => const SizedBox(width: 24, height: 40),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
@@ -402,20 +367,12 @@ class _MeasurementTrendChart extends StatelessWidget {
   final BodyMeasurementMetric metric;
   final bool usesImperialUnits;
 
-  const _MeasurementTrendChart({
-    required this.entries,
-    required this.metric,
-    required this.usesImperialUnits,
-  });
+  const _MeasurementTrendChart({required this.entries, required this.metric, required this.usesImperialUnits});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final points =
-        entries
-            .where((e) => metric.valueCm(e) != null)
-            .toList()
-          ..sort((a, b) => a.date.compareTo(b.date));
+    final points = entries.where((e) => metric.valueCm(e) != null).toList()..sort((a, b) => a.date.compareTo(b.date));
 
     if (points.length < 2) {
       return Padding(
@@ -427,17 +384,14 @@ class _MeasurementTrendChart extends StatelessWidget {
             child: Text(
               S.of(context).bodyMeasurementsChartEmptyState,
               textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
           ),
         ),
       );
     }
 
-    double displayValue(double cm) =>
-        usesImperialUnits ? UnitCalc.cmToInches(cm) : cm;
+    double displayValue(double cm) => usesImperialUnits ? UnitCalc.cmToInches(cm) : cm;
 
     final windowStart = points.first.date;
     final windowEnd = points.last.date;
@@ -445,10 +399,7 @@ class _MeasurementTrendChart extends StatelessWidget {
 
     final spots = <FlSpot>[
       for (final entry in points)
-        FlSpot(
-          entry.date.difference(windowStart).inDays.toDouble(),
-          displayValue(metric.valueCm(entry)!),
-        ),
+        FlSpot(entry.date.difference(windowStart).inDays.toDouble(), displayValue(metric.valueCm(entry)!)),
     ];
 
     final minY = spots.map((s) => s.y).reduce((a, b) => a < b ? a : b);
@@ -456,9 +407,7 @@ class _MeasurementTrendChart extends StatelessWidget {
     final yPadding = ((maxY - minY) * 0.15).clamp(0.5, 5.0);
 
     final localeTag = Localizations.localeOf(context).toLanguageTag();
-    final dateFormat = spanDays > 400
-        ? DateFormat.yMMM(localeTag)
-        : DateFormat.MMMd(localeTag);
+    final dateFormat = spanDays > 400 ? DateFormat.yMMM(localeTag) : DateFormat.MMMd(localeTag);
     final labelInterval = (spanDays / 4).ceilToDouble();
 
     return Semantics(
@@ -475,20 +424,13 @@ class _MeasurementTrendChart extends StatelessWidget {
             gridData: const FlGridData(show: false),
             borderData: FlBorderData(show: false),
             titlesData: FlTitlesData(
-              topTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              rightTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
+              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+              rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
               leftTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
                   reservedSize: 40,
-                  getTitlesWidget: (value, meta) => Text(
-                    value.toStringAsFixed(0),
-                    style: theme.textTheme.labelSmall,
-                  ),
+                  getTitlesWidget: (value, meta) => Text(value.toStringAsFixed(0), style: theme.textTheme.labelSmall),
                 ),
               ),
               bottomTitles: AxisTitles(
@@ -500,10 +442,7 @@ class _MeasurementTrendChart extends StatelessWidget {
                     final day = windowStart.add(Duration(days: value.toInt()));
                     return Padding(
                       padding: const EdgeInsets.only(top: 6),
-                      child: Text(
-                        dateFormat.format(day),
-                        style: theme.textTheme.labelSmall,
-                      ),
+                      child: Text(dateFormat.format(day), style: theme.textTheme.labelSmall),
                     );
                   },
                 ),
@@ -519,11 +458,7 @@ class _MeasurementTrendChart extends StatelessWidget {
                 dotData: FlDotData(
                   show: true,
                   getDotPainter: (spot, percent, bar, index) =>
-                      FlDotCirclePainter(
-                        radius: 2.5,
-                        color: theme.colorScheme.primary,
-                        strokeWidth: 0,
-                      ),
+                      FlDotCirclePainter(radius: 2.5, color: theme.colorScheme.primary, strokeWidth: 0),
                 ),
               ),
             ],
@@ -550,12 +485,8 @@ class _RatioCards extends StatelessWidget {
     final waist = latest.waistCm;
     final hips = latest.hipsCm;
 
-    final waistToHeight = (waist != null && userHeightCm != null && userHeightCm! > 0)
-        ? waist / userHeightCm!
-        : null;
-    final waistToHip = (waist != null && hips != null && hips > 0)
-        ? waist / hips
-        : null;
+    final waistToHeight = (waist != null && userHeightCm != null && userHeightCm! > 0) ? waist / userHeightCm! : null;
+    final waistToHip = (waist != null && hips != null && hips > 0) ? waist / hips : null;
 
     return Semantics(
       identifier: 'body-measurements-ratios',
@@ -564,17 +495,11 @@ class _RatioCards extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: _RatioTile(
-                label: s.bodyMeasurementsWaistToHeightRatioLabel,
-                value: waistToHeight,
-              ),
+              child: _RatioTile(label: s.bodyMeasurementsWaistToHeightRatioLabel, value: waistToHeight),
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _RatioTile(
-                label: s.bodyMeasurementsWaistToHipRatioLabel,
-                value: waistToHip,
-              ),
+              child: _RatioTile(label: s.bodyMeasurementsWaistToHipRatioLabel, value: waistToHip),
             ),
           ],
         ),
@@ -598,16 +523,8 @@ class _RatioTile extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              value == null ? '—' : value!.toStringAsFixed(2),
-              style: theme.textTheme.titleLarge,
-            ),
-            Text(
-              label,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
+            Text(value == null ? '—' : value!.toStringAsFixed(2), style: theme.textTheme.titleLarge),
+            Text(label, style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
           ],
         ),
       ),
@@ -627,12 +544,10 @@ class _AddBodyMeasurementEntryDialog extends StatefulWidget {
   });
 
   @override
-  State<_AddBodyMeasurementEntryDialog> createState() =>
-      _AddBodyMeasurementEntryDialogState();
+  State<_AddBodyMeasurementEntryDialog> createState() => _AddBodyMeasurementEntryDialogState();
 }
 
-class _AddBodyMeasurementEntryDialogState
-    extends State<_AddBodyMeasurementEntryDialog> {
+class _AddBodyMeasurementEntryDialogState extends State<_AddBodyMeasurementEntryDialog> {
   late DateTime _date;
   late final Map<BodyMeasurementMetric, TextEditingController> _controllers;
   late TextEditingController _noteController;
@@ -647,20 +562,15 @@ class _AddBodyMeasurementEntryDialogState
     super.initState();
     _date = widget.initialDate;
     _controllers = {
-      for (final metric in BodyMeasurementMetric.values)
-        metric: TextEditingController(text: _prefillText(metric)),
+      for (final metric in BodyMeasurementMetric.values) metric: TextEditingController(text: _prefillText(metric)),
     };
     _noteController = TextEditingController();
   }
 
   String _prefillText(BodyMeasurementMetric metric) {
-    final previousCm = widget.previousEntry == null
-        ? null
-        : metric.valueCm(widget.previousEntry!);
+    final previousCm = widget.previousEntry == null ? null : metric.valueCm(widget.previousEntry!);
     if (previousCm == null) return '';
-    final display = widget.usesImperialUnits
-        ? UnitCalc.cmToInches(previousCm)
-        : previousCm;
+    final display = widget.usesImperialUnits ? UnitCalc.cmToInches(previousCm) : previousCm;
     return display.toStringAsFixed(1);
   }
 
@@ -707,8 +617,7 @@ class _AddBodyMeasurementEntryDialogState
     try {
       final picked = await ImagePicker().pickImage(source: source);
       if (picked == null) return;
-      final ownerId =
-          '${DateFormat('yyyy-MM-dd').format(_date)}_${angle.name}';
+      final ownerId = '${DateFormat('yyyy-MM-dd').format(_date)}_${angle.name}';
       final bytes = await picked.readAsBytes();
       final relative = await UserImageStorage.importFrom(
         kind: UserImageKind.progressPhoto,
@@ -766,9 +675,7 @@ class _AddBodyMeasurementEntryDialogState
   Widget build(BuildContext context) {
     final s = S.of(context);
     final unit = widget.usesImperialUnits ? s.inLabel : s.cmLabel;
-    final dateLabel = DateFormat.yMMMd(
-      Localizations.localeOf(context).toLanguageTag(),
-    ).format(_date);
+    final dateLabel = DateFormat.yMMMd(Localizations.localeOf(context).toLanguageTag()).format(_date);
 
     return AlertDialog(
       title: Text(s.bodyMeasurementsAddEntry),
@@ -793,20 +700,14 @@ class _AddBodyMeasurementEntryDialogState
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        angle.label(context),
-                        style: Theme.of(context).textTheme.labelSmall,
-                      ),
+                      Text(angle.label(context), style: Theme.of(context).textTheme.labelSmall),
                       UserImagePickerTile(
                         kind: UserImageKind.progressPhoto,
                         imagePath: _pathForAngle(angle),
                         avatarSize: 68,
-                        semanticsIdentifierOverride:
-                            'body-measurements-photo-picker-${angle.name}',
-                        onPickFromGallery: () =>
-                            _pickPhoto(angle, ImageSource.gallery),
-                        onTakePhoto: () =>
-                            _pickPhoto(angle, ImageSource.camera),
+                        semanticsIdentifierOverride: 'body-measurements-photo-picker-${angle.name}',
+                        onPickFromGallery: () => _pickPhoto(angle, ImageSource.gallery),
+                        onTakePhoto: () => _pickPhoto(angle, ImageSource.camera),
                         onRemove: () => _removePhoto(angle),
                       ),
                     ],
@@ -821,12 +722,8 @@ class _AddBodyMeasurementEntryDialogState
                   identifier: 'body-measurements-field-${metric.name}',
                   child: TextField(
                     controller: _controllers[metric],
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    decoration: InputDecoration(
-                      labelText: '${metric.label(context)} ($unit)',
-                    ),
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    decoration: InputDecoration(labelText: '${metric.label(context)} ($unit)'),
                   ),
                 ),
               ),
@@ -838,14 +735,8 @@ class _AddBodyMeasurementEntryDialogState
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(s.dialogCancelLabel),
-        ),
-        TextButton(
-          onPressed: _submit,
-          child: Text(s.dialogOKLabel),
-        ),
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(s.dialogCancelLabel)),
+        TextButton(onPressed: _submit, child: Text(s.dialogOKLabel)),
       ],
     );
   }

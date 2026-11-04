@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -23,6 +24,14 @@ enum UserImageKind {
   const UserImageKind(this.subdir);
 
   final String subdir;
+}
+
+/// Told about every photo saved, replaced or deleted through
+/// [UserImageStorage], so account photo sync can queue it.
+abstract class UserImageListener {
+  Future<void> photoWritten(String slug);
+
+  Future<void> photoDeleted(String slug);
 }
 
 /// Resolves the storage location of user-attached photos for recipes,
@@ -56,9 +65,20 @@ class UserImageStorage {
 
   static Box<Uint8List> get _webBox => Hive.box<Uint8List>(webBoxName);
 
+  /// Account photo sync (PhotoSyncService); null when nothing listens.
+  static UserImageListener? listener;
+
+  /// Bumped when photos changed underneath the screens (downloaded from the
+  /// account), so every widget that shows one reloads it.
+  static final ValueNotifier<int> changes = ValueNotifier(0);
+
+  static void _notifyWritten(String relative) {
+    final l = listener;
+    if (l != null) unawaited(l.photoWritten(relative));
+  }
+
   /// The relative slug stored on the DBO for a given owner id.
-  static String relativePathFor(UserImageKind kind, String ownerId) =>
-      '${kind.subdir}/$ownerId.$_extension';
+  static String relativePathFor(UserImageKind kind, String ownerId) => '${kind.subdir}/$ownerId.$_extension';
 
   /// Splits a relative slug back into its parts. Returns null for any
   /// path that doesn't sit inside one of the known image
@@ -75,8 +95,7 @@ class UserImageStorage {
 
   /// True when `relative` is one of our user-image slugs. Used by
   /// import to decide whether a zip entry should be restored.
-  static bool isUserImagePath(String relative) =>
-      sanitizeRelative(relative) != null;
+  static bool isUserImagePath(String relative) => sanitizeRelative(relative) != null;
 
   /// Absolute on-disk path for `relativePath`. Native only — has no
   /// meaning on web, where photos live in a Hive box instead. Kept for
@@ -122,6 +141,7 @@ class UserImageStorage {
       final destPath = '${imagesDir.path}/$ownerId.$_extension';
       await File(destPath).writeAsBytes(compressed, flush: true);
     }
+    _notifyWritten(relative);
     return relative;
   }
 
@@ -130,6 +150,8 @@ class UserImageStorage {
   static Future<void> delete(String relativePath) async {
     final sanitized = sanitizeRelative(relativePath);
     if (sanitized == null) return;
+    final l = listener;
+    if (l != null) unawaited(l.photoDeleted(sanitized));
     if (kIsWeb) {
       await _webBox.delete(sanitized);
       return;
@@ -139,6 +161,14 @@ class UserImageStorage {
     if (await file.exists()) {
       await file.delete();
     }
+  }
+
+  /// Whether a photo is stored at `relativePath`, without reading it.
+  static Future<bool> exists(String relativePath) async {
+    final sanitized = sanitizeRelative(relativePath);
+    if (sanitized == null) return false;
+    if (kIsWeb) return _webBox.containsKey(sanitized);
+    return File(await absolutePath(sanitized)).exists();
   }
 
   /// Reads the raw (already-compressed) bytes for `relativePath`, or
@@ -157,25 +187,21 @@ class UserImageStorage {
 
   /// Writes raw (already-compressed) bytes directly at `relativePath`
   /// without going through the WebP re-encode step — used by import,
-  /// which restores bytes that were already compressed on export.
-  static Future<void> writeBytes(
-    String relativePath,
-    Uint8List bytes,
-  ) async {
+  /// which restores bytes that were already compressed on export, and by
+  /// account photo sync, which passes `notify: false` for downloads so they
+  /// are not queued for upload again.
+  static Future<void> writeBytes(String relativePath, Uint8List bytes, {bool notify = true}) async {
     final sanitized = sanitizeRelative(relativePath);
     if (sanitized == null) return;
     if (kIsWeb) {
       await _webBox.put(sanitized, bytes);
+      if (notify) _notifyWritten(sanitized);
       return;
     }
     final parts = sanitized.split('/');
-    final imagesDir = await ensureDirectory(
-      UserImageKind.values.firstWhere((k) => k.subdir == parts[0]),
-    );
-    await File('${imagesDir.path}/${parts[1]}').writeAsBytes(
-      bytes,
-      flush: true,
-    );
+    final imagesDir = await ensureDirectory(UserImageKind.values.firstWhere((k) => k.subdir == parts[0]));
+    await File('${imagesDir.path}/${parts[1]}').writeAsBytes(bytes, flush: true);
+    if (notify) _notifyWritten(sanitized);
   }
 
   /// An [ImageProvider] for `relativePath` (`FileImage` on native,

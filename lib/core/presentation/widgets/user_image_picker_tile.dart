@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:opennutritracker/core/utils/user_image_storage.dart';
 import 'package:opennutritracker/generated/l10n.dart';
@@ -42,10 +41,10 @@ class UserImagePickerTile extends StatelessWidget {
   });
 
   IconData get _fallbackIcon => switch (kind) {
-        UserImageKind.recipe => Icons.restaurant_menu,
-        UserImageKind.meal => Icons.restaurant_outlined,
-        UserImageKind.progressPhoto => Icons.accessibility_new_outlined,
-      };
+    UserImageKind.recipe => Icons.restaurant_menu,
+    UserImageKind.meal => Icons.restaurant_outlined,
+    UserImageKind.progressPhoto => Icons.accessibility_new_outlined,
+  };
 
   String get _semanticsIdentifier =>
       semanticsIdentifierOverride ??
@@ -59,26 +58,26 @@ class UserImagePickerTile extends StatelessWidget {
     final s = S.of(context);
     return switch (kind) {
       UserImageKind.recipe => _Strings(
-          add: s.recipeImageLabel,
-          replace: s.recipeImageReplace,
-          takePhoto: s.recipeImageTakePhoto,
-          pickFromGallery: s.recipeImagePickFromGallery,
-          remove: s.recipeImageRemove,
-        ),
+        add: s.recipeImageLabel,
+        replace: s.recipeImageReplace,
+        takePhoto: s.recipeImageTakePhoto,
+        pickFromGallery: s.recipeImagePickFromGallery,
+        remove: s.recipeImageRemove,
+      ),
       UserImageKind.meal => _Strings(
-          add: s.mealImageLabel,
-          replace: s.mealImageReplace,
-          takePhoto: s.mealImageTakePhoto,
-          pickFromGallery: s.mealImagePickFromGallery,
-          remove: s.mealImageRemove,
-        ),
+        add: s.mealImageLabel,
+        replace: s.mealImageReplace,
+        takePhoto: s.mealImageTakePhoto,
+        pickFromGallery: s.mealImagePickFromGallery,
+        remove: s.mealImageRemove,
+      ),
       UserImageKind.progressPhoto => _Strings(
-          add: s.progressPhotoImageLabel,
-          replace: s.progressPhotoImageReplace,
-          takePhoto: s.progressPhotoImageTakePhoto,
-          pickFromGallery: s.progressPhotoImagePickFromGallery,
-          remove: s.progressPhotoImageRemove,
-        ),
+        add: s.progressPhotoImageLabel,
+        replace: s.progressPhotoImageReplace,
+        takePhoto: s.progressPhotoImageTakePhoto,
+        pickFromGallery: s.progressPhotoImagePickFromGallery,
+        remove: s.progressPhotoImageRemove,
+      ),
     };
   }
 
@@ -104,29 +103,24 @@ class UserImagePickerTile extends StatelessWidget {
                       width: avatarSize,
                       height: avatarSize,
                       child: hasImage
-                          ? FutureBuilder<ImageProvider?>(
-                              future:
-                                  UserImageStorage.imageProvider(imagePath!),
-                              builder: (context, snapshot) {
-                                if (!snapshot.hasData ||
-                                    snapshot.data == null) {
-                                  return Container(
-                                    color: theme.colorScheme.primaryContainer,
-                                  );
-                                }
-                                return Image(
-                                  image: snapshot.data!,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (_, error, stack) => Container(
-                                    color: theme.colorScheme.primaryContainer,
-                                    child: Icon(
-                                      _fallbackIcon,
-                                      color: theme
-                                          .colorScheme.onPrimaryContainer,
+                          ? ValueListenableBuilder<int>(
+                              valueListenable: UserImageStorage.changes,
+                              builder: (context, _, _) => FutureBuilder<ImageProvider?>(
+                                future: UserImageStorage.imageProvider(imagePath!),
+                                builder: (context, snapshot) {
+                                  if (!snapshot.hasData || snapshot.data == null) {
+                                    return Container(color: theme.colorScheme.primaryContainer);
+                                  }
+                                  return Image(
+                                    image: snapshot.data!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (_, error, stack) => Container(
+                                      color: theme.colorScheme.primaryContainer,
+                                      child: Icon(_fallbackIcon, color: theme.colorScheme.onPrimaryContainer),
                                     ),
-                                  ),
-                                );
-                              },
+                                  );
+                                },
+                              ),
                             )
                           : Container(
                               color: theme.colorScheme.primaryContainer,
@@ -153,9 +147,7 @@ class UserImagePickerTile extends StatelessWidget {
               Text(
                 hasImage ? strings.replace : strings.add,
                 textAlign: TextAlign.center,
-                style: avatarSize < 90
-                    ? theme.textTheme.labelSmall
-                    : theme.textTheme.bodyMedium,
+                style: avatarSize < 90 ? theme.textTheme.labelSmall : theme.textTheme.bodyMedium,
               ),
             ],
           ),
@@ -164,11 +156,7 @@ class UserImagePickerTile extends StatelessWidget {
     );
   }
 
-  Future<void> _showActionSheet(
-    BuildContext context,
-    _Strings strings, {
-    required bool hasImage,
-  }) async {
+  Future<void> _showActionSheet(BuildContext context, _Strings strings, {required bool hasImage}) async {
     await showModalBottomSheet<void>(
       context: context,
       builder: (ctx) {

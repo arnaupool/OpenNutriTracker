@@ -1,4 +1,3 @@
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -38,22 +37,17 @@ class RecipeListItem extends StatelessWidget {
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      color: isSelected
-          ? Theme.of(context).colorScheme.primaryContainer
-          : null,
+      color: isSelected ? Theme.of(context).colorScheme.primaryContainer : null,
       child: ListTile(
         onLongPress: onLongPress,
         leading: isSelected
             ? CircleAvatar(
                 backgroundColor: Theme.of(context).colorScheme.primary,
-                child: Icon(
-                  Icons.check,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
+                child: Icon(Icons.check, color: Theme.of(context).colorScheme.onPrimary),
               )
             : recipe.imagePath != null
-                ? _UserImageThumbnail(relativePath: recipe.imagePath!)
-                : thumbnailUrl != null
+            ? _UserImageThumbnail(relativePath: recipe.imagePath!)
+            : thumbnailUrl != null
             ? ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: CachedNetworkImage(
@@ -63,27 +57,16 @@ class RecipeListItem extends StatelessWidget {
                   height: 40,
                   imageUrl: displayImageUrl(thumbnailUrl),
                   errorWidget: (context, url, error) => CircleAvatar(
-                    backgroundColor:
-                        Theme.of(context).colorScheme.primaryContainer,
-                    child: Icon(
-                      Icons.menu_book,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    ),
+                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                    child: Icon(Icons.menu_book, color: Theme.of(context).colorScheme.onPrimaryContainer),
                   ),
                 ),
               )
             : CircleAvatar(
                 backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                child: Icon(
-                  Icons.menu_book,
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                ),
+                child: Icon(Icons.menu_book, color: Theme.of(context).colorScheme.onPrimaryContainer),
               ),
-        title: Text(
-          recipe.name,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+        title: Text(recipe.name, maxLines: 1, overflow: TextOverflow.ellipsis),
         subtitle: Text(
           '${S.of(context).recipeIngredientCountLabel(ingredientCount)} · '
           '${EnergyDisplay.formatWithUnit(context, totalKcal)}',
@@ -102,28 +85,28 @@ class _UserImageThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<ImageProvider?>(
-      future: UserImageStorage.imageProvider(relativePath),
-      builder: (context, snapshot) {
-        final fallback = CircleAvatar(
-          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-          child: Icon(
-            Icons.menu_book,
-            color: Theme.of(context).colorScheme.onPrimaryContainer,
-          ),
-        );
-        if (!snapshot.hasData || snapshot.data == null) return fallback;
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Image(
-            image: snapshot.data!,
-            fit: BoxFit.cover,
-            width: 40,
-            height: 40,
-            errorBuilder: (_, error, stack) => fallback,
-          ),
-        );
-      },
+    return ValueListenableBuilder<int>(
+      valueListenable: UserImageStorage.changes,
+      builder: (context, _, _) => FutureBuilder<ImageProvider?>(
+        future: UserImageStorage.imageProvider(relativePath),
+        builder: (context, snapshot) {
+          final fallback = CircleAvatar(
+            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+            child: Icon(Icons.menu_book, color: Theme.of(context).colorScheme.onPrimaryContainer),
+          );
+          if (!snapshot.hasData || snapshot.data == null) return fallback;
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Image(
+              image: snapshot.data!,
+              fit: BoxFit.cover,
+              width: 40,
+              height: 40,
+              errorBuilder: (_, error, stack) => fallback,
+            ),
+          );
+        },
+      ),
     );
   }
 }

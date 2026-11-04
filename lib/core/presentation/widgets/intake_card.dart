@@ -1,4 +1,3 @@
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -37,17 +36,11 @@ class IntakeCard extends StatelessWidget {
           child: Card(
             semanticContainer: true,
             clipBehavior: Clip.antiAliasWithSaveLayer,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16.0),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.0)),
             elevation: 1,
             child: InkWell(
-              onLongPress: onItemLongPressed != null
-                  ? () => onLongPressedItem(context)
-                  : null,
-              onTap: onItemTapped != null
-                  ? () => onTappedItem(context, usesImperialUnits)
-                  : null,
+              onLongPress: onItemLongPressed != null ? () => onLongPressedItem(context) : null,
+              onTap: onItemTapped != null ? () => onTappedItem(context, usesImperialUnits) : null,
               child: Stack(
                 children: [
                   // Prefer the user-attached local photo for custom meals
@@ -55,52 +48,37 @@ class IntakeCard extends StatelessWidget {
                   // image when the user hasn't picked one, and finally to
                   // the placeholder icon for entries that have neither.
                   if (intake.meal.localImagePath != null)
-                    _LocalMealBackground(
-                        relativePath: intake.meal.localImagePath!)
+                    _LocalMealBackground(relativePath: intake.meal.localImagePath!)
                   else if (intake.meal.mainImageUrl != null)
                     CachedNetworkImage(
                       cacheManager: locator<CacheManager>(),
                       imageUrl: displayImageUrl(intake.meal.mainImageUrl ?? ""),
                       imageBuilder: (context, imageProvider) => Container(
                         decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: imageProvider,
-                            fit: BoxFit.cover,
-                          ),
+                          image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
                         ),
                       ),
                     )
                   else
-                    Center(
-                      child: Icon(
-                        Icons.restaurant_outlined,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                    ),
+                    Center(child: Icon(Icons.restaurant_outlined, color: Theme.of(context).colorScheme.secondary)),
                   Container(
                     // Add color shade
                     decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.secondaryContainer.withValues(alpha: 0.5),
+                      color: Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: 0.5),
                     ),
                   ),
                   Container(
                     margin: const EdgeInsets.all(8.0),
                     padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
                     decoration: BoxDecoration(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.tertiaryContainer.withValues(alpha: 0.8),
+                      color: Theme.of(context).colorScheme.tertiaryContainer.withValues(alpha: 0.8),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       EnergyDisplay.formatWithUnit(context, intake.totalKcal),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onTertiaryContainer,
-                          ),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onTertiaryContainer),
                     ),
                   ),
                   Container(
@@ -112,14 +90,10 @@ class IntakeCard extends StatelessWidget {
                       children: [
                         AutoSizeText(
                           intake.meal.name ?? "?",
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSecondaryContainer,
-                              ),
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                            color: Theme.of(context).colorScheme.onSecondaryContainer,
+                          ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -127,14 +101,9 @@ class IntakeCard extends StatelessWidget {
                           value: intake.amount,
                           meal: intake.meal,
                           usesImperialUnits: usesImperialUnits,
-                          textStyle: Theme.of(
-                            context,
-                          ).textTheme.titleSmall?.copyWith(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSecondaryContainer
-                                    .withValues(alpha: 0.7),
-                              ),
+                          textStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSecondaryContainer.withValues(alpha: 0.7),
+                          ),
                         ),
                       ],
                     ),
@@ -167,21 +136,21 @@ class _LocalMealBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<ImageProvider?>(
-      future: UserImageStorage.imageProvider(relativePath),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data == null) {
-          return const SizedBox.shrink();
-        }
-        return Container(
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              image: snapshot.data!,
-              fit: BoxFit.cover,
+    return ValueListenableBuilder<int>(
+      valueListenable: UserImageStorage.changes,
+      builder: (context, _, _) => FutureBuilder<ImageProvider?>(
+        future: UserImageStorage.imageProvider(relativePath),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData || snapshot.data == null) {
+            return const SizedBox.shrink();
+          }
+          return Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(image: snapshot.data!, fit: BoxFit.cover),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

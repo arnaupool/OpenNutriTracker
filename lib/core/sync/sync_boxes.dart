@@ -20,8 +20,9 @@ import 'package:opennutritracker/features/reminders/data/reminder_dbo.dart';
 
 /// The boxes that sync between devices and how each identifies a record.
 /// Left out on purpose: the Open Food Facts cache (re-downloadable) and
-/// photo bytes (they travel in the zip backup; synced records keep their
-/// paths, which only resolve on the device that took the photo).
+/// photo bytes. Records keep the photo's relative path; the bytes travel
+/// encrypted through the account photo store instead
+/// (photo_sync/photo_sync_service.dart), and in the zip backup.
 List<SyncedBox<dynamic>> buildSyncedBoxes(HiveDBProvider db) => [
   SyncedBox<ConfigDBO>(
     name: HiveDBProvider.configBoxName,
