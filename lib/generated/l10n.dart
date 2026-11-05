@@ -9619,6 +9619,46 @@ class S {
     );
   }
 
+  /// `Photos`
+  String get reviewTabPhotos {
+    return Intl.message(
+      "Photos",
+      name: 'reviewTabPhotos',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Change`
+  String get reviewPhotosChange {
+    return Intl.message(
+      "Change",
+      name: 'reviewPhotosChange',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `No progress photos for this angle yet. Add them from Body measurements.`
+  String get reviewPhotosEmpty {
+    return Intl.message(
+      "No progress photos for this angle yet. Add them from Body measurements.",
+      name: 'reviewPhotosEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Add at least one more photo from this angle to compare.`
+  String get reviewPhotosNeedSecond {
+    return Intl.message(
+      "Add at least one more photo from this angle to compare.",
+      name: 'reviewPhotosNeedSecond',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `7 d`
   String get reviewRange7 {
     return Intl.message(
@@ -10614,6 +10654,46 @@ class S {
     return Intl.message(
       "Last day",
       name: 'homePlanLastDay',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Time left`
+  String get homePlanCountdownLabel {
+    return Intl.message(
+      "Time left",
+      name: 'homePlanCountdownLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `days`
+  String get homePlanUnitDays {
+    return Intl.message(
+      "days",
+      name: 'homePlanUnitDays',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `weeks`
+  String get homePlanUnitWeeks {
+    return Intl.message(
+      "weeks",
+      name: 'homePlanUnitWeeks',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `months`
+  String get homePlanUnitMonths {
+    return Intl.message(
+      "months",
+      name: 'homePlanUnitMonths',
       desc: '',
       args: [],
     );

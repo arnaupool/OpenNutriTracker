@@ -1408,6 +1408,10 @@
   "reviewTabExpenditure": "Despesa",
   "reviewTabAdherence": "Adherència",
   "reviewTabDiary": "Diari",
+  "reviewTabPhotos": "Fotos",
+  "reviewPhotosChange": "Canviar",
+  "reviewPhotosEmpty": "Encara no hi ha fotos de progrés amb aquest angle. Afegeix-les des de Mesures corporals.",
+  "reviewPhotosNeedSecond": "Afegeix almenys una foto més d'aquest angle per poder comparar.",
   "reviewRange7": "7 d",
   "reviewRange30": "30 d",
   "reviewRange90": "90 d",
@@ -1600,6 +1604,10 @@
   },
   "homePlanOneDayLeft": "Queda 1 dia",
   "homePlanLastDay": "Últim dia",
+  "homePlanCountdownLabel": "Queden",
+  "homePlanUnitDays": "dies",
+  "homePlanUnitWeeks": "setmanes",
+  "homePlanUnitMonths": "mesos",
   "homePlanEnd": "Fi: {date}",
   "@homePlanEnd": {
     "placeholders": {

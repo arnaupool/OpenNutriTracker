@@ -28,6 +28,9 @@ class UserImagePickerTile extends StatelessWidget {
   // Three tiles side by side (Body Measurements) need to be narrower than
   // the single-photo default (recipe/meal) or they overflow the dialog.
   final double avatarSize;
+  // Body Measurements already titles each tile (Front/Side/Back), so the
+  // "Add a photo" line under each one is noise there.
+  final bool showLabel;
 
   const UserImagePickerTile({
     super.key,
@@ -38,6 +41,7 @@ class UserImagePickerTile extends StatelessWidget {
     required this.onRemove,
     this.semanticsIdentifierOverride,
     this.avatarSize = 96,
+    this.showLabel = true,
   });
 
   IconData get _fallbackIcon => switch (kind) {
@@ -143,12 +147,14 @@ class UserImagePickerTile extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                hasImage ? strings.replace : strings.add,
-                textAlign: TextAlign.center,
-                style: avatarSize < 90 ? theme.textTheme.labelSmall : theme.textTheme.bodyMedium,
-              ),
+              if (showLabel) ...[
+                const SizedBox(height: 8),
+                Text(
+                  hasImage ? strings.replace : strings.add,
+                  textAlign: TextAlign.center,
+                  style: avatarSize < 90 ? theme.textTheme.labelSmall : theme.textTheme.bodyMedium,
+                ),
+              ],
             ],
           ),
         ),

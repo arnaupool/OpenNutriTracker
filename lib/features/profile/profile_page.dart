@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:opennutritracker/core/utils/date_picker_locale.dart';
 import 'package:opennutritracker/core/presentation/goal_explanation.dart';
 import 'package:opennutritracker/core/utils/bounds/validator.dart';
 import 'package:opennutritracker/core/utils/calc/goal_rate_calc.dart';
@@ -531,7 +532,7 @@ class _ProfilePageState extends State<ProfilePage> {
           : userEntity.birthday,
       firstDate: ValueValidator.getFirstDate(),
       lastDate: ValueValidator.getLastDate(),
-      locale: const Locale('en', 'GB'),
+      locale: datePickerLocale(context),
     );
     if (selectedDate != null) {
       userEntity.birthday = selectedDate;

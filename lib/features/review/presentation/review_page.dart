@@ -23,6 +23,8 @@ import 'package:opennutritracker/features/diary/presentation/bloc/calendar_day_b
 import 'package:opennutritracker/features/diary/presentation/bloc/diary_bloc.dart';
 import 'package:opennutritracker/features/home/presentation/bloc/home_bloc.dart';
 import 'package:opennutritracker/features/review/domain/review_calc.dart';
+import 'package:opennutritracker/features/review/presentation/review_photos_tab.dart';
+import 'package:opennutritracker/features/strategy/presentation/weight_chart_format.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 /// Pushed on phones from Strategy; on desktop the same [ReviewPage] is a
@@ -39,7 +41,7 @@ class ReviewScreen extends StatelessWidget {
   }
 }
 
-enum _ReviewTab { weight, expenditure, adherence, diary }
+enum _ReviewTab { weight, expenditure, adherence, diary, photos }
 
 /// Review views (FAS-03): weight against trend, expenditure, adherence and
 /// an editable diary table, over a chosen range, each exportable as CSV.
@@ -89,8 +91,7 @@ class _ReviewPageState extends State<ReviewPage> with SingleTickerProviderStateM
       _offsetMinutes = config.dayStartOffsetTotalMinutes;
       _weights = weights;
       _trackedDays = trackedDays;
-      _intakes = intakeDbos.map(IntakeEntity.fromIntakeDBO).toList()
-        ..sort((a, b) => b.dateTime.compareTo(a.dateTime));
+      _intakes = intakeDbos.map(IntakeEntity.fromIntakeDBO).toList()..sort((a, b) => b.dateTime.compareTo(a.dateTime));
       _loading = false;
     });
   }
@@ -140,7 +141,7 @@ class _ReviewPageState extends State<ReviewPage> with SingleTickerProviderStateM
                 child: FilledButton.tonalIcon(
                   icon: const Icon(Icons.download_outlined),
                   label: Text(s.reviewExportCsv),
-                  onPressed: _loading ? null : _exportCsv,
+                  onPressed: _loading || _tabs.index == _ReviewTab.photos.index ? null : _exportCsv,
                 ),
               ),
             ],
@@ -157,6 +158,7 @@ class _ReviewPageState extends State<ReviewPage> with SingleTickerProviderStateM
               Tab(text: s.reviewTabExpenditure),
               Tab(text: s.reviewTabAdherence),
               Tab(text: s.reviewTabDiary),
+              Tab(text: s.reviewTabPhotos),
             ],
           ),
         ),
@@ -165,7 +167,13 @@ class _ReviewPageState extends State<ReviewPage> with SingleTickerProviderStateM
               ? const Center(child: CircularProgressIndicator())
               : TabBarView(
                   controller: _tabs,
-                  children: [_weightTab(context), _expenditureTab(context), _adherenceTab(context), _diaryTab(context)],
+                  children: [
+                    _weightTab(context),
+                    _expenditureTab(context),
+                    _adherenceTab(context),
+                    _diaryTab(context),
+                    const ReviewPhotosTab(),
+                  ],
                 ),
         ),
       ],
@@ -194,7 +202,12 @@ class _ReviewPageState extends State<ReviewPage> with SingleTickerProviderStateM
       ),
       _table(
         context,
-        [s.reviewColDate, '${s.reviewColScale} ($_wUnit)', '${s.reviewColTrend} ($_wUnit)', '${s.reviewColWeekChange} ($_wUnit)'],
+        [
+          s.reviewColDate,
+          '${s.reviewColScale} ($_wUnit)',
+          '${s.reviewColTrend} ($_wUnit)',
+          '${s.reviewColWeekChange} ($_wUnit)',
+        ],
         [
           for (final r in rows.reversed)
             [
@@ -254,14 +267,14 @@ class _ReviewPageState extends State<ReviewPage> with SingleTickerProviderStateM
 
   // Adherence
 
-  List<ReviewAdherenceRow> get _adherenceRows =>
-      ReviewCalc.adherence(_trackedDays, _period, from: _from, to: _today);
+  List<ReviewAdherenceRow> get _adherenceRows => ReviewCalc.adherence(_trackedDays, _period, from: _from, to: _today);
 
   String _periodLabel(BuildContext context, DateTime start) {
     final locale = Localizations.localeOf(context).toLanguageTag();
     return switch (_period) {
       AdherencePeriod.day => DateFormat.yMMMEd(locale).format(start),
-      AdherencePeriod.week => '${DateFormat.yMMMd(locale).format(start)} - ${DateFormat.MMMd(locale).format(CalendarDayCalc.addDays(start, 6))}',
+      AdherencePeriod.week =>
+        '${DateFormat.yMMMd(locale).format(start)} - ${DateFormat.MMMd(locale).format(CalendarDayCalc.addDays(start, 6))}',
       AdherencePeriod.month => DateFormat.yMMMM(locale).format(start),
     };
   }
@@ -452,6 +465,8 @@ class _ReviewPageState extends State<ReviewPage> with SingleTickerProviderStateM
     final tab = _ReviewTab.values[_tabs.index];
     final String csv;
     switch (tab) {
+      case _ReviewTab.photos:
+        return;
       case _ReviewTab.weight:
         csv = ReviewCsv.encode(
           ['date', 'scale_$_wUnit', 'trend_$_wUnit', 'week_change_$_wUnit'],
@@ -562,8 +577,7 @@ class _ReviewPageState extends State<ReviewPage> with SingleTickerProviderStateM
           dataRowMaxHeight: 44,
           columns: [for (final h in headers) DataColumn(label: Text(h))],
           rows: [
-            for (final r in rows)
-              DataRow(cells: [for (final c in r) DataCell(c is Widget ? c : Text(c.toString()))]),
+            for (final r in rows) DataRow(cells: [for (final c in r) DataCell(c is Widget ? c : Text(c.toString()))]),
           ],
         ),
       ),
@@ -625,7 +639,11 @@ class _ReviewLineChart extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Container(width: 10, height: 10, decoration: BoxDecoration(color: s.color, shape: BoxShape.circle)),
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(color: s.color, shape: BoxShape.circle),
+                    ),
                     const SizedBox(width: 6),
                     Text(s.label, style: theme.textTheme.labelMedium),
                   ],
@@ -643,6 +661,19 @@ class _ReviewLineChart extends StatelessWidget {
                 maxY: maxY + pad,
                 gridData: const FlGridData(show: false),
                 borderData: FlBorderData(show: false),
+                // The default tooltip prints the raw double (smoothed series
+                // carry many decimals); two are enough.
+                lineTouchData: LineTouchData(
+                  touchTooltipData: LineTouchTooltipData(
+                    getTooltipItems: (spots) => [
+                      for (final spot in spots)
+                        LineTooltipItem(
+                          formatChartWeight(spot.y, locale),
+                          TextStyle(color: series[spot.barIndex].color, fontWeight: FontWeight.bold),
+                        ),
+                    ],
+                  ),
+                ),
                 titlesData: FlTitlesData(
                   topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                   rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
@@ -652,10 +683,8 @@ class _ReviewLineChart extends StatelessWidget {
                       reservedSize: 44,
                       // One decimal on narrow ranges (weight), or
                       // neighbouring labels round to the same number.
-                      getTitlesWidget: (value, meta) => Text(
-                        value.toStringAsFixed(maxY - minY < 10 ? 1 : 0),
-                        style: theme.textTheme.labelSmall,
-                      ),
+                      getTitlesWidget: (value, meta) =>
+                          Text(value.toStringAsFixed(maxY - minY < 10 ? 1 : 0), style: theme.textTheme.labelSmall),
                     ),
                   ),
                   bottomTitles: AxisTitles(

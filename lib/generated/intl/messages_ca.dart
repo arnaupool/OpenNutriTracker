@@ -2271,6 +2271,10 @@ class MessageLookup extends MessageLookupByLibrary {
             "Adherència"),
         "reviewTabDiary": MessageLookupByLibrary.simpleMessage(
             "Diari"),
+        "reviewTabPhotos": MessageLookupByLibrary.simpleMessage("Fotos"),
+        "reviewPhotosChange": MessageLookupByLibrary.simpleMessage("Canviar"),
+        "reviewPhotosEmpty": MessageLookupByLibrary.simpleMessage("Encara no hi ha fotos de progrés amb aquest angle. Afegeix-les des de Mesures corporals."),
+        "reviewPhotosNeedSecond": MessageLookupByLibrary.simpleMessage("Afegeix almenys una foto més d'aquest angle per poder comparar."),
         "reviewRange7": MessageLookupByLibrary.simpleMessage(
             "7 d"),
         "reviewRange30": MessageLookupByLibrary.simpleMessage(
@@ -2430,6 +2434,10 @@ class MessageLookup extends MessageLookupByLibrary {
         "homePlanDaysLeft": mHomePlanDaysLeft,
         "homePlanOneDayLeft": MessageLookupByLibrary.simpleMessage("Queda 1 dia"),
         "homePlanLastDay": MessageLookupByLibrary.simpleMessage("Últim dia"),
+        "homePlanCountdownLabel": MessageLookupByLibrary.simpleMessage("Queden"),
+        "homePlanUnitDays": MessageLookupByLibrary.simpleMessage("dies"),
+        "homePlanUnitWeeks": MessageLookupByLibrary.simpleMessage("setmanes"),
+        "homePlanUnitMonths": MessageLookupByLibrary.simpleMessage("mesos"),
         "homePlanEnd": mHomePlanEnd,
         "homePlanWeightLine": mHomePlanWeightLine,
         "homePlanWeightChange": mHomePlanWeightChange,

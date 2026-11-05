@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:opennutritracker/core/utils/date_picker_locale.dart';
 import 'package:opennutritracker/core/domain/entity/calories_profile_entity.dart';
 import 'package:opennutritracker/core/domain/entity/user_gender_entity.dart';
 import 'package:opennutritracker/core/presentation/sources_screen.dart';
@@ -239,7 +240,7 @@ class _OnboardingFirstPageBodyState extends State<OnboardingFirstPageBody> {
       // Open on the year grid so the birthday is actually chosen rather
       // than the pre-selected date being accepted with a single OK.
       initialDatePickerMode: DatePickerMode.year,
-      locale: const Locale('en', 'GB'),
+      locale: datePickerLocale(context),
     );
     if (pickedDate == null || !mounted) return;
     final formattedDate = _formatDdMmYyyy(pickedDate);

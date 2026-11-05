@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:opennutritracker/core/utils/date_picker_locale.dart';
 import 'package:opennutritracker/core/data/repository/config_repository.dart';
 import 'package:opennutritracker/core/domain/entity/body_measurement_entity.dart';
 import 'package:opennutritracker/core/domain/usecase/add_body_measurement_usecase.dart';
@@ -589,7 +590,7 @@ class _AddBodyMeasurementEntryDialogState extends State<_AddBodyMeasurementEntry
       initialDate: _date,
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
-      locale: const Locale('en', 'GB'),
+      locale: datePickerLocale(context),
     );
     if (picked != null) {
       setState(() => _date = picked);
@@ -705,6 +706,7 @@ class _AddBodyMeasurementEntryDialogState extends State<_AddBodyMeasurementEntry
                         kind: UserImageKind.progressPhoto,
                         imagePath: _pathForAngle(angle),
                         avatarSize: 68,
+                        showLabel: false,
                         semanticsIdentifierOverride: 'body-measurements-photo-picker-${angle.name}',
                         onPickFromGallery: () => _pickPhoto(angle, ImageSource.gallery),
                         onTakePhoto: () => _pickPhoto(angle, ImageSource.camera),

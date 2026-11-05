@@ -108,7 +108,14 @@ void main() {
     weights.entries = [weigh(0, 76), weigh(2, 75), weigh(10, 90)];
     await pump(tester);
     // 2026-12-01 to 2027-03-16.
-    expect(find.text('105 days left'), findsOneWidget);
+    // Days // weeks // months, one decimal, never rounded up.
+    expect(find.text('Time left'), findsOneWidget);
+    expect(find.text('105'), findsOneWidget);
+    expect(find.text('15.0'), findsOneWidget);
+    expect(find.text('3.4'), findsOneWidget);
+    expect(find.text('days'), findsOneWidget);
+    expect(find.text('weeks'), findsOneWidget);
+    expect(find.text('months'), findsOneWidget);
     expect(find.text('End: 16/03/2027'), findsOneWidget);
     expect(find.byType(LinearProgressIndicator), findsOneWidget);
     expect(find.text('-4.5 kg of 10 kg'), findsOneWidget);
@@ -119,7 +126,7 @@ void main() {
     await usecase.save(plan());
     var opened = 0;
     await pump(tester, onOpen: () => opened++);
-    await tester.tap(find.text('105 days left'));
+    await tester.tap(find.text('105'));
     expect(opened, 1);
     await teardown(tester);
   });
@@ -128,7 +135,8 @@ void main() {
     await usecase.save(DietPlanCalc.pause(plan(), DateTime(2026, 11, 20)));
     await pump(tester);
     expect(find.text('Paused'), findsOneWidget);
-    expect(find.textContaining('days left'), findsNothing);
+    expect(find.text('Time left'), findsNothing);
+    expect(find.text('days'), findsNothing);
     await teardown(tester);
   });
 
@@ -177,11 +185,12 @@ void main() {
     clock = DateTime(2026, 12, 1, 23, 59, 30);
     await usecase.save(plan());
     await pump(tester);
-    expect(find.text('105 days left'), findsOneWidget);
+    expect(find.text('105'), findsOneWidget);
     clock = DateTime(2026, 12, 2, 0, 0, 5);
     await tester.pump(const Duration(seconds: 36));
     await tester.pump();
-    expect(find.text('104 days left'), findsOneWidget);
+    expect(find.text('104'), findsOneWidget);
+    expect(find.text('14.8'), findsOneWidget);
     await teardown(tester);
   });
 }

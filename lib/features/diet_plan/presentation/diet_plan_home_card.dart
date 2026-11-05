@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:opennutritracker/core/data/repository/config_repository.dart';
 import 'package:opennutritracker/core/utils/calc/unit_calc.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
@@ -160,6 +161,7 @@ class _DietPlanHomeCardState extends State<DietPlanHomeCard> {
     Widget? body;
     var showEndActions = false;
     var showProgress = false;
+    int? countdownDays;
     if (reached) {
       title = s.homePlanReachedTitle;
       body = Text(s.homePlanReachedBody, style: theme.textTheme.bodyMedium);
@@ -171,7 +173,8 @@ class _DietPlanHomeCardState extends State<DietPlanHomeCard> {
       showEndActions = true;
     } else {
       final left = DietPlanCalc.daysLeft(plan, today);
-      title = left <= 0 ? s.homePlanLastDay : (left == 1 ? s.homePlanOneDayLeft : s.homePlanDaysLeft(left.toString()));
+      title = left <= 0 ? s.homePlanLastDay : (left == 1 ? s.homePlanOneDayLeft : s.homePlanCountdownLabel);
+      if (left > 1) countdownDays = left;
       showProgress = true;
     }
 
@@ -205,6 +208,7 @@ class _DietPlanHomeCardState extends State<DietPlanHomeCard> {
                         ],
                       ),
                       if (body != null) ...[const SizedBox(height: 8), body],
+                      if (countdownDays != null) ...[const SizedBox(height: 12), _Countdown(days: countdownDays)],
                       if (showProgress) ...[
                         const SizedBox(height: 12),
                         LinearProgressIndicator(
@@ -300,6 +304,57 @@ class _DietPlanHomeCardState extends State<DietPlanHomeCard> {
                 ),
               ),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Time left as three big figures: days // weeks // months.
+class _Countdown extends StatelessWidget {
+  final int days;
+
+  const _Countdown({required this.days});
+
+  /// Average Gregorian month, so 365 days read as 12 months.
+  static const _daysPerMonth = 365.2425 / 12;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = S.of(context);
+    final theme = Theme.of(context);
+    final locale = Localizations.localeOf(context).toLanguageTag();
+    final oneDecimal = NumberFormat.decimalPatternDigits(locale: locale, decimalDigits: 1);
+    String tenths(double v) => oneDecimal.format((v * 10).floor() / 10);
+    final figures = [
+      (days.toString(), s.homePlanUnitDays),
+      (tenths(days / 7), s.homePlanUnitWeeks),
+      (tenths(days / _daysPerMonth), s.homePlanUnitMonths),
+    ];
+    final numberStyle = theme.textTheme.headlineMedium?.copyWith(
+      fontWeight: FontWeight.w700,
+      color: theme.colorScheme.primary,
+    );
+    final separator = Text('//', style: theme.textTheme.titleLarge?.copyWith(color: theme.colorScheme.outline));
+    return Semantics(
+      identifier: 'home-diet-plan-countdown',
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          for (var i = 0; i < figures.length; i++) ...[
+            if (i > 0) separator,
+            Expanded(
+              child: Column(
+                children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(figures[i].$1, style: numberStyle),
+                  ),
+                  Text(figures[i].$2, style: theme.textTheme.labelMedium),
+                ],
+              ),
+            ),
+          ],
         ],
       ),
     );

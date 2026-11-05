@@ -18,6 +18,10 @@ class SyncedBox<T> {
   final T Function(Map<String, dynamic> json) fromJson;
   final bool naturalKey;
 
+  /// Copies device-only fields from the local record onto an incoming one
+  /// before it is stored (those fields are also left out of [toJson]).
+  final T Function(T incoming, T? local)? keepLocal;
+
   const SyncedBox({
     required this.name,
     required this.box,
@@ -25,6 +29,7 @@ class SyncedBox<T> {
     required this.toJson,
     required this.fromJson,
     this.naturalKey = false,
+    this.keepLocal,
   });
 
   String encode(T value) => jsonEncode(toJson(value));
@@ -45,6 +50,8 @@ class SyncedBox<T> {
 
   Future<void> put(String identity, T value, Map<String, dynamic> index) async {
     final existingKey = index[identity];
+    final merge = keepLocal;
+    if (merge != null) value = merge(value, existingKey == null ? null : box.get(existingKey));
     if (existingKey != null) {
       await box.put(existingKey, value);
     } else if (naturalKey) {

@@ -1378,6 +1378,10 @@
   "reviewTabExpenditure": "Expenditure",
   "reviewTabAdherence": "Adherence",
   "reviewTabDiary": "Diary",
+  "reviewTabPhotos": "Photos",
+  "reviewPhotosChange": "Change",
+  "reviewPhotosEmpty": "No progress photos for this angle yet. Add them from Body measurements.",
+  "reviewPhotosNeedSecond": "Add at least one more photo from this angle to compare.",
   "reviewRange7": "7 d",
   "reviewRange30": "30 d",
   "reviewRange90": "90 d",
@@ -1552,6 +1556,10 @@
   },
   "homePlanOneDayLeft": "1 day left",
   "homePlanLastDay": "Last day",
+  "homePlanCountdownLabel": "Time left",
+  "homePlanUnitDays": "days",
+  "homePlanUnitWeeks": "weeks",
+  "homePlanUnitMonths": "months",
   "homePlanEnd": "End: {date}",
   "@homePlanEnd": {
     "placeholders": {

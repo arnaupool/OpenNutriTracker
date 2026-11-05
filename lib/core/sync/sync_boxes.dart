@@ -1,3 +1,4 @@
+import 'package:hive_ce/hive.dart';
 import 'package:opennutritracker/core/data/data_source/custom_activity_template_dbo.dart';
 import 'package:opennutritracker/core/data/data_source/user_activity_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/body_measurement_dbo.dart';
@@ -24,14 +25,7 @@ import 'package:opennutritracker/features/reminders/data/reminder_dbo.dart';
 /// encrypted through the account photo store instead
 /// (photo_sync/photo_sync_service.dart), and in the zip backup.
 List<SyncedBox<dynamic>> buildSyncedBoxes(HiveDBProvider db) => [
-  SyncedBox<ConfigDBO>(
-    name: HiveDBProvider.configBoxName,
-    box: db.configBox,
-    identityOf: (_, key) => key?.toString(),
-    toJson: (v) => v.toJson(),
-    fromJson: ConfigDBO.fromJson,
-    naturalKey: true,
-  ),
+  configSyncedBox(db.configBox),
   SyncedBox<UserDBO>(
     name: HiveDBProvider.userBoxName,
     box: db.userBox,
@@ -165,3 +159,17 @@ List<SyncedBox<dynamic>> buildSyncedBoxes(HiveDBProvider db) => [
     naturalKey: true,
   ),
 ];
+
+/// The settings record. The app language is per device: a phone in Spanish
+/// and a browser that never picked one must not overwrite each other's
+/// choice, so it never leaves the device and an incoming copy keeps the
+/// local value.
+SyncedBox<ConfigDBO> configSyncedBox(Box<ConfigDBO> box) => SyncedBox<ConfigDBO>(
+  name: HiveDBProvider.configBoxName,
+  box: box,
+  identityOf: (_, key) => key?.toString(),
+  toJson: (v) => v.toJson()..remove('selectedLocale'),
+  fromJson: ConfigDBO.fromJson,
+  naturalKey: true,
+  keepLocal: (incoming, local) => incoming..selectedLocale = local?.selectedLocale,
+);

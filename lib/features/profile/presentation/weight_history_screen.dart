@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:opennutritracker/core/utils/date_picker_locale.dart';
 import 'package:opennutritracker/core/data/repository/config_repository.dart';
 import 'package:opennutritracker/core/domain/entity/weight_log_entity.dart';
 import 'package:opennutritracker/core/domain/usecase/add_weight_log_usecase.dart';
@@ -539,7 +540,7 @@ class _AddWeightEntryDialogState extends State<_AddWeightEntryDialog> {
       initialDate: _date,
       firstDate: DateTime(1900),
       lastDate: DateTime.now(),
-      locale: const Locale('en', 'GB'),
+      locale: datePickerLocale(context),
     );
     if (picked != null) {
       setState(() => _date = picked);

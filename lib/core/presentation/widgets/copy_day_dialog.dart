@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:opennutritracker/core/utils/date_picker_locale.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 
 /// Date-range picker for [DayInfoWidget]'s "repeat day" action — every
@@ -31,9 +32,9 @@ class _CopyDayDialogState extends State<CopyDayDialog> {
       initialDateRange: _selectedRange,
       firstDate: DateTime(1900),
       lastDate: DateTime(2100),
-      // Fixed day-first format regardless of device locale, same as every
-      // other date picker in the app (see onboarding/profile/weight-history).
-      locale: const Locale('en', 'GB'),
+      // Day-first format (see datePickerLocale), same as every
+      // other date picker in the app.
+      locale: datePickerLocale(context),
     );
     if (picked != null) {
       setState(() => _selectedRange = picked);

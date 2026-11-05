@@ -1408,6 +1408,10 @@
   "reviewTabExpenditure": "Gasto",
   "reviewTabAdherence": "Adherencia",
   "reviewTabDiary": "Diario",
+  "reviewTabPhotos": "Fotos",
+  "reviewPhotosChange": "Cambiar",
+  "reviewPhotosEmpty": "Aún no hay fotos de progreso con este ángulo. Añádelas desde Medidas corporales.",
+  "reviewPhotosNeedSecond": "Añade al menos una foto más de este ángulo para poder comparar.",
   "reviewRange7": "7 d",
   "reviewRange30": "30 d",
   "reviewRange90": "90 d",
@@ -1600,6 +1604,10 @@
   },
   "homePlanOneDayLeft": "Queda 1 día",
   "homePlanLastDay": "Último día",
+  "homePlanCountdownLabel": "Quedan",
+  "homePlanUnitDays": "días",
+  "homePlanUnitWeeks": "semanas",
+  "homePlanUnitMonths": "meses",
   "homePlanEnd": "Fin: {date}",
   "@homePlanEnd": {
     "placeholders": {
