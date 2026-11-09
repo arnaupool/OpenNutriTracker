@@ -11,6 +11,7 @@ import 'package:opennutritracker/core/data/dbo/meal_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/meal_nutriments_dbo.dart';
 import 'package:opennutritracker/core/domain/entity/intake_entity.dart';
 import 'package:opennutritracker/core/domain/entity/intake_type_entity.dart';
+import 'package:opennutritracker/features/add_meal/domain/entity/meal_entity.dart';
 import 'package:opennutritracker/core/domain/usecase/add_intake_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/add_tracked_day_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_kcal_goal_usecase.dart';
@@ -23,6 +24,7 @@ import 'package:opennutritracker/core/utils/energy_unit_provider.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_data_source.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dart';
 import 'package:opennutritracker/features/meal_plan/domain/log_meal_plan_usecase.dart';
+import 'package:opennutritracker/features/meal_plan/domain/meal_plan_calc.dart';
 import 'package:opennutritracker/features/meal_plan/presentation/planned_intake_card.dart';
 import 'package:opennutritracker/generated/l10n.dart';
 import 'package:provider/provider.dart';
@@ -398,6 +400,34 @@ void main() {
       await tester.runAsync(() => r.plan.delete('a'));
       await tester.pump();
       expect(find.text('PLANIFICADO'), findsNothing);
+    });
+  });
+
+  group('a plan day counts what is already in the diary', () {
+    IntakeEntity intake(String id, double grams) => IntakeEntity(
+      id: id,
+      unit: 'g',
+      amount: grams,
+      type: IntakeTypeEntity.lunch,
+      meal: MealEntity.fromMealDBO(_meal('Bread', kcal100: 250)),
+      dateTime: DateTime(2031, 3, 14, 13),
+    );
+
+    test('diary intakes plus pending entries; confirmed counts once, discarded never', () {
+      final pending = _entry('a', grams: 200); // 200 kcal
+      final confirmed = _entry('b', grams: 100).copyWith(loggedAt: DateTime(2031, 3, 14, 12)); // 100 kcal
+      final discarded = _entry('c', grams: 300).copyWith(discardedAt: DateTime(2031, 3, 14, 12));
+      final diary = [
+        intake('own', 100), // 250 kcal logged straight in the diary
+        intake('plan-b', 100), // the intake confirming entry b (100 g at 250 kcal/100 g here)
+      ];
+      final totals = MealPlanCalc.dayTotals([pending, confirmed, discarded], diary);
+      expect(totals.kcal, closeTo(200 + 250 + 250, 0.001));
+    });
+
+    test('only intakes not created from the plan are listed separately', () {
+      final listed = MealPlanCalc.diaryOnly([intake('own', 50), intake('plan-b', 100)]);
+      expect(listed.map((i) => i.id), ['own']);
     });
   });
 }

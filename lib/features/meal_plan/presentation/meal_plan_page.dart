@@ -12,10 +12,13 @@ import 'package:opennutritracker/core/data/dbo/intake_type_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/meal_dbo.dart';
 import 'package:opennutritracker/core/data/repository/intake_repository.dart';
 import 'package:opennutritracker/core/data/repository/recipe_repository.dart';
+import 'package:opennutritracker/core/domain/entity/intake_entity.dart';
+import 'package:opennutritracker/core/domain/usecase/get_config_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_kcal_goal_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_macro_goal_usecase.dart';
 import 'package:opennutritracker/core/domain/usecase/get_tracked_day_usecase.dart';
 import 'package:opennutritracker/core/utils/calc/calendar_day_calc.dart';
+import 'package:opennutritracker/core/utils/calc/day_boundary_calc.dart';
 import 'package:opennutritracker/core/utils/id_generator.dart';
 import 'package:opennutritracker/core/utils/locator.dart';
 import 'package:opennutritracker/features/diary/presentation/bloc/calendar_day_bloc.dart';
@@ -76,6 +79,9 @@ class _MealPlanPageState extends State<MealPlanPage> {
   final MealPlanDataSource _plan = locator<MealPlanDataSource>();
   late DateTime _weekStart = _mondayOf(DateTime.now());
   List<MealPlanEntryDBO> _entries = [];
+
+  /// The week's diary intakes by logical day (day-start offset applied).
+  Map<DateTime, List<IntakeEntity>> _diary = {};
   Map<DateTime, _DayGoal> _goals = {};
   _DayGoal? _defaultGoal;
   bool _loading = true;
@@ -101,15 +107,32 @@ class _MealPlanPageState extends State<MealPlanPage> {
       CalendarDayCalc.addDays(weekEnd, 1),
     );
     _defaultGoal ??= await _currentGoal();
+    final diary = await _diaryByDay(_weekStart, weekEnd);
     if (!mounted) return;
     setState(() {
       _entries = entries;
+      _diary = diary;
       _goals = {
         for (final d in tracked)
           DateTime(d.day.year, d.day.month, d.day.day): _DayGoal(d.calorieGoal, d.proteinGoal, d.carbsGoal, d.fatGoal),
       };
       _loading = false;
     });
+  }
+
+  Future<Map<DateTime, List<IntakeEntity>>> _diaryByDay(DateTime from, DateTime to) async {
+    final offset = (await locator<GetConfigUsecase>().getConfig()).dayStartOffsetTotalMinutes;
+    final result = <DateTime, List<IntakeEntity>>{};
+    for (final dbo in await locator<IntakeRepository>().getAllIntakesDBO()) {
+      final intake = IntakeEntity.fromIntakeDBO(dbo);
+      final day = DayBoundaryCalc.logicalDayOfMinutes(intake.dateTime, offset);
+      if (day.isBefore(from) || day.isAfter(to)) continue;
+      result.putIfAbsent(DateTime(day.year, day.month, day.day), () => []).add(intake);
+    }
+    for (final list in result.values) {
+      list.sort((a, b) => a.dateTime.compareTo(b.dateTime));
+    }
+    return result;
   }
 
   Future<_DayGoal> _currentGoal() async {
@@ -209,7 +232,8 @@ class _MealPlanPageState extends State<MealPlanPage> {
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).toLanguageTag();
     final entries = _entries.where((e) => DateUtils.isSameDay(e.day, day)).toList();
-    final totals = MealPlanCalc.totals(entries);
+    final diary = _diary[day] ?? const <IntakeEntity>[];
+    final totals = MealPlanCalc.dayTotals(entries, diary);
     final goal = _goals[day] ?? _defaultGoal;
     final pending = entries.where((e) => e.isPending).length;
     final today = DateUtils.dateOnly(DateTime.now());
@@ -246,7 +270,8 @@ class _MealPlanPageState extends State<MealPlanPage> {
                 style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
             ],
-            for (final type in IntakeTypeDBO.values) ..._mealSection(context, day, type, entries),
+            for (final type in IntakeTypeDBO.values)
+              ..._mealSection(context, day, type, entries, MealPlanCalc.diaryOnly(diary)),
             if (pending > 0 && !day.isAfter(today)) ...[
               const SizedBox(height: 8),
               Semantics(
@@ -267,9 +292,16 @@ class _MealPlanPageState extends State<MealPlanPage> {
   String _macro(double value, double? goal) =>
       goal == null ? value.round().toString() : '${value.round()}/${goal.round()}';
 
-  List<Widget> _mealSection(BuildContext context, DateTime day, IntakeTypeDBO type, List<MealPlanEntryDBO> entries) {
+  List<Widget> _mealSection(
+    BuildContext context,
+    DateTime day,
+    IntakeTypeDBO type,
+    List<MealPlanEntryDBO> entries,
+    List<IntakeEntity> diary,
+  ) {
     final theme = Theme.of(context);
     final mealEntries = entries.where((e) => e.type == type).toList();
+    final mealDiary = diary.where((i) => i.type.name == type.name).toList();
     return [
       const SizedBox(height: 8),
       Row(
@@ -286,6 +318,32 @@ class _MealPlanPageState extends State<MealPlanPage> {
           ),
         ],
       ),
+      // Logged straight in the diary: shown so the day reads complete, but
+      // edited or removed from the Diary, not here.
+      for (final i in mealDiary)
+        Semantics(
+          identifier: 'plan-diary-intake',
+          child: Tooltip(
+            message: S.of(context).planFromDiary,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Row(
+                children: [
+                  Icon(Icons.menu_book_outlined, size: 16, color: theme.colorScheme.primary),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '${i.meal.name ?? ''} · ${i.amount.round()} ${i.unit} · ${i.totalKcal.round()} kcal',
+                      style: theme.textTheme.bodySmall,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       for (final e in mealEntries)
         Row(
           children: [

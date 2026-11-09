@@ -1,5 +1,6 @@
 import 'package:opennutritracker/core/data/dbo/meal_dbo.dart';
 import 'package:opennutritracker/core/data/dbo/recipe_dbo.dart';
+import 'package:opennutritracker/core/domain/entity/intake_entity.dart';
 import 'package:opennutritracker/features/meal_plan/data/meal_plan_entry_dbo.dart';
 
 class PlanTotals {
@@ -40,6 +41,27 @@ class MealPlanCalc {
 
   static PlanTotals totals(Iterable<MealPlanEntryDBO> entries) =>
       entries.fold(PlanTotals.zero, (sum, e) => sum + totalsOf(e));
+
+  /// Id prefix of the diary intake a confirmed plan entry creates
+  /// (LogMealPlanUsecase).
+  static const planIntakePrefix = 'plan-';
+
+  /// Diary intakes the user logged on their own, i.e. not created by
+  /// confirming a plan entry (those already show as the checked entry).
+  static List<IntakeEntity> diaryOnly(Iterable<IntakeEntity> intakes) =>
+      intakes.where((i) => !i.id.startsWith(planIntakePrefix)).toList();
+
+  static PlanTotals totalsOfIntake(IntakeEntity intake) =>
+      PlanTotals(intake.totalKcal, intake.totalProteinsGram, intake.totalCarbsGram, intake.totalFatsGram);
+
+  /// A day as it is shaping up: everything already in the diary (including
+  /// confirmed plan entries) plus the plan entries still pending. Discarded
+  /// entries count for nothing, and a confirmed entry counts once, through
+  /// its diary intake.
+  static PlanTotals dayTotals(Iterable<MealPlanEntryDBO> entries, Iterable<IntakeEntity> diaryIntakes) {
+    final eaten = diaryIntakes.fold(PlanTotals.zero, (sum, i) => sum + totalsOfIntake(i));
+    return eaten + totals(entries.where((e) => e.isPending));
+  }
 
   /// What to buy for [entries]: a planned recipe is broken down into its
   /// ingredients, scaled from the recipe's total weight to the planned

@@ -2366,6 +2366,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "Añadir"),
         "planLogDay": MessageLookupByLibrary.simpleMessage(
             "Registrar plan"),
+        "planFromDiary": MessageLookupByLibrary.simpleMessage("Registrado en el Diario"),
         "planLogged": mPlanLogged,
         "planGoalValue": mPlanGoalValue,
         "planTodayTitle": MessageLookupByLibrary.simpleMessage(

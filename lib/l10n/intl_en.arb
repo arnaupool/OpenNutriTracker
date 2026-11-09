@@ -1433,6 +1433,7 @@
   "planAmountLabel": "Amount",
   "planAddAction": "Add",
   "planLogDay": "Log plan",
+  "planFromDiary": "Logged in the diary",
   "planLogged": "Logged in the diary: {count}",
   "@planLogged": {
     "placeholders": {

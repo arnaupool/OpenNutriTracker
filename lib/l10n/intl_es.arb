@@ -1465,6 +1465,7 @@
   "planAmountLabel": "Cantidad",
   "planAddAction": "Añadir",
   "planLogDay": "Registrar plan",
+  "planFromDiary": "Registrado en el Diario",
   "planLogged": "Registradas en el diario: {count}",
   "@planLogged": {
     "placeholders": {

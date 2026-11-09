@@ -1739,6 +1739,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "planAmountLabel": MessageLookupByLibrary.simpleMessage("Amount"),
         "planAddAction": MessageLookupByLibrary.simpleMessage("Add"),
         "planLogDay": MessageLookupByLibrary.simpleMessage("Log plan"),
+        "planFromDiary": MessageLookupByLibrary.simpleMessage("Logged in the diary"),
         "planLogged": mPlanLogged,
         "planGoalValue": mPlanGoalValue,
         "planTodayTitle": MessageLookupByLibrary.simpleMessage("Today's plan"),

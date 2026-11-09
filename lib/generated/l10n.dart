@@ -10119,6 +10119,16 @@ class S {
     );
   }
 
+  /// `Logged in the diary`
+  String get planFromDiary {
+    return Intl.message(
+      "Logged in the diary",
+      name: 'planFromDiary',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `Logged in the diary: {count}`
   String planLogged(String count) {
     return Intl.message(
